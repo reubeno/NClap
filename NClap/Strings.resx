@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BadArgumentValue" xml:space="preserve">
+    <value>'{0}' is not a valid value for the '{1}' command line option.</value>
+  </data>
+  <data name="BadArgumentValueWithReason" xml:space="preserve">
+    <value>'{0}' is not a valid value for the '{1}' command line option.
+Reason:
+    {2}</value>
+  </data>
+  <data name="BadValidationAttribute" xml:space="preserve">
+    <value>A '{0}' validation attribute may not be applied to a field or property of type '{1}'.</value>
+  </data>
+  <data name="CannotReadArgumentAnswerFile" xml:space="preserve">
+    <value>Can't open command line argument file '{0}' : '{1}'.</value>
+  </data>
+  <data name="ConflictingArgument" xml:space="preserve">
+    <value>The specified value of '{0}' for argument '{1}' conflicts with the use of argument '{2}'.  These arguments may not both be specified.</value>
+  </data>
+  <data name="ConflictingMemberNotFound" xml:space="preserve">
+    <value>Can't find argument member '{0}' referenced by the 'ConflictsWith' attribute attached to member '{1}'.</value>
+  </data>
+  <data name="ConstituentTypeNotSupported" xml:space="preserve">
+    <value>One or more of the constituent types of '{0}' are not supported as argument types.</value>
+  </data>
+  <data name="DefaultPrompt" xml:space="preserve">
+    <value>&gt; </value>
+  </data>
+  <data name="DefaultValueIsOfWrongType" xml:space="preserve">
+    <value>The default value for member '{0}' is of type '{1}' but must be of type '{2}'.</value>
+  </data>
+  <data name="DirectoryDoesNotExist" xml:space="preserve">
+    <value>The directory does not exist.</value>
+  </data>
+  <data name="DuplicateArgument" xml:space="preserve">
+    <value>Duplicate '{0}' argument '{1}'.</value>
+  </data>
+  <data name="DuplicateArgumentLongName" xml:space="preserve">
+    <value>Duplicate argument long name specification: {0}.</value>
+  </data>
+  <data name="DuplicateArgumentShortName" xml:space="preserve">
+    <value>Duplicate argument short name specification: {0}.</value>
+  </data>
+  <data name="DuplicatePositionArguments" xml:space="preserve">
+    <value>Multiple default arguments with the same position index were seen.</value>
+  </data>
+  <data name="ElementTypeNotSupported" xml:space="preserve">
+    <value>The element type of '{0}' is not supported as an argument type.</value>
+  </data>
+  <data name="EnumValueLongNameIsInvalid" xml:space="preserve">
+    <value>The long name specified for an enum type's value is invalid or already in use.</value>
+  </data>
+  <data name="EnumValueShortNameIsInvalid" xml:space="preserve">
+    <value>The short name specified for an enum type's value is invalid or already in use.</value>
+  </data>
+  <data name="ExceptionWasThrownParsingInputLine" xml:space="preserve">
+    <value>Invalid input:
+{0}</value>
+  </data>
+  <data name="FileDoesNotExist" xml:space="preserve">
+    <value>The file does not exist.</value>
+  </data>
+  <data name="ImplementingTypeNotIVerb" xml:space="preserve">
+    <value>The implementing type for this verb ('{0}') does not implement the '{1}' interface.</value>
+  </data>
+  <data name="InvalidArgumentLongName" xml:space="preserve">
+    <value>An invalid argument long name was found.</value>
+  </data>
+  <data name="InvalidUsage" xml:space="preserve">
+    <value>Invalid usage.</value>
+  </data>
+  <data name="MemberNotSupported" xml:space="preserve">
+    <value>Member '{0}' in type '{1}' cannot be associated with an argument.</value>
+  </data>
+  <data name="MissingRequiredNamedArgument" xml:space="preserve">
+    <value>Missing required named argument '/{0}'.</value>
+  </data>
+  <data name="MissingRequiredPositionalArgument" xml:space="preserve">
+    <value>Missing required positional argument '&lt;{0}&gt;'.</value>
+  </data>
+  <data name="NoAccessibleParameterlessConstructor" xml:space="preserve">
+    <value>Type '{0}' does not implement an accessible parameterless constructor.</value>
+  </data>
+  <data name="NoHelpAvailable" xml:space="preserve">
+    <value>No help information available.</value>
+  </data>
+  <data name="NonConsecutivePositionalParameters" xml:space="preserve">
+    <value>The positional arguments are not consecutively indexed.</value>
+  </data>
+  <data name="PathDoesNotExist" xml:space="preserve">
+    <value>The path does exist as a file or directory.</value>
+  </data>
+  <data name="PathExists" xml:space="preserve">
+    <value>The path exists.</value>
+  </data>
+  <data name="StringDoesNotMatchRegEx" xml:space="preserve">
+    <value>The value does not match the regular expression '{0}'.</value>
+  </data>
+  <data name="StringIsEmpty" xml:space="preserve">
+    <value>The provided string is empty.</value>
+  </data>
+  <data name="StringMatchesRegEx" xml:space="preserve">
+    <value>The value matches the regular expression '{0}'.</value>
+  </data>
+  <data name="TerminatingQuotesNotEndOfToken" xml:space="preserve">
+    <value>Terminating quotes not followed by white space or end of string.</value>
+  </data>
+  <data name="TooFewElementsInTupleString" xml:space="preserve">
+    <value>Too few elements in the tuple string.</value>
+  </data>
+  <data name="TypeNotSupported" xml:space="preserve">
+    <value>Type '{0}' is not supported for arguments.</value>
+  </data>
+  <data name="UniqueUsedOnNonCollectionArgument" xml:space="preserve">
+    <value>Unique is only applicable to collection arguments.</value>
+  </data>
+  <data name="UnreadableFile" xml:space="preserve">
+    <value>Unable to read or parse argument answer file '{0}'.</value>
+  </data>
+  <data name="UnrecognizedArgument" xml:space="preserve">
+    <value>Unrecognized command line argument '{0}'.</value>
+  </data>
+  <data name="UnrecognizedVerb" xml:space="preserve">
+    <value>'{0}' is not a recognized verb.</value>
+  </data>
+  <data name="UnterminatedQuotes" xml:space="preserve">
+    <value>Unterminated quotes found.</value>
+  </data>
+  <data name="UsageInfoDescriptionHeader" xml:space="preserve">
+    <value>DESCRIPTION</value>
+  </data>
+  <data name="UsageInfoExamplesHeader" xml:space="preserve">
+    <value>EXAMPLES</value>
+  </data>
+  <data name="UsageInfoNameHeader" xml:space="preserve">
+    <value>NAME</value>
+  </data>
+  <data name="UsageInfoOptionalParametersHeader" xml:space="preserve">
+    <value>OPTIONAL PARAMETERS</value>
+  </data>
+  <data name="UsageInfoRequiredParametersHeader" xml:space="preserve">
+    <value>REQUIRED PARAMETERS</value>
+  </data>
+  <data name="UsageInfoSyntaxHeader" xml:space="preserve">
+    <value>SYNTAX</value>
+  </data>
+  <data name="ValidVerbsHeader" xml:space="preserve">
+    <value>Valid verbs:
+{0}</value>
+  </data>
+  <data name="ValueIsNotGreaterThan" xml:space="preserve">
+    <value>The value is not greater than '{0}'.</value>
+  </data>
+  <data name="ValueIsNotGreaterThanOrEqualTo" xml:space="preserve">
+    <value>The value is not greater than or equal to '{0}'.</value>
+  </data>
+  <data name="ValueIsNotLessThan" xml:space="preserve">
+    <value>The value is not less than '{0}'.</value>
+  </data>
+  <data name="ValueIsNotLessThanOrEqualTo" xml:space="preserve">
+    <value>The value is not less than or equal to '{0}'.</value>
+  </data>
+  <data name="ValueMayNotBe" xml:space="preserve">
+    <value>The value not be equal to '{0}'.</value>
+  </data>
+</root>

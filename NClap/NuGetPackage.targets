@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(NCrunch)' == ''">
+    <PostBuildEvent>
+cmd /c del "$([System.IO.Path]::Combine($(ProjectDir), $(OutDir), "$(ProjectName)*.nupkg"))"
+"$(ProjectDir)..\external\NuGet\nuget.exe" pack "$(ProjectPath)" -symbols -verbose -outputdirectory "$([System.IO.Path]::Combine($(ProjectDir), $(OutDir), "."))" -prop "Configuration=$(Configuration)" -prop "OutDir=$([System.IO.Path]::Combine($(ProjectDir), $(OutDir), "."))"
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

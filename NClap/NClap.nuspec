@@ -1,0 +1,18 @@
+<?xml version="1.0" ?> 
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>NClap</id> 
+    <version>1.1.2</version> 
+    <authors>reubeno</authors>
+    <owners>reubeno</owners>
+    <tags>NClap .NET Command Line Argument Parser Interactive Shell</tags>
+    <licenseUrl>http://reubeno.github.io/NClap/LICENSE.txt</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>
+        NClap can be used to parse command-line arguments or to build a simple interactive command shell. It is primarily driven by .NET attributes (and thus reflection). It has no external dependencies, and is designed with an aim toward extensibility and testability.
+    </description> 
+    <summary>$description$</summary> 
+    <language>en-US</language>
+    <copyright>Copyright (c) Microsoft Corporation. All right reserved.</copyright>
+  </metadata>
+</package>
