@@ -7,6 +7,7 @@
     <owners>reubeno</owners>
     <tags>NClap .NET Command Line Argument Parser Interactive Shell</tags>
     <licenseUrl>http://reubeno.github.io/NClap/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/reubeno/NClap</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>
         NClap can be used to parse command-line arguments or to build a simple interactive command shell. It is primarily driven by .NET attributes (and thus reflection). It has no external dependencies, and is designed with an aim toward extensibility and testability.

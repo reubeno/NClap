@@ -1,9 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(NCrunch)' == ''">
-    <PostBuildEvent>
-cmd /c del "$([System.IO.Path]::Combine($(ProjectDir), $(OutDir), "$(ProjectName)*.nupkg"))"
-"$(ProjectDir)..\external\NuGet\nuget.exe" pack "$(ProjectPath)" -symbols -verbose -outputdirectory "$([System.IO.Path]::Combine($(ProjectDir), $(OutDir), "."))" -prop "Configuration=$(Configuration)" -prop "OutDir=$([System.IO.Path]::Combine($(ProjectDir), $(OutDir), "."))"
-    </PostBuildEvent>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <BuildPackage>true</BuildPackage>
+    <RequireRestoreConsent>false</RequireRestoreConsent>
+    <DownloadNuGetExe>true</DownloadNuGetExe>
+    <PackageOutputDir>$(OutputPath).</PackageOutputDir>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\packages\NuGet.Build.2.8.6\tools\NuGet.targets" Condition="Exists('$(SolutionDir)\packages\NuGet.Build.2.8.6\tools\NuGet.targets')" />
+  <Target Name="CreateFoldersNeeded" BeforeTargets="CheckPrerequisites">
+      <MakeDir Directories="$(SolutionDir)\.nuget" />
+  </Target>
+  <Target Name="OtherEnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\packages\NuGet.Build.2.8.6\tools\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\NuGet.Build.2.8.6\tools\NuGet.targets'))" />
+  </Target>
 </Project>
