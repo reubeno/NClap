@@ -59,7 +59,7 @@ build:
 #      artifacts configuration    #
 #---------------------------------#
 
-artifacts:
+# artifacts:
 
   # pushing a single file
   # - path: test.zip
