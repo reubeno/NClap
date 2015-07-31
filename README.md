@@ -7,7 +7,12 @@ command shells. It's driven by a declarative attribute syntax, and easy to exten
 
 ## License
 
-NClap is shared under the MIT license, as described in LICENSE.txt.
+NClap is shared under the MIT license, as described in [LICENSE.txt](https://reubeno.github.io/NClap/LICENSE.txt).
+
+
+## Getting NClap
+
+The easiest way to consume NClap is by adding its [NuGet package](https://www.nuget.org/packages/NClap) to your project.
 
 
 ## Laundry list of features

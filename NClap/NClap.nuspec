@@ -6,7 +6,7 @@
     <authors>reubeno</authors>
     <owners>reubeno</owners>
     <tags>NClap .NET Command Line Argument Parser Interactive Shell</tags>
-    <licenseUrl>http://reubeno.github.io/NClap/LICENSE.txt</licenseUrl>
+    <licenseUrl>https://reubeno.github.io/NClap/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/reubeno/NClap</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>
