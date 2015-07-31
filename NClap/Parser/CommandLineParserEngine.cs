@@ -352,7 +352,7 @@ namespace NClap.Parser
                 {
                     builder.AppendLine();
                     appendHeader(Strings.UsageInfoRemarksHeader);
-                    appendLine(string.Format(Strings.UsageInfoHelpAdvertisement, name, $"{namedArgPrefix}{defaultHelpArgumentName}"));
+                    appendLine(string.Format(Strings.UsageInfoHelpAdvertisement, $"{name} {namedArgPrefix}{defaultHelpArgumentName}"));
                 }
             }
 
