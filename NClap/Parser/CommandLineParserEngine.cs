@@ -246,6 +246,26 @@ namespace NClap.Parser
                 appendLine(_setAttribute.AdditionalHelp);
             }
 
+            // Define a private lambda to simplify parameter syntax.
+            Func<string, string> simplifyParameterSyntax = s =>
+            {
+                //
+                // We add logic here to trim out a single pair of enclosing
+                // square brackets if it's present -- it's just noisy here.
+                // The containing section already makes it sufficiently clear
+                // whether the parameter is required or optional.
+                //
+                // TODO: Make this logic more generic, and put it elsewhere.
+                //
+
+                if (s.StartsWith("[") && s.EndsWith("]"))
+                {
+                    s = s.Substring(1, s.Length - 2);
+                }
+
+                return s;
+            };
+
             // Define a private lambda that appends parameter info.
             Action<IEnumerable<ArgumentUsageInfo>> appendParametersSection = argsInfo =>
             {
@@ -259,7 +279,7 @@ namespace NClap.Parser
                     }
 
                     // Append parameter syntax info.
-                    appendLine(new ColoredString(argInfo.Syntax, paramSyntaxFgColor));
+                    appendLine(new ColoredString(simplifyParameterSyntax(argInfo.Syntax), paramSyntaxFgColor));
 
                     // If both are present (and requested to be displayed), we
                     // combine the short name and default value onto the same
