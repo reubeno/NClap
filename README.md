@@ -2,13 +2,12 @@
 
 NClap is a .NET class library that helps applications:
 
-1. Parse string arguments, say for use in command lines.
+1. Parse string arguments (e.g. for command lines).
 2. Build simple interactive command shells.
 
 NClap primarily driven by .NET attributes (and thus reflection). The core NClap
-assembly does not have any external dependencies, and is designed to be
-extensible and testable.  For example, it can be used to build an interactive
-command shell that does not use the console.
+assembly doesn't have any external dependencies, and is designed to be easily
+extensible.
 
 ## License
 
@@ -42,7 +41,7 @@ For all of these types, NClap supports:
 * Optional arguments
 * Required arguments
 * Multiply-specified arguments
-* Arguments with default types
+* Arguments with default values
 * Auto-generating usage info help for argument sets
 * Attribute-driven argument validation (e.g. `MustBeGreaterThanAttribute`, `MustMatchRegExAttribute`, `MustNotBeEmptyAttribute`)
 * Custom argument validation (i.e. properties with custom `get` and `set` accessors)
