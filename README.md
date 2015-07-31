@@ -2,8 +2,13 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ay9tjpxor3n4gv1i/branch/master?svg=true)](https://ci.appveyor.com/project/reubeno/nclap/branch/master)
 
-NClap is a .NET library for parsing command-line arguments and building interactive
+Welcome! NClap is a .NET library for parsing command-line arguments and building interactive
 command shells. It's driven by a declarative attribute syntax, and easy to extend.
+
+It's also very much under active development, and we welcome contributions! We're still writing
+some notes and tips about contributing to the project, how to run our unit tests, etc. But in the
+meantime, don't be shy. Please go right ahead and file issues, drop us a line, submit pull requests,
+etc.
 
 ## License
 
