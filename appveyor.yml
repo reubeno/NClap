@@ -37,6 +37,7 @@ cache:
 platform: Any CPU
 
 # build Configuration, i.e. Debug, Release, etc.
+configuration:
   - Debug
   - Release
 
