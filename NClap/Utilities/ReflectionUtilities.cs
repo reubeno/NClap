@@ -11,6 +11,8 @@ namespace NClap.Utilities
     /// </summary>
     static class ReflectionUtilities
     {
+        private const string ImplicitConversionMethodName = "op_Implicit";
+
         /// <summary>
         /// Retrieves the fields and properties from the provided type.
         /// </summary>
@@ -52,7 +54,18 @@ namespace NClap.Utilities
         {
             if (sourceValue != null)
             {
-                if (destType.GetMethod("op_Implicit", new[] { sourceValue.GetType() }) != null)
+                var method = destType.GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
+                if ((method != null) &&
+                    method.IsStatic &&
+                    (method.ReturnType == destType))
+                {
+                    return true;
+                }
+
+                method = sourceValue.GetType().GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
+                if ((method != null) &&
+                    method.IsStatic &&
+                    (method.ReturnType == destType))
                 {
                     return true;
                 }
@@ -89,12 +102,33 @@ namespace NClap.Utilities
         {
             if (sourceValue != null)
             {
-                var implicitConversionMethod = destType.GetMethod("op_Implicit", new[] { sourceValue.GetType() });
-                if (implicitConversionMethod != null)
+                var implicitConversionMethod = destType
+                    .GetMethod(ImplicitConversionMethodName, new[] { sourceValue.GetType() });
+
+                if ((implicitConversionMethod != null) &&
+                    implicitConversionMethod.IsStatic &&
+                    implicitConversionMethod.ReturnType == destType)
                 {
                     try
                     {
                         convertedValue = implicitConversionMethod.Invoke(null, new[] { sourceValue });
+                        return true;
+                    }
+                    catch (TargetInvocationException)
+                    {
+                    }
+                }
+
+                implicitConversionMethod = sourceValue.GetType()
+                    .GetMethod(ImplicitConversionMethodName, new[] { sourceValue.GetType() });
+
+                if ((implicitConversionMethod != null) &&
+                    implicitConversionMethod.IsStatic &&
+                    implicitConversionMethod.ReturnType == destType)
+                {
+                    try
+                    {
+                        convertedValue = implicitConversionMethod.Invoke(null, new [] { sourceValue });
                         return true;
                     }
                     catch (TargetInvocationException)

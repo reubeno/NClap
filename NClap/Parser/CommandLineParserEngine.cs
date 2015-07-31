@@ -55,6 +55,8 @@ namespace NClap.Parser
     {
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
 
+        private readonly Type _type;
+
         private readonly IReadOnlyDictionary<string, Argument> _namedArgumentMap;
         private readonly IReadOnlyList<Argument> _namedArguments;
         private readonly SortedList<int, Argument> _positionalArguments;
@@ -90,6 +92,8 @@ namespace NClap.Parser
         /// controlling how parsing proceeds.</param>
         public CommandLineParserEngine(Type type, object defaultValues, CommandLineParserOptions options)
         {
+            _type = type;
+
             _options = options?.Clone() ?? new CommandLineParserOptions();
 
             if (_options.Reporter == null)
@@ -208,7 +212,7 @@ namespace NClap.Parser
                 headerName => builder.AppendLine(new ColoredString(headerName, headerFgColor));
 
             // Define a reusable lambda to append content text (and make sure it's the right color).
-            Action<ColoredString> appendContent =
+            Action<ColoredString> appendLine =
                 value => builder.AppendLine(new ColoredString(
                     StringUtilities.Wrap(value.Content, maxUsageWidth, indent: indentWidth),
                     value.ForegroundColor,
@@ -223,21 +227,23 @@ namespace NClap.Parser
             firstSection = false;
             appendHeader(Strings.UsageInfoNameHeader);
             var name = commandName ?? AssemblyUtilities.GetAssemblyFileName();
-            appendContent(name);
+            appendLine(name);
 
             // Append the "SYNTAX" section: describes the basic syntax.
             builder.AppendLine();
             appendHeader(Strings.UsageInfoSyntaxHeader);
             var syntaxItems = new[] { name }.Concat(allArgsInfo.Select(h => h.Syntax));
             var syntax = string.Join(" ", syntaxItems);
-            appendContent(syntax);
+            appendLine(syntax);
 
-            // If present, display the "DESCRIPTION" for the program here.
-            if (_setAttribute.AdditionalHelp != null)
+            // If present (and if requested), display the "DESCRIPTION" for the
+            // program here.
+            if (options.HasFlag(UsageInfoOptions.IncludeDescription) &&
+                (!string.IsNullOrEmpty(_setAttribute.AdditionalHelp)))
             {
                 builder.AppendLine();
                 appendHeader(Strings.UsageInfoDescriptionHeader);
-                appendContent(_setAttribute.AdditionalHelp);
+                appendLine(_setAttribute.AdditionalHelp);
             }
 
             // Define a private lambda that appends parameter info.
@@ -246,34 +252,47 @@ namespace NClap.Parser
                 var firstArg = true;
                 foreach (var argInfo in argsInfo)
                 {
+                    // Skip a line between all args.
                     if (!firstArg)
                     {
                         builder.AppendLine();
                     }
 
                     // Append parameter syntax info.
-                    appendContent(new ColoredString(argInfo.Syntax, paramSyntaxFgColor));
+                    appendLine(new ColoredString(argInfo.Syntax, paramSyntaxFgColor));
+
+                    // If both are present (and requested to be displayed), we
+                    // combine the short name and default value onto the same
+                    // line.
+                    var parameterMetadata = new List<string>();
 
                     // Append parameter's short name (if it has one).
                     if (options.HasFlag(UsageInfoOptions.IncludeParameterShortNameAliases) &&
                         !string.IsNullOrEmpty(argInfo.ShortName))
                     {
-                        appendContent(new ColoredString(string.Format(
+                        parameterMetadata.Add(string.Format(
                             CultureInfo.CurrentCulture,
                             "Short form: {0}{1}",
                             _setAttribute.NamedArgumentPrefixes[0],
-                            argInfo.ShortName),
-                            paramMetadataFgColor));
+                            argInfo.ShortName));
                     }
 
-                    // Append the parameter's default value (if it has one).
+                    // Append the parameter's default value (if it has one, and if requested).
                     if (options.HasFlag(UsageInfoOptions.IncludeParameterDefaultValues) &&
                         !string.IsNullOrEmpty(argInfo.DefaultValue))
                     {
-                        appendContent(new ColoredString(string.Format(
+                        parameterMetadata.Add(string.Format(
                             CultureInfo.CurrentCulture,
                             "Default value: {0}",
-                            argInfo.DefaultValue),
+                            argInfo.DefaultValue));
+                    }
+
+                    // Now append the short name and/or default value, if either
+                    // were present and accounted for.
+                    if (parameterMetadata.Count > 0)
+                    {
+                        appendLine(new ColoredString(
+                            string.Join(", ", parameterMetadata),
                             paramMetadataFgColor));
                     }
 
@@ -290,23 +309,22 @@ namespace NClap.Parser
                 }
             };
 
-            if (options.HasFlag(UsageInfoOptions.IncludeParameterDescriptions))
+            // If desired (and present), append "REQUIRED PARAMETERS" section.
+            if (options.HasFlag(UsageInfoOptions.IncludeRequiredParameterDescriptions) &&
+                requiredArgsInfo.Count > 0)
             {
-                // Append "REQUIRED PARAMETERS" section.
-                if (requiredArgsInfo.Count > 0)
-                {
-                    builder.AppendLine();
-                    appendHeader(Strings.UsageInfoRequiredParametersHeader);
-                    appendParametersSection(requiredArgsInfo);
-                }
+                builder.AppendLine();
+                appendHeader(Strings.UsageInfoRequiredParametersHeader);
+                appendParametersSection(requiredArgsInfo);
+            }
 
-                // Append "OPTIONAL PARAMETERS" section.
-                if (optionalArgsInfo.Count > 0)
-                {
-                    builder.AppendLine();
-                    appendHeader(Strings.UsageInfoOptionalParametersHeader);
-                    appendParametersSection(optionalArgsInfo);
-                }
+            // If desired (and present), append "OPTIONAL PARAMETERS" section.
+            if (options.HasFlag(UsageInfoOptions.IncludeOptionalParameterDescriptions) &&
+                optionalArgsInfo.Count > 0)
+            {
+                builder.AppendLine();
+                appendHeader(Strings.UsageInfoOptionalParametersHeader);
+                appendParametersSection(optionalArgsInfo);
             }
 
             // If present, append "EXAMPLES" section.
@@ -319,7 +337,22 @@ namespace NClap.Parser
 
                 foreach (var example in _setAttribute.Examples)
                 {
-                    appendContent(example);
+                    appendLine(example);
+                }
+            }
+
+            // If requested, display remarks
+            if (options.HasFlag(UsageInfoOptions.IncludeRemarks))
+            {
+                const string defaultHelpArgumentName = "?";
+                var namedArgPrefix = _setAttribute.NamedArgumentPrefixes.FirstOrDefault();
+
+                if (_namedArgumentMap.ContainsKey(defaultHelpArgumentName) &&
+                    (namedArgPrefix != null))
+                {
+                    builder.AppendLine();
+                    appendHeader(Strings.UsageInfoRemarksHeader);
+                    appendLine(string.Format(Strings.UsageInfoHelpAdvertisement, name, $"{namedArgPrefix}{defaultHelpArgumentName}"));
                 }
             }
 
@@ -607,9 +640,9 @@ namespace NClap.Parser
 
             for (var index = 0; index < args.Count; ++index)
             {
-                // Remove leading and trailing whitespace from the argument
-                // value.
-                var argument = args[index].Trim();
+                // Note that we do *not* remove leading or trailing whitespace
+                // from the argument value; it might be meaningful.
+                var argument = args[index];
 
                 var namedArgumentPrefix = TryGetNamedArgumentPrefix(argument);
                 var answerFilePrefix = TryGetAnswerFilePrefix(argument);
@@ -708,21 +741,13 @@ namespace NClap.Parser
             return !hasError;
         }
 
-        private ArgumentUsageInfo[] GetArgumentUsageInfo()
+        private IReadOnlyList<ArgumentUsageInfo> GetArgumentUsageInfo()
         {
             var help = new ArgumentUsageInfo[NumberOfArgumentsToDisplay()];
 
             var index = 0;
 
-            // Enumerate named arguments, in case-insensitive sort order.
-            foreach (var arg in _namedArguments.Where(a => a.Hidden == false).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
-            {
-                Contract.Assume(arg != null);
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
-            }
-
-            // Enumerate positional arguments, in position order.
+            // Enumerate positional arguments first, in position order.
             foreach (var arg in _positionalArguments.Values.Where(a => a.Hidden == false))
             {
                 Contract.Assume(arg != null);
@@ -730,14 +755,22 @@ namespace NClap.Parser
                 help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
             }
 
+            // Enumerate named arguments next, in case-insensitive sort order.
+            foreach (var arg in _namedArguments.Where(a => a.Hidden == false).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
+            {
+                Contract.Assume(arg != null);
+                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
+                help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
+            }
+
+            // Add an extra item for answer files, if that is supported on this
+            // argument set.
             if ((index > 0) && (_setAttribute.AnswerFileArgumentPrefix != null))
             {
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
                 help[index++] = new ArgumentUsageInfo(
-                    string.Format(CultureInfo.CurrentCulture, "[{0}<file>]*", _setAttribute.AnswerFileArgumentPrefix),
+                    string.Format(CultureInfo.CurrentCulture, "[{0}<FilePath>]*", _setAttribute.AnswerFileArgumentPrefix),
                     "Read response file for more options.",
-                    null,
-                    null,
                     false);
             }
 
@@ -818,7 +851,14 @@ namespace NClap.Parser
         {
             try
             {
+                //
                 // Read through all non-empty lines in the file.
+                //
+                // NOTE: We are trimming the lines here; that means it's not
+                // possible for an answer file to meaningfully use leading or
+                // trailing whitespace.
+                //
+
                 arguments = _options.FileSystemReader
                                     .GetLines(filePath)
                                     .Select(line => line.Trim())

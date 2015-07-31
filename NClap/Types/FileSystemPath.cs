@@ -10,7 +10,7 @@ namespace NClap.Types
     /// <summary>
     /// Encapsulates a file-system path (i.e. to file or directory).
     /// </summary>
-    public class FileSystemPath
+    public class FileSystemPath : IEquatable<FileSystemPath>
     {
         /// <summary>
         /// Path constructor.
@@ -128,6 +128,33 @@ namespace NClap.Types
         /// </summary>
         /// <returns>The path string.</returns>
         public override string ToString() => this;
+
+        /// <summary>
+        /// Compares this path object against the specified other object,
+        /// with case insensitivity.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>True if the objects are equivalent; false otherwise.</returns>
+        public override bool Equals(object obj)
+        {
+            var other = obj as FileSystemPath;
+            return (other != null) && Equals(other);
+        }
+
+        /// <summary>
+        /// Produces a stable hash code for the path object, assuming case
+        /// insensitivity.
+        /// </summary>
+        /// <returns>The hash code.</returns>
+        public override int GetHashCode() => Path.ToLowerInvariant().GetHashCode();
+
+        /// <summary>
+        /// Compares this path object against the specified other path object,
+        /// with case insensitivity.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>True if the paths are equivalent; false otherwise.</returns>
+        public bool Equals(FileSystemPath other) => Path.Equals(other, StringComparison.OrdinalIgnoreCase);
 
         private static string GetFullPath(string path, string workingDirectory)
         {

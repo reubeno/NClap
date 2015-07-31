@@ -59,7 +59,7 @@ namespace NClap.Metadata
         /// </returns>
         public override bool TryValidate(ArgumentValidationContext context, object value, out string reason)
         {
-            if (_regEx.IsMatch((string)value))
+            if (_regEx.IsMatch(GetString(value)))
             {
                 reason = null;
                 return true;

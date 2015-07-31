@@ -20,6 +20,13 @@ namespace NClap.Tests.Metadata
             public string Value;
         }
 
+        public class StringArgumentsThatMustBeNonEmpty
+        {
+            [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "")]
+            [MustNotBeEmpty]
+            public string Value;
+        }
+
         public class RestOfLineStringArguments
         {
             [PositionalArgument(ArgumentFlags.RestOfLine)]
@@ -35,6 +42,12 @@ namespace NClap.Tests.Metadata
         public class StringArrayArguments
         {
             [NamedArgument(ArgumentFlags.Multiple, DefaultValue = new[] { "a", "b" })]
+            public string[] Value;
+        }
+
+        public class StringArrayWithEmptyDefaultArguments
+        {
+            [NamedArgument(ArgumentFlags.Multiple, DefaultValue = new string[] {})]
             public string[] Value;
         }
 
@@ -54,6 +67,12 @@ namespace NClap.Tests.Metadata
         public class BoolArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
+            public bool Value;
+        }
+
+        public class BoolArgumentsWithTrueDefault
+        {
+            [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = true)]
             public bool Value;
         }
 
@@ -100,7 +119,20 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(StringArguments));
             arg.EffectiveDefaultValue.Should().Be("def");
+            arg.DefaultValue.Should().Be("def");
             arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value[=<String>]]");
+        }
+
+        [TestMethod]
+        public void NonEmptyStringArgument()
+        {
+            var arg = GetArgument(typeof(StringArgumentsThatMustBeNonEmpty));
+            arg.EffectiveDefaultValue.Should().Be("");
+            arg.DefaultValue.Should().Be("");
+            arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value=<String>]");
+           
+            var usageInfo = new ArgumentUsageInfo(new ArgumentSetAttribute(), arg);
+            usageInfo.DefaultValue.Should().BeNull();
         }
 
         [TestMethod]
@@ -108,7 +140,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(RestOfLineStringArguments));
             arg.EffectiveDefaultValue.Should().BeNull();
-            arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[<Value>...]");
+            arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[<Value : <String>>...]");
         }
 
         [TestMethod]
@@ -129,6 +161,24 @@ namespace NClap.Tests.Metadata
             ((string[])value).Should().ContainInOrder("a", "b");
 
             arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value[=<String>]]*");
+
+            var usage = new ArgumentUsageInfo(new ArgumentSetAttribute(), arg);
+            usage.DefaultValue.Should().Be("a b");
+        }
+
+        [TestMethod]
+        public void StringArrayWithEmptyDefaultsArgument()
+        {
+            var arg = GetArgument(typeof(StringArrayWithEmptyDefaultArguments));
+
+            var value = arg.EffectiveDefaultValue;
+            value.Should().BeOfType(typeof(string[]));
+            ((string[])value).Should().BeEmpty();
+
+            arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value[=<String>]]*");
+
+            var usage = new ArgumentUsageInfo(new ArgumentSetAttribute(), arg);
+            usage.DefaultValue.Should().BeNull();
         }
 
         [TestMethod]
@@ -144,6 +194,14 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(BoolArguments));
             arg.EffectiveDefaultValue.Should().Be(false);
+            arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value]");
+        }
+
+        [TestMethod]
+        public void BoolArgumentWithTrueDefault()
+        {
+            var arg = GetArgument(typeof(BoolArgumentsWithTrueDefault));
+            arg.EffectiveDefaultValue.Should().Be(true);
             arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value[={True | False}]]");
         }
 

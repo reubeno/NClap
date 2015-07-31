@@ -26,6 +26,7 @@ namespace NClap.Utilities
         /// <summary>
         /// Append a colored string followed by a newline.
         /// </summary>
+        /// <param name="value">The colored string to append.</param>
         public void AppendLine(ColoredString value)
         {
             _pieces.Add(value);

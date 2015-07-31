@@ -27,12 +27,6 @@ namespace NClap.Parser
         private const int DefaultConsoleWidth = 80;
 
         /// <summary>
-        /// Default options for displaying usage in the ParseWithUsage() method
-        /// group.
-        /// </summary>
-        private const UsageInfoOptions DefaultUsageInfoOptions = UsageInfoOptions.Default | UsageInfoOptions.UseColor;
-
-        /// <summary>
         /// Default <see cref="ColoredErrorReporter" /> used by this class.
         /// </summary>
         public static ColoredErrorReporter DefaultReporter { get; } = BasicConsoleInputAndOutput.Default.Write;
@@ -75,7 +69,7 @@ namespace NClap.Parser
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
         public static bool ParseWithUsage<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class =>
-            ParseWithUsage(arguments, destination, options, DefaultUsageInfoOptions);
+            ParseWithUsage(arguments, destination, options, UsageInfoOptions.Default);
 
         /// <summary>
         /// Parses command-line arguments into a reference-type object.
@@ -108,22 +102,38 @@ namespace NClap.Parser
 
             Contract.Requires(Contract.ForAll(arguments, arg => arg != null));
 
+            // Check if the object inherits from HelpArgumentsBase.
+            var helpDestination = destination as HelpArgumentsBase;
+
+            var abridgedOptions = usageInfoOptions;
+            if (helpDestination != null)
+            {
+                abridgedOptions &= ~(UsageInfoOptions.IncludeOptionalParameterDescriptions | UsageInfoOptions.IncludeDescription);
+                abridgedOptions |= UsageInfoOptions.IncludeRemarks;
+            }
+
+            // Parse!
             if (!Parse(arguments, destination, options))
             {
+                var optionsForParseError = usageInfoOptions;
+                if (!helpDestination?.Help ?? false)
+                {
+                    optionsForParseError = abridgedOptions;
+                }
+
                 // An error was encountered in arguments. Display the usage
                 // message.
                 options.Reporter?.Invoke(Environment.NewLine);
-                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, null, null, usageInfoOptions));
+                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, optionsForParseError));
 
                 return false;
             }
 
             // We parsed the arguments, but check if we were requested to
             // display the usage help message anyway.
-            var helpDestination = destination as HelpArgumentsBase;
             if ((helpDestination != null) && helpDestination.Help)
             {
-                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, null, null, usageInfoOptions));
+                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, usageInfoOptions));
                 return false;
             }
 
@@ -156,7 +166,7 @@ namespace NClap.Parser
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
         public static bool ParseWithUsage<T>(IList<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct =>
-            ParseWithUsage(arguments, ref destination, options, DefaultUsageInfoOptions);
+            ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.Default);
 
         /// <summary>
         /// Parses command-line arguments into a value-type object.
@@ -269,7 +279,21 @@ namespace NClap.Parser
         /// info for.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
-        public static string GetUsageInfo(Type type) => GetUsageInfo(type, type.GetDefaultValue());
+        public static ColoredMultistring GetUsageInfo(Type type) =>
+            GetUsageInfo(type, type.GetDefaultValue());
+
+        /// <summary>
+        /// Returns a usage string for command line argument parsing. Use
+        /// ArgumentAttributes to control parsing behavior. Formats the output
+        /// to the width of the current console window.
+        /// </summary>
+        /// <param name="type">Type of the parsed arguments object to get usage
+        /// info for.</param>
+        /// <param name="options">Options for generating usage info.</param>
+        /// <returns>Printable string containing a user friendly description of
+        /// command line arguments.</returns>
+        public static ColoredMultistring GetUsageInfo(Type type, UsageInfoOptions options) =>
+            GetUsageInfo(type, type.GetDefaultValue(), null, null, options);
 
         /// <summary>
         /// Returns a usage string for command line argument parsing. Use
@@ -281,8 +305,22 @@ namespace NClap.Parser
         /// default values.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
-        public static string GetUsageInfo(Type type, object defaultValues) =>
+        public static ColoredMultistring GetUsageInfo(Type type, object defaultValues) =>
             GetUsageInfo(type, defaultValues, null);
+
+        /// <summary>
+        /// Returns a usage string for command line argument parsing. Use
+        /// ArgumentAttributes to control parsing behavior. Formats the output
+        /// to the width of the current console window.
+        /// </summary>
+        /// <param name="type">Type of the parsed arguments object.</param>
+        /// <param name="defaultValues">Optionally provides an object with
+        /// default values.</param>
+        /// <param name="options">Options for generating usage info.</param>
+        /// <returns>Printable string containing a user friendly description of
+        /// command line arguments.</returns>
+        public static ColoredMultistring GetUsageInfo(Type type, object defaultValues, UsageInfoOptions options) =>
+            GetUsageInfo(type, defaultValues, null, null, options);
 
         /// <summary>
         /// Returns a Usage string for command line argument parsing. Use
@@ -295,7 +333,7 @@ namespace NClap.Parser
         /// </param>
         /// <returns>Printable string containing a user friendly description of
         /// command-line arguments.</returns>
-        public static string GetUsageInfo(Type type, object defaultValues, int? columns) =>
+        public static ColoredMultistring GetUsageInfo(Type type, object defaultValues, int? columns) =>
             GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.Default);
 
         /// <summary>

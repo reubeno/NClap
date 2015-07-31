@@ -2,6 +2,7 @@
 using NClap.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using NClap.Types;
 
 namespace NClap.Tests.Utilities
 {
@@ -11,6 +12,14 @@ namespace NClap.Tests.Utilities
         class MyValue
         {
             public static implicit operator MyValue(int x)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class MyOtherValue
+        {
+            public static implicit operator MyValue(MyOtherValue x)
             {
                 throw new NotImplementedException();
             }
@@ -48,6 +57,10 @@ namespace NClap.Tests.Utilities
             typeof(MyValue).IsImplicitlyConvertibleFrom("a").Should().BeFalse();
             typeof(MyValue).TryConvertFrom((object)"a", out value).Should().BeFalse();
             value.Should().BeNull();
+
+            typeof(MyValue).IsImplicitlyConvertibleFrom(new MyOtherValue()).Should().BeTrue();
+            typeof(MyValue).TryConvertFrom(new MyOtherValue(), out value).Should().BeFalse();
+            value.Should().BeNull();
         }
 
         [TestMethod]
@@ -55,6 +68,27 @@ namespace NClap.Tests.Utilities
         {
             typeof(int).IsImplicitlyConvertibleFrom(0.0).Should().BeTrue();
             typeof(int).IsImplicitlyConvertibleFrom(true).Should().BeTrue();
+
+            typeof(string).IsImplicitlyConvertibleFrom(new FileSystemPath("MyPath")).Should().BeTrue();
+            typeof(FileSystemPath).IsImplicitlyConvertibleFrom("MyPath").Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void ConvertValues()
+        {
+            object obj;
+
+            typeof(int).TryConvertFrom(0.0, out obj).Should().BeTrue();
+            obj.Should().BeOfType<int>().And.Be(0);
+
+            typeof(int).TryConvertFrom(true, out obj).Should().BeTrue();
+            obj.Should().BeOfType<int>().And.Be(1);
+
+            typeof(string).TryConvertFrom(new FileSystemPath("MyPath"), out obj).Should().BeTrue();
+            obj.Should().BeOfType<string>().And.Be("MyPath");
+
+            typeof(FileSystemPath).TryConvertFrom("MyPath", out obj).Should().BeTrue();
+            obj.Should().BeOfType(typeof(FileSystemPath)).And.Be(new FileSystemPath("MyPath"));
         }
     }
 }

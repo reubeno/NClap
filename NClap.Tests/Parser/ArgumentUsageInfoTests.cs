@@ -10,7 +10,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void BasicUsage()
         {
-            var help = new ArgumentUsageInfo("Syntax", "Help", null, null, false);
+            var help = new ArgumentUsageInfo("Syntax", "Help", false);
             help.Syntax.Should().Be("Syntax");
             help.Description.Should().Be("Help");
         }

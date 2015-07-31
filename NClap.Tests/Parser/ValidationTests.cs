@@ -36,6 +36,11 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBeEmpty]
             public string Value { get; set; }
+
+            // ReSharper disable once UnusedMember.Local
+            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            [MustNotBeEmpty]
+            public FileSystemPath Path { get; set; }
         }
 
         class NotValueIntArguments
@@ -232,6 +237,10 @@ namespace NClap.Tests.Parser
             CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
             CommandLineParser.Parse(new[] { "/value=" }, args).Should().BeFalse();
             CommandLineParser.Parse(new[] { "/value=a" }, args).Should().BeTrue();
+            CommandLineParser.Parse(new[] { "/value= " }, args).Should().BeTrue();
+            CommandLineParser.Parse(new[] { "/path=" }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "/path=a" }, args).Should().BeTrue();
+            CommandLineParser.Parse(new[] { "/path= " }, args).Should().BeTrue();
         }
 
         [TestMethod]
@@ -268,7 +277,7 @@ namespace NClap.Tests.Parser
             CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
             CommandLineParser.Parse(new[] { "/value=abc" }, args).Should().BeTrue();
             CommandLineParser.Parse(new[] { "/value=Hello" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=Hello " }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "/value=Hello " }, args).Should().BeTrue();
             CommandLineParser.Parse(new[] { "/value=H ello " }, args).Should().BeTrue();
             CommandLineParser.Parse(new[] { "/value=HELLO" }, args).Should().BeTrue();
         }

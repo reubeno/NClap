@@ -61,8 +61,8 @@ namespace NClap.Tests.Metadata
             args.Value.Should().Be(10);
 
             var usageInfo = CommandLineParser.GetUsageInfo(typeof(AlternatePrefixArguments));
-            usageInfo.Should().NotContain("/");
-            usageInfo.Should().Contain("--");
+            usageInfo.ToString().Should().NotContain("/");
+            usageInfo.ToString().Should().Contain("--");
         }
 
         [TestMethod]
@@ -80,8 +80,8 @@ namespace NClap.Tests.Metadata
             args.Value.Should().Be(10);
 
             var usageInfo = CommandLineParser.GetUsageInfo(typeof(AlternateSeparatorArguments));
-            usageInfo.Should().NotContain("=");
-            usageInfo.Should().Contain("$");
+            usageInfo.ToString().Should().NotContain("=");
+            usageInfo.ToString().Should().Contain("$");
         }
     }
 }

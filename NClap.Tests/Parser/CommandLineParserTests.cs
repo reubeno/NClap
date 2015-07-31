@@ -474,8 +474,8 @@ namespace NClap.Tests.Parser
             {
                 CommandLineParser.GetConsoleWidth = () => { throw new IOException(); };
 
-                var usageInfo = CommandLineParser.GetUsageInfo(typeof(SimpleArguments));
-                usageInfo.Should().NotBeNullOrWhiteSpace();
+                var usageInfo = CommandLineParser.GetUsageInfo(typeof(SimpleArguments), UsageInfoOptions.Default);
+                usageInfo.ToString().Should().NotBeNullOrWhiteSpace();
             }
             finally
             {
@@ -612,7 +612,6 @@ namespace NClap.Tests.Parser
         public void RequiredArgumentNotGiven()
         {
             var args = new RequiredArguments();
-            var usageInfo = CommandLineParser.GetUsageInfo(typeof(RequiredArguments));
 
             var reportedBuilder = new StringBuilder();
             NClap.Parser.ErrorReporter reporter = s => reportedBuilder.Append(s);
@@ -623,7 +622,7 @@ namespace NClap.Tests.Parser
             // Make sure the reported content contains an empty line followed by
             // generic usage info.
             var reported = reportedBuilder.ToString();
-            reported.Should().Contain(Environment.NewLine + Environment.NewLine + usageInfo);
+            reported.Should().Contain(Environment.NewLine + Environment.NewLine + "NAME");
         }
 
         [TestMethod]
@@ -708,11 +707,11 @@ namespace NClap.Tests.Parser
         {
             var usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsArgumentString));
             usage.Should().NotBeNull();
-            usage.Should().Contain("/AllArguments=<...>");
+            usage.ToString().Should().Contain("/AllArguments=<...>");
 
             usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsPositionalArgumentString));
             usage.Should().NotBeNull();
-            usage.Should().Contain("<AllArguments>...");
+            usage.ToString().Should().Contain("<AllArguments : <String>>...");
         }
 
         [TestMethod]

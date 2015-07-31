@@ -229,15 +229,28 @@ namespace NClap.Metadata
         /// </summary>
         /// <param name="attrib">Argument set metadata.</param>
         /// <param name="value">Value to format.</param>
+        /// <param name="suppressArgNames">True to suppress argument names;
+        /// false to leave them in.</param>
         /// <returns>The formatted string.</returns>
-        public IEnumerable<string> Format(ArgumentSetAttribute attrib, object value)
+        public IEnumerable<string> Format(ArgumentSetAttribute attrib, object value, bool suppressArgNames = false)
         {
             if (_collectionArgType != null)
             {
                 foreach (var item in _collectionArgType.ToEnumerable(value))
                 {
-                    yield return Format(attrib, _collectionArgType.ElementType, item);
+                    if (suppressArgNames)
+                    {
+                        yield return _collectionArgType.ElementType.Format(item);
+                    }
+                    else
+                    {
+                        yield return Format(attrib, _collectionArgType.ElementType, item);
+                    }
                 }
+            }
+            else if (suppressArgNames)
+            {
+                yield return _argType.Format(value);
             }
             else
             {
@@ -266,6 +279,8 @@ namespace NClap.Metadata
             {
                 builder.Append("<");
                 builder.Append(LongName);
+                builder.Append(" : ");
+                builder.Append(_argType.SyntaxSummary);
                 builder.Append(">");
 
                 if (TakesRestOfLine)
@@ -284,15 +299,25 @@ namespace NClap.Metadata
                 builder.Append(setAttribute.NamedArgumentPrefixes[0]);
                 builder.Append(LongName);
 
+                // We use a special hard-coded syntax if this argument consumes
+                // the rest of the line.
                 if (TakesRestOfLine)
                 {
                     builder.Append("=<...>");
                 }
+
+                // We special-case bool arguments (switches) whose default value
+                // is false; in such cases, we can get away with a shorter
+                // syntax help that just indicates how to flip the switch on.
+                else if ((_argType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
+                {
+                }
+
+                // Otherwise, spell out the full syntax.
                 else
                 {
                     // Decide if the argument type supports empty strings.
                     var supportsEmptyStrings = IsEmptyStringValid();
-
                     if (supportsEmptyStrings)
                     {
                         builder.Append("[");

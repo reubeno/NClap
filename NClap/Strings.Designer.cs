@@ -442,11 +442,20 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to EXAMPLES.
         /// </summary>
         internal static string UsageInfoExamplesHeader {
             get {
                 return ResourceManager.GetString("UsageInfoExamplesHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to For more information, type: &quot;{0}&quot;.
+        /// </summary>
+        internal static string UsageInfoHelpAdvertisement {
+            get {
+                return ResourceManager.GetString("UsageInfoHelpAdvertisement", resourceCulture);
             }
         }
         
@@ -465,6 +474,15 @@ namespace NClap {
         internal static string UsageInfoOptionalParametersHeader {
             get {
                 return ResourceManager.GetString("UsageInfoOptionalParametersHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to REMARKS.
+        /// </summary>
+        internal static string UsageInfoRemarksHeader {
+            get {
+                return ResourceManager.GetString("UsageInfoRemarksHeader", resourceCulture);
             }
         }
         

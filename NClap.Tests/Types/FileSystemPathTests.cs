@@ -160,6 +160,19 @@ namespace NClap.Tests.Types
             completeAction.ShouldThrow<NotImplementedException>();
         }
 
+        [TestMethod]
+        public void GetHashCodeWorksCorrectly()
+        {
+            var path = new FileSystemPath("Hello");
+            path.GetHashCode().Should().Be(path.GetHashCode());
+
+            Func<string, int> hash = s => new FileSystemPath(s).GetHashCode();
+
+            hash("Hello").Should().Be(hash("Hello"));
+            hash("Hello").Should().Be(hash("HELLO"));
+            hash("Hello").Should().NotBe(hash("Hello "));
+        }
+
         private static ArgumentCompletionContext CreateContext(IFileSystemReader reader = null)
         {
             return new ArgumentCompletionContext

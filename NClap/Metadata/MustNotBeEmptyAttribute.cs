@@ -1,4 +1,6 @@
-﻿namespace NClap.Metadata
+﻿using System;
+
+namespace NClap.Metadata
 {
     /// <summary>
     /// Attribute that indicates the associated string argument member cannot be
@@ -18,7 +20,7 @@
         /// </returns>
         public override bool TryValidate(ArgumentValidationContext context, object value, out string reason)
         {
-            if (!string.IsNullOrEmpty(value as string))
+            if (!string.IsNullOrEmpty(GetString(value)))
             {
                 reason = null;
                 return true;

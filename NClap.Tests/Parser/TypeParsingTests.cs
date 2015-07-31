@@ -134,12 +134,12 @@ namespace NClap.Tests.Parser
             ShouldParseAs(new string[] { }, '\0');
             ShouldParseAs(new[] { "/value=a" }, 'a');
             ShouldParseAs(new[] { "/value=7" }, '7');
+            ShouldParseAs(new[] { "/value=\n"}, '\n');
 
             ShouldFailToParse<char>(new[] { "/value" });
             ShouldFailToParse<char>(new[] { "/value=" });
             ShouldFailToParse<char>(new[] { "/value=abc" });
             ShouldFailToParse<char>(new[] { "/value= a " });
-            ShouldFailToParse<char>(new[] { "/value=\n" });
         }
 
         [TestMethod]

@@ -1,5 +1,6 @@
 ﻿using System;
 using NClap.Types;
+using NClap.Utilities;
 
 namespace NClap.Metadata
 {
@@ -23,7 +24,31 @@ namespace NClap.Metadata
                 throw new ArgumentNullException(nameof(type));
             }
 
-            return type.Type == typeof(string);
+            return (type.Type == typeof(string)) ||
+                   (type.Type == typeof(FileSystemPath));
+        }
+
+        /// <summary>
+        /// Retrieves a string from the object, for use in validation.
+        /// </summary>
+        /// <param name="obj">The object to retrieve the string from.</param>
+        /// <returns></returns>
+        protected static string GetString(object obj)
+        {
+            object value;
+            if (obj is string)
+            {
+                value = obj;
+            }
+            else
+            {
+                if (!typeof (string).TryConvertFrom(obj, out value))
+                {
+                    throw new InvalidCastException();
+                }
+            }
+
+            return (string)value;
         }
     }
 }

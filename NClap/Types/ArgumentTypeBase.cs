@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using NClap.Utilities;
 
 namespace NClap.Types
 {
@@ -79,7 +80,9 @@ namespace NClap.Types
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (value.GetType() != Type)
+            object convertedValue;
+            if ((value.GetType() != Type) &&
+                !Type.TryConvertFrom(value, out convertedValue))
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
