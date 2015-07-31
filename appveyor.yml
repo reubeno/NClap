@@ -1,0 +1,86 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 1.2.1.{build}-{branch}
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+
+# Do not build on tags (GitHub only)
+skip_tags: true
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Operating system (build VM template)
+os: Windows Server 2012
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+# build cache to preserve files/folders between builds
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+platform: Any CPU
+
+# build Configuration, i.e. Debug, Release, etc.
+  - Debug
+  - Release
+
+build:
+  parallel: true                  # enable MSBuild parallel builds
+  project: NClap.sln              # path to Visual Studio solution or project
+  # publish_nuget: true             # package projects with .nuspec files and push to artifacts
+  # publish_nuget_symbols: true     # generate and publish NuGet symbol packages
+  # include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
+
+  # MSBuild verbosity level
+  verbosity: normal
+
+#---------------------------------#
+#       tests configuration       #
+#---------------------------------#
+
+#---------------------------------#
+#      artifacts configuration    #
+#---------------------------------#
+
+artifacts:
+
+  # pushing a single file
+  # - path: test.zip
+
+  # pushing a single file with environment variable in path and "Deployment name" specified
+  # - path: MyProject\bin\$(configuration)
+  #   name: myapp
+
+  # pushing entire folder as a zip archive
+  # - path: logs
+
+  # pushing all *.nupkg files in directory
+  # - path: out\*.nupkg
+
+#---------------------------------#
+#     deployment configuration    #
+#---------------------------------#
+
+#---------------------------------#
+#        global handlers          #
+#---------------------------------#
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
