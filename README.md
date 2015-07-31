@@ -1,6 +1,8 @@
 # .NET Command Line Argument Parser (NClap)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ay9tjpxor3n4gv1i/branch/master?svg=true)](https://ci.appveyor.com/project/reubeno/nclap/branch/master)
+[![NuGet package](https://img.shields.io/nuget/dt/NClap.svg)](https://www.nuget.org/packages/NClap)
+[![GitHub license](https://img.shields.io/github/license/reubeno/NClap.svg)](https://reubeno.github.io/NClap/LICENSE.txt)
 
 Welcome! NClap is a .NET library for parsing command-line arguments and building interactive
 command shells. It's driven by a declarative attribute syntax, and easy to extend.
