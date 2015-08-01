@@ -61,14 +61,17 @@ before_build:
 
 # build!
 build_script:
-  - ps: .\appveyor.ps1
+  - ps: cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap.sln /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
+  - ps: PublishCoverity.exe compress -o coverity.zip -i cov-int
+  - ps: PublishCoverity.exe publish -z coverity.zip -t $env:COVERITY_SCAN_TOKEN -d "AppVeyor scheduled build ($env:APPVEYOR_BUILD_VERSION)" --codeVersion "$env:APPVEYOR_BUILD_VERSION"
+
 
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
 
 test_script:
-  - OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"\"NClap.Tests\bin\Release\NClap.Tests.dll\" /logger:Appveyor" -skipautoprops -filter:"+[NClap]*" -output:coverage_release.xml 
+  - OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"\"NClap.Tests\bin\Release\NClap.Tests.dll\" /logger:Appveyor" -skipautoprops -filter:"+[NClap]*" -output:coverage_release.xml
   - ps: csmacnz.Coveralls.exe --opencover -i coverage_release.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
 
 #---------------------------------#
