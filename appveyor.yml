@@ -68,8 +68,7 @@ build:
 #---------------------------------#
 
 test_script:
-  - ps: |
-      OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"\"NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll\" /logger:Appveyor" -skipautoprops -filter:"+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
+  - ps: OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
   - ps: csmacnz.Coveralls.exe --opencover -i coverage_$env:CONFIGURATION.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
 
 #---------------------------------#
