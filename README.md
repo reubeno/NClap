@@ -7,93 +7,71 @@
 
 Welcome! NClap is a .NET library for parsing command-line arguments and building interactive
 command shells. It's driven by a declarative attribute syntax, and easy to extend.
+It's sort of like a lightweight serializer for command-line arguments.
 
 It's also very much under active development, and we welcome contributions! We're still writing
-some notes and tips about contributing to the project, how to run our unit tests, etc. But in the
-meantime, don't be shy. Please go right ahead and file issues, drop us a line, submit pull requests,
+up some notes and tips about contributing to the project, how to run our unit tests, etc. But in the
+meantime, don't be shy! Please go right ahead and file issues, drop us a line, submit pull requests,
 etc.
-
-## License
-
-NClap is shared under the MIT license, as described in [LICENSE.txt](https://reubeno.github.io/NClap/LICENSE.txt).
-
 
 ## Getting NClap
 
 The easiest way to consume NClap is by adding its [NuGet package](https://www.nuget.org/packages/NClap) to your project.
 
+NClap is shared under the MIT license, as described in [LICENSE.txt](https://reubeno.github.io/NClap/LICENSE.txt).
 
-## Laundry list of features
+## More information
 
-### Command-line parsing
+* [Basic usage](#basic-usage)
+  - [Parsing command lines](#parsing-command-lines)
+  - [Building an interactive shell](#building-an-interactive-shell)
+ 
+* [Mostly complete feature list](docs/Features.md)
 
-NClap supports parsing most commonly used .NET types out of the box:
+* _NClap dev guide (to be written)_
 
-* Nearly all primitive .NET types (e.g. `bool`, `char`, `string`, `byte`, `short`, `int`, `long`, `float`, `double`, `decimal`, all of the unsigned variants, etc.)
-* Many other common .NET types (e.g. `Guid`, `DateTime`, `TimeSpan`, `IPAddress`, `Uri`, `Regex`)
-* Any .NET `enum` type (including extended support for `enum` types marked with `[FlagsAttribute]`)
-* The nullable version of any supported value type listed above (e.g. `int?`)
-* A custom `FileSystemPath` type exported by NClap to simplify file-path parsing, validation, and completion
-* Any generic `ICollection<T>` over any supported type listed above (e.g. `List<T>`, `LinkedList<T>`, `HashSet<T>`, `SortedSet<T>`, `KeyValuePair<T>`, `Tuple<>`, `Dictionary<TKey, TValue>`)
+## Basic usage
 
-And for any type not directly supported, it's easy to extend NClap to parse a
-custom type: you just need to implement a simple parsing interface
-(`IStringParser`) and a simple string formatting interface (`IObjectFormatter`).
-For bonus points, you can extend a string completion interface
-(`IStringCompleter`) and get custom type-specific tab completion when building
-an interactive shell that uses the type.
+### Parsing command lines
 
-For all of these types, NClap supports:
-
-* Named arguments
-* Positional arguments
-* Optional arguments
-* Required arguments
-* Multiply-specified arguments
-* Arguments with default values
-* Auto-generating usage info help for argument sets
-* Attribute-driven argument validation (e.g. `MustBeGreaterThanAttribute`, `MustMatchRegExAttribute`, `MustNotBeEmptyAttribute`)
-* Custom argument validation (i.e. properties with custom `get` and `set` accessors)
-* Arguments parsed into fields or properties
-* Arguments parsed into public, internal, or private fields or properties
-
-### Interactive shells
-
-NClap makes it easy to build an interactive shell and project actions into it as verbs, with support for:
-
-* Verbs with complex arguments (i.e. the full argument parsing support described above)
-* Type- and context-sensitive tab completion (supporting many types listed above)
-* Easy extension model for tab completion (i.e. just implement `IStringCompleter`)
-* Easily colorized output
-* Custom input/output
-* A custom partial implementation of `readline`
-* Auto-generated help verb
-* Customizable keyboard bindings for input operations
-
-## Basic usage: parsing command lines
-
-1. First, define a type (`class` or `struct`) to describe the parsed arguments, e.g.:
+1. Define a type (`class` or `struct`) to describe the parsed arguments, e.g.:
 
     ```csharp
     class MyProgramArguments
     {
-        [NamedArgument(ArgumentFlags.AtMostOnce)]
-        public int ImportantValue { get; set; }
+        [NamedArgument]
+        public int ImportantValue { get; set; } // e.g.: ImportantValue=10
     }
     ```
 
-    The basic idea is that each field or property in the type decorated with a `NamedArgumentAttribute` or
+    Each field or property in the type decorated with a `NamedArgumentAttribute` or
     `PositionalArgumentAttribute` will be mapped to a named argument or positional argument, respectively.
-    You can customize this mapping by providing additional arguments to the attributes, e.g.:
+    
+    Alternatively, you can add an attribute to the type itself to indicate that all writable, public
+    fields and properties should be mapped to optional named arguments:
+    
+    ```csharp
+    [ArgumentSet(PublicMembersAreNamedArguments = true)]
+    class MyOtherProgramArguments
+    {
+        // These will become optional, named parameters
+        public int MyAwesomeValue { get; set; }
+        public int MyOtherAwesomeValue { get; set; }
+    }
+    
+    You can customize the arguments through optional parameters to the attributes, e.g.:
 
     ```csharp
     [NamedArgument(ArgumentFlags.Required | ArgumentFlags.Multiple,
                    LongName = "ImpVal",
                    ShortName = "iv",
-                   DefaultValue = 17,
                    HelpText = "This is the very important value")]
     public int ImportantValue { get; set; }
     ```
+
+    In this above example, the C# property `ImportantValue` will be associated with
+    a command-line option with two alternate names (`"ImpVal"` and `"iv"`). It must
+    appear at least once on the command line, and may appear multiple times.
 
 2. Next, parse them!  You'll need to construct or otherwise acquire an instance of the target type that
    your arguments will be parsed into, and then call one of the static parser methods, e.g.:
@@ -119,7 +97,7 @@ NClap makes it easy to build an interactive shell and project actions into it as
     `CommandLineParser.ParseWithUsage`).  The particular variant used here will automatically
     display usage information to the console if an error occurred during argument parsing.
 
-## Basic usage: building an interactive shell
+### Building an interactive shell
 
 1. First, define the commands, or verbs, that you want exposed into the shell, e.g.:
 

@@ -5,12 +5,12 @@
     <version>1.3.0</version> 
     <authors>reubeno</authors>
     <owners>reubeno</owners>
-    <tags>NClap .NET Command Line Argument Parser Interactive Shell</tags>
+    <tags>NClap .NET Command Line CommandLine Argument Parser CLI Interactive Shell</tags>
     <licenseUrl>https://reubeno.github.io/NClap/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/reubeno/NClap</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>
-        NClap can be used to parse command-line arguments or to build a simple interactive command shell. It is primarily driven by .NET attributes (and thus reflection). It has no external dependencies, and is designed with an aim toward extensibility and testability.
+        NClap is a .NET library for parsing command-line arguments and building interactive command shells. It's driven by a declarative attribute syntax, and easy to extend.
     </description> 
     <summary>$description$</summary> 
     <language>en-US</language>
