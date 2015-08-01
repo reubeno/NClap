@@ -43,6 +43,13 @@ namespace NClap.Metadata
         public string AnswerFileArgumentPrefix { get; set; }
 
         /// <summary>
+        /// True to indicate that all writable, public members (in the type
+        /// annotated with this attribute) should be treated as optional named
+        /// arguments.
+        /// </summary>
+        public bool PublicMembersAreNamedArguments { get; set; }
+
+        /// <summary>
         /// If this is non-null, it is the set of prefixes that indicate named
         /// arguments.  Defaults to { "/", "-" }.  The first separator listed
         /// in this array is considered "preferred" and will be used in

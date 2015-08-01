@@ -12,13 +12,18 @@ namespace NClap.Repl.TestApp
         DifferentMode
     }
 
-    [ArgumentSet(AdditionalHelp = "Some tool.", Examples = new [] {"Foo", "Bar"})]
+    [ArgumentSet(
+        AdditionalHelp = "Some tool.",
+        Examples = new [] {"Foo", "Bar"},
+        PublicMembersAreNamedArguments = true)]
     class ProgramArguments : HelpArgumentsBase
     {
+        public string Unannotated { get; set; }
+
         [PositionalArgument(ArgumentFlags.Required, Position = 0)]
         public int Foo { get; set; }
 
-        [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
+        [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]
         public ProgramMode PosMode { get; set; }
 
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 2)]

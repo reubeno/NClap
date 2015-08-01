@@ -92,26 +92,39 @@ namespace NClap.Parser
         /// controlling how parsing proceeds.</param>
         public CommandLineParserEngine(Type type, object defaultValues, CommandLineParserOptions options)
         {
+            // Stash away the type for later use.
             _type = type;
 
+            // Save off the options provided; if none were provided, construct
+            // some defaults.
             _options = options?.Clone() ?? new CommandLineParserOptions();
 
+            // If no reporter was provided, use a no-op one.
             if (_options.Reporter == null)
             {
                 _options.Reporter = err => { };
             }
 
+            // If no file-system reader was provided, use our default
+            // implementation.
             if (_options.FileSystemReader == null)
             {
                 _options.FileSystemReader = FileSystemReader.Create();
             }
 
+            // Look for the optional ArgumentSetAttribute on the type; if there
+            // isn't one, construct a default empty one.
             _setAttribute = type.GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
 
-            var allArguments = CreateArgumentDescriptors(type, defaultValues, _options).ToList();
+            // Scan the members of the type and construct argument descriptors
+            // for those members that should treated as arguments.
+            var allArguments = CreateArgumentDescriptors(type, _setAttribute, defaultValues, _options).ToList();
 
+            // Find the subset of arguments that are named.
             _namedArguments = allArguments.Where(arg => arg.Attribute is NamedArgumentAttribute).ToList();
 
+            // Construct a map of the positional arguments, making sure that
+            // there aren't any duplicate position indices.
             _positionalArguments = new SortedList<int, Argument>();
             foreach (var arg in allArguments.Where(arg => arg.Attribute is PositionalArgumentAttribute))
             {
@@ -130,8 +143,12 @@ namespace NClap.Parser
                 _positionalArguments.Add(attrib.Position, arg);
             }
 
+            // Construct a map of the named arguments; internally this helper
+            // method will validate that we don't have duplicate names.
             _namedArgumentMap = CreateNamedArgumentMap(_namedArguments);
-
+            
+            // Perform some last-minute validation on arguments; otherwise,
+            // we're good to go.
             ValidateArguments(_namedArguments, _positionalArguments);
         }
 
@@ -505,7 +522,7 @@ namespace NClap.Parser
 
         private static IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
 
-        private static IEnumerable<IMutableMemberInfo> GetAllFieldsAndProperties(Type type)
+        private static IEnumerable<IMutableMemberInfo> GetAllFieldsAndProperties(Type type, bool includeNonPublicMembers)
         {
             // Generate a list of the fields and properties declared on
             // 'argumentSpecification', and on all types in its inheritance
@@ -513,12 +530,16 @@ namespace NClap.Parser
             var members = new List<IMutableMemberInfo>();
             for (var currentType = type; currentType != null; currentType = currentType.BaseType)
             {
-                const BindingFlags bindingFlags =
+                var bindingFlags =
                     BindingFlags.Instance |
                     BindingFlags.Static |
                     BindingFlags.Public |
-                    BindingFlags.NonPublic |
                     BindingFlags.DeclaredOnly;
+
+                if (includeNonPublicMembers)
+                {
+                    bindingFlags |= BindingFlags.NonPublic;
+                }
 
                 members.AddRange(currentType.GetFieldsAndProperties(bindingFlags));
             }
@@ -526,14 +547,35 @@ namespace NClap.Parser
             return members;
         }
 
-        private static IEnumerable<Argument> CreateArgumentDescriptors(Type type, object defaultValues, CommandLineParserOptions options)
+        /// <summary>
+        /// Constructs argument descriptors for all members in the specified
+        /// type that should be treated as arguments.
+        /// </summary>
+        /// <param name="type">The type to process.</param>
+        /// <param name="setAttribute">The argument set metadata.</param>
+        /// <param name="defaultValues">Optionally, provides default values.</param>
+        /// <param name="options">Options for parsing.</param>
+        /// <returns></returns>
+        private static IEnumerable<Argument> CreateArgumentDescriptors(Type type, ArgumentSetAttribute setAttribute, object defaultValues, CommandLineParserOptions options)
         {
             // Find all fields and properties that have argument attributes on
             // them. For each that we find, capture information about them.
-            var args = GetAllFieldsAndProperties(type)
-                           .Select(member => CreateArgumentDescriptor(member, defaultValues, options))
-                           .Where(arg => arg != null)
-                           .ToDictionary(arg => arg.Member, arg => arg);
+            var argList = GetAllFieldsAndProperties(type, true)
+                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, options))
+                          .Where(arg => arg != null);
+
+            // If the argument set attribute indicates that we should also
+            // include un-attributed, public, writable members as named
+            // arguments, then look for them now.
+            if (setAttribute.PublicMembersAreNamedArguments)
+            {
+                argList = argList.Concat(GetAllFieldsAndProperties(type, false)
+                    .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
+                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, options)));
+            }
+
+            // Create a map of the arguments, based on member.
+            var args = argList.ToDictionary(arg => arg.Member, arg => arg);
 
             // Now connect up any conflicts, now that we've created all args.
             foreach (var arg in args.Values)
@@ -563,7 +605,8 @@ namespace NClap.Parser
             return args.Values;
         }
 
-        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, object defaultValues, CommandLineParserOptions options)
+        private static Argument CreateArgumentDescriptorIfApplicable(IMutableMemberInfo member, object defaultValues,
+            CommandLineParserOptions options)
         {
             var attribute = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
             if (attribute == null)
@@ -571,6 +614,11 @@ namespace NClap.Parser
                 return null;
             }
 
+            return CreateArgumentDescriptor(member, attribute, defaultValues, options);
+        }
+
+        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues, CommandLineParserOptions options)
+        {
             if (!member.IsReadable || !member.IsWritable)
             {
                 var declaringType = member.MemberInfo.DeclaringType;
