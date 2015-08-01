@@ -220,9 +220,9 @@ namespace NClap.Tests.Metadata
             arg.GetSyntaxHelp(s_defaultSetAttribute).Should().Be("[/Value=<Int32>,<String>]");
         }
 
-        private static Argument GetArgument(Type type)
+        internal static Argument GetArgument(Type type, string fieldName = "Value")
         {
-            var argField = type.GetField("Value");
+            var argField = type.GetField(fieldName);
             var attrib = argField.GetSingleAttribute<ArgumentBaseAttribute>();
             attrib.Should().NotBeNull();
 

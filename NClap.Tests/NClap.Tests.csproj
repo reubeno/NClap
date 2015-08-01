@@ -87,6 +87,7 @@
     <Compile Include="ConsoleInput\SimulatedConsoleOutput.cs" />
     <Compile Include="ConsoleInput\TokenCompletionSetTests.cs" />
     <Compile Include="ConsoleInput\ConsoleKeyBindingTests.cs" />
+    <Compile Include="Exceptions\InvalidArgumentSetExceptionTests.cs" />
     <Compile Include="Repl\ConsoleLoopClientTests.cs" />
     <Compile Include="Repl\LoopTests.cs" />
     <Compile Include="TestExtensions.cs" />

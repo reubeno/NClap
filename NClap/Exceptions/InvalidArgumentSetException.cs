@@ -11,8 +11,6 @@ namespace NClap.Exceptions
     [Serializable]
     public class InvalidArgumentSetException : Exception
     {
-        private readonly string _innerMessage;
-
         /// <summary>
         /// Constructor that takes an <see cref="Metadata.Argument"/> object.
         /// </summary>
@@ -78,13 +76,18 @@ namespace NClap.Exceptions
         public InvalidArgumentSetException(Type argumentSetType, string message, Exception innerException) : base(message, innerException)
         {
             ArgumentSetType = argumentSetType;
-            _innerMessage = message;
+            InnerMessage = message;
         }
 
         /// <summary>
         /// If present, indicates the type of the problematic argument set.
         /// </summary>
         public Type ArgumentSetType { get; }
+
+        /// <summary>
+        /// Optionally provides an inner message.
+        /// </summary>
+        public string InnerMessage { get; set; }
 
         /// <summary>
         /// If present, indicates the problematic argument.
@@ -109,16 +112,20 @@ namespace NClap.Exceptions
                 {
                     summary.Add($"The type '{ArgumentSetType.FullName}' is not a valid argument set.");
                 }
+                else
+                {
+                    summary.Add("An invalid argument set was used.");
+                }
 
                 if (MemberInfo != null)
                 {
                     summary.Add($"Member '{MemberInfo.MemberInfo.Name}' is not supported as an argument or has invalid argument metadata.");
                 }
 
-                if (!string.IsNullOrEmpty(_innerMessage))
+                if (!string.IsNullOrEmpty(InnerMessage))
                 {
                     summary.Add(
-                        $"{Environment.NewLine}{Environment.NewLine}Details:{Environment.NewLine}    {_innerMessage}");
+                        $"{Environment.NewLine}{Environment.NewLine}Details:{Environment.NewLine}    {InnerMessage}");
                 }
 
                 return string.Join(" ", summary);
