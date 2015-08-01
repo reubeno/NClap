@@ -69,6 +69,7 @@ namespace NClap.Metadata
 
             if (Exists.HasFlag(PathExists.AsFile))
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 exists = exists || context.FileSystemReader.FileExists(path);
             }
 

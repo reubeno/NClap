@@ -73,6 +73,7 @@ namespace NClap.Utilities
 
             try
             {
+                // ReSharper disable once UnusedVariable
                 var convertedValue = Convert.ChangeType(sourceValue, destType, CultureInfo.InvariantCulture);
                 return true;
             }

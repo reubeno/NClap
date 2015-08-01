@@ -188,6 +188,8 @@ namespace NClap.ConsoleInput
         /// Clear the input buffer and reset the cursor to the beginning of the
         /// buffer.
         /// </summary>
+        /// <param name="clearBufferOnly">True to clear the buffer only; false
+        /// to clear the buffer and reset the cursor.</param>
         public void ClearLine(bool clearBufferOnly)
         {
             if (!clearBufferOnly)
@@ -660,6 +662,7 @@ namespace NClap.ConsoleInput
                 // Update console state.
                 cursorLeft = ConsoleOutput.CursorLeft;
                 cursorTop = ConsoleOutput.CursorTop;
+                // ReSharper disable once RedundantAssignment
                 cursorOffset = cursorTop * bufferWidth + cursorLeft;
             }
 

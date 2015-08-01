@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using NClap.Exceptions;
 using NClap.Types;
 
 namespace NClap.Metadata
@@ -47,7 +48,9 @@ namespace NClap.Metadata
 
                 if ((value != null) && (value.Length == 0))
                 {
-                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.InvalidArgumentLongName));
+                    throw new InvalidArgumentSetException(string.Format(
+                        CultureInfo.CurrentCulture,
+                        Strings.InvalidArgumentLongName));
                 }
 
                 return value;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 using NClap.Utilities;
@@ -463,6 +464,7 @@ namespace NClap.ConsoleInput
             return InputUtilities.TryGetSingleChar(key, modifiers).GetValueOrDefault('\0');
         }
 
+        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
         private static ConsoleKey GetKey(char value, ConsoleModifiers modifiers)
         {
             throw new NotImplementedException();

@@ -72,6 +72,7 @@
     <Compile Include="ConsoleInput\IConsoleReader.cs" />
     <Compile Include="ConsoleInput\IReadOnlyConsoleKeyBindingSet.cs" />
     <Compile Include="ConsoleInput\TokenCompletionSet.cs" />
+    <Compile Include="Exceptions\InvalidArgumentSetException.cs" />
     <Compile Include="Metadata\ArgumentValueAttribute.cs" />
     <Compile Include="Metadata\ArgumentValueFlags.cs" />
     <Compile Include="Metadata\HelpOptions.cs" />

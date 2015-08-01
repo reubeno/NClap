@@ -93,14 +93,12 @@ namespace NClap.ConsoleInput
         /// <returns>The generated completions.</returns>
         private static IReadOnlyList<string> Create(string inputText, int cursorIndex, ConsoleCompletionHandler completionHandler, out int existingTokenStartIndex, out int existingTokenLength)
         {
-            List<Token> tokens;
-
             //
             // Try to parse the line.  If we fail to parse it, then just
             // return immediately.
             //
 
-            tokens = CommandLineParser.Tokenize(
+            var tokens = CommandLineParser.Tokenize(
                 inputText,
                 CommandLineTokenizerOptions.AllowPartialInput).ToList();
 

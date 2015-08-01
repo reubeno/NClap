@@ -116,7 +116,8 @@ namespace NClap.Parser
 
             // Special case: if the argument type is string, then it's safe
             // to assume that its default value is an empty string.
-            if ((defaultValue is string) && string.IsNullOrEmpty((string) defaultValue))
+            var stringDefaultValue = defaultValue as string;
+            if ((stringDefaultValue != null) && string.IsNullOrEmpty(stringDefaultValue))
             {
                 return null;
             }

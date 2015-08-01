@@ -105,6 +105,8 @@ namespace NClap.Types
             }
 
             var parsedObjects = new object[_typeParameters.Length];
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < tokens.Length; ++i)
             {
                 if (!_argTypeParameters[i].TryParse(context, tokens[i], out parsedObjects[i]))

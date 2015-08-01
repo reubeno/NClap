@@ -8,6 +8,7 @@ using NClap.Parser;
 using NClap.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using NClap.Exceptions;
 using NSubstitute;
 
 namespace NClap.Tests.Parser
@@ -780,10 +781,10 @@ namespace NClap.Tests.Parser
         public void UnsupportedFieldTypesThrow()
         {
             Action readOnlyField = () => CommandLineParser.Parse(new string[] { }, new ReadOnlyFieldArguments());
-            readOnlyField.ShouldThrow<NotSupportedException>();
+            readOnlyField.ShouldThrow<InvalidArgumentSetException>();
 
             Action constField = () => CommandLineParser.Parse(new string[] { }, new ConstFieldArguments());
-            constField.ShouldThrow<NotSupportedException>();
+            constField.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -866,7 +867,7 @@ namespace NClap.Tests.Parser
             var args = new DuplicateLongNameArguments();
 
             Action parseFunc = () => CommandLineParser.Parse(new string[] { }, args);
-            parseFunc.ShouldThrow<NotSupportedException>();
+            parseFunc.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -885,7 +886,7 @@ namespace NClap.Tests.Parser
             var args = new DuplicateShortNameArguments();
 
             Action parseFunc = () => CommandLineParser.Parse(new string[] { }, args);
-            parseFunc.ShouldThrow<NotSupportedException>();
+            parseFunc.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -902,35 +903,35 @@ namespace NClap.Tests.Parser
         public void UnsettablePropertyArgument()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new UnsettablePropertyArguments());
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void DuplicatePositionThrows()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new SamePositionArguments());
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void NoZeroPositionThrows()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new NoZeroPositionArguments());
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void RestOfLinePlusPositionalArgumentThrows()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new RestOfLinePlusPositionArguments());
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void MultiplePositionalArgumentsPlusPositionArgumentsThrows()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new MultiplePositionalArgumentsPlusPositionArguments());
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -1022,7 +1023,7 @@ namespace NClap.Tests.Parser
             var args = new PropertyWithoutGetArguments();
 
             Action parse = () => CommandLineParser.Parse(new[] { "/value=a" }, args);
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -1031,7 +1032,7 @@ namespace NClap.Tests.Parser
             var args = new UnknownConflictingArguments();
 
             Action parse = () => CommandLineParser.Parse(new[] { "/value=a" }, args);
-            parse.ShouldThrow<InvalidDataException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -1061,7 +1062,7 @@ namespace NClap.Tests.Parser
         {
             var args = new FieldDefaultValueOfWrongTypeArguments();
             Action parse = () => CommandLineParser.Parse(new string[] { }, args);
-            parse.ShouldThrow<InvalidDataException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -1069,7 +1070,7 @@ namespace NClap.Tests.Parser
         {
             var args = new PropertyDefaultValueOfWrongTypeArguments();
             Action parse = () => CommandLineParser.Parse(new string[] { }, args);
-            parse.ShouldThrow<InvalidDataException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]

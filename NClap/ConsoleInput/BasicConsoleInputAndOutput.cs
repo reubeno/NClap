@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using NClap.Utilities;
 
@@ -295,6 +296,7 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Wrapper for native methods.
         /// </summary>
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private static class NativeMethods
         {
             public enum StandardHandleType

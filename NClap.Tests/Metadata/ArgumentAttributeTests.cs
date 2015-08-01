@@ -2,6 +2,7 @@
 using NClap.Metadata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using NClap.Exceptions;
 
 namespace NClap.Tests.Metadata
 {
@@ -27,7 +28,7 @@ namespace NClap.Tests.Metadata
             setEmpty.ShouldNotThrow();
 
             Action getEmpty = () => { var x = attribute.LongName; };
-            getEmpty.ShouldThrow<NotSupportedException>();
+            getEmpty.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]

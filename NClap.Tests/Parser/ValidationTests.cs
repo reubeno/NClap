@@ -8,6 +8,7 @@ using NClap.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using FluentAssertions;
+using NClap.Exceptions;
 
 namespace NClap.Tests.Parser
 {
@@ -168,7 +169,7 @@ namespace NClap.Tests.Parser
         {
             var args = new IncorrectlyUsedMustNotBeEmptyAttributeArguments();
             Action parse = () => CommandLineParser.Parse(new[] { "/value=5" }, args);
-            parse.ShouldThrow<NotSupportedException>();
+            parse.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]

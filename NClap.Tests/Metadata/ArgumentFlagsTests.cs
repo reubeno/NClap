@@ -5,6 +5,7 @@ using NClap.Metadata;
 using NClap.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using NClap.Exceptions;
 
 namespace NClap.Tests.Metadata
 {
@@ -80,10 +81,10 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void MultipleUniqueScalar()
         {
-            ShouldThrow<MultipleUniqueArguments<string>, NotSupportedException>(new string[] { });
-            ShouldThrow<MultipleUniqueArguments<string>, NotSupportedException>(new[] { "/value:a" });
-            ShouldThrow<MultipleUniqueArguments<string>, NotSupportedException>(new[] { "/value:a", "/value:b" });
-            ShouldThrow<MultipleUniqueArguments<string>, NotSupportedException>(new[] { "/value:a", "/value:a" });
+            ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new string[] { });
+            ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new[] { "/value:a" });
+            ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new[] { "/value:a", "/value:b" });
+            ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new[] { "/value:a", "/value:a" });
         }
 
         [TestMethod]

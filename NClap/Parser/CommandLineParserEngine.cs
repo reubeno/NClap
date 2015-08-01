@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Types;
 using NClap.Utilities;
@@ -55,8 +56,6 @@ namespace NClap.Parser
     {
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
 
-        private readonly Type _type;
-
         private readonly IReadOnlyDictionary<string, Argument> _namedArgumentMap;
         private readonly IReadOnlyList<Argument> _namedArguments;
         private readonly SortedList<int, Argument> _positionalArguments;
@@ -92,9 +91,6 @@ namespace NClap.Parser
         /// controlling how parsing proceeds.</param>
         public CommandLineParserEngine(Type type, object defaultValues, CommandLineParserOptions options)
         {
-            // Stash away the type for later use.
-            _type = type;
-
             // Save off the options provided; if none were provided, construct
             // some defaults.
             _options = options?.Clone() ?? new CommandLineParserOptions();
@@ -131,13 +127,12 @@ namespace NClap.Parser
                 var attrib = (PositionalArgumentAttribute)arg.Attribute;
                 if (_positionalArguments.ContainsKey(attrib.Position))
                 {
-                    throw new NotSupportedException(
-                        string.Format(
-                            CultureInfo.CurrentCulture,
-                            Strings.DuplicatePositionArguments,
-                            _positionalArguments[attrib.Position].Member.MemberInfo.Name,
-                            arg.Member.MemberInfo.Name,
-                            attrib.Position));
+                    throw new InvalidArgumentSetException(arg, string.Format(
+                        CultureInfo.CurrentCulture,
+                        Strings.DuplicatePositionArguments,
+                        _positionalArguments[attrib.Position].Member.MemberInfo.Name,
+                        arg.Member.MemberInfo.Name,
+                        attrib.Position));
                 }
 
                 _positionalArguments.Add(attrib.Position, arg);
@@ -247,6 +242,7 @@ namespace NClap.Parser
             }
 
             // Append the "NAME" section: lists the program name.
+            // ReSharper disable once RedundantAssignment
             firstSection = false;
             appendHeader(Strings.UsageInfoNameHeader);
             var name = commandName ?? AssemblyUtilities.GetAssemblyFileName();
@@ -302,6 +298,7 @@ namespace NClap.Parser
                     }
 
                     // Append parameter syntax info.
+                    // ReSharper disable once ExpressionIsAlwaysNull
                     appendLine(new ColoredString(simplifyParameterSyntax(argInfo.Syntax), paramSyntaxFgColor));
 
                     // If both are present (and requested to be displayed), we
@@ -589,7 +586,7 @@ namespace NClap.Parser
 
                     if (conflictingArgs.Count != 1)
                     {
-                        throw new InvalidDataException(string.Format(
+                        throw new InvalidArgumentSetException(arg, string.Format(
                             CultureInfo.CurrentCulture,
                             Strings.ConflictingMemberNotFound,
                             conflictingMemberName,
@@ -625,7 +622,11 @@ namespace NClap.Parser
                 var declaringType = member.MemberInfo.DeclaringType;
                 Contract.Assume(declaringType != null);
 
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.MemberNotSupported, member.MemberInfo.Name, declaringType.Name));
+                throw new InvalidArgumentSetException(member, string.Format(
+                    CultureInfo.CurrentCulture,
+                    Strings.MemberNotSupported,
+                    member.MemberInfo.Name,
+                    declaringType?.Name));
             }
 
             var defaultFieldValue = (defaultValues != null) ? member.GetValue(defaultValues) : null;
@@ -643,7 +644,10 @@ namespace NClap.Parser
 
                 if (argumentMap.ContainsKey(argument.LongName))
                 {
-                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.DuplicateArgumentLongName, argument.LongName));
+                    throw new InvalidArgumentSetException(argument, string.Format(
+                        CultureInfo.CurrentCulture, 
+                        Strings.DuplicateArgumentLongName,
+                        argument.LongName));
                 }
 
                 argumentMap.Add(argument.LongName, argument);
@@ -655,7 +659,9 @@ namespace NClap.Parser
 
                 if (argumentMap.ContainsKey(argument.ShortName))
                 {
-                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.DuplicateArgumentShortName, argument.ShortName));
+                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
+                        Strings.DuplicateArgumentShortName,
+                        argument.ShortName));
                 }
 
                 argumentMap.Add(argument.ShortName, argument);
@@ -687,7 +693,9 @@ namespace NClap.Parser
             {
                 if (allArgsConsumed || (argument.Key != lastIndex + 1))
                 {
-                    throw new NotSupportedException(Strings.NonConsecutivePositionalParameters);
+                    throw new InvalidArgumentSetException(
+                        argument.Value,
+                        Strings.NonConsecutivePositionalParameters);
                 }
 
                 lastIndex = argument.Key;
@@ -843,6 +851,8 @@ namespace NClap.Parser
             if ((index > 0) && (_setAttribute.AnswerFileArgumentPrefix != null))
             {
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
+
+                // ReSharper disable once RedundantAssignment
                 help[index++] = new ArgumentUsageInfo(
                     string.Format(CultureInfo.CurrentCulture, "[{0}<FilePath>]*", _setAttribute.AnswerFileArgumentPrefix),
                     "Read response file for more options.",

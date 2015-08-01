@@ -4,7 +4,7 @@ using NClap.Utilities;
 using NClap.Metadata;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
-
+using NClap.Exceptions;
 using NClap.Parser;
 
 namespace NClap.Tests.Metadata
@@ -209,7 +209,7 @@ namespace NClap.Tests.Metadata
         public void EmptyLongNameArgument()
         {
             Action getArg = () => GetArgument(typeof(EmptyLongNameArguments));
-            getArg.ShouldThrow<NotSupportedException>();
+            getArg.ShouldThrow<InvalidArgumentSetException>();
         }
 
         [TestMethod]

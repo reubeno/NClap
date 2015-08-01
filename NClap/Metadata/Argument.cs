@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using NClap.Exceptions;
 using NClap.Parser;
 using NClap.Types;
 using NClap.Utilities;
@@ -59,7 +60,7 @@ namespace NClap.Metadata
             _argType = Attribute.GetArgumentType(member.Type);
             _collectionArgType = AsCollectionType(_argType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
-            _validationAttributes = GetValidationAttributes(_argType, Member.MemberInfo);
+            _validationAttributes = GetValidationAttributes(_argType, Member);
             _argumentParseContext = CreateParseContext(attribute, options);
 
             LongName = GetLongName(attribute, member.MemberInfo);
@@ -92,7 +93,7 @@ namespace NClap.Metadata
 
             if (Unique && !IsCollection)
             {
-                throw new NotSupportedException(Strings.UniqueUsedOnNonCollectionArgument);
+                throw new InvalidArgumentSetException(member, Strings.UniqueUsedOnNonCollectionArgument);
             }
 
             Debug.Assert(!string.IsNullOrEmpty(LongName));
@@ -551,15 +552,17 @@ namespace NClap.Metadata
             };
         }
 
-        private static IReadOnlyList<ArgumentValidationAttribute> GetValidationAttributes(IArgumentType argType, MemberInfo member)
+        private static IReadOnlyList<ArgumentValidationAttribute> GetValidationAttributes(IArgumentType argType, IMutableMemberInfo memberInfo)
         {
+            var member = memberInfo.MemberInfo;
+
             var collectionArgType = AsCollectionType(argType);
             var argTypeToCheck = (collectionArgType != null) ? collectionArgType.ElementType : argType;
 
             var attributes = member.GetCustomAttributes<ArgumentValidationAttribute>().ToList();
             foreach (var attrib in attributes.Where(attrib => !attrib.AcceptsType(argTypeToCheck)))
             {
-                throw new NotSupportedException(string.Format(
+                throw new InvalidArgumentSetException(memberInfo, string.Format(
                     CultureInfo.CurrentCulture,
                     Strings.BadValidationAttribute,
                     attrib.GetType().Name,
@@ -619,12 +622,13 @@ namespace NClap.Metadata
             }
 
             // Validate the value's type.
+            // ReSharper disable once UseMethodIsInstanceOfType
             if ((value != null) && !member.Type.IsAssignableFrom(value.GetType()))
             {
                 // See if it's implicitly convertible.
                 if (!member.Type.IsImplicitlyConvertibleFrom(value))
                 {
-                    throw new InvalidDataException(string.Format(
+                    throw new InvalidArgumentSetException(member, string.Format(
                         CultureInfo.CurrentCulture,
                         Strings.DefaultValueIsOfWrongType,
                         member.MemberInfo.Name,
@@ -652,6 +656,7 @@ namespace NClap.Metadata
                 return true;
             }
 
+            // ReSharper disable once RedundantCast
             return (object)value != null;
         }
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NClap.Metadata
+﻿namespace NClap.Metadata
 {
     /// <summary>
     /// Attribute that indicates the associated string argument member cannot be
