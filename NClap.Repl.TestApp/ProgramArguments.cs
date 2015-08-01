@@ -20,7 +20,7 @@ namespace NClap.Repl.TestApp
     {
         public string Unannotated { get; set; }
 
-        [PositionalArgument(ArgumentFlags.Required, Position = 0)]
+        [PositionalArgument(ArgumentFlags.Required, Position = 1)]
         public int Foo { get; set; }
 
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]

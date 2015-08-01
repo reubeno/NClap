@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NClap.Metadata;
 using NClap.Utilities;
 
@@ -10,6 +11,8 @@ namespace NClap.Exceptions
     [Serializable]
     public class InvalidArgumentSetException : Exception
     {
+        private readonly string _innerMessage;
+
         /// <summary>
         /// Constructor that takes an <see cref="Metadata.Argument"/> object.
         /// </summary>
@@ -75,6 +78,7 @@ namespace NClap.Exceptions
         public InvalidArgumentSetException(Type argumentSetType, string message, Exception innerException) : base(message, innerException)
         {
             ArgumentSetType = argumentSetType;
+            _innerMessage = message;
         }
 
         /// <summary>
@@ -92,5 +96,33 @@ namespace NClap.Exceptions
         /// </summary>
         internal IMutableMemberInfo MemberInfo { get; }
 
+        /// <summary>
+        /// The message to display.
+        /// </summary>
+        public override string Message
+        {
+            get
+            {
+                var summary = new List<string>();
+
+                if (ArgumentSetType != null)
+                {
+                    summary.Add($"The type '{ArgumentSetType.FullName}' is not a valid argument set.");
+                }
+
+                if (MemberInfo != null)
+                {
+                    summary.Add($"Member '{MemberInfo.MemberInfo.Name}' is not supported as an argument or has invalid argument metadata.");
+                }
+
+                if (!string.IsNullOrEmpty(_innerMessage))
+                {
+                    summary.Add(
+                        $"{Environment.NewLine}{Environment.NewLine}Details:{Environment.NewLine}    {_innerMessage}");
+                }
+
+                return string.Join(" ", summary);
+            }
+        }
     }
 }
