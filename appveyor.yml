@@ -61,7 +61,7 @@ before_build:
 
 # build!
 build_script:
-    - ps: |
+    - ps: >-
         # Define build command.
         $buildCmd = "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe"
         $buildArgs = @(
