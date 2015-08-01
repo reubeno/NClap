@@ -18,7 +18,7 @@ namespace NClap.Repl.TestApp
         [PositionalArgument(ArgumentFlags.Required, Position = 0)]
         public int Foo { get; set; }
 
-        [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]
+        [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
         public ProgramMode PosMode { get; set; }
 
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 2)]
@@ -31,7 +31,7 @@ namespace NClap.Repl.TestApp
         [MustNotBeEmpty]
         public FileSystemPath SomePath { get; set; }
 
-        [NamedArgument(DefaultValue = -11)]
+        [NamedArgument(DefaultValue = 11)]
         public uint SomeUnsignedInt { get; set; }
     }
 }

@@ -118,7 +118,13 @@ namespace NClap.Parser
                 var attrib = (PositionalArgumentAttribute)arg.Attribute;
                 if (_positionalArguments.ContainsKey(attrib.Position))
                 {
-                    throw new NotSupportedException(Strings.DuplicatePositionArguments);
+                    throw new NotSupportedException(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            Strings.DuplicatePositionArguments,
+                            _positionalArguments[attrib.Position].Member.MemberInfo.Name,
+                            arg.Member.MemberInfo.Name,
+                            attrib.Position));
                 }
 
                 _positionalArguments.Add(attrib.Position, arg);

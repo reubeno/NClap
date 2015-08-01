@@ -180,7 +180,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Multiple default arguments with the same position index were seen..
+        ///   Looks up a localized string similar to Multiple positional arguments with position index {2} were seen: members &apos;{0}&apos; and &apos;{1}&apos;..
         /// </summary>
         internal static string DuplicatePositionArguments {
             get {

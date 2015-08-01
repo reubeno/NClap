@@ -159,7 +159,7 @@ Reason:
     <value>Duplicate argument short name specification: {0}.</value>
   </data>
   <data name="DuplicatePositionArguments" xml:space="preserve">
-    <value>Multiple default arguments with the same position index were seen.</value>
+    <value>Multiple positional arguments with position index {2} were seen: members '{0}' and '{1}'.</value>
   </data>
   <data name="ElementTypeNotSupported" xml:space="preserve">
     <value>The element type of '{0}' is not supported as an argument type.</value>
