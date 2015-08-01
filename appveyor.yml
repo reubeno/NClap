@@ -61,7 +61,8 @@ before_build:
 
 # build!
 build_script:
-  - ps: cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap.sln /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
+  - ps: cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap\NClap.csproj /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
+  - ps: & "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap.sln /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
   - ps: PublishCoverity.exe compress -o coverity.zip -i cov-int
   - ps: PublishCoverity.exe publish -z coverity.zip -t $env:COVERITY_SCAN_TOKEN -d "AppVeyor scheduled build ($env:APPVEYOR_BUILD_VERSION)" --codeVersion "$env:APPVEYOR_BUILD_VERSION"
 
