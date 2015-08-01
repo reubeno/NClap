@@ -32,7 +32,7 @@ environment:
 
 # build cache to preserve files/folders between builds
 cache:
-  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - src\packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
 
 #---------------------------------#
 #       build configuration       #
@@ -58,7 +58,7 @@ before_build:
 # build!
 build:
   parallel: true                  # enable MSBuild parallel builds
-  project: NClap.sln              # path to Visual Studio solution or project
+  project: src\NClap.sln              # path to Visual Studio solution or project
 
   # MSBuild verbosity level
   verbosity: normal
@@ -68,7 +68,7 @@ build:
 #---------------------------------#
 
 test_script:
-  - ps: OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
+  - ps: OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:src\NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
   - ps: csmacnz.Coveralls.exe --opencover -i coverage_$env:CONFIGURATION.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID --useRelativePaths
 
 #---------------------------------#
@@ -82,5 +82,5 @@ artifacts:
     name: CodeCoverageData
 
   # publish NuGet packages
-  - path: 'NClap\bin\$(Configuration)\*.nupkg' # find all NuGet packages recursively
+  - path: 'src\NClap\bin\$(Configuration)\*.nupkg' # find all NuGet packages recursively
     name: NuGetPackages
