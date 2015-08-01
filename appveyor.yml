@@ -18,12 +18,17 @@ skip_tags: true
 #    environment configuration    #
 #---------------------------------#
 
-# Operating system (build VM template)
+# operating system (build VM template)
 os: Windows Server 2012
 
 # scripts that are called at very beginning, before repo cloning
 init:
   - git config --global core.autocrlf input
+
+# set up environment
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: F5G6XI+z7nKUA1mmtD1Het6Yq5KltVlXKSTmKf2KrF+hDOyNp09V9Oozs3HuptWx
 
 # build cache to preserve files/folders between builds
 cache:
@@ -41,50 +46,41 @@ configuration:
   - Debug
   - Release
 
+# install a few prereqs
+install:
+  - cinst opencover -source https://nuget.org/api/v2/
+  - cinst coveralls.net -source https://nuget.org/api/v2/
+
+# restore NuGet packages before building
+before_build:
+  - nuget restore
+
+# build!
 build:
   parallel: true                  # enable MSBuild parallel builds
   project: NClap.sln              # path to Visual Studio solution or project
-  # publish_nuget: true             # package projects with .nuspec files and push to artifacts
-  # publish_nuget_symbols: true     # generate and publish NuGet symbol packages
-  # include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
 
   # MSBuild verbosity level
   verbosity: normal
-
-before_build:
-  - nuget restore
 
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
 
+test_script:
+  - OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"\"NClap.Tests\bin\Release\NClap.Tests.dll\" /logger:Appveyor" -skipautoprops -filter:"+[NClap]*" -output:coverage_release.xml 
+  - ps: csmacnz.Coveralls.exe --opencover -i coverage_release.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
+
 #---------------------------------#
 #      artifacts configuration    #
 #---------------------------------#
 
-# artifacts:
+artifacts:
 
-  # pushing a single file
-  # - path: test.zip
+  # publish coverage data
+  - path: coverage_release.xml
+    name: CodeCoverageData
 
-  # pushing a single file with environment variable in path and "Deployment name" specified
-  # - path: MyProject\bin\$(configuration)
-  #   name: myapp
-
-  # pushing entire folder as a zip archive
-  # - path: logs
-
-  # pushing all *.nupkg files in directory
-  # - path: out\*.nupkg
-
-#---------------------------------#
-#     deployment configuration    #
-#---------------------------------#
-
-#---------------------------------#
-#        global handlers          #
-#---------------------------------#
-
-#---------------------------------#
-#         notifications           #
-#---------------------------------#
+  # publish NuGet packages
+  - path: '**\*.nupkg' # find all NuGet packages recursively
+    name: NuGetPackages
