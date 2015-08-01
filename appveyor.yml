@@ -62,6 +62,8 @@ before_build:
 # build!
 build_script:
   - ps: |
+      cov-configure.exe --compiler packages\Microsoft.Net.Compilers.1.0.0-rc2\build\..\tools\csc2.exe
+  - ps: |
       cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap\NClap.csproj /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=AnyCPU" /p:NoPackages=1
   - ps: |
       & "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap.sln /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
@@ -71,8 +73,8 @@ build_script:
       PublishCoverity.exe publish -z coverity.zip -t $env:COVERITY_SCAN_TOKEN -d "AppVeyor scheduled build ($env:APPVEYOR_BUILD_VERSION)" --codeVersion "$env:APPVEYOR_BUILD_VERSION"
 
 # enable RDP
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+# on_finish:
+#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 
 #---------------------------------#
