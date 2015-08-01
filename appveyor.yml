@@ -82,5 +82,5 @@ artifacts:
     name: CodeCoverageData
 
   # publish NuGet packages
-  - path: '**\*.nupkg' # find all NuGet packages recursively
+  - path: 'NClap\bin\$(Configuration)\*.nupkg' # find all NuGet packages recursively
     name: NuGetPackages
