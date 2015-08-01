@@ -62,7 +62,7 @@ before_build:
 # build!
 build_script:
   - ps: |
-      cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap\NClap.csproj /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
+      cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap\NClap.csproj /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=AnyCPU" /p:NoPackages=1
   - ps: |
       & "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap.sln /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
   - ps: |
