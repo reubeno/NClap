@@ -53,7 +53,7 @@ install:
 
 # restore NuGet packages before building
 before_build:
-  - nuget restore
+  - nuget restore src\NClap.sln
 
 # build!
 build:

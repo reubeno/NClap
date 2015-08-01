@@ -58,6 +58,7 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
         public int MyAwesomeValue { get; set; }
         public int MyOtherAwesomeValue { get; set; }
     }
+    ```
     
     You can customize the arguments through optional parameters to the attributes, e.g.:
 
