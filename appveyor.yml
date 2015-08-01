@@ -19,7 +19,7 @@ skip_tags: true
 #---------------------------------#
 
 # operating system (build VM template)
-os: Visual Studio 2015
+os: Windows Server 2012
 
 # scripts that are called at very beginning, before repo cloning
 init:
@@ -29,9 +29,6 @@ init:
 environment:
   COVERALLS_REPO_TOKEN:
     secure: F5G6XI+z7nKUA1mmtD1Het6Yq5KltVlXKSTmKf2KrF+hDOyNp09V9Oozs3HuptWx
-
-  COVERITY_SCAN_TOKEN:
-    secure: mQfEUb+0o3c2fcz+FWC3ZtKhIhnkTUF0dsSB1Te5OsY=
 
 # build cache to preserve files/folders between builds
 cache:
@@ -53,35 +50,26 @@ configuration:
 install:
   - cinst opencover -source https://nuget.org/api/v2/
   - cinst coveralls.net -source https://nuget.org/api/v2/
-  - cinst PublishCoverity -source https://nuget.org/api/v2/
 
 # restore NuGet packages before building
 before_build:
   - nuget restore
 
 # build!
-build_script:
-  - ps: |
-      cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\14.0\bin\msbuild.exe" NClap\NClap.csproj /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=AnyCPU" /p:NoPackages=1 /p:NativeCompiler=1
-  - ps: |
-      & "C:\Program Files (x86)\MSBuild\14.0\bin\msbuild.exe" NClap.sln /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=$env:PLATFORM"
-  - ps: |
-      PublishCoverity.exe compress -o coverity.zip -i cov-int
-  - ps: |
-      PublishCoverity.exe publish -z coverity.zip -t $env:COVERITY_SCAN_TOKEN -d "AppVeyor scheduled build ($env:APPVEYOR_BUILD_VERSION)" --codeVersion "$env:APPVEYOR_BUILD_VERSION"
+build:
+  parallel: true                  # enable MSBuild parallel builds
+  project: NClap.sln              # path to Visual Studio solution or project
 
-# enable RDP
-# on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
+  # MSBuild verbosity level
+  verbosity: normal
 
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
 
 test_script:
-  - ps: OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops -filter:"+[NClap]*" -output:"coverage_$env:CONFIGURATION.xml"
-  - ps: csmacnz.Coveralls.exe --opencover -i coverage_release.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
+  - ps: OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"\"NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll\" /logger:Appveyor" -skipautoprops -filter:"+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
+  - ps: csmacnz.Coveralls.exe --opencover -i coverage_$env:CONFIGURATION.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
 
 #---------------------------------#
 #      artifacts configuration    #
