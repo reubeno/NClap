@@ -62,7 +62,7 @@ before_build:
 # build!
 build_script:
   - ps: |
-      cov-configure.exe --compiler packages\Microsoft.Net.Compilers.1.0.0-rc2\build\..\tools\csc2.exe
+      cov-configure.exe --cs --compiler packages\Microsoft.Net.Compilers.1.0.0-rc2\build\..\tools\csc2.exe
   - ps: |
       cov-build.exe --dir cov-int "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe" NClap\NClap.csproj /m "/p:Configuration=$env:CONFIGURATION" "/p:Platform=AnyCPU" /p:NoPackages=1
   - ps: |
