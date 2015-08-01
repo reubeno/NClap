@@ -8,7 +8,15 @@
     public sealed class NamedArgumentAttribute : ArgumentBaseAttribute
     {
         /// <summary>
-        /// Primary constructor.
+        /// Default constructor, which may be used to indicate an optional
+        /// named argument that may appear at most once.
+        /// </summary>
+        public NamedArgumentAttribute() : this(ArgumentFlags.AtMostOnce)
+        {
+        }
+
+        /// <summary>
+        /// Constructor that requires specifying flags.
         /// </summary>
         /// <param name="flags">Specifies the error checking to be done on the
         /// argument.</param>

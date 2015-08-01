@@ -9,6 +9,16 @@ namespace NClap.Tests.Metadata
     public class ArgumentAttributeTests
     {
         [TestMethod]
+        public void ParameterlessConstructorDefaults()
+        {
+            var namedAttribute = new NamedArgumentAttribute();
+            namedAttribute.Flags.Should().Be(ArgumentFlags.AtMostOnce);
+
+            var positionalAttribute = new PositionalArgumentAttribute();
+            positionalAttribute.Flags.Should().Be(ArgumentFlags.AtMostOnce);
+        }
+
+        [TestMethod]
         public void EmptyLongNameThrowsOnRetrieval()
         {
             var attribute = new NamedArgumentAttribute(ArgumentFlags.AtMostOnce);

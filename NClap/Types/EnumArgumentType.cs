@@ -76,7 +76,7 @@ namespace NClap.Types
         public override string SyntaxSummary => string.Format(
             CultureInfo.CurrentCulture,
             "{{{0}}}",
-            string.Join(" | ", Type.GetEnumNames()));
+            string.Join(" | ", Type.GetEnumNames().Where(name => !IsValueDisallowed(name))));
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -113,18 +113,41 @@ namespace NClap.Types
             // Try to look find any <see cref="ArgumentValueAttribute" />
             // associated with this value.
             var name = Enum.GetName(Type, parsedObject);
-            if ((name != null) &&
-                (_valueNameMap.TryGetValue(name, out field)))
+            if (IsValueDisallowed(name))
             {
-                var attrib = TryGetArgumentValueAttribute(field);
-                if ((attrib != null) &&
-                    (attrib.Flags.HasFlag(ArgumentValueFlags.Disallowed)))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(stringToParse));
-                }
+                throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
             return parsedObject;
+        }
+
+        /// <summary>
+        /// Checks if the indicated (named) value has been disallowed by
+        /// metadata.
+        /// </summary>
+        /// <param name="valueName">The name of the value to check.</param>
+        /// <returns>True if the value has been disallowed; false otherwise.
+        /// </returns>
+        private bool IsValueDisallowed(string valueName)
+        {
+            if (valueName == null)
+            {
+                return false;
+            }
+
+            FieldInfo field;
+            if (!_valueNameMap.TryGetValue(valueName, out field))
+            {
+                return false;
+            }
+
+            var attrib = TryGetArgumentValueAttribute(field);
+            if (attrib == null)
+            {
+                return false;
+            }
+
+            return attrib.Flags.HasFlag(ArgumentValueFlags.Disallowed);
         }
 
         /// <summary>

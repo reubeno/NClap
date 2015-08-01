@@ -8,6 +8,14 @@
     public sealed class PositionalArgumentAttribute : ArgumentBaseAttribute
     {
         /// <summary>
+        /// Default constructor, which may be used to indicate an optional
+        /// positional argument that may appear at most once.
+        /// </summary>
+        public PositionalArgumentAttribute() : this(ArgumentFlags.AtMostOnce)
+        {
+        }
+
+        /// <summary>
         /// Indicates that this argument is a default, positional argument.
         /// </summary>
         /// <param name="flags">Specifies the error checking to be done on the

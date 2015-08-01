@@ -5,7 +5,9 @@ namespace NClap.Repl.TestApp
 {
     enum ProgramMode
     {
+        [ArgumentValue(Flags = ArgumentValueFlags.Disallowed)]
         Invalid,
+
         SomeMode,
         DifferentMode
     }
@@ -28,5 +30,8 @@ namespace NClap.Repl.TestApp
         [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "foo")]
         [MustNotBeEmpty]
         public FileSystemPath SomePath { get; set; }
+
+        [NamedArgument(DefaultValue = -11)]
+        public uint SomeUnsignedInt { get; set; }
     }
 }
