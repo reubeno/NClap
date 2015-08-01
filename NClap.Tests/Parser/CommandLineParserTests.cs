@@ -424,6 +424,20 @@ namespace NClap.Tests.Parser
             public MyFlagsEnum Value;
         }
 
+        [ArgumentSet(PublicMembersAreNamedArguments = true)]
+        class UnannotatedArguments
+        {
+            public string StringValue { get; set; }
+
+            public int IntValue { get; set; }
+
+            public int NonWritableValue { get; } = 0;
+
+            protected int ProtectedValue { get; set; }
+
+            private int PrivateValue { get; set; }
+        }
+
 #pragma warning restore 0649
 
         [TestMethod]
@@ -1092,6 +1106,35 @@ namespace NClap.Tests.Parser
 
             CommandLineParser.Parse(new[] { "/Value=FlagOne|FlagTwo" }, args).Should().BeTrue();
             args.Value.Should().Be(MyFlagsEnum.FlagOne | MyFlagsEnum.FlagTwo);
+        }
+
+        [TestMethod]
+        public void UnannotatedArgs()
+        {
+            var args = new UnannotatedArguments();
+            CommandLineParser.Parse(new[] { "/NonWritableValue=7" }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "/ProtectedValue=7" }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "/PrivateValue=7" }, args).Should().BeFalse();
+
+            args = new UnannotatedArguments();
+            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            args.StringValue.Should().BeNull();
+            args.IntValue.Should().Be(0);
+
+            args = new UnannotatedArguments();
+            CommandLineParser.Parse(new[] {"/StringValue=x"}, args).Should().BeTrue();
+            args.StringValue.Should().Be("x");
+            args.IntValue.Should().Be(0);
+
+            args = new UnannotatedArguments();
+            CommandLineParser.Parse(new[] {"/IntValue=7"}, args).Should().BeTrue();
+            args.StringValue.Should().BeNull();
+            args.IntValue.Should().Be(7);
+
+            args = new UnannotatedArguments();
+            CommandLineParser.Parse(new[] {"/StringValue=x", "/IntValue=7"}, args).Should().BeTrue();
+            args.StringValue.Should().Be("x");
+            args.IntValue.Should().Be(7);
         }
 
         [TestMethod]

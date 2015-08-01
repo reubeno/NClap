@@ -570,6 +570,7 @@ namespace NClap.Parser
             if (setAttribute.PublicMembersAreNamedArguments)
             {
                 argList = argList.Concat(GetAllFieldsAndProperties(type, false)
+                    .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
                     .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, options)));
             }
