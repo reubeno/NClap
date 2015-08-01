@@ -30,6 +30,9 @@ environment:
   COVERALLS_REPO_TOKEN:
     secure: F5G6XI+z7nKUA1mmtD1Het6Yq5KltVlXKSTmKf2KrF+hDOyNp09V9Oozs3HuptWx
 
+  COVERITY_SCAN_TOKEN:
+    secure: mQfEUb+0o3c2fcz+FWC3ZtKhIhnkTUF0dsSB1Te5OsY=
+
 # build cache to preserve files/folders between builds
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
@@ -50,18 +53,36 @@ configuration:
 install:
   - cinst opencover -source https://nuget.org/api/v2/
   - cinst coveralls.net -source https://nuget.org/api/v2/
+  - cinst PublishCoverity -source https://nuget.org/api/v2/
 
 # restore NuGet packages before building
 before_build:
   - nuget restore
 
 # build!
-build:
-  parallel: true                  # enable MSBuild parallel builds
-  project: NClap.sln              # path to Visual Studio solution or project
+build_script:
+    - ps: |
+        # Define build command.
+        $buildCmd = "C:\Program Files (x86)\MSBuild\12.0\bin\msbuild.exe"
+        $buildArgs = @(
+          "NClap.sln",
+          "/m",
+          "/l:C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll",
+          "/p:Configuration=$env:CONFIGURATION",
+          "/p:Platform=$env:PLATFORM")
 
-  # MSBuild verbosity level
-  verbosity: normal
+        # If build is not a scheduled one, than simply build project with MSBuild.
+        if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True") {
+          & $buildCmd $buildArgs
+          return  # exit script
+        }
+
+        # Else, build project with Coverity Scan.
+        & "cov-build.exe" --dir cov-int $buildCmd $buildArgs
+  
+        # Compress and upload scan data.
+        PublishCoverity.exe compress -o coverity.zip -i cov-int
+        PublishCoverity.exe publish -z coverity.zip -t $env:COVERITY_SCAN_TOKEN -d "AppVeyor scheduled build ($env:APPVEYOR_BUILD_VERSION)" --codeVersion "$env:APPVEYOR_BUILD_VERSION"
 
 #---------------------------------#
 #       tests configuration       #
