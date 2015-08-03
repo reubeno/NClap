@@ -36,7 +36,10 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
 
 1. Define a type (`class` or `struct`) to describe the parsed arguments, e.g.:
 
+    <!-- MdCompile: assembly=ParseExample -->
     ```csharp
+    using NClap.Metadata;
+    
     class MyProgramArguments
     {
         [NamedArgument]
@@ -50,6 +53,7 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
     Alternatively, you can add an attribute to the type itself to indicate that all writable, public
     fields and properties should be mapped to optional named arguments:
     
+    <!-- MdCompile: import=NClap.Metadata -->
     ```csharp
     [ArgumentSet(PublicMembersAreNamedArguments = true)]
     class MyOtherProgramArguments
@@ -62,6 +66,7 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
     
     You can customize the arguments through optional parameters to the attributes, e.g.:
 
+    <!-- MdCompile: wrapinclass=true, import=NClap.Metadata -->
     ```csharp
     [NamedArgument(ArgumentFlags.Required | ArgumentFlags.Multiple,
                    LongName = "ImpVal",
@@ -77,7 +82,10 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
 2. Next, parse them!  You'll need to construct or otherwise acquire an instance of the target type that
    your arguments will be parsed into, and then call one of the static parser methods, e.g.:
 
+    <!-- MdCompile: assembly=ParseExample, import=NClap.Parser -->
     ```csharp
+    using NClap;
+    
     class MyProgram
     {
         private static void Main(string[] args)
@@ -89,7 +97,6 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
             }
 
             // TODO: Do something with the parsed args here...
-            ...
         }
     }
     ```
@@ -102,6 +109,7 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
 
 1. First, define the commands, or verbs, that you want exposed into the shell, e.g.:
 
+    <!-- MdCompile: assembly=ShellExample, import=NClap.Repl, import=NClap.Metadata -->
     ```csharp
     enum MyCommandType
     {
@@ -115,22 +123,23 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
 
     Next, define the implementations of those verbs, making sure to indicate any arguments to them, e.g.:
 
+    <!-- MdCompile: assembly=ShellExample, import=NClap.Metadata, import=NClap.Repl -->
     ```csharp
     class ListCommand : IVerb
     {
         [PositionalArgument(ArgumentFlags.Required, Position = 0, HelpText = "Type of things to list")]
-        public string ThingsType;
+        public string ThingsType { get; set; }
 
         public void Execute(object o)
         {
             // TODO: Do something here.
-            ...
         }
     }
     ```
 
     Finally, create the interactive shell and enter it:
 
+    <!-- MdCompile: assembly=ShellExample, wrapinclass=true, import=NClap.Repl, import=System -->
     ```csharp
     private static void RunInteractiveShell()
     {
