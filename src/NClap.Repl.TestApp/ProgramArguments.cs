@@ -20,7 +20,7 @@ namespace NClap.Repl.TestApp
     {
         public string Unannotated { get; set; }
 
-        [PositionalArgument(ArgumentFlags.Required, Position = 1)]
+        [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
         public int Foo { get; set; }
 
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]
@@ -29,7 +29,7 @@ namespace NClap.Repl.TestApp
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 2)]
         public FileSystemPath OtherPath { get; set; }
 
-        [NamedArgument(ArgumentFlags.AtMostOnce)]
+        [NamedArgument]
         public ProgramMode NamedMode { get; set; }
 
         [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "foo")]
