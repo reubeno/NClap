@@ -174,7 +174,7 @@ namespace NClap.Utilities
         /// </returns>
         public bool Equals(Substring other)
         {
-            return (Base.Equals(other.Base)) && (StartingOffset == other.StartingOffset) && (Length == other.Length);
+            return Base.Equals(other.Base) && (StartingOffset == other.StartingOffset) && (Length == other.Length);
         }
 
         /// <summary>

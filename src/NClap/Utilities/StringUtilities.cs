@@ -134,7 +134,7 @@ namespace NClap.Utilities
                     var count = endIndex - index;
 
                     if ((endIndex + 1 < line.Length) &&
-                        (!char.IsWhiteSpace(line[endIndex + 1])))
+                        !char.IsWhiteSpace(line[endIndex + 1]))
                     {
                         // Find the last whitespace character in the range of text
                         // we're considering adding.  If we found one, then break
@@ -317,7 +317,7 @@ namespace NClap.Utilities
                         // to allow "partial input" (i.e. ignore errors like
                         // these), we'll throw an exception.
                         if ((index + 1 != line.Length) &&
-                            (!char.IsWhiteSpace(line[index + 1])))
+                            !char.IsWhiteSpace(line[index + 1]))
                         {
                             if (!allowPartialInput)
                             {
@@ -381,7 +381,7 @@ namespace NClap.Utilities
             var lastColWidth = screenBufferWidth - colWidth * (cols - 1);
 
             var rows = values.Count / cols;
-            if ((values.Count % cols) != 0)
+            if (values.Count % cols != 0)
             {
                 ++rows;
             }
@@ -391,7 +391,7 @@ namespace NClap.Utilities
                 var charsInCol = 0;
                 for (var colIndex = 0; colIndex < cols; ++colIndex)
                 {
-                    var index = (colIndex * rows) + rowIndex;
+                    var index = colIndex * rows + rowIndex;
                     if (index >= values.Count)
                     {
                         builder.AppendLine();

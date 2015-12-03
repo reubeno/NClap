@@ -201,9 +201,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             var loop = new Loop<TestVerb, object>(client, null, null);
 
-            IReadOnlyList<string> completions;
-
-            completions = loop.GenerateCompletions(new string[] { }, 1).ToList();
+            IReadOnlyList<string> completions = loop.GenerateCompletions(new string[] { }, 1).ToList();
             completions.Should().BeEmpty();
 
             completions = loop.GenerateCompletions(new string[] { }, 0).ToList();

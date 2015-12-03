@@ -202,8 +202,8 @@ namespace NClap.ConsoleInput
         /// The number of operations bound in it.
         /// </summary>
         public int Count =>
-            KeyTables.Sum(tablePair => tablePair.Item2.Count()) +
-            CharTables.Sum(tablePair => tablePair.Item2.Count());
+            KeyTables.Sum(tablePair => tablePair.Item2.Count) +
+            CharTables.Sum(tablePair => tablePair.Item2.Count);
 
         /// <summary>
         /// Retrieves the operation the key is mapped to.

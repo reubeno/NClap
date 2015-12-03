@@ -55,7 +55,7 @@ namespace NClap.Tests.Types
         {
             var enumType = Substitute.For<Type>();
             enumType.IsEnum.Returns(true);
-            enumType.GetEnumUnderlyingType().Returns(this.GetType());
+            enumType.GetEnumUnderlyingType().Returns(GetType());
 
             Action typeFactory = () => EnumArgumentType.Create(enumType);
             typeFactory.ShouldThrow<ArgumentOutOfRangeException>();

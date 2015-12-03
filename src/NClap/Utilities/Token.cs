@@ -152,7 +152,7 @@ namespace NClap.Utilities
         /// </returns>
         public bool Equals(Token other)
         {
-            return (Contents.Equals(other.Contents)) && (StartsWithQuote == other.StartsWithQuote) && (EndsWithQuote == other.EndsWithQuote);
+            return Contents.Equals(other.Contents) && (StartsWithQuote == other.StartsWithQuote) && (EndsWithQuote == other.EndsWithQuote);
         }
     }
 }

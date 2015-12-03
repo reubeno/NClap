@@ -26,8 +26,8 @@ namespace NClap.Tests.Parser
 
         public class CustomObjectType : CustomArgumentTypeBase
         {
-            public readonly static CustomObjectType One = new CustomObjectType();
-            public readonly static CustomObjectType Two = new CustomObjectType();
+            public static readonly CustomObjectType One = new CustomObjectType();
+            public static readonly CustomObjectType Two = new CustomObjectType();
 
             public override bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
             {

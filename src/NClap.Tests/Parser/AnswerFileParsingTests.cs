@@ -85,7 +85,7 @@ namespace NClap.Tests.Parser
         public void AlternateSyntax()
         {
             var args = new AlternateSyntaxArguments();
-            var reader = CreateReaderThatReturns((new[] { "/value:abc" }));
+            var reader = CreateReaderThatReturns(new[] { "/value:abc" });
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
             CommandLineParser.Parse(new[] { "@foo" }, args, options).Should().BeFalse();

@@ -516,7 +516,7 @@ namespace NClap.ConsoleInput
                 result = MoveConsoleCursor(movementDelta);
                 if (!result)
                 {
-                    Buffer.MoveCursor(SeekOrigin.Current, movementDelta * (-1));
+                    Buffer.MoveCursor(SeekOrigin.Current, movementDelta * -1);
                 }
             }
 
@@ -623,7 +623,7 @@ namespace NClap.ConsoleInput
                 var spillOverLength = cursorOffset + length + extraSpaces - (bufferSize - 1);
                 var spillOverLines = spillOverLength / bufferWidth;
 
-                if ((spillOverLength % bufferWidth) != 0)
+                if (spillOverLength % bufferWidth != 0)
                 {
                     ++spillOverLines;
                 }

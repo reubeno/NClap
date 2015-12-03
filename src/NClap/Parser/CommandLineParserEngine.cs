@@ -258,7 +258,7 @@ namespace NClap.Parser
             // If present (and if requested), display the "DESCRIPTION" for the
             // program here.
             if (options.HasFlag(UsageInfoOptions.IncludeDescription) &&
-                (!string.IsNullOrEmpty(_setAttribute.AdditionalHelp)))
+                !string.IsNullOrEmpty(_setAttribute.AdditionalHelp))
             {
                 builder.AppendLine();
                 appendHeader(Strings.UsageInfoDescriptionHeader);
