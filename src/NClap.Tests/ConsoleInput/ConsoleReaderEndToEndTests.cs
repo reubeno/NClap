@@ -24,6 +24,15 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
+        public void NoOp()
+        {
+            Process(
+                ConsoleKey.LeftWindows.AsInfo(),
+                ConsoleKey.RightWindows.AsInfo())
+                .Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void Replace()
         {
             Process(

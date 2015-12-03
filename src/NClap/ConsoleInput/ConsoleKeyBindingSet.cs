@@ -13,7 +13,13 @@ namespace NClap.ConsoleInput
     /// </summary>
     public class ConsoleKeyBindingSet : IReadOnlyConsoleKeyBindingSet
     {
-        private static readonly IDictionary<char, ConsoleInputOperation> s_defaultControlCharBindings = new Dictionary<char, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_ignoredModifierKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
+        {
+            [ConsoleKey.LeftWindows] = ConsoleInputOperation.NoOp,
+            [ConsoleKey.RightWindows] = ConsoleInputOperation.NoOp,
+        };
+
+        private static readonly IReadOnlyDictionary<char, ConsoleInputOperation> s_defaultControlCharBindings = new Dictionary<char, ConsoleInputOperation>
         {
             ['a'] = ConsoleInputOperation.BeginningOfLine,
             ['b'] = ConsoleInputOperation.BackwardChar,
@@ -40,15 +46,15 @@ namespace NClap.ConsoleInput
             [' '] = ConsoleInputOperation.PossibleCompletions
         };
 
-        private static readonly IDictionary<ConsoleKey, ConsoleInputOperation> s_defaultControlKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_defaultControlKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
         {
             [ConsoleKey.Backspace] = ConsoleInputOperation.BackwardKillWord,
             [ConsoleKey.Delete] = ConsoleInputOperation.KillWord,
             [ConsoleKey.LeftArrow] = ConsoleInputOperation.BackwardWord,
-            [ConsoleKey.RightArrow] = ConsoleInputOperation.ForwardWord,
+            [ConsoleKey.RightArrow] = ConsoleInputOperation.ForwardWord
         };
 
-        private static readonly IDictionary<char, ConsoleInputOperation> s_defaultAltCharBindings = new Dictionary<char, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<char, ConsoleInputOperation> s_defaultAltCharBindings = new Dictionary<char, ConsoleInputOperation>
         {
             ['b'] = ConsoleInputOperation.BackwardWord,
             ['c'] = ConsoleInputOperation.CapitalizeWord,
@@ -69,26 +75,26 @@ namespace NClap.ConsoleInput
             ['#'] = ConsoleInputOperation.InsertComment
         };
 
-        private static readonly IDictionary<ConsoleKey, ConsoleInputOperation> s_defaultAltKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_defaultAltKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
         {
             [ConsoleKey.Delete] = ConsoleInputOperation.BackwardKillWord,
             [ConsoleKey.Tab] = ConsoleInputOperation.TabInsert
         };
 
-        private static readonly IDictionary<char, ConsoleInputOperation> s_defaultControlAltCharBindings = new Dictionary<char, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<char, ConsoleInputOperation> s_defaultControlAltCharBindings = new Dictionary<char, ConsoleInputOperation>
         {
             ['y'] = ConsoleInputOperation.YankNthArg,
             [']'] = ConsoleInputOperation.CharacterSearchBackward
         };
 
-        private static readonly IDictionary<ConsoleKey, ConsoleInputOperation> s_defaultControlAltKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>();
+        private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_defaultControlAltKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>();
 
-        private static readonly IDictionary<char, ConsoleInputOperation> s_defaultPlainCharBindings = new Dictionary<char, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<char, ConsoleInputOperation> s_defaultPlainCharBindings = new Dictionary<char, ConsoleInputOperation>
         {
             ['\0'] = ConsoleInputOperation.EndOfFile
         };
 
-        private static readonly IDictionary<ConsoleKey, ConsoleInputOperation> s_defaultPlainKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_defaultPlainKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
         {
             [ConsoleKey.Backspace] = ConsoleInputOperation.DeletePreviousChar,
             [ConsoleKey.Delete] = ConsoleInputOperation.DeleteChar,
@@ -101,14 +107,15 @@ namespace NClap.ConsoleInput
             [ConsoleKey.LeftArrow] = ConsoleInputOperation.BackwardChar,
             [ConsoleKey.RightArrow] = ConsoleInputOperation.ForwardChar,
             [ConsoleKey.Tab] = ConsoleInputOperation.CompleteTokenNext,
-            [ConsoleKey.UpArrow] = ConsoleInputOperation.PreviousHistory
+            [ConsoleKey.UpArrow] = ConsoleInputOperation.PreviousHistory,
         };
 
-        private static readonly IDictionary<ConsoleKey, ConsoleInputOperation> s_defaultShiftKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
+        private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_defaultShiftKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
         {
             [ConsoleKey.Tab] = ConsoleInputOperation.CompleteTokenPrevious
         };
 
+        private readonly Dictionary<ConsoleKey, ConsoleInputOperation> _ignoredModifierKeyBindings;
         private readonly Dictionary<ConsoleKey, ConsoleInputOperation> _controlAltKeyBindings;
         private readonly Dictionary<ConsoleKey, ConsoleInputOperation> _altKeyBindings;
         private readonly Dictionary<ConsoleKey, ConsoleInputOperation> _controlKeyBindings;
@@ -125,6 +132,7 @@ namespace NClap.ConsoleInput
         /// </summary>
         public ConsoleKeyBindingSet()
         {
+            _ignoredModifierKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>();
             _controlAltKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>();
             _altKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>();
             _controlKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>();
@@ -137,32 +145,35 @@ namespace NClap.ConsoleInput
         }
 
         private ConsoleKeyBindingSet(
-            IDictionary<ConsoleKey, ConsoleInputOperation> controlAltKeyBindings,
-            IDictionary<ConsoleKey, ConsoleInputOperation> altKeyBindings,
-            IDictionary<ConsoleKey, ConsoleInputOperation> controlKeyBindings,
-            IDictionary<ConsoleKey, ConsoleInputOperation> shiftKeyBindings,
-            IDictionary<ConsoleKey, ConsoleInputOperation> plainKeyBindings,
-            IDictionary<char, ConsoleInputOperation> controlAltCharBindings,
-            IDictionary<char, ConsoleInputOperation> altCharBindings,
-            IDictionary<char, ConsoleInputOperation> controlCharBindings,
-            IDictionary<char, ConsoleInputOperation> plainCharBindings
+            IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> ignoredModifierKeyBindings,
+            IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> controlAltKeyBindings,
+            IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> altKeyBindings,
+            IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> controlKeyBindings,
+            IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> shiftKeyBindings,
+            IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> plainKeyBindings,
+            IReadOnlyDictionary<char, ConsoleInputOperation> controlAltCharBindings,
+            IReadOnlyDictionary<char, ConsoleInputOperation> altCharBindings,
+            IReadOnlyDictionary<char, ConsoleInputOperation> controlCharBindings,
+            IReadOnlyDictionary<char, ConsoleInputOperation> plainCharBindings
             )
         {
-            _controlAltKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>(controlAltKeyBindings);
-            _altKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>(altKeyBindings);
-            _controlKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>(controlKeyBindings);
-            _shiftKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>(shiftKeyBindings);
-            _plainKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>(plainKeyBindings);
-            _controlAltCharBindings = new Dictionary<char, ConsoleInputOperation>(controlAltCharBindings);
-            _altCharBindings = new Dictionary<char, ConsoleInputOperation>(altCharBindings);
-            _controlCharBindings = new Dictionary<char, ConsoleInputOperation>(controlCharBindings);
-            _plainCharBindings = new Dictionary<char, ConsoleInputOperation>(plainCharBindings);
+            _ignoredModifierKeyBindings = ignoredModifierKeyBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _controlAltKeyBindings = controlAltKeyBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _altKeyBindings = altKeyBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _controlKeyBindings = controlKeyBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _shiftKeyBindings = shiftKeyBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _plainKeyBindings = plainKeyBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _controlAltCharBindings = controlAltCharBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _altCharBindings = altCharBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _controlCharBindings = controlCharBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _plainCharBindings = plainCharBindings.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
         /// <summary>
         /// Default bindings.
         /// </summary>
         public static IReadOnlyConsoleKeyBindingSet Default { get; } = new ConsoleKeyBindingSet(
+            s_ignoredModifierKeyBindings,
             s_defaultControlAltKeyBindings,
             s_defaultAltKeyBindings,
             s_defaultControlKeyBindings,
@@ -249,6 +260,11 @@ namespace NClap.ConsoleInput
         /// <returns>True if the key press is mapped; false otherwise.</returns>
         public bool TryGetValue(ConsoleKeyInfo key, out ConsoleInputOperation value)
         {
+            if (_ignoredModifierKeyBindings.TryGetValue(key.Key, out value))
+            {
+                return true;
+            }
+
             var ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
             var alt = key.Modifiers.HasFlag(ConsoleModifiers.Alt);
             var shift = key.Modifiers.HasFlag(ConsoleModifiers.Shift);

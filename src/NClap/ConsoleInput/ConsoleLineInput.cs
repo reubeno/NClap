@@ -85,8 +85,7 @@ namespace NClap.ConsoleInput
         /// <param name="count">Number of characters to move backward.</param>
         /// <returns>True if the move could be made; false if the requested move
         /// was invalid.</returns>
-        public bool MoveCursorBackward(int count) =>
-            MoveConsoleAndBufferCursors(SeekOrigin.Current, -1 * count);
+        public bool MoveCursorBackward(int count) => MoveConsoleAndBufferCursors(SeekOrigin.Current, -1 * count);
 
         /// <summary>
         /// Move the cursor forward by the specified number of characters.
@@ -94,40 +93,27 @@ namespace NClap.ConsoleInput
         /// <param name="count">Number of characters to move forward.</param>
         /// <returns>True if the move could be made; false if the requested move
         /// was invalid.</returns>
-        public bool MoveCursorForward(int count) =>
-            MoveConsoleAndBufferCursors(SeekOrigin.Current, count);
+        public bool MoveCursorForward(int count) => MoveConsoleAndBufferCursors(SeekOrigin.Current, count);
 
         /// <summary>
         /// Move the cursor to the start of the input buffer.
         /// </summary>
-        public void MoveCursorToStart()
-        {
-            MoveConsoleAndBufferCursors(SeekOrigin.Begin, 0);
-        }
+        public void MoveCursorToStart() => MoveConsoleAndBufferCursors(SeekOrigin.Begin, 0);
 
         /// <summary>
         /// Move the cursor to the end of the input buffer.
         /// </summary>
-        public void MoveCursorToEnd()
-        {
-            MoveConsoleAndBufferCursors(SeekOrigin.End, 0);
-        }
+        public void MoveCursorToEnd() => MoveConsoleAndBufferCursors(SeekOrigin.End, 0);
 
         /// <summary>
         /// Move the cursor back one word.
         /// </summary>
-        public void MoveCursorBackwardOneWord()
-        {
-            MoveConsoleAndBufferCursors(SeekOrigin.Begin, FindIndexOfLastWord());
-        }
+        public void MoveCursorBackwardOneWord() => MoveConsoleAndBufferCursors(SeekOrigin.Begin, FindIndexOfLastWord());
 
         /// <summary>
         /// Move the cursor forward one word.
         /// </summary>
-        public void MoveCursorForwardOneWord()
-        {
-            MoveConsoleAndBufferCursors(SeekOrigin.Begin, FindIndexOfNextWord());
-        }
+        public void MoveCursorForwardOneWord() => MoveConsoleAndBufferCursors(SeekOrigin.Begin, FindIndexOfNextWord());
 
         /// <summary>
         /// Delete the character under the cursor.
@@ -260,45 +246,34 @@ namespace NClap.ConsoleInput
         /// Replace the entire contents of the input buffer with the previous
         /// line in the input history.
         /// </summary>
-        public void ReplaceWithLastLineInHistory()
-        {
+        public void ReplaceWithLastLineInHistory() =>
             ReplaceWithLineInHistory(SeekOrigin.Current, -1);
-        }
 
         /// <summary>
         /// Replace the entire contents of the input buffer with the next
         /// line in the input history.
         /// </summary>
-        public void ReplaceWithNextLineInHistory()
-        {
+        public void ReplaceWithNextLineInHistory() =>
             ReplaceWithLineInHistory(SeekOrigin.Current, 1);
-        }
 
         /// <summary>
         /// Replace the entire contents of the input buffer with the oldest
         /// line in the input history.
         /// </summary>
-        public void ReplaceWithOldestLineInHistory()
-        {
+        public void ReplaceWithOldestLineInHistory() =>
             ReplaceWithLineInHistory(SeekOrigin.Begin, 0);
-        }
 
         /// <summary>
         /// Replace the entire contents of the input buffer with the youngest
         /// line in the input history.
         /// </summary>
-        public void ReplaceWithYoungestLineInHistory()
-        {
+        public void ReplaceWithYoungestLineInHistory() =>
             ReplaceWithLineInHistory(SeekOrigin.End, -1);
-        }
 
         /// <summary>
         /// Save the contents of the current buffer to the input history.
         /// </summary>
-        public void SaveToHistory()
-        {
-            History.Add(Contents);
-        }
+        public void SaveToHistory() => History.Add(Contents);
 
         /// <summary>
         /// Remove the contents of the buffer from the cursor to the end of the
@@ -334,10 +309,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="lastOperationWasCompletion">True if the last input
         /// operation was a completion operation; false otherwise.</param>
-        public void ReplaceCurrentTokenWithPreviousCompletion(bool lastOperationWasCompletion)
-        {
+        public void ReplaceCurrentTokenWithPreviousCompletion(bool lastOperationWasCompletion) =>
             ReplaceCurrentTokenWithCompletion(true, lastOperationWasCompletion);
-        }
 
         /// <summary>
         /// Replace the current token in the input buffer with the next
@@ -345,10 +318,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="lastOperationWasCompletion">True if the last input
         /// operation was a completion operation; false otherwise.</param>
-        public void ReplaceCurrentTokenWithNextCompletion(bool lastOperationWasCompletion)
-        {
+        public void ReplaceCurrentTokenWithNextCompletion(bool lastOperationWasCompletion) =>
             ReplaceCurrentTokenWithCompletion(false, lastOperationWasCompletion);
-        }
 
         /// <summary>
         /// Replace the current token in the input buffer with all possible

@@ -6,6 +6,15 @@
     public enum ConsoleInputOperation
     {
         //
+        // No op.
+        //
+
+        /// <summary>
+        /// Do nothing.
+        /// </summary>
+        NoOp,
+
+        //
         // Character insertion.
         //
 

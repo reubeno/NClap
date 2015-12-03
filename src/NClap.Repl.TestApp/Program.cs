@@ -19,7 +19,7 @@ namespace NClap.Repl.TestApp
         HereToo,
 
         [Verb(typeof(SetPrompt))]
-        SetPrompt,
+        SetPromptXy,
 
         [Verb(Exits = true, HelpText = "Exits the loop")]
         Exit

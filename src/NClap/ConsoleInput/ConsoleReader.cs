@@ -158,6 +158,9 @@ namespace NClap.ConsoleInput
 
             switch (op)
             {
+                case ConsoleInputOperation.NoOp:
+                    break;
+
                 case ConsoleInputOperation.Char:
                     ProcessCharacterKey(key.KeyChar);
                     break;
