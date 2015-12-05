@@ -13,8 +13,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © Microsoft Corporation. All right reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.3.0.*")]
-[assembly: AssemblyFileVersion("1.3.0")]
+[assembly: AssemblyVersion("1.3.1.*")]
+[assembly: AssemblyFileVersion("1.3.1")]
 
 [assembly: InternalsVisibleTo("NClap.Repl, PublicKey=00240000048000009400000006020000002400005253413100040000010001004d089a4ac1afb2e8cf8090691f6eba11a2dc12e19604de336beac607870c7217b95b3b973afb82313be1d222b3adc1d6de9f735b39ebaee5d80f5044dfaef2cb058c3c0fe96790922c4c56458eb0e18d1a88c0146f5c56de3d49d693b1bdd8e08c4f61851dd7037e00236e0c11666e6cf34c146b7dd46e2e9321410ef0360683")]
 [assembly: InternalsVisibleTo("NClap.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001004d089a4ac1afb2e8cf8090691f6eba11a2dc12e19604de336beac607870c7217b95b3b973afb82313be1d222b3adc1d6de9f735b39ebaee5d80f5044dfaef2cb058c3c0fe96790922c4c56458eb0e18d1a88c0146f5c56de3d49d693b1bdd8e08c4f61851dd7037e00236e0c11666e6cf34c146b7dd46e2e9321410ef0360683")]
