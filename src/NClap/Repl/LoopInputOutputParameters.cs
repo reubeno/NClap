@@ -12,27 +12,33 @@ namespace NClap.Repl
     public class LoopInputOutputParameters
     {
         /// <summary>
-        /// Writer to use for error output.
+        /// Optionally provides a writer to use for error output.
         /// </summary>
         public TextWriter ErrorWriter { get; set; }
 
         /// <summary>
-        /// Line input object to use.
+        /// Line input object to use, or null for a default one to be
+        /// constructed.
         /// </summary>
         public IConsoleLineInput LineInput { get; set; }
 
         /// <summary>
-        /// The console input interface to use.
+        /// The console input interface to use, or null to use the default one.
         /// </summary>
         public IConsoleInput ConsoleInput { get; set; }
 
         /// <summary>
-        /// The console output interface to use.
+        /// The console output interface to use, or null to use the default one.
         /// </summary>
         public IConsoleOutput ConsoleOutput { get; set; }
 
         /// <summary>
-        /// Input prompt.
+        /// The console key binding set to use, or null to use the default one.
+        /// </summary>
+        public IReadOnlyConsoleKeyBindingSet KeyBindingSet { get; set; }
+
+        /// <summary>
+        /// Input prompt, or null to use the default one.
         /// </summary>
         public ColoredString Prompt { get; set; }
     }
