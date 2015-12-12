@@ -110,7 +110,8 @@
     <Compile Include="ConsoleInput\ConsoleReader.cs" />
     <Compile Include="Repl\ILoopClient.cs" />
     <Compile Include="Metadata\IVerb.cs" />
-    <Compile Include="Repl\Loop.cs" />
+    <Compile Include="Repl\Loop`1.cs" />
+    <Compile Include="Repl\Loop`2.cs" />
     <Compile Include="Metadata\VerbAttribute.cs" />
     <Compile Include="Repl\LoopInputOutputParameters.cs" />
     <Compile Include="Repl\LoopOptions.cs" />
