@@ -14,14 +14,18 @@ namespace NClap.Utilities
         /// Append a colored string.
         /// </summary>
         /// <param name="value">The colored string to append.</param>
-        public void Append(ColoredString value) =>
-            _pieces.Add(value);
+        public void Append(ColoredString value) => _pieces.Add(value);
+
+        /// <summary>
+        /// Append the provided colored strings.
+        /// </summary>
+        /// <param name="values">The colored strings to append.</param>
+        public void Append(IEnumerable<ColoredString> values) => _pieces.AddRange(values);
 
         /// <summary>
         /// Append a newline.
         /// </summary>
-        public void AppendLine() =>
-            _pieces.Add(Environment.NewLine);
+        public void AppendLine() => _pieces.Add(Environment.NewLine);
 
         /// <summary>
         /// Append a colored string followed by a newline.
@@ -31,6 +35,16 @@ namespace NClap.Utilities
         {
             _pieces.Add(value);
             _pieces.Add(new ColoredString(Environment.NewLine, value.ForegroundColor, value.BackgroundColor));
+        }
+
+        /// <summary>
+        /// Append the provided colored strings followed by a newline.
+        /// </summary>
+        /// <param name="values">The colored multistrings to append.</param>
+        public void AppendLine(IEnumerable<ColoredString> values)
+        {
+            Append(values);
+            AppendLine();
         }
 
         /// <summary>
@@ -45,7 +59,6 @@ namespace NClap.Utilities
         /// multistring.
         /// </summary>
         /// <returns>The multistring.</returns>
-        public ColoredMultistring ToMultistring() =>
-            new ColoredMultistring(_pieces);
+        public ColoredMultistring ToMultistring() => new ColoredMultistring(_pieces);
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 using NClap.Parser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-
 using NSubstitute;
 
 namespace NClap.Tests.Parser

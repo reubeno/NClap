@@ -21,6 +21,11 @@ namespace NClap.ConsoleInput
         ColoredString Prompt { get; set; }
 
         /// <summary>
+        /// The object's history.
+        /// </summary>
+        IConsoleHistory History { get; }
+
+        /// <summary>
         /// The current contents of the buffer.
         /// </summary>
         string Contents { get; }

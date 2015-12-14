@@ -767,8 +767,14 @@ namespace NClap.Parser
                     }
                     else if (arg.TakesRestOfLine)
                     {
-                        arg.SetRestOfLine(optionArgument, args.Skip(index + 1), destination);
-                        index = args.Count; // skip the rest of the line
+                        if (arg.TrySetRestOfLine(optionArgument, args.Skip(index + 1), destination))
+                        {
+                            index = args.Count; // skip the rest of the line
+                        }
+                        else
+                        {
+                            hasError = true;
+                        }
                     }
                     else
                     {
@@ -800,8 +806,14 @@ namespace NClap.Parser
                     {
                         if (positionalArg.TakesRestOfLine)
                         {
-                            positionalArg.SetRestOfLine(args.Skip(index), destination);
-                            index = args.Count; // skip the rest of the line
+                            if (positionalArg.TrySetRestOfLine(args.Skip(index), destination))
+                            {
+                                index = args.Count; // skip the rest of the line
+                            }
+                            else
+                            {
+                                hasError = true;
+                            }
                         }
                         else
                         {

@@ -368,7 +368,10 @@ namespace NClap.Metadata
 
                 if (destination != null)
                 {
-                    Member.SetValue(destination, DefaultValue);
+                    if (!TrySetValue(destination, DefaultValue))
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -376,7 +379,16 @@ namespace NClap.Metadata
             // but the rest of the line was empty, longer array contains rest of the line.
             if (IsCollection && (SeenValue || !TakesRestOfLine) && (destination != null))
             {
-                Member.SetValue(destination, _collectionArgType.ToCollection(_collectionValues));
+                object collection;
+                if (!TryCreateCollection(_collectionArgType, _collectionValues, out collection))
+                {
+                    return false;
+                }
+
+                if (!TrySetValue(destination, collection))
+                {
+                    return false;
+                }
             }
 
             if (IsRequired && !SeenValue)
@@ -451,17 +463,8 @@ namespace NClap.Metadata
             }
             else if (IsObjectPresent(destination))
             {
-                // Try to set the value.  If the member is a property, it's
-                // possible that there's a non-default implementation of its
-                // 'set' method that further validates values.  Watch out for
-                // that and surface any reported errors.
-                try
+                if (!TrySetValue(destination, newValue, value))
                 {
-                    Member.SetValue(destination, newValue);
-                }
-                catch (ArgumentException ex)
-                {
-                    ReportBadArgumentValue(value, ex);
                     return false;
                 }
             }
@@ -477,10 +480,10 @@ namespace NClap.Metadata
         /// <param name="first">First command-line token.</param>
         /// <param name="restOfLine">Remainder of the command-line tokens.</param>
         /// <param name="destination">Object being filled in.</param>
-        public void SetRestOfLine<T>(string first, IEnumerable<string> restOfLine, T destination)
+        public bool TrySetRestOfLine<T>(string first, IEnumerable<string> restOfLine, T destination)
         {
             Contract.Requires(restOfLine != null, "rest cannot be null");
-            SetRestOfLine(new[] { first }.Concat(restOfLine), destination);
+            return TrySetRestOfLine(new[] { first }.Concat(restOfLine), destination);
         }
 
         /// <summary>
@@ -490,7 +493,7 @@ namespace NClap.Metadata
         /// <typeparam name="T">Type of the object being filled in.</typeparam>
         /// <param name="restOfLine">Remainder of the command-line tokens.</param>
         /// <param name="destination">Object being filled in.</param>
-        public void SetRestOfLine<T>(IEnumerable<string> restOfLine, T destination)
+        public bool TrySetRestOfLine<T>(IEnumerable<string> restOfLine, T destination)
         {
             Contract.Requires(restOfLine != null, "restOfLine cannot be null");
 
@@ -503,10 +506,20 @@ namespace NClap.Metadata
                 {
                     _collectionValues.Add(arg);
                 }
+
+                return true;
             }
             else if (IsObjectPresent(destination))
             {
-                Member.SetValue(destination, CreateCommandLine(restOfLine));
+                var restOfLineAsList = restOfLine.ToList();
+                return TrySetValue(
+                    destination,
+                    CreateCommandLine(restOfLineAsList),
+                    string.Join(" ", restOfLineAsList));
+            }
+            else
+            {
+                return true;
             }
         }
 
@@ -699,6 +712,43 @@ namespace NClap.Metadata
                 ReportBadArgumentValue(_valueType.Format(value), reason);
                 return false;
             });
+
+        private bool TrySetValue(object containingObject, object value, string valueString = null)
+        {
+            //
+            // Try to set the value.  If the member is a property, it's
+            // possible that there's a non-default implementation of its
+            // 'set' method that further validates values.  Watch out for
+            // that and surface any reported errors.
+            //
+
+            try
+            {
+                Member.SetValue(containingObject, value);
+                return true;
+            }
+            catch (ArgumentException ex)
+            {
+                ReportBadArgumentValue(valueString ?? value.ToString(), ex);
+                return false;
+            }
+        }
+
+        private bool TryCreateCollection(ICollectionArgumentType argType, ArrayList values, out object collection)
+        {
+            try
+            {
+                collection = argType.ToCollection(values);
+                return true;
+            }
+            catch (ArgumentException ex)
+            {
+                ReportBadArgumentValue(string.Join(", ", values.ToArray().Select(v => v.ToString())), ex);
+
+                collection = null;
+                return false;
+            }
+        }
 
         private bool ParseValue(string stringData, out object value)
         {

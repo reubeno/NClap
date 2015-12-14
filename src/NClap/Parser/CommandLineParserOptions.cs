@@ -1,4 +1,6 @@
-﻿namespace NClap.Parser
+﻿using NClap.Types;
+
+namespace NClap.Parser
 {
     /// <summary>
     /// Set of options for command-line parsing operations.
@@ -17,7 +19,7 @@
 
         /// <summary>
         /// Arbitrary context object to be made available in created instances
-        /// of the ArgumentParseContext type.
+        /// of the <see cref="ArgumentParseContext" /> type.
         /// </summary>
         public object Context { get; set; }
 

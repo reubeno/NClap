@@ -107,6 +107,12 @@ namespace NClap.Tests.Parser
             public int Argument;
         }
 
+        class ArgumentsWithCoerceableDefaultValue
+        {
+            [NamedArgument(DefaultValue = 1)]
+            public uint Argument;
+        }
+
         class ArgumentsWithDynamicDefaultValue
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = 10, DynamicDefaultValue = true)]
@@ -710,11 +716,12 @@ namespace NClap.Tests.Parser
         public void RestOfLineAsArrayContainingTokensThatLookLikeOptions()
         {
             var args = new AllArgumentsAsArray();
-            CommandLineParser.Parse(new[] { "foo", "-bar+" }, args).Should().BeTrue();
+            CommandLineParser.Parse(new[] { "foo", "-bar+", "/foo=baz" }, args).Should().BeTrue();
             args.AllArguments.Should().NotBeNull();
-            args.AllArguments.Length.Should().Be(2);
+            args.AllArguments.Length.Should().Be(3);
             args.AllArguments[0].Should().Be("foo");
             args.AllArguments[1].Should().Be("-bar+");
+            args.AllArguments[2].Should().Be("/foo=baz");
         }
 
         [TestMethod]
@@ -737,6 +744,14 @@ namespace NClap.Tests.Parser
             args.Argument.Should().Be(10);
 
             CommandLineParser.Format(args).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void CoerceableDefaultValueWorks()
+        {
+            var args = new ArgumentsWithCoerceableDefaultValue();
+            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            args.Argument.Should().Be(1U);
         }
 
         [TestMethod]

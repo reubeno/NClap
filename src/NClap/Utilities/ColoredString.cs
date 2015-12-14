@@ -8,6 +8,15 @@ namespace NClap.Utilities
     public struct ColoredString
     {
         /// <summary>
+        /// Convenience constructor that defaults the foreground and background
+        /// colors.
+        /// </summary>
+        /// <param name="content">The string content.</param>
+        public ColoredString(string content) : this(content, null, null)
+        {
+        }
+
+        /// <summary>
         /// Convenience constructor that defaults the background color.
         /// </summary>
         /// <param name="content">The string content.</param>

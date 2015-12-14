@@ -621,6 +621,7 @@ namespace NClap.Tests.Parser
                 values => values.Count == 0);
             ShouldParseCollectionAs<Dictionary<int, int>>(new[] { "/value:10=9", "/value:5=4" },
                 values => (values.Count == 2) && (values[10] == 9) && (values[5] == 4));
+            ShouldFailToParseCollection<Dictionary<int, int>>(new[] {"/value:10=9", "/value:10=4"});
         }
 
         [TestMethod]

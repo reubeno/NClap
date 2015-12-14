@@ -60,10 +60,10 @@ namespace NClap.Repl
 
             lineInput.Prompt = parameters?.Prompt ?? Strings.DefaultPrompt;
 
-            var reader = new ConsoleReader(lineInput, consoleInput, consoleOutput, keyBindingSet);
+            ConsoleReader = new ConsoleReader(lineInput, consoleInput, consoleOutput, keyBindingSet);
 
             var consoleClient = new ConsoleLoopClient(
-                reader,
+                ConsoleReader,
                 parameters?.ErrorWriter ?? Console.Error);
 
             consoleClient.Reader.CommentCharacter = options?.EndOfLineCommentCharacter;
@@ -98,6 +98,11 @@ namespace NClap.Repl
         public ILoopClient Client { get; }
 
         /// <summary>
+        /// The console reader used by this loop, or null if none is present.
+        /// </summary>
+        public IConsoleReader ConsoleReader { get; }
+
+        /// <summary>
         /// The character that starts a comment.
         /// </summary>
         public char? EndOfLineCommentCharacter { get; set; }
@@ -110,6 +115,75 @@ namespace NClap.Repl
             while (ExecuteOnce())
             {
             }
+        }
+
+        /// <summary>
+        /// Generates possible string completions for an input line to the
+        /// loop.
+        /// </summary>
+        /// <param name="tokens">The tokens presently in the input line.</param>
+        /// <param name="indexOfTokenToComplete">The 0-based index of the token
+        /// from the input line to be completed.</param>
+        /// <returns>An enumeration of the possible completions for the
+        /// indicated token.</returns>
+        public IEnumerable<string> GenerateCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete)
+        {
+            Func<IEnumerable<string>> emptyCompletions = Enumerable.Empty<string>;
+
+            var tokenList = tokens.ToList();
+
+            var tokenToComplete = string.Empty;
+            if (indexOfTokenToComplete < tokenList.Count)
+            {
+                tokenToComplete = tokenList[indexOfTokenToComplete];
+            }
+
+            if (indexOfTokenToComplete == 0)
+            {
+                return _verbNames.Where(command => command.StartsWith(tokenToComplete, StringComparison.CurrentCultureIgnoreCase))
+                                 .OrderBy(command => command, StringComparer.OrdinalIgnoreCase);
+            }
+
+            if (tokenList.Count < 1)
+            {
+                return emptyCompletions();
+            }
+
+            var verbToken = tokenList[0];
+            TVerbType verbType;
+
+            if (!TryParseVerb(verbToken, out verbType))
+            {
+                return emptyCompletions();
+            }
+
+            VerbAttribute attrib;
+            if (!_verbMap.TryGetValue(verbType, out attrib))
+            {
+                return emptyCompletions();
+            }
+
+            var implementingType = attrib.GetImplementingType(typeof(TVerbType));
+            if (implementingType == null)
+            {
+                return emptyCompletions();
+            }
+
+            var constructor = implementingType.GetConstructor(new Type[] { });
+
+            Func<object> parsedObjectFactory = null;
+            if (constructor != null)
+            {
+                parsedObjectFactory = () => constructor.Invoke(new object[] { });
+            }
+
+            var options = new CommandLineParserOptions { Context = _context };
+            return CommandLineParser.GetCompletions(
+                implementingType,
+                tokenList.Skip(1),
+                indexOfTokenToComplete - 1,
+                options,
+                parsedObjectFactory);
         }
 
         private static bool TryParseVerb(string value, out TVerbType verbType)
@@ -230,66 +304,6 @@ namespace NClap.Repl
             }
 
             return !attrib.Exits;
-        }
-
-        internal IEnumerable<string> GenerateCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete)
-        {
-            Func<IEnumerable<string>> emptyCompletions = Enumerable.Empty<string>;
-
-            var tokenList = tokens.ToList();
-
-            var tokenToComplete = string.Empty;
-            if (indexOfTokenToComplete < tokenList.Count)
-            {
-                tokenToComplete = tokenList[indexOfTokenToComplete];
-            }
-
-            if (indexOfTokenToComplete == 0)
-            {
-                return _verbNames.Where(command => command.StartsWith(tokenToComplete, StringComparison.CurrentCultureIgnoreCase))
-                                 .OrderBy(command => command, StringComparer.OrdinalIgnoreCase);
-            }
-
-            if (tokenList.Count < 1)
-            {
-                return emptyCompletions();
-            }
-
-            var verbToken = tokenList[0];
-            TVerbType verbType;
-
-            if (!TryParseVerb(verbToken, out verbType))
-            {
-                return emptyCompletions();
-            }
-
-            VerbAttribute attrib;
-            if (!_verbMap.TryGetValue(verbType, out attrib))
-            {
-                return emptyCompletions();
-            }
-
-            var implementingType = attrib.GetImplementingType(typeof(TVerbType));
-            if (implementingType == null)
-            {
-                return emptyCompletions();
-            }
-
-            var constructor = implementingType.GetConstructor(new Type[] { });
-
-            Func<object> parsedObjectFactory = null;
-            if (constructor != null)
-            {
-                parsedObjectFactory = () => constructor.Invoke(new object[] { });
-            }
-
-            var options = new CommandLineParserOptions { Context = _context };
-            return CommandLineParser.GetCompletions(
-                implementingType,
-                tokenList.Skip(1),
-                indexOfTokenToComplete - 1,
-                options,
-                parsedObjectFactory);
         }
     }
 }

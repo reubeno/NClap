@@ -54,7 +54,14 @@ namespace NClap.Types
             var collection = _constructor.Invoke(new object[] { });
             foreach (var o in objects)
             {
-                _addMethod.Invoke(collection, new[] { o });
+                try
+                {
+                    _addMethod.Invoke(collection, new[] { o });
+                }
+                catch (TargetInvocationException ex)
+                {
+                    throw ex.InnerException;
+                }
             }
 
             return collection;
