@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
@@ -93,9 +94,13 @@ namespace NClap.Repl.TestApp
                 EndOfLineCommentCharacter = '#'
             };
 
+            var keyBindingSet = ConsoleKeyBindingSet.CreateDefaultSet();
+            keyBindingSet.Bind('c', ConsoleModifiers.Control, ConsoleInputOperation.Abort);
+
             var parameters = new LoopInputOutputParameters
             {
-                Prompt = new ColoredString("Loop> ", ConsoleColor.Cyan)
+                Prompt = new ColoredString("Loop> ", ConsoleColor.Cyan),
+                KeyBindingSet = keyBindingSet
             };
 
             Loop<VerbType>.Execute(parameters, options);

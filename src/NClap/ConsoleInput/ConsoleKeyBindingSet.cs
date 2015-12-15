@@ -172,17 +172,25 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Default bindings.
         /// </summary>
-        public static IReadOnlyConsoleKeyBindingSet Default { get; } = new ConsoleKeyBindingSet(
-            s_ignoredModifierKeyBindings,
-            s_defaultControlAltKeyBindings,
-            s_defaultAltKeyBindings,
-            s_defaultControlKeyBindings,
-            s_defaultShiftKeyBindings,
-            s_defaultPlainKeyBindings,
-            s_defaultControlAltCharBindings,
-            s_defaultAltCharBindings,
-            s_defaultControlCharBindings,
-            s_defaultPlainCharBindings);
+        public static IReadOnlyConsoleKeyBindingSet Default { get; } = CreateDefaultSet();
+
+        /// <summary>
+        /// Creates a new <see cref="ConsoleKeyBindingSet"/> populated with
+        /// defaults.
+        /// </summary>
+        /// <returns></returns>
+        public static ConsoleKeyBindingSet CreateDefaultSet() =>
+            new ConsoleKeyBindingSet(
+                s_ignoredModifierKeyBindings,
+                s_defaultControlAltKeyBindings,
+                s_defaultAltKeyBindings,
+                s_defaultControlKeyBindings,
+                s_defaultShiftKeyBindings,
+                s_defaultPlainKeyBindings,
+                s_defaultControlAltCharBindings,
+                s_defaultAltCharBindings,
+                s_defaultControlCharBindings,
+                s_defaultPlainCharBindings);
 
         /// <summary>
         /// Enumerate the contents of the binding set.
