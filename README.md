@@ -1,7 +1,7 @@
 # .NET Command Line Argument Parser (NClap)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ay9tjpxor3n4gv1i/branch/master?svg=true)](https://ci.appveyor.com/project/reubeno/nclap/branch/master)
-[![NuGet package](https://img.shields.io/nuget/dt/NClap.svg)](https://www.nuget.org/packages/NClap)
+[![NuGet package](https://img.shields.io/nuget/v/NClap.svg)](https://www.nuget.org/packages/NClap)
 [![GitHub license](https://img.shields.io/github/license/reubeno/NClap.svg)](https://reubeno.github.io/NClap/LICENSE.txt)
 [![Code coverage](https://img.shields.io/coveralls/reubeno/NClap.svg)](https://coveralls.io/github/reubeno/NClap)
 
