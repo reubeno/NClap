@@ -5,6 +5,8 @@ using System.Globalization;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Parser;
+using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Repl
 {
@@ -15,6 +17,7 @@ namespace NClap.Repl
     /// </typeparam>
     /// <typeparam name="TContext">Type of the context object passed to
     /// all verbs.</typeparam>
+    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords")]
     public class Loop<TVerbType, TContext> where TVerbType : struct
     {
         private readonly TContext _context;
@@ -83,7 +86,7 @@ namespace NClap.Repl
 
             _context = context;
 
-            _verbMap = typeof(TVerbType).GetMembers().SelectMany(
+            _verbMap = typeof(TVerbType).GetTypeInfo().GetMembers().SelectMany(
                 member => member.GetCustomAttributes(typeof(VerbAttribute), false)
                                 .Cast<VerbAttribute>()
                                 .Select(attrib => Tuple.Create((TVerbType)Enum.Parse(typeof(TVerbType), member.Name), attrib)))
@@ -169,12 +172,12 @@ namespace NClap.Repl
                 return emptyCompletions();
             }
 
-            var constructor = implementingType.GetConstructor(new Type[] { });
+            var constructor = implementingType.GetTypeInfo().GetConstructor(Array.Empty<Type>());
 
             Func<object> parsedObjectFactory = null;
             if (constructor != null)
             {
-                parsedObjectFactory = () => constructor.Invoke(new object[] { });
+                parsedObjectFactory = () => constructor.Invoke(Array.Empty<object>());
             }
 
             var options = new CommandLineParserOptions { Context = _context };
@@ -238,7 +241,7 @@ namespace NClap.Repl
             catch (ArgumentException ex)
             {
                 Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.ExceptionWasThrownParsingInputLine, ex));
-                return new string[] { };
+                return Array.Empty<string>();
             }
         }
 
@@ -274,14 +277,14 @@ namespace NClap.Repl
             var implementingType = attrib.GetImplementingType(typeof(TVerbType));
             if (implementingType != null)
             {
-                var constructor = implementingType.GetConstructor(new Type[] { });
+                var constructor = implementingType.GetTypeInfo().GetConstructor(Array.Empty<Type>());
                 if (constructor == null)
                 {
                     Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.NoAccessibleParameterlessConstructor, implementingType.FullName));
                     return true;
                 }
 
-                var verb = constructor.Invoke(new object[] { }) as IVerb<TContext>;
+                var verb = constructor.Invoke(Array.Empty<object>()) as IVerb<TContext>;
                 if (verb == null)
                 {
                     Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.ImplementingTypeNotIVerb, implementingType.FullName, typeof(IVerb).FullName));

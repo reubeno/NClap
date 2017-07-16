@@ -1,5 +1,4 @@
 ﻿using System;
-
 using NClap.Utilities;
 
 namespace NClap.ConsoleInput

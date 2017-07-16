@@ -4,6 +4,7 @@ using System.Linq;
 using NClap.ConsoleInput;
 using NClap.Parser;
 using NClap.Utilities;
+using System.Reflection;
 
 namespace NClap.Metadata
 {
@@ -64,7 +65,7 @@ namespace NClap.Metadata
 
         private static void DisplayGeneralHelp(Action<ColoredMultistring> outputHandler)
         {
-            var verbNames = typeof(TVerbType).GetEnumValues()
+            var verbNames = typeof(TVerbType).GetTypeInfo().GetEnumValues()
                 .Cast<TVerbType>()
                 .OrderBy(type => type.ToString(), StringComparer.CurrentCultureIgnoreCase);
 
@@ -115,7 +116,8 @@ namespace NClap.Metadata
         }
 
         private static VerbAttribute GetVerbAttribute<T>(T value) =>
-            typeof(T).GetField(value.ToString())
+            typeof(T).GetTypeInfo()
+                     .GetField(value.ToString())
                      .GetCustomAttributes(typeof(VerbAttribute), false)
                      .Cast<VerbAttribute>()
                      .SingleOrDefault();

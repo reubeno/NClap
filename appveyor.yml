@@ -3,7 +3,7 @@
 #---------------------------------#
 
 # version format
-version: 1.4.1.{build}-{branch}
+version: 1.5.0.{build}-{branch}
 
 # branches to build
 branches:
@@ -19,16 +19,17 @@ skip_tags: true
 #---------------------------------#
 
 # operating system (build VM template)
-os: Windows Server 2012
+os: Windows Server 2016
+image: Visual Studio 2017
 
 # scripts that are called at very beginning, before repo cloning
 init:
   - git config --global core.autocrlf input
 
 # set up environment
-environment:
-  COVERALLS_REPO_TOKEN:
-    secure: F5G6XI+z7nKUA1mmtD1Het6Yq5KltVlXKSTmKf2KrF+hDOyNp09V9Oozs3HuptWx
+# environment:
+#   COVERALLS_REPO_TOKEN:
+#     secure: F5G6XI+z7nKUA1mmtD1Het6Yq5KltVlXKSTmKf2KrF+hDOyNp09V9Oozs3HuptWx
 
 # build cache to preserve files/folders between builds
 cache:
@@ -47,9 +48,9 @@ configuration:
   - Release
 
 # install a few prereqs
-install:
-  - cinst opencover -source https://nuget.org/api/v2/
-  - cinst coveralls.net -source https://nuget.org/api/v2/
+# install:
+#   - cinst opencover -source https://nuget.org/api/v2/
+#   - cinst coveralls.net -source https://nuget.org/api/v2/
 
 # restore NuGet packages before building
 before_build:
@@ -67,9 +68,9 @@ build:
 #       tests configuration       #
 #---------------------------------#
 
-test_script:
-  - ps: OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:src\NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
-  - ps: csmacnz.Coveralls.exe --opencover -i coverage_$env:CONFIGURATION.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID --useRelativePaths
+# test_script:
+#   - ps: OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:src\NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
+#   - ps: csmacnz.Coveralls.exe --opencover -i coverage_$env:CONFIGURATION.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID --useRelativePaths
 
 #---------------------------------#
 #      artifacts configuration    #
@@ -78,8 +79,8 @@ test_script:
 artifacts:
 
   # publish coverage data
-  - path: coverage_release.xml
-    name: CodeCoverageData
+  # - path: coverage_release.xml
+  #   name: CodeCoverageData
 
   # publish NuGet packages
   - path: 'src\NClap\bin\$(Configuration)\*.nupkg' # find all NuGet packages recursively

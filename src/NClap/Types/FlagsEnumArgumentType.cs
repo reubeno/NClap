@@ -17,7 +17,7 @@ namespace NClap.Types
         /// </param>
         public FlagsEnumArgumentType(Type type) : base(type)
         {
-            if (type.GetCustomAttribute<FlagsAttribute>() == null)
+            if (type.GetTypeInfo().GetCustomAttribute<FlagsAttribute>() == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }

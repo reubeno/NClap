@@ -21,7 +21,7 @@
         /// <summary>
         /// Process a character.
         /// </summary>
-        Char,
+        ProcessCharacter,
 
         //
         // Standard readline operations.

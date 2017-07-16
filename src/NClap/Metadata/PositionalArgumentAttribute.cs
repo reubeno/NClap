@@ -1,10 +1,13 @@
-﻿namespace NClap.Metadata
+﻿using System;
+
+namespace NClap.Metadata
 {
     /// <summary>
     /// Indicates that this argument is an (unnamed) positional argument.  The
     /// LongName property is used for usage text only and does not affect the
     /// usage of the argument.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class PositionalArgumentAttribute : ArgumentBaseAttribute
     {
         /// <summary>

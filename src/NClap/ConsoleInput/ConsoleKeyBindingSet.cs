@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-
 using NClap.Utilities;
 
 namespace NClap.ConsoleInput
@@ -11,12 +10,15 @@ namespace NClap.ConsoleInput
     /// <summary>
     /// Represents a console key binding set.
     /// </summary>
-    public class ConsoleKeyBindingSet : IReadOnlyConsoleKeyBindingSet
+    [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+    public sealed class ConsoleKeyBindingSet : IReadOnlyConsoleKeyBindingSet
     {
         private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_ignoredModifierKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
         {
+#if NET461
             [ConsoleKey.LeftWindows] = ConsoleInputOperation.NoOp,
             [ConsoleKey.RightWindows] = ConsoleInputOperation.NoOp,
+#endif
         };
 
         private static readonly IReadOnlyDictionary<char, ConsoleInputOperation> s_defaultControlCharBindings = new Dictionary<char, ConsoleInputOperation>
@@ -218,19 +220,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="key">The key to look up.</param>
         /// <returns>The operation.</returns>
-        public ConsoleInputOperation this[ConsoleKeyInfo key]
-        {
-            get
-            {
-                ConsoleInputOperation op;
-                if (!TryGetValue(key, out op))
-                {
-                    throw new KeyNotFoundException();
-                }
-
-                return op;
-            }
-        }
+        [SuppressMessage("Microsoft.Design", "CA1043:UseIntegralOrStringArgumentForIndexers")]
+        public ConsoleInputOperation this[ConsoleKeyInfo key] => GetValue(key);
 
         /// <summary>
         /// Enumerates all keys bound within this binding set.
@@ -254,10 +245,22 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>True if the key is bound; false otherwise.</returns>
-        public bool ContainsKey(ConsoleKeyInfo key)
+        public bool ContainsKey(ConsoleKeyInfo key) => TryGetValue(key, out ConsoleInputOperation op);
+
+        /// <summary>
+        /// Find the operation mapped to the specified key press.
+        /// </summary>
+        /// <param name="key">The key info.</param>
+        /// <returns>The mapped operation; throws an exception if the key press is
+        /// not mapped.</returns>
+        public ConsoleInputOperation GetValue(ConsoleKeyInfo key)
         {
-            ConsoleInputOperation op;
-            return TryGetValue(key, out op);
+            if (!TryGetValue(key, out ConsoleInputOperation op))
+            {
+                throw new KeyNotFoundException();
+            }
+
+            return op;
         }
 
         /// <summary>
@@ -440,14 +443,11 @@ namespace NClap.ConsoleInput
             Tuple.Create((ConsoleModifiers)0, _plainCharBindings)
         };
 
-        private IEnumerable<KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>> GetPairs()
-        {
-            return
-                KeyTables.SelectMany(
-                    table => table.Item2.Select(binding => CreatePair(binding.Key, table.Item1, binding.Value))).Concat(
-                CharTables.SelectMany(
-                    table => table.Item2.Select(binding => CreatePair(binding.Key, table.Item1, binding.Value))));
-        }
+        private IEnumerable<KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>> GetPairs() =>
+            KeyTables.SelectMany(
+                table => table.Item2.Select(binding => CreatePair(binding.Key, table.Item1, binding.Value))).Concat(
+            CharTables.SelectMany(
+                table => table.Item2.Select(binding => CreatePair(binding.Key, table.Item1, binding.Value))));
 
         private static KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation> CreatePair(
             ConsoleKey key,
@@ -488,10 +488,17 @@ namespace NClap.ConsoleInput
             return InputUtilities.TryGetSingleChar(key, modifiers).GetValueOrDefault('\0');
         }
 
-        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+        [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "modifiers")]
         private static ConsoleKey GetKey(char value, ConsoleModifiers modifiers)
         {
-            throw new NotImplementedException();
+            var c = char.ToUpperInvariant(value);
+
+            if ((c >= 'A') && (c <= 'Z'))
+            {
+                return ConsoleKey.A + (c - 'A');
+            }
+
+            return (ConsoleKey)0;
         }
     }
 }

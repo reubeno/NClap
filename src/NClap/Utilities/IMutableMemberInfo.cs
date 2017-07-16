@@ -29,7 +29,7 @@ namespace NClap.Utilities
         /// <summary>
         /// The type of the member.
         /// </summary>
-        Type Type { get; }
+        Type MemberType { get; }
 
         /// <summary>
         /// Retrieve the value associated with this field in the specified

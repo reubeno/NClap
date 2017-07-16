@@ -1,7 +1,7 @@
 ﻿using NClap.Metadata;
 using NClap.Types;
 
-namespace NClap.Repl.TestApp
+namespace NClap.TestApp
 {
     enum ProgramMode
     {

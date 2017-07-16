@@ -1,10 +1,13 @@
-﻿namespace NClap.Metadata
+﻿using System;
+
+namespace NClap.Metadata
 {
     /// <summary>
     /// Indicates that this argument is a named argument.  Attach this attribute
     /// to instance fields (or properties) of types used as the destination
     /// of command-line argument parsing.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class NamedArgumentAttribute : ArgumentBaseAttribute
     {
         /// <summary>

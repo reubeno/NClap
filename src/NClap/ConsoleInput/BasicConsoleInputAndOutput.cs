@@ -296,7 +296,6 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Wrapper for native methods.
         /// </summary>
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private static class NativeMethods
         {
             public enum StandardHandleType
@@ -309,12 +308,13 @@ namespace NClap.ConsoleInput
             [StructLayout(LayoutKind.Sequential)]
             public struct SmallRect
             {
-                public short Left;
-                public short Top;
-                public short Right;
-                public short Bottom;
+                public short Left { get; set; }
+                public short Top { get; set; }
+                public short Right { get; set; }
+                public short Bottom { get; set; }
             }
 
+            [Flags]
             public enum CharAttributes : uint
             {
                 None = 0,
@@ -373,15 +373,15 @@ namespace NClap.ConsoleInput
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
             public struct CharInfo
             {
-                public char UnicodeChar;
-                public CharAttributes Attributes;
+                public char UnicodeChar { get; set; }
+                public CharAttributes Attributes { get; set; }
             }
 
             [StructLayout(LayoutKind.Sequential)]
             public struct Coord
             {
-                public short X;
-                public short Y;
+                public short X { get; set; }
+                public short Y { get; set; }
             }
 
             [DllImport("kernel32.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, SetLastError = true, ThrowOnUnmappableChar = true)]

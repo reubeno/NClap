@@ -17,7 +17,6 @@ namespace NClap.Tests.Parser
     {
         class IncorrectlyUsedMustNotBeEmptyAttributeArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBeEmpty]
             public int Value { get; set; }
@@ -25,7 +24,6 @@ namespace NClap.Tests.Parser
 
         class InvalidDefaultValueArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "")]
             [MustNotBeEmpty]
             public string Value { get; set; }
@@ -33,12 +31,10 @@ namespace NClap.Tests.Parser
 
         class NonEmptyStringArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBeEmpty]
             public string Value { get; set; }
 
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBeEmpty]
             public FileSystemPath Path { get; set; }
@@ -46,7 +42,6 @@ namespace NClap.Tests.Parser
 
         class NotValueIntArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBe(0)]
             public int Value { get; set; }
@@ -54,7 +49,6 @@ namespace NClap.Tests.Parser
 
         class MultiNotValueIntArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBe(0), MustNotBe(10)]
             public int Value { get; set; }
@@ -62,7 +56,6 @@ namespace NClap.Tests.Parser
 
         class NotValueStringArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotBe("Hello")]
             public string Value { get; set; }
@@ -70,7 +63,6 @@ namespace NClap.Tests.Parser
 
         class RegExStringArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustMatchRegex("hall(o*)", Options = RegexOptions.None)]
             public string Value { get; set; }
@@ -78,7 +70,6 @@ namespace NClap.Tests.Parser
 
         class NotRegExStringArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotMatchRegex("hall(o*)", Options = RegexOptions.None)]
             public string Value { get; set; }
@@ -86,7 +77,6 @@ namespace NClap.Tests.Parser
 
         class CaseInsensitiveRegExStringArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustMatchRegex("hall(o*)", Options = RegexOptions.IgnoreCase)]
             public string Value { get; set; }
@@ -94,7 +84,6 @@ namespace NClap.Tests.Parser
 
         class GreaterThanArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustBeGreaterThan(10)]
             public int Value { get; set; }
@@ -102,7 +91,6 @@ namespace NClap.Tests.Parser
 
         class GreaterThanOrEqualToArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustBeGreaterThanOrEqualTo(10)]
             public int Value { get; set; }
@@ -110,7 +98,6 @@ namespace NClap.Tests.Parser
 
         class LessThanArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustBeLessThan(10)]
             public int Value { get; set; }
@@ -118,7 +105,6 @@ namespace NClap.Tests.Parser
 
         class LessThanOrEqualToArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustBeLessThanOrEqualTo(10)]
             public int Value { get; set; }
@@ -126,7 +112,6 @@ namespace NClap.Tests.Parser
 
         class FileExistsStringArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustExist(PathExists.AsFile)]
             public string Value { get; set; }
@@ -134,7 +119,6 @@ namespace NClap.Tests.Parser
 
         class FileExistsArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustExist(PathExists.AsFile)]
             public FileSystemPath Value { get; set; }
@@ -142,7 +126,6 @@ namespace NClap.Tests.Parser
 
         class DirectoryExistsArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustExist(PathExists.AsDirectory)]
             public FileSystemPath Value { get; set; }
@@ -150,7 +133,6 @@ namespace NClap.Tests.Parser
 
         class ExistsArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustExist(PathExists.AsFileOrDirectory)]
             public FileSystemPath Value { get; set; }
@@ -158,7 +140,6 @@ namespace NClap.Tests.Parser
 
         class NotExistsArguments
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             [MustNotExist]
             public FileSystemPath Value { get; set; }

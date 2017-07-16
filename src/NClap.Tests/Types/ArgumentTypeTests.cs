@@ -32,7 +32,7 @@ namespace NClap.Tests.Types
         {
             var actions = new Action[]
             {
-                () => new IntegerArgumentType(typeof(object), (str, styles) => 0, signed: true)
+                () => new IntegerArgumentType(typeof(object), (str, styles) => 0, isSigned: true)
             };
 
             foreach (var action in actions)

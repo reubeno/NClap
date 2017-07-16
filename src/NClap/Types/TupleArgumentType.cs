@@ -24,17 +24,17 @@ namespace NClap.Types
         public TupleArgumentType(Type type)
             : base(type)
         {
-            if (type.GetInterface("ITuple") == null)
+            if (type.GetTypeInfo().GetInterface("ITuple") == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            _typeParameters = type.GetGenericArguments();
+            _typeParameters = type.GetTypeInfo().GetGenericArguments();
             Debug.Assert(_typeParameters != null);
             Debug.Assert(_typeParameters.Length > 0);
 
             _argTypeParameters = _typeParameters.Select(ArgumentType.GetType).ToList();
-            _creatorMethod = type.GetConstructor(_typeParameters);
+            _creatorMethod = type.GetTypeInfo().GetConstructor(_typeParameters);
         }
 
         /// <summary>
@@ -106,7 +106,6 @@ namespace NClap.Types
 
             var parsedObjects = new object[_typeParameters.Length];
 
-            // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < tokens.Length; ++i)
             {
                 if (!_argTypeParameters[i].TryParse(context, tokens[i], out parsedObjects[i]))

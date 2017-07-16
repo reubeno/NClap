@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 namespace NClap.Types
 {
@@ -10,6 +11,7 @@ namespace NClap.Types
     /// Static class used to access references to the canonical IArgumentType
     /// implementations for .NET built-in types.
     /// </summary>
+    [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]
     public static class ArgumentType
     {
         /// <summary>
@@ -30,42 +32,42 @@ namespace NClap.Types
         /// <summary>
         /// Describes System.Int64.
         /// </summary>
-        public static IArgumentType Long { get; } = IntegerArgumentType.Create(long.Parse, signed: true);
+        public static IArgumentType Long { get; } = IntegerArgumentType.Create(long.Parse, isSigned: true);
 
         /// <summary>
         /// Describes System.UInt64.
         /// </summary>
-        public static IArgumentType ULong { get; } = IntegerArgumentType.Create(ulong.Parse, signed: false);
+        public static IArgumentType ULong { get; } = IntegerArgumentType.Create(ulong.Parse, isSigned: false);
 
         /// <summary>
         /// Describes System.Int32.
         /// </summary>
-        public static IArgumentType Int { get; } = IntegerArgumentType.Create(int.Parse, signed: true);
+        public static IArgumentType Int { get; } = IntegerArgumentType.Create(int.Parse, isSigned: true);
 
         /// <summary>
         /// Describes System.UInt32.
         /// </summary>
-        public static IArgumentType UInt { get; } = IntegerArgumentType.Create(uint.Parse, signed: false);
+        public static IArgumentType UInt { get; } = IntegerArgumentType.Create(uint.Parse, isSigned: false);
 
         /// <summary>
         /// Describes System.Int16.
         /// </summary>
-        public static IArgumentType Short { get; } = IntegerArgumentType.Create(short.Parse, signed: true);
+        public static IArgumentType Short { get; } = IntegerArgumentType.Create(short.Parse, isSigned: true);
 
         /// <summary>
         /// Describes System.UInt16.
         /// </summary>
-        public static IArgumentType UShort { get; } = IntegerArgumentType.Create(ushort.Parse, signed: false);
+        public static IArgumentType UShort { get; } = IntegerArgumentType.Create(ushort.Parse, isSigned: false);
 
         /// <summary>
         /// Describes System.SByte.
         /// </summary>
-        public static IArgumentType SByte { get; } = IntegerArgumentType.Create(sbyte.Parse, signed: true);
+        public static IArgumentType SByte { get; } = IntegerArgumentType.Create(sbyte.Parse, isSigned: true);
 
         /// <summary>
         /// Describes System.Byte.
         /// </summary>
-        public static IArgumentType Byte { get; } = IntegerArgumentType.Create(byte.Parse, signed: false);
+        public static IArgumentType Byte { get; } = IntegerArgumentType.Create(byte.Parse, isSigned: false);
 
         /// <summary>
         /// Describes System.Char.
@@ -258,21 +260,21 @@ namespace NClap.Types
             }
 
             // Or possibly a type that directly implements IArgumentType itself.
-            if (type.GetInterfaces().Contains(typeof(IArgumentType)))
+            if (type.GetTypeInfo().GetInterfaces().Contains(typeof(IArgumentType)))
             {
-                var constructor = type.GetConstructor(new Type[] { });
+                var constructor = type.GetTypeInfo().GetConstructor(Array.Empty<Type>());
                 if (constructor == null)
                 {
                     argType = null;
                     return false;
                 }
 
-                argType = (IArgumentType)constructor.Invoke(new object[] { });
+                argType = (IArgumentType)constructor.Invoke(Array.Empty<object>());
                 return true;
             }
 
             // Specially handle all enum types.
-            if (type.IsEnum)
+            if (type.GetTypeInfo().IsEnum)
             {
                 argType = EnumArgumentType.Create(type);
                 return true;
@@ -287,14 +289,14 @@ namespace NClap.Types
 
             // Handle all types that implement the generic ICollection<T>
             // interface.
-            if (type.GetInterface(typeof(ICollection<>).Name) != null)
+            if (type.GetTypeInfo().GetInterface(typeof(ICollection<>).Name) != null)
             {
                 argType = new CollectionOfTArgumentType(type);
                 return true;
             }
 
             // Specially handle KeyValuePair and Tuple types.
-            if (type.IsGenericType)
+            if (type.GetTypeInfo().IsGenericType)
             {
                 var genericTy = type.GetGenericTypeDefinition();
                 
@@ -304,7 +306,7 @@ namespace NClap.Types
                     return true;
                 }
 
-                if (type.GetInterface("ITuple") != null)
+                if (type.GetTypeInfo().GetInterface("ITuple") != null)
                 {
                     argType = new TupleArgumentType(type);
                     return true;

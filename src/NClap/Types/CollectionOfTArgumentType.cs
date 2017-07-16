@@ -24,14 +24,14 @@ namespace NClap.Types
         public CollectionOfTArgumentType(Type type)
             : base(type, GetElementType(type))
         {
-            _constructor = Type.GetConstructor(new Type[] { });
+            _constructor = Type.GetTypeInfo().GetConstructor(Array.Empty<Type>());
             if (_constructor == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            var interfaceType = Type.GetInterface(typeof(ICollection<>).Name);
-            var interfaceMethods = Type.GetInterfaceMap(interfaceType).TargetMethods;
+            var interfaceType = Type.GetTypeInfo().GetInterface(typeof(ICollection<>).Name);
+            var interfaceMethods = Type.GetTypeInfo().GetRuntimeInterfaceMap(interfaceType).TargetMethods;
             var addMethods = interfaceMethods.Where(
                 method => (method.Name == "Add") || method.Name.EndsWith(".Add", StringComparison.Ordinal));
 
@@ -51,7 +51,7 @@ namespace NClap.Types
                 throw new ArgumentNullException(nameof(objects));
             }
 
-            var collection = _constructor.Invoke(new object[] { });
+            var collection = _constructor.Invoke(Array.Empty<object>());
             foreach (var o in objects)
             {
                 try
@@ -86,13 +86,13 @@ namespace NClap.Types
 
         private static Type GetElementType(Type collectionType)
         {
-            var interfaceType = collectionType.GetInterface(typeof(ICollection<>).Name);
+            var interfaceType = collectionType.GetTypeInfo().GetInterface(typeof(ICollection<>).Name);
             if (interfaceType == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(collectionType));
             }
 
-            return interfaceType.GetGenericArguments().Single();
+            return interfaceType.GetTypeInfo().GetGenericArguments().Single();
         }
     }
 }

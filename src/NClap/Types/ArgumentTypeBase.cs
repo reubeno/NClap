@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NClap.Utilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Types
 {
@@ -29,6 +30,7 @@ namespace NClap.Types
         /// <summary>
         /// The Type object associated with values described by this interface.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
         public Type Type { get; }
 
         /// <summary>
@@ -98,6 +100,7 @@ namespace NClap.Types
         /// <param name="valueToComplete">String to complete.</param>
         /// <param name="candidates">Candidate strings to select from.</param>
         /// <returns>An enumeration of the selected strings.</returns>
+        [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "context")]
         protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<string> candidates) =>
             candidates.Where(name => name.StartsWith(valueToComplete, StringComparison.OrdinalIgnoreCase))
                       .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);

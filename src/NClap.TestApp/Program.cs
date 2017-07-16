@@ -5,8 +5,9 @@ using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
 using NClap.Utilities;
+using NClap.Repl;
 
-namespace NClap.Repl.TestApp
+namespace NClap.TestApp
 {
     enum VerbType
     {

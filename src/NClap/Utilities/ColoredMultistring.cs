@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace NClap.Utilities
@@ -6,6 +7,7 @@ namespace NClap.Utilities
     /// <summary>
     /// Represents text comprised of strings of different colors.
     /// </summary>
+    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores")]
     public class ColoredMultistring
     {
         /// <summary>
@@ -33,7 +35,14 @@ namespace NClap.Utilities
         /// Wraps a string.
         /// </summary>
         /// <param name="value">The string to wrap.</param>
-        public static implicit operator ColoredMultistring(string value) =>
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        public static implicit operator ColoredMultistring(string value) => FromString(value);
+
+        /// <summary>
+        /// Wraps a string.
+        /// </summary>
+        /// <param name="value">The string to wrap.</param>
+        public static ColoredMultistring FromString(string value) =>
             (value == null) ? null : new ColoredMultistring(new ColoredString[] { value });
 
         /// <summary>

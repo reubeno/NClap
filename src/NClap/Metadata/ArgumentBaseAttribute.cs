@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using NClap.Exceptions;
 using NClap.Types;
+using System.Reflection;
 
 namespace NClap.Metadata
 {
@@ -15,7 +16,7 @@ namespace NClap.Metadata
     {
         private object _defaultValue;
         private string _longName;
-        private string[] _conflictingMemberNames = { };
+        private string[] _conflictingMemberNames = Array.Empty<string>();
 
         /// <summary>
         /// Primary constructor.
@@ -40,6 +41,7 @@ namespace NClap.Metadata
         /// long name should be used.  The long name for every argument must
         /// be unique.  It is an error to specify a long name of string.Empty.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string LongName
         {
             get
@@ -169,9 +171,9 @@ namespace NClap.Metadata
                 return argType;
             }
 
-            var parser = (IStringParser)(Parser?.GetConstructor(new Type[] { })?.Invoke(new object[] { }));
-            var formatter = (IObjectFormatter)(Formatter?.GetConstructor(new Type[] { })?.Invoke(new object[] { }));
-            var completer = (IStringCompleter)(Completer?.GetConstructor(new Type[] { })?.Invoke(new object[] { }));
+            var parser = (IStringParser)(Parser?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
+            var formatter = (IObjectFormatter)(Formatter?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
+            var completer = (IStringCompleter)(Completer?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
 
             return new ArgumentTypeExtension(argType, parser, formatter, completer);
         }

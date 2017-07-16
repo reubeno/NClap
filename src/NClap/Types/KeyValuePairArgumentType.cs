@@ -25,7 +25,7 @@ namespace NClap.Types
         public KeyValuePairArgumentType(Type type)
             : base(type)
         {
-            if (!type.IsGenericType)
+            if (!type.GetTypeInfo().IsGenericType)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -35,14 +35,14 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            var typeParams = type.GetGenericArguments();
+            var typeParams = type.GetTypeInfo().GetGenericArguments();
             if (!ArgumentType.TryGetType(typeParams[0], out _keyType) ||
                 !ArgumentType.TryGetType(typeParams[1], out _valueType))
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.ConstituentTypeNotSupported, type.Name));
             }
 
-            _constructor = type.GetConstructor(typeParams);
+            _constructor = type.GetTypeInfo().GetConstructor(typeParams);
             Debug.Assert(_constructor != null);
         }
 

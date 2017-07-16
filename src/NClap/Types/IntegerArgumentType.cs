@@ -40,18 +40,18 @@ namespace NClap.Types
         /// <param name="type">Type to describe.</param>
         /// <param name="parseHandler">Delegate used to parse strings with the
         /// given type.</param>
-        /// <param name="signed">True if this type is signed; false if it's
+        /// <param name="isSigned">True if this type is signed; false if it's
         /// unsigned.</param>
-        public IntegerArgumentType(Type type, IntegerArgumentTypeParseHandler<object> parseHandler, bool signed)
+        public IntegerArgumentType(Type type, IntegerArgumentTypeParseHandler<object> parseHandler, bool isSigned)
             : base(type)
         {
-            if (!type.IsPrimitive)
+            if (!type.GetTypeInfo().IsPrimitive)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
             _parseHandler = parseHandler;
-            IsSigned = signed;
+            IsSigned = isSigned;
         }
 
         /// <summary>
@@ -66,11 +66,11 @@ namespace NClap.Types
         /// <typeparam name="T">Type to describe.</typeparam>
         /// <param name="parseHandler">Delegate used to parse strings with the
         /// given type.</param>
-        /// <param name="signed">True if this type is signed; false if it's
+        /// <param name="isSigned">True if this type is signed; false if it's
         /// unsigned.</param>
         /// <returns>The constructed object.</returns>
-        public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool signed) =>
-            new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), signed);
+        public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned) =>
+            new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), isSigned);
 
         /// <summary>
         /// Adds two values of this type without checking for overflow.

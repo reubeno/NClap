@@ -39,7 +39,7 @@ namespace NClap.Utilities
         /// <summary>
         /// The type of the member.
         /// </summary>
-        public Type Type => _property.PropertyType;
+        public Type MemberType => _property.PropertyType;
 
         /// <summary>
         /// Retrieve the value associated with this field in the specified
@@ -73,7 +73,7 @@ namespace NClap.Utilities
                 object convertedValue;
 
                 // Try to convert the value?
-                if (!Type.TryConvertFrom(value, out convertedValue))
+                if (!MemberType.TryConvertFrom(value, out convertedValue))
                 {
                     throw;
                 }

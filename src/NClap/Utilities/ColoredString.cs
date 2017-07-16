@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Utilities
 {
     /// <summary>
     /// A colored string intended for display on a console.
     /// </summary>
-    public struct ColoredString
+    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores")]
+    public struct ColoredString : IEquatable<ColoredString>
     {
         /// <summary>
         /// Convenience constructor that defaults the foreground and background
@@ -78,8 +80,14 @@ namespace NClap.Utilities
         /// Wraps an uncolored string.
         /// </summary>
         /// <param name="value">The value to wrap.</param>
-        public static implicit operator ColoredString(string value) =>
-            new ColoredString(value, null, null);
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        public static implicit operator ColoredString(string value) => FromString(value);
+
+        /// <summary>
+        /// Wraps an uncolored string.
+        /// </summary>
+        /// <param name="value">The value to wrap.</param>
+        public static ColoredString FromString(string value) => new ColoredString(value, null, null);
 
         /// <summary>
         /// Compares two ColoredString objects.

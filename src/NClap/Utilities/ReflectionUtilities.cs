@@ -22,8 +22,8 @@ namespace NClap.Utilities
         /// <returns>The fields and properties.</returns>
         public static IEnumerable<IMutableMemberInfo> GetFieldsAndProperties(this Type type, BindingFlags bindingFlags)
         {
-            return type.GetFields(bindingFlags).Select(field => new MutableFieldInfo(field)).Cast<IMutableMemberInfo>().Concat(
-                type.GetProperties(bindingFlags).Select(property => new MutablePropertyInfo(property)));
+            return type.GetTypeInfo().GetFields(bindingFlags).Select(field => new MutableFieldInfo(field)).Cast<IMutableMemberInfo>().Concat(
+                type.GetTypeInfo().GetProperties(bindingFlags).Select(property => new MutablePropertyInfo(property)));
         }
 
         /// <summary>
@@ -32,7 +32,8 @@ namespace NClap.Utilities
         /// <param name="type">Type to get default for.</param>
         /// <returns>The type's default value.</returns>
         public static object GetDefaultValue(this Type type) =>
-            typeof(ReflectionUtilities).GetMethod("GetDefaultValue", new Type[] { })
+            typeof(ReflectionUtilities).GetTypeInfo()
+                                       .GetMethod("GetDefaultValue", Array.Empty<Type>())
                                        .MakeGenericMethod(type).Invoke(null, null);
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace NClap.Utilities
         {
             if (sourceValue != null)
             {
-                var method = destType.GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
+                var method = destType.GetTypeInfo().GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
                 if ((method != null) &&
                     method.IsStatic &&
                     (method.ReturnType == destType))
@@ -62,7 +63,7 @@ namespace NClap.Utilities
                     return true;
                 }
 
-                method = sourceValue.GetType().GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
+                method = sourceValue.GetType().GetTypeInfo().GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
                 if ((method != null) &&
                     method.IsStatic &&
                     (method.ReturnType == destType))
@@ -73,7 +74,6 @@ namespace NClap.Utilities
 
             try
             {
-                // ReSharper disable once UnusedVariable
                 var convertedValue = Convert.ChangeType(sourceValue, destType, CultureInfo.InvariantCulture);
                 return true;
             }
@@ -103,7 +103,7 @@ namespace NClap.Utilities
         {
             if (sourceValue != null)
             {
-                var implicitConversionMethod = destType
+                var implicitConversionMethod = destType.GetTypeInfo()
                     .GetMethod(ImplicitConversionMethodName, new[] { sourceValue.GetType() });
 
                 if ((implicitConversionMethod != null) &&
@@ -120,7 +120,7 @@ namespace NClap.Utilities
                     }
                 }
 
-                implicitConversionMethod = sourceValue.GetType()
+                implicitConversionMethod = sourceValue.GetType().GetTypeInfo()
                     .GetMethod(ImplicitConversionMethodName, new[] { sourceValue.GetType() });
 
                 if ((implicitConversionMethod != null) &&

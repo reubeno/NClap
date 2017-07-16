@@ -32,7 +32,7 @@ namespace NClap.Types
         /// <param name="type">The enumeration type to describe.</param>
         protected EnumArgumentType(Type type) : base(type)
         {
-            if (!type.IsEnum)
+            if (!type.GetTypeInfo().IsEnum)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -43,8 +43,7 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            IArgumentType underlyingArgType;
-            if (!ArgumentType.TryGetType(UnderlyingType, out underlyingArgType))
+            if (!ArgumentType.TryGetType(UnderlyingType, out IArgumentType underlyingArgType))
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -65,7 +64,7 @@ namespace NClap.Types
         /// <returns>The constructed type object.</returns>
         public static EnumArgumentType Create(Type type)
         {
-            var flagsAttrib = type.GetCustomAttribute<FlagsAttribute>();
+            var flagsAttrib = type.GetTypeInfo().GetCustomAttribute<FlagsAttribute>();
             return (flagsAttrib != null) ? new FlagsEnumArgumentType(type) : new EnumArgumentType(type);
         }
 
@@ -76,7 +75,7 @@ namespace NClap.Types
         public override string SyntaxSummary => string.Format(
             CultureInfo.CurrentCulture,
             "{{{0}}}",
-            string.Join(" | ", Type.GetEnumNames().Where(name => !IsValueDisallowed(name))));
+            string.Join(" | ", Type.GetTypeInfo().GetEnumNames().Where(name => !IsValueDisallowed(name))));
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -88,7 +87,7 @@ namespace NClap.Types
         /// strings could be generated, or if the type doesn't support
         /// completion, then an empty enumeration is returned.</returns>
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
-            SelectCompletions(context, valueToComplete, Type.GetEnumNames());
+            SelectCompletions(context, valueToComplete, Type.GetTypeInfo().GetEnumNames());
 
         /// <summary>
         /// Parses the provided string.  Throws an exception if the string
@@ -99,10 +98,8 @@ namespace NClap.Types
         /// <returns>The parsed object.</returns>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
-            FieldInfo field;
-
             // First try looking up the string in our name map.
-            if (_valueNameMap.TryGetValue(stringToParse, out field))
+            if (_valueNameMap.TryGetValue(stringToParse, out FieldInfo field))
             {
                 stringToParse = field.Name;
             }
@@ -135,8 +132,7 @@ namespace NClap.Types
                 return false;
             }
 
-            FieldInfo field;
-            if (!_valueNameMap.TryGetValue(valueName, out field))
+            if (!_valueNameMap.TryGetValue(valueName, out FieldInfo field))
             {
                 return false;
             }
@@ -163,7 +159,7 @@ namespace NClap.Types
 
             // Process each value allowed on the given type, adding all synonyms
             // that indicate them.
-            foreach (var field in type.GetFields())
+            foreach (var field in type.GetTypeInfo().GetFields())
             {
                 var attrib = TryGetArgumentValueAttribute(field);
                 var longName = attrib?.LongName ?? field.Name;

@@ -8,7 +8,6 @@ namespace NClap.Exceptions
     /// <summary>
     /// Exception thrown when an invalid argument set is used.
     /// </summary>
-    [Serializable]
     public class InvalidArgumentSetException : Exception
     {
         /// <summary>
@@ -31,6 +30,15 @@ namespace NClap.Exceptions
         internal InvalidArgumentSetException(IMutableMemberInfo memberInfo, string message = null, Exception innerException = null) : this(memberInfo.MemberInfo.DeclaringType, message, innerException)
         {
             MemberInfo = memberInfo;
+        }
+
+        /// <summary>
+        /// Standard constructor.
+        /// </summary>
+        /// <param name="message">Message describing the exception.</param>
+        /// <param name="innerException">Inner exception.</param>
+        public InvalidArgumentSetException(string message, Exception innerException) : this((Type)null, message, innerException)
+        {
         }
 
         /// <summary>

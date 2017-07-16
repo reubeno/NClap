@@ -8,6 +8,7 @@ namespace NClap.Metadata
     /// Attribute that indicates the associated file-system path argument
     /// member must name a directory that exists.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class MustNotExistAttribute : FileSystemPathValidationAttribute
     {
         /// <summary>

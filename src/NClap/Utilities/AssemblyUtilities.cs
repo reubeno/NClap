@@ -13,7 +13,7 @@ namespace NClap.Utilities
     /// </summary>
     internal static class AssemblyUtilities
     {
-        private static Assembly DefaultAssembly => Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        private static Assembly DefaultAssembly => Assembly.GetEntryAssembly() ?? typeof(AssemblyUtilities).GetTypeInfo().Assembly;
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or

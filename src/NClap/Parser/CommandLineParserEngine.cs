@@ -110,7 +110,7 @@ namespace NClap.Parser
 
             // Look for the optional ArgumentSetAttribute on the type; if there
             // isn't one, construct a default empty one.
-            _setAttribute = type.GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
+            _setAttribute = type.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
 
             // Scan the members of the type and construct argument descriptors
             // for those members that should treated as arguments.
@@ -242,7 +242,6 @@ namespace NClap.Parser
             }
 
             // Append the "NAME" section: lists the program name.
-            // ReSharper disable once RedundantAssignment
             firstSection = false;
             appendHeader(Strings.UsageInfoNameHeader);
             var name = commandName ?? AssemblyUtilities.GetAssemblyFileName();
@@ -298,7 +297,6 @@ namespace NClap.Parser
                     }
 
                     // Append parameter syntax info.
-                    // ReSharper disable once ExpressionIsAlwaysNull
                     appendLine(new ColoredString(simplifyParameterSyntax(argInfo.Syntax), paramSyntaxFgColor));
 
                     // If both are present (and requested to be displayed), we
@@ -525,7 +523,7 @@ namespace NClap.Parser
             // 'argumentSpecification', and on all types in its inheritance
             // hierarchy.
             var members = new List<IMutableMemberInfo>();
-            for (var currentType = type; currentType != null; currentType = currentType.BaseType)
+            for (var currentType = type; currentType != null; currentType = currentType.GetTypeInfo().BaseType)
             {
                 var bindingFlags =
                     BindingFlags.Instance |
@@ -864,7 +862,6 @@ namespace NClap.Parser
             {
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
 
-                // ReSharper disable once RedundantAssignment
                 help[index++] = new ArgumentUsageInfo(
                     string.Format(CultureInfo.CurrentCulture, "[{0}<FilePath>]*", _setAttribute.AnswerFileArgumentPrefix),
                     "Read response file for more options.",

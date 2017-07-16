@@ -4,12 +4,11 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.ConsoleInput;
-using NClap.Utilities;
 
 namespace NClap.Tests.ConsoleInput
 {
     [TestClass]
-    public class ConsoleKeyBindingTests
+    public class ConsoleKeyBindingSetTests
     {
         [TestMethod]
         public void EmptyBindings()
@@ -67,6 +66,8 @@ namespace NClap.Tests.ConsoleInput
             bindings.Bind('/', (ConsoleModifiers)0, ConsoleInputOperation.BeginningOfHistory);
 
             bindings.Count.Should().Be(9);
+
+            var pairs = bindings.ToList();
         }
 
         [TestMethod]

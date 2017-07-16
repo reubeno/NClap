@@ -17,6 +17,7 @@ etc.
 ## Getting NClap
 
 The easiest way to consume NClap is by adding its [NuGet package](https://www.nuget.org/packages/NClap) to your project.
+It is built for use with .NET 4.6.1 and .NET Core 1.1.
 
 NClap is shared under the MIT license, as described in [LICENSE.txt](https://reubeno.github.io/NClap/LICENSE.txt).
 

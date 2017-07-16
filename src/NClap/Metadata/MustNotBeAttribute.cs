@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using NClap.Types;
+using System;
 
 namespace NClap.Metadata
 {
@@ -7,6 +8,7 @@ namespace NClap.Metadata
     /// Attribute that indicates the associated string argument member cannot be
     /// empty.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class MustNotBeAttribute : ArgumentValidationAttribute
     {
         /// <summary>

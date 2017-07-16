@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 using NClap.Types;
 using NSubstitute;
+using System.Reflection;
 
 namespace NClap.Tests.Types
 {
@@ -36,39 +37,6 @@ namespace NClap.Tests.Types
         public void ConflictingAttributesOnMembers()
         {
             Action typeFactory = () => EnumArgumentType.Create(typeof(ConflictingAttributes));
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
-        }
-
-        [TestMethod]
-        public void EnumWithNoUnderlyingType()
-        {
-            var enumType = Substitute.For<Type>();
-            enumType.IsEnum.Returns(true);
-            enumType.GetEnumUnderlyingType().Returns((Type)null);
-
-            Action typeFactory = () => EnumArgumentType.Create(enumType);
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
-        }
-
-        [TestMethod]
-        public void EnumWithNoArgType()
-        {
-            var enumType = Substitute.For<Type>();
-            enumType.IsEnum.Returns(true);
-            enumType.GetEnumUnderlyingType().Returns(GetType());
-
-            Action typeFactory = () => EnumArgumentType.Create(enumType);
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
-        }
-
-        [TestMethod]
-        public void EnumWithNonIntegerArgType()
-        {
-            var enumType = Substitute.For<Type>();
-            enumType.IsEnum.Returns(true);
-            enumType.GetEnumUnderlyingType().Returns(typeof(string));
-
-            Action typeFactory = () => EnumArgumentType.Create(enumType);
             typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
         }
     }

@@ -30,6 +30,7 @@ namespace NClap.Metadata
     /// Attribute that indicates the associated file-system path argument
     /// member must name a file or directory that exists.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class MustExistAttribute : FileSystemPathValidationAttribute
     {
         /// <summary>
@@ -69,7 +70,6 @@ namespace NClap.Metadata
 
             if (Exists.HasFlag(PathExists.AsFile))
             {
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 exists = exists || context.FileSystemReader.FileExists(path);
             }
 

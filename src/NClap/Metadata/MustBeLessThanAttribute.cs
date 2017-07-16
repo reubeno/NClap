@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 
 namespace NClap.Metadata
 {
@@ -6,6 +7,7 @@ namespace NClap.Metadata
     /// Attribute that indicates the associated integer argument member must
     /// be less than a given value.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class MustBeLessThanAttribute : IntegerComparisonValidationAttribute
     {
         /// <summary>

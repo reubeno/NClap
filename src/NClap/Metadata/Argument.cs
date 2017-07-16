@@ -56,7 +56,7 @@ namespace NClap.Metadata
             Attribute = attribute;
             _isPositional = attribute is PositionalArgumentAttribute;
             _reporter = options?.Reporter ?? (s => { });
-            _argType = Attribute.GetArgumentType(member.Type);
+            _argType = Attribute.GetArgumentType(member.MemberType);
             _collectionArgType = AsCollectionType(_argType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
             _validationAttributes = GetValidationAttributes(_argType, Member);
@@ -67,7 +67,7 @@ namespace NClap.Metadata
             ShortName = GetShortName(attribute, member.MemberInfo);
             DefaultValue = GetDefaultValue(attribute, member, defaultFieldValue);
 
-            var nullableBase = Nullable.GetUnderlyingType(member.Type);
+            var nullableBase = Nullable.GetUnderlyingType(member.MemberType);
             Contract.Assume(nullableBase == null || !IsCollection, "Collection types shouldn't be derived from Nullable<T>");
 
             if (_collectionArgType != null)
@@ -630,22 +630,21 @@ namespace NClap.Metadata
             }
             else
             {
-                value = member.Type.GetDefaultValue();
+                value = member.MemberType.GetDefaultValue();
             }
 
             // Validate the value's type.
-            // ReSharper disable once UseMethodIsInstanceOfType
-            if ((value != null) && !member.Type.IsAssignableFrom(value.GetType()))
+            if ((value != null) && !member.MemberType.GetTypeInfo().IsAssignableFrom(value.GetType()))
             {
                 // See if it's implicitly convertible.
-                if (!member.Type.IsImplicitlyConvertibleFrom(value))
+                if (!member.MemberType.IsImplicitlyConvertibleFrom(value))
                 {
                     throw new InvalidArgumentSetException(member, string.Format(
                         CultureInfo.CurrentCulture,
                         Strings.DefaultValueIsOfWrongType,
                         member.MemberInfo.Name,
                         value.GetType().Name,
-                        member.Type.Name));
+                        member.MemberType.Name));
                 }
             }
 
@@ -663,12 +662,11 @@ namespace NClap.Metadata
 
         private static bool IsObjectPresent<T>(T value)
         {
-            if (typeof(T).IsValueType)
+            if (typeof(T).GetTypeInfo().IsValueType)
             {
                 return true;
             }
 
-            // ReSharper disable once RedundantCast
             return (object)value != null;
         }
 

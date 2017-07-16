@@ -1,9 +1,12 @@
-﻿namespace NClap.Metadata
+﻿using System;
+
+namespace NClap.Metadata
 {
     /// <summary>
     /// Attribute that indicates the associated string argument member cannot be
     /// empty.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class MustNotBeEmptyAttribute : StringValidationAttribute
     {
         /// <summary>

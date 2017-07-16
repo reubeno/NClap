@@ -31,24 +31,24 @@ namespace NClap.Metadata
         /// <summary>
         /// Retrieves a string from the object, for use in validation.
         /// </summary>
-        /// <param name="obj">The object to retrieve the string from.</param>
+        /// <param name="value">The object to retrieve the string from.</param>
         /// <returns></returns>
-        protected static string GetString(object obj)
+        protected static string GetString(object value)
         {
-            object value;
-            if (obj is string)
+            object valueToCast;
+            if (value is string)
             {
-                value = obj;
+                valueToCast = value;
             }
             else
             {
-                if (!typeof (string).TryConvertFrom(obj, out value))
+                if (!typeof(string).TryConvertFrom(value, out valueToCast))
                 {
                     throw new InvalidCastException();
                 }
             }
 
-            return (string)value;
+            return (string)valueToCast;
         }
     }
 }

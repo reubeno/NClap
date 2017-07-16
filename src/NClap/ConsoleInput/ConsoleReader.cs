@@ -142,7 +142,7 @@ namespace NClap.ConsoleInput
             ConsoleInputOperation op;
             if (!KeyBindingSet.TryGetValue(key, out op))
             {
-                op = ConsoleInputOperation.Char;
+                op = ConsoleInputOperation.ProcessCharacter;
             }
 
             var result = Process(op, key);
@@ -161,7 +161,7 @@ namespace NClap.ConsoleInput
                 case ConsoleInputOperation.NoOp:
                     break;
 
-                case ConsoleInputOperation.Char:
+                case ConsoleInputOperation.ProcessCharacter:
                     ProcessCharacterKey(key.KeyChar);
                     break;
 
@@ -226,10 +226,10 @@ namespace NClap.ConsoleInput
                     LineInput.ReplaceWithYoungestLineInHistory();
                     break;
                 case ConsoleInputOperation.UpcaseWord:
-                    LineInput.TransformCurrentWord(word => word.ToUpper(CultureInfo.CurrentCulture));
+                    LineInput.TransformCurrentWord(word => word.ToUpper());
                     break;
                 case ConsoleInputOperation.DowncaseWord:
-                    LineInput.TransformCurrentWord(word => word.ToLower(CultureInfo.CurrentCulture));
+                    LineInput.TransformCurrentWord(word => word.ToLower());
                     break;
                 case ConsoleInputOperation.CapitalizeWord:
                     LineInput.TransformCurrentWord(Capitalize);
@@ -349,8 +349,8 @@ namespace NClap.ConsoleInput
                 return value;
             }
 
-            var c = char.ToUpper(value[0], CultureInfo.CurrentCulture);
-            return c + value.Substring(1).ToLower(CultureInfo.CurrentCulture);
+            var c = char.ToUpper(value[0]);
+            return c + value.Substring(1).ToLower();
         }
 
         private void ProcessCharacterKey(char value)

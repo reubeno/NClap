@@ -13,19 +13,15 @@ namespace NClap.Tests.Parser
     {
         private class SimpleArgs
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "d")]
             public string Baz { get; set; }
 
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "c")]
             public int Bar { get; set; }
 
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "s", DefaultValue = true)]
             public bool SomeFlag { get; set; }
 
-            // ReSharper disable once UnusedMember.Local
             [PositionalArgument(ArgumentFlags.Required)]
             public bool PositionalFlag { get; set; }
         }
@@ -33,7 +29,6 @@ namespace NClap.Tests.Parser
         [ArgumentSet(AnswerFileArgumentPrefix = null)]
         private class ArgsWithNoAnswerFile
         {
-            // ReSharper disable once UnusedMember.Local
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public bool Flag { get; set; }
         }

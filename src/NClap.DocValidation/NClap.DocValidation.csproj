@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,7 +37,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <MarkdownFile Include="..\..\README.md">
-      <Reference>..\NClap\bin\$(Configuration)\NClap.dll</Reference>
+      <Reference>..\NClap\bin\$(Configuration)\net461\NClap.dll</Reference>
     </MarkdownFile>
   </ItemGroup>
   <ItemGroup>

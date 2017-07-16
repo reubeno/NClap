@@ -1,10 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-
 using FluentAssertions;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;

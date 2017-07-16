@@ -633,7 +633,6 @@ namespace NClap.ConsoleInput
                 // Update console state.
                 cursorLeft = ConsoleOutput.CursorLeft;
                 cursorTop = ConsoleOutput.CursorTop;
-                // ReSharper disable once RedundantAssignment
                 cursorOffset = cursorTop * bufferWidth + cursorLeft;
             }
 

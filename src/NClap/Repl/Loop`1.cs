@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace NClap.Repl
 {
     /// <summary>
@@ -5,6 +7,8 @@ namespace NClap.Repl
     /// </summary>
     /// <typeparam name="TVerbType">Enum type that defines possible verbs.
     /// </typeparam>
+    [SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
+    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords")]
     public static class Loop<TVerbType> where TVerbType : struct
     {
         /// <summary>

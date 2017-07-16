@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace NClap.Metadata
@@ -7,6 +8,7 @@ namespace NClap.Metadata
     /// Attribute that requires the associated string argument *not* match the
     /// specified regular expression.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class MustNotMatchRegexAttribute : StringValidationAttribute
     {
         private RegexOptions _options;

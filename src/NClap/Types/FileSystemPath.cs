@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security;
 
 namespace NClap.Types
 {
-    using System.Globalization;
-
     /// <summary>
     /// Encapsulates a file-system path (i.e. to file or directory).
     /// </summary>
+    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores")]
     public class FileSystemPath : IEquatable<FileSystemPath>
     {
         /// <summary>
@@ -62,7 +62,15 @@ namespace NClap.Types
         /// </summary>
         /// <param name="path">The path string.</param>
         /// <returns>The path object.</returns>
-        public static implicit operator FileSystemPath(string path) =>
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        public static implicit operator FileSystemPath(string path) => FromString(path);
+
+        /// <summary>
+        /// Constructs a path from a string.
+        /// </summary>
+        /// <param name="path">The path string.</param>
+        /// <returns>The path object.</returns>
+        public static FileSystemPath FromString(string path) =>
             (path == null) ? null : new FileSystemPath(path);
 
         /// <summary>
@@ -146,7 +154,7 @@ namespace NClap.Types
         /// insensitivity.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() => Path.ToLowerInvariant().GetHashCode();
+        public override int GetHashCode() => Path.ToUpperInvariant().GetHashCode();
 
         /// <summary>
         /// Compares this path object against the specified other path object,
@@ -162,7 +170,7 @@ namespace NClap.Types
             {
                 path = System.IO.Path.Combine(workingDirectory, path);
             }
-            else if (System.IO.Path.GetPathRoot(path) == System.IO.Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))
+            else if (System.IO.Path.GetPathRoot(path) == System.IO.Path.DirectorySeparatorChar.ToString())
             {
                 var workingDirectoryRootPath = System.IO.Path.GetPathRoot(workingDirectory);
                 if (workingDirectoryRootPath != null)
