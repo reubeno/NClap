@@ -481,8 +481,7 @@ namespace NClap.Parser
             }
 
             // It must be a positional argument?
-            Argument positionalArg;
-            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndex, out positionalArg))
+            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndex, out Argument positionalArg))
             {
                 return emptyCompletions();
             }
@@ -757,8 +756,7 @@ namespace NClap.Parser
                         optionArgument = argument.Substring(prefixLength + option.Length);
                     }
 
-                    Argument arg;
-                    if (!_namedArgumentMap.TryGetValue(option, out arg))
+                    if (!_namedArgumentMap.TryGetValue(option, out Argument arg))
                     {
                         ReportUnrecognizedArgument(argument);
                         hasError = true;
@@ -783,8 +781,7 @@ namespace NClap.Parser
                 {
                     var filePath = argument.Substring(answerFilePrefix.Length);
 
-                    IEnumerable<string> nestedArgs;
-                    if (LexArgumentAnswerFile(filePath, out nestedArgs))
+                    if (TryLexArgumentAnswerFile(filePath, out IEnumerable<string> nestedArgs))
                     {
                         var nestedArgsArray = nestedArgs.ToArray();
                         Contract.Assume((nestedArgs == null) || Contract.ForAll(nestedArgsArray, x => x != null));
@@ -941,7 +938,7 @@ namespace NClap.Parser
             return count;
         }
 
-        private bool LexArgumentAnswerFile(string filePath, out IEnumerable<string> arguments)
+        private bool TryLexArgumentAnswerFile(string filePath, out IEnumerable<string> arguments)
         {
             try
             {

@@ -8,6 +8,8 @@
     <WarningsAsErrors />
     <!-- <RunCodeAnalysis>true</RunCodeAnalysis> -->
     <Features>IOperation</Features>
+    <DebugType>full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
     <Title>NClap</Title>
