@@ -63,10 +63,10 @@ before_build:
 # build!
 build:
   parallel: true                  # enable MSBuild parallel builds
-  project: src\NClap.sln              # path to Visual Studio solution or project
+  project: src\NClap.sln          # path to Visual Studio solution or project
 
   # MSBuild verbosity level
-  verbosity: normal
+  verbosity: detailed
 
 #---------------------------------#
 #       tests configuration       #
