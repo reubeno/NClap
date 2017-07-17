@@ -56,6 +56,10 @@ configuration:
 #   - cinst opencover -source https://nuget.org/api/v2/
 #   - cinst coveralls.net -source https://nuget.org/api/v2/
 
+# restore NuGet packages before building
+before_build:
+  - nuget restore src\NClap.sln
+
 # build!
 build:
   parallel: true                  # enable MSBuild parallel builds
