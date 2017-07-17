@@ -69,10 +69,7 @@ namespace NClap.ConsoleInput
                 throw new ArgumentNullException(nameof(completionHandler));
             }
 
-            int tokenStartIndex;
-            int tokenLength;
-
-            var completions = Create(inputText, cursorIndex, completionHandler, out tokenStartIndex, out tokenLength);
+            var completions = Create(inputText, cursorIndex, completionHandler, out int tokenStartIndex, out int tokenLength);
             var originalToken = new Token(new Substring(inputText, tokenStartIndex, tokenLength));
             return new TokenCompletionSet(inputText, originalToken, completions);
         }

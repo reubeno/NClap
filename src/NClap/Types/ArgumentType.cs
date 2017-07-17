@@ -229,8 +229,7 @@ namespace NClap.Types
                 throw new ArgumentNullException(nameof(type));
             }
 
-            IArgumentType argType;
-            if (!TryGetType(type, out argType))
+            if (!TryGetType(type, out IArgumentType argType))
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.TypeNotSupported, type.Name));
             }

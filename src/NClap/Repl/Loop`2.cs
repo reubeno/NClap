@@ -33,12 +33,7 @@ namespace NClap.Repl
         /// <param name="context">Caller-provided context object.</param>
         public Loop(ILoopClient loopClient, LoopOptions options, TContext context) : this(options, context)
         {
-            if (loopClient == null)
-            {
-                throw new ArgumentNullException(nameof(loopClient));
-            }
-
-            Client = loopClient;
+            Client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
         }
 
         /// <summary>
@@ -160,8 +155,7 @@ namespace NClap.Repl
                 return emptyCompletions();
             }
 
-            VerbAttribute attrib;
-            if (!_verbMap.TryGetValue(verbType, out attrib))
+            if (!_verbMap.TryGetValue(verbType, out VerbAttribute attrib))
             {
                 return emptyCompletions();
             }
@@ -189,10 +183,8 @@ namespace NClap.Repl
                 parsedObjectFactory);
         }
 
-        private static bool TryParseVerb(string value, out TVerbType verbType)
-        {
-            return Enum.TryParse(value, true /* ignore case */, out verbType);
-        }
+        private static bool TryParseVerb(string value, out TVerbType verbType) =>
+            Enum.TryParse(value, true /* ignore case */, out verbType);
 
         private bool ExecuteOnce()
         {

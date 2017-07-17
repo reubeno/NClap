@@ -796,8 +796,7 @@ namespace NClap.Parser
                 }
                 else
                 {
-                    Argument positionalArg;
-                    if (_positionalArguments.TryGetValue(_nextPositionalArgIndex, out positionalArg))
+                    if (_positionalArguments.TryGetValue(_nextPositionalArgIndex, out Argument positionalArg))
                     {
                         if (positionalArg.TakesRestOfLine)
                         {
@@ -891,8 +890,7 @@ namespace NClap.Parser
             var name = namedArgumentAfterPrefix.Substring(0, separatorIndex);
             var value = namedArgumentAfterPrefix.Substring(separatorIndex + 1);
 
-            Argument arg;
-            if (!_namedArgumentMap.TryGetValue(name, out arg))
+            if (!_namedArgumentMap.TryGetValue(name, out Argument arg))
             {
                 return emptyCompletions();
             }
@@ -901,11 +899,9 @@ namespace NClap.Parser
                       .Select(completion => string.Concat(name, separator.ToString(), completion));
         }
 
-        private string TryGetNamedArgumentPrefix(string arg)
-        {
-            return _setAttribute.NamedArgumentPrefixes.FirstOrDefault(
-                       prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-        }
+        private string TryGetNamedArgumentPrefix(string arg) =>
+            _setAttribute.NamedArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
 
         private string TryGetAnswerFilePrefix(string arg)
         {
