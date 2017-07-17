@@ -52,9 +52,10 @@ configuration:
   - Release
 
 # install a few prereqs
-# install:
-#   - cinst opencover -source https://nuget.org/api/v2/
-#   - cinst coveralls.net -source https://nuget.org/api/v2/
+install:
+  - choco install opencover.portable
+  - choco install coveralls.net
+  - choco install codecov
 
 # restore NuGet packages before building
 before_build:
@@ -64,16 +65,15 @@ before_build:
 build:
   parallel: true                  # enable MSBuild parallel builds
   project: src\NClap.sln          # path to Visual Studio solution or project
-
-  # MSBuild verbosity level
-  verbosity: normal
+  verbosity: minimal              # MSBuild verbosity level
 
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
 
-# test_script:
-#   - ps: OpenCover.Console.exe -register:user "-target:C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "-targetargs:src\NClap.Tests\bin\$env:CONFIGURATION\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
+test_script:
+  - ps: OpenCover.Console.exe -register:user "-target:vstest.console.exe" "-targetargs:src\NClap.Tests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml 
+  - ps: codecov -f coverage_$env:CONFIGURATION.xml
 #   - ps: csmacnz.Coveralls.exe --opencover -i coverage_$env:CONFIGURATION.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID --useRelativePaths
 
 #---------------------------------#
@@ -83,9 +83,17 @@ build:
 artifacts:
 
   # publish coverage data
-  # - path: coverage_release.xml
-  #   name: CodeCoverageData
+  - path: coverage_release.xml
+    name: CodeCoverageData
 
   # publish NuGet packages
   - path: 'src\NClap\bin\$(Configuration)\*.nupkg' # find all NuGet packages recursively
     name: NuGetPackages
+
+  # publish loose binaries
+  - path: 'src\NClap\bin\$(Configuration)\net461'
+    name: BinariesNetFramework
+
+  # publish loose binaries
+  - path: 'src\NClap\bin\$(Configuration)\netstandard1.6'
+    name: BinariesNetStandard
