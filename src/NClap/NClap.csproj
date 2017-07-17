@@ -11,21 +11,22 @@
   </PropertyGroup>
   <PropertyGroup>
     <Title>NClap</Title>
-    <Product>NClap</Product>
-    <Description>NClap is a .NET library for parsing command-line arguments and building interactive command shells. It's driven by a declarative attribute syntax, and easy to extend.</Description>
+    <Product>$(Title)</Product>
+    <Description>.NET Command Line Parser</Description>
+    <Summary>NClap is a .NET library for parsing command-line arguments and building interactive command shells. It's driven by a declarative attribute syntax, and easy to extend.</Summary>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation. All right reserved.</Copyright>
-    <AssemblyVersion>1.5.0</AssemblyVersion>
     <Version>1.5.0</Version>
-    <FileVersion>1.5.0</FileVersion>
-    <ApplicationIcon />
-    <StartupObject />
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <PackageVersion>$(Version)-alpha</PackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://reubeno.github.io/NClap/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/reubeno/NClap</PackageProjectUrl>
     <PackageTags>NClap .NET Command Line CommandLine Argument Parser CLI Interactive Shell</PackageTags>
     <Authors>reubeno</Authors>
+    <NeutralLanguage>en-us</NeutralLanguage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>true</Optimize>
