@@ -1,9 +1,9 @@
 # .NET Command Line Argument Parser (NClap)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ay9tjpxor3n4gv1i/branch/master?svg=true)](https://ci.appveyor.com/project/reubeno/nclap/branch/master)
-[![NuGet package](https://img.shields.io/nuget/v/NClap.svg)](https://www.nuget.org/packages/NClap)
+[![NuGet package](https://img.shields.io/nuget/vpre/NClap.svg)](https://www.nuget.org/packages/NClap)
 [![GitHub license](https://img.shields.io/github/license/reubeno/NClap.svg)](https://reubeno.github.io/NClap/LICENSE.txt)
-[![Code coverage](https://img.shields.io/coveralls/reubeno/NClap.svg)](https://coveralls.io/github/reubeno/NClap)
+[![Code Coverage](https://codecov.io/gh/reubeno/NClap/branch/master/graph/badge.svg)](https://codecov.io/gh/reubeno/NClap)
 
 Welcome! NClap is a .NET library for parsing command-line arguments and building interactive
 command shells. It's driven by a declarative attribute syntax, and easy to extend.
@@ -17,7 +17,7 @@ etc.
 ## Getting NClap
 
 The easiest way to consume NClap is by adding its [NuGet package](https://www.nuget.org/packages/NClap) to your project.
-It is built for use with .NET 4.6.1 and .NET Core 1.1.
+It is built for use with .NET 4.6.1+ and .NET Core 1.1.
 
 NClap is shared under the MIT license, as described in [LICENSE.txt](https://reubeno.github.io/NClap/LICENSE.txt).
 
