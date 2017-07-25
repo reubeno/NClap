@@ -16,6 +16,12 @@ namespace NClap.Metadata
         /// <summary>
         /// Indicates that the related value should not be allowed.
         /// </summary>
-        Disallowed
+        Disallowed,
+
+        /// <summary>
+        /// Indicates that the related value should not be displayed in help
+        /// text.
+        /// </summary>
+        Hidden
     }
 }

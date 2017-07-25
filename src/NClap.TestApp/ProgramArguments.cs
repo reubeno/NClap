@@ -9,7 +9,12 @@ namespace NClap.TestApp
         Invalid,
 
         SomeMode,
-        DifferentMode
+
+        [ArgumentValue(LongName = "Different", ShortName = "D")]
+        DifferentMode,
+
+        [ArgumentValue(Flags = ArgumentValueFlags.Hidden)]
+        HiddenMode
     }
 
     [ArgumentSet(
