@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-
 using NClap.Metadata;
 
 namespace NClap.Types
@@ -14,6 +13,7 @@ namespace NClap.Types
     class EnumArgumentType : ArgumentTypeBase
     {
         private readonly IReadOnlyDictionary<string, FieldInfo> _valueNameMap;
+        private readonly IReadOnlyList<FieldInfo> _values;
 
         /// <summary>
         /// The type underlying this enumeration type.
@@ -55,6 +55,7 @@ namespace NClap.Types
             }
 
             _valueNameMap = ConstructValueNameMap(type);
+            _values = _valueNameMap.Values.Distinct().ToList();
         }
 
         /// <summary>
@@ -70,12 +71,13 @@ namespace NClap.Types
 
         /// <summary>
         /// A summary of the concrete syntax required to indicate a value of
-        /// the type described by this interface (e.g. "&gt;Int32&lt;").
+        /// the type described by this interface (e.g. "&lt;Int32&gt;").
         /// </summary>
         public override string SyntaxSummary => string.Format(
             CultureInfo.CurrentCulture,
             "{{{0}}}",
-            string.Join(" | ", Type.GetTypeInfo().GetEnumNames().Where(name => !IsValueDisallowed(name))));
+            string.Join(" | ", _values.Where(value => !IsValueDisallowed(value) && !IsValueHidden(value))
+                                      .Select(GetDisplayNameForHelp)));
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -104,6 +106,12 @@ namespace NClap.Types
                 stringToParse = field.Name;
             }
 
+            // Otherwise, only let through literal integers.
+            else if (!int.TryParse(stringToParse, NumberStyles.AllowLeadingSign, null, out int parsedInt))
+            {
+                throw new ArgumentOutOfRangeException(nameof(stringToParse));
+            }
+
             // Now use base facilities for parsing.
             var parsedObject = Enum.Parse(Type, stringToParse, true /* ignore case */);
 
@@ -125,7 +133,48 @@ namespace NClap.Types
         /// <param name="valueName">The name of the value to check.</param>
         /// <returns>True if the value has been disallowed; false otherwise.
         /// </returns>
-        private bool IsValueDisallowed(string valueName)
+        private bool IsValueDisallowed(string valueName) =>
+            DoesValueHaveFlags(valueName, ArgumentValueFlags.Disallowed);
+
+        /// <summary>
+        /// Checks if the indicated (named) value has been disallowed by
+        /// metadata.
+        /// </summary>
+        /// <param name="value">The value to check.</param>
+        /// <returns>True if the value has been disallowed; false otherwise.
+        /// </returns>
+        private bool IsValueDisallowed(FieldInfo value) =>
+            DoesValueHaveFlags(value, ArgumentValueFlags.Disallowed);
+
+        /// <summary>
+        /// Checks if the indicated (named) value should be hidden from help
+        /// content.
+        /// </summary>
+        /// <param name="valueName">The name of the value to check.</param>
+        /// <returns>True if the value should be hidden; false otherwise.
+        /// </returns>
+        private bool IsValueHidden(string valueName) =>
+            DoesValueHaveFlags(valueName, ArgumentValueFlags.Hidden);
+
+        /// <summary>
+        /// Checks if the indicated (named) value should be hidden from help
+        /// content.
+        /// </summary>
+        /// <param name="value">The value to check.</param>
+        /// <returns>True if the value should be hidden; false otherwise.
+        /// </returns>
+        private bool IsValueHidden(FieldInfo value) =>
+            DoesValueHaveFlags(value, ArgumentValueFlags.Hidden);
+
+        /// <summary>
+        /// Checks if the indicated (named) value is associated with
+        /// ArgumentValueFlags metadata and has the indicated flags.
+        /// </summary>
+        /// <param name="valueName">The name of the value to check.</param>
+        /// <param name="flags">The flags to check the presence of.</param>
+        /// <returns>True if the value has the indicated flag; false otherwise.
+        /// </returns>
+        private bool DoesValueHaveFlags(string valueName, ArgumentValueFlags flags)
         {
             if (valueName == null)
             {
@@ -137,13 +186,43 @@ namespace NClap.Types
                 return false;
             }
 
-            var attrib = TryGetArgumentValueAttribute(field);
+            return DoesValueHaveFlags(field, flags);
+        }
+
+        /// <summary>
+        /// Checks if the indicated (named) value is associated with
+        /// ArgumentValueFlags metadata and has the indicated flags.
+        /// </summary>
+        /// <param name="value">Info for the value to check.</param>
+        /// <param name="flags">The flags to check the presence of.</param>
+        /// <returns>True if the value has the indicated flag; false otherwise.
+        /// </returns>
+        private bool DoesValueHaveFlags(FieldInfo value, ArgumentValueFlags flags)
+        {
+            var attrib = TryGetArgumentValueAttribute(value);
             if (attrib == null)
             {
                 return false;
             }
 
-            return attrib.Flags.HasFlag(ArgumentValueFlags.Disallowed);
+            return attrib.Flags.HasFlag(flags);
+        }
+
+        private string GetDisplayNameForHelp(FieldInfo value)
+        {
+            string displayName = value.Name.ToString();
+
+            var attrib = TryGetArgumentValueAttribute(value);
+            if (attrib?.LongName != null)
+            {
+                displayName = attrib.LongName;
+            }
+            else if (attrib?.ShortName != null)
+            {
+                displayName = attrib.ShortName;
+            }
+
+            return displayName;
         }
 
         /// <summary>
@@ -159,9 +238,16 @@ namespace NClap.Types
 
             // Process each value allowed on the given type, adding all synonyms
             // that indicate them.
-            foreach (var field in type.GetTypeInfo().GetFields())
+            foreach (var field in type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 var attrib = TryGetArgumentValueAttribute(field);
+
+                // Skip values marked disallowed.
+                if (attrib?.Flags.HasFlag(ArgumentValueFlags.Disallowed) ?? false)
+                {
+                    continue;
+                }
+
                 var longName = attrib?.LongName ?? field.Name;
                 var shortName = attrib?.ShortName;
 

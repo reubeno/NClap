@@ -378,7 +378,6 @@ namespace NClap.Tests.Parser
             ShouldParseAs(new[] { "/value=Default" }, TestEnum.Default);
             ShouldParseAs(new[] { "/value=0" }, TestEnum.Default);
             ShouldParseAs(new[] { "/value=SomeValue" }, TestEnum.SomeValue);
-            ShouldParseAs(new[] { "/value= SomeValue " }, TestEnum.SomeValue);
             ShouldParseAs(new[] { "/value=SOMEVALUE" }, TestEnum.SomeValue);
             ShouldParseAs(new[] { "/value=-1" }, (TestEnum)(-1));
 
@@ -386,6 +385,7 @@ namespace NClap.Tests.Parser
             ShouldFailToParse<TestEnum>(new[] { "/value=" });
             ShouldFailToParse<TestEnum>(new[] { "/value= " });
             ShouldFailToParse<TestEnum>(new[] { "/value=Some Value" });
+            ShouldFailToParse<TestEnum>(new[] { "/value= SomeValue " });
             ShouldFailToParse<TestEnum>(new[] { "/value=0x0" });
             ShouldFailToParse<TestEnum>(new[] { "/value=SomeDisallowedValue" });
         }
