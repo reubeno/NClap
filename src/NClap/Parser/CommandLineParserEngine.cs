@@ -311,7 +311,7 @@ namespace NClap.Parser
                         parameterMetadata.Add(string.Format(
                             CultureInfo.CurrentCulture,
                             "Short form: {0}{1}",
-                            _setAttribute.NamedArgumentPrefixes[0],
+                            _setAttribute.ShortNameArgumentPrefixes[0],
                             argInfo.ShortName));
                     }
 
@@ -383,7 +383,7 @@ namespace NClap.Parser
             if (options.HasFlag(UsageInfoOptions.IncludeRemarks))
             {
                 const string defaultHelpArgumentName = "?";
-                var namedArgPrefix = _setAttribute.NamedArgumentPrefixes.FirstOrDefault();
+                var namedArgPrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
 
                 if (_namedArgumentMap.ContainsKey(defaultHelpArgumentName) &&
                     (namedArgPrefix != null))
@@ -408,7 +408,7 @@ namespace NClap.Parser
             return _namedArguments.Concat(_positionalArguments.Values)
                                   .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
                                   .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
-                                  .SelectMany(argAndValue => argAndValue.Argument.Format(_setAttribute, argAndValue.Value))
+                                  .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
                                   .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
         }
 
@@ -450,12 +450,20 @@ namespace NClap.Parser
             Parse(tokensToParse, inProgressParsedObject);
 
             // See where we are.
-            var namedArgumentPrefix = TryGetNamedArgumentPrefix(tokenToComplete);
-            if (namedArgumentPrefix != null)
+            var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete);
+            if (longNameArgumentPrefix != null)
             {
-                var afterPrefix = tokenToComplete.Substring(namedArgumentPrefix.Length);
+                var afterPrefix = tokenToComplete.Substring(longNameArgumentPrefix.Length);
                 return GetNamedArgumentCompletions(tokenList, indexOfTokenToComplete, afterPrefix, inProgressParsedObject)
-                           .Select(completion => namedArgumentPrefix + completion);
+                           .Select(completion => longNameArgumentPrefix + completion);
+            }
+
+            var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete);
+            if (shortNameArgumentPrefix != null)
+            {
+                var afterPrefix = tokenToComplete.Substring(shortNameArgumentPrefix.Length);
+                return GetNamedArgumentCompletions(tokenList, indexOfTokenToComplete, afterPrefix, inProgressParsedObject)
+                           .Select(completion => shortNameArgumentPrefix + completion);
             }
 
             var answerFileArgumentPrefix = TryGetAnswerFilePrefix(tokenToComplete);
@@ -508,11 +516,8 @@ namespace NClap.Parser
             Contract.Invariant(_setAttribute != null);
         }
 
-        private IEnumerable<char> ArgumentValueSeparators =>
-            _setAttribute.ArgumentValueSeparators;
-
         private IEnumerable<char> ArgumentTerminatorsAndSeparators =>
-            ArgumentNameTerminators.Concat(ArgumentValueSeparators);
+            ArgumentNameTerminators.Concat(_setAttribute.ArgumentValueSeparators);
 
         private static IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
 
@@ -555,7 +560,7 @@ namespace NClap.Parser
             // Find all fields and properties that have argument attributes on
             // them. For each that we find, capture information about them.
             var argList = GetAllFieldsAndProperties(type, true)
-                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, options))
+                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, setAttribute, options))
                           .Where(arg => arg != null);
 
             // If the argument set attribute indicates that we should also
@@ -566,7 +571,7 @@ namespace NClap.Parser
                 argList = argList.Concat(GetAllFieldsAndProperties(type, false)
                     .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, options)));
+                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options)));
             }
 
             // Create a map of the arguments, based on member.
@@ -601,7 +606,7 @@ namespace NClap.Parser
         }
 
         private static Argument CreateArgumentDescriptorIfApplicable(IMutableMemberInfo member, object defaultValues,
-            CommandLineParserOptions options)
+            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
         {
             var attribute = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
             if (attribute == null)
@@ -609,10 +614,11 @@ namespace NClap.Parser
                 return null;
             }
 
-            return CreateArgumentDescriptor(member, attribute, defaultValues, options);
+            return CreateArgumentDescriptor(member, attribute, defaultValues, setAttribute, options);
         }
 
-        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues, CommandLineParserOptions options)
+        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues,
+            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
         {
             if (!member.IsReadable || !member.IsWritable)
             {
@@ -627,7 +633,7 @@ namespace NClap.Parser
             }
 
             var defaultFieldValue = (defaultValues != null) ? member.GetValue(defaultValues) : null;
-            return new Argument(member, attribute, options, defaultFieldValue);
+            return new Argument(member, attribute, setAttribute, options, defaultFieldValue);
         }
 
         private static IReadOnlyDictionary<string, Argument> CreateNamedArgumentMap(IReadOnlyList<Argument> arguments)
@@ -724,39 +730,27 @@ namespace NClap.Parser
                 // from the argument value; it might be meaningful.
                 var argument = args[index];
 
-                var namedArgumentPrefix = TryGetNamedArgumentPrefix(argument);
+                var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(argument);
+                var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(argument);
                 var answerFilePrefix = TryGetAnswerFilePrefix(argument);
 
-                if (namedArgumentPrefix != null)
+                string optionArgument = null;
+                Argument arg = null;
+                if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
                 {
-                    var prefixLength = namedArgumentPrefix.Length;
-                    Contract.Assert(argument.Length >= prefixLength, "Domain knowledge");
+                    bool parsed = false;
 
-                    // Valid separators include all registered argument value
-                    // separators plus '+' and '-' for booleans.
-                    var separators = ArgumentTerminatorsAndSeparators.ToArray();
-
-                    var endIndex = argument.IndexOfAny(separators, prefixLength);
-                    Contract.Assume(endIndex != 0, "Missing postcondition");
-
-                    // Extract the argument's name, separate from its prefix
-                    // or optional argument.
-                    var option = argument.Substring(
-                        prefixLength,
-                        endIndex < 0 ? argument.Length - prefixLength : endIndex - prefixLength);
-
-                    string optionArgument;
-                    if (argument.Length > prefixLength + option.Length &&
-                        _setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + option.Length] == sep))
+                    if (!parsed && longNameArgumentPrefix != null)
                     {
-                        optionArgument = argument.Substring(prefixLength + option.Length + 1);
-                    }
-                    else
-                    {
-                        optionArgument = argument.Substring(prefixLength + option.Length);
+                        parsed = TryParseNamedArgument(argument, longNameArgumentPrefix, out optionArgument, out arg);
                     }
 
-                    if (!_namedArgumentMap.TryGetValue(option, out Argument arg))
+                    if (!parsed && shortNameArgumentPrefix != null)
+                    {
+                        parsed = TryParseNamedArgument(argument, shortNameArgumentPrefix, out optionArgument, out arg);
+                    }
+
+                    if (!parsed)
                     {
                         ReportUnrecognizedArgument(argument);
                         hasError = true;
@@ -774,6 +768,19 @@ namespace NClap.Parser
                     }
                     else
                     {
+                        // If our policy allows a named argument's value to be placed
+                        // in the following token, and if we're missing a required
+                        // value, and if there's at least one more token, then try
+                        // to parse the next token as the current argument's value.
+                        if (_setAttribute.AllowNamedArgumentValueAsSucceedingToken &&
+                            string.IsNullOrEmpty(optionArgument) &&
+                            arg.RequiresOptionArgument &&
+                            index + 1 < args.Count)
+                        {
+                            ++index;
+                            optionArgument = args[index];
+                        }
+
                         hasError |= !arg.SetValue(optionArgument, destination);
                     }
                 }
@@ -830,6 +837,37 @@ namespace NClap.Parser
             return !hasError;
         }
 
+        private bool TryParseNamedArgument(string argument, string argumentPrefix, out string optionArgument, out Argument arg)
+        {
+            var prefixLength = argumentPrefix.Length;
+            Contract.Assert(argument.Length >= prefixLength, "Domain knowledge");
+
+            // Valid separators include all registered argument value
+            // separators plus '+' and '-' for booleans.
+            var separators = ArgumentTerminatorsAndSeparators.ToArray();
+
+            var endIndex = argument.IndexOfAny(separators, prefixLength);
+            Contract.Assume(endIndex != 0, "Missing postcondition");
+
+            // Extract the argument's name, separate from its prefix
+            // or optional argument.
+            var option = argument.Substring(
+                prefixLength,
+                endIndex < 0 ? argument.Length - prefixLength : endIndex - prefixLength);
+
+            if (argument.Length > prefixLength + option.Length &&
+                _setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + option.Length] == sep))
+            {
+                optionArgument = argument.Substring(prefixLength + option.Length + 1);
+            }
+            else
+            {
+                optionArgument = argument.Substring(prefixLength + option.Length);
+            }
+
+            return _namedArgumentMap.TryGetValue(option, out arg);
+        }
+
         private IReadOnlyList<ArgumentUsageInfo> GetArgumentUsageInfo()
         {
             var help = new ArgumentUsageInfo[NumberOfArgumentsToDisplay()];
@@ -841,7 +879,7 @@ namespace NClap.Parser
             {
                 Contract.Assume(arg != null);
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
+                help[index++] = new ArgumentUsageInfo(arg);
             }
 
             // Enumerate named arguments next, in case-insensitive sort order.
@@ -849,7 +887,7 @@ namespace NClap.Parser
             {
                 Contract.Assume(arg != null);
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
+                help[index++] = new ArgumentUsageInfo(arg);
             }
 
             // Add an extra item for answer files, if that is supported on this
@@ -858,8 +896,17 @@ namespace NClap.Parser
             {
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
 
+                var pseudoArgLongName = "FilePath";
+
+                if (_setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+                {
+                    pseudoArgLongName = StringUtilities.ToHyphenatedLowerCase(pseudoArgLongName);
+                }
+
                 help[index++] = new ArgumentUsageInfo(
-                    string.Format(CultureInfo.CurrentCulture, "[{0}<FilePath>]*", _setAttribute.AnswerFileArgumentPrefix),
+                    string.Format(CultureInfo.CurrentCulture, "[{0}<{1}>]*",
+                                  _setAttribute.AnswerFileArgumentPrefix,
+                                  pseudoArgLongName),
                     "Read response file for more options.",
                     false);
             }
@@ -882,7 +929,7 @@ namespace NClap.Parser
             }
 
             var separator = namedArgumentAfterPrefix[separatorIndex];
-            if (!ArgumentValueSeparators.Contains(separator))
+            if (!_setAttribute.ArgumentValueSeparators.Contains(separator))
             {
                 return emptyCompletions();
             }
@@ -899,8 +946,12 @@ namespace NClap.Parser
                       .Select(completion => string.Concat(name, separator.ToString(), completion));
         }
 
-        private string TryGetNamedArgumentPrefix(string arg) =>
+        private string TryGetLongNameArgumentPrefix(string arg) =>
             _setAttribute.NamedArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+        private string TryGetShortNameArgumentPrefix(string arg) =>
+            _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault(
                 prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
 
         private string TryGetAnswerFilePrefix(string arg)

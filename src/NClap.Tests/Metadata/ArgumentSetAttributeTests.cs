@@ -11,7 +11,7 @@ namespace NClap.Tests.Metadata
     {
     #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
-        [ArgumentSet(NamedArgumentPrefixes = new[] { "--" })]
+        [ArgumentSet(NamedArgumentPrefixes = new[] { "--" }, ShortNameArgumentPrefixes = new[] { ";" })]
         class AlternatePrefixArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -58,6 +58,9 @@ namespace NClap.Tests.Metadata
             args.Value.Should().Be(0);
 
             CommandLineParser.Parse(new[] { "--value=10" }, args).Should().BeTrue();
+            args.Value.Should().Be(10);
+
+            CommandLineParser.Parse(new[] { ";v=10" }, args).Should().BeTrue();
             args.Value.Should().Be(10);
 
             var usageInfo = CommandLineParser.GetUsageInfo(typeof(AlternatePrefixArguments));

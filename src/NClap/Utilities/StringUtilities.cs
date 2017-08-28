@@ -414,5 +414,50 @@ namespace NClap.Utilities
 
             return builder.ToString();
         }
+
+        /// <summary>
+        /// Make a best effort to convert a string to being a hyphenated,
+        /// lower-case string.
+        /// </summary>
+        /// <param name="s">The input string.</param>
+        /// <returns>The converted string.</returns>
+        public static string ToHyphenatedLowerCase(string s)
+        {
+            var result = new StringBuilder();
+
+            bool lastCharWasLowerCase = false;
+            for (int i = 0; i < s.Length; ++i)
+            {
+                var c = s[i];
+
+                if (i == 0)
+                {
+                    c = char.ToLower(c);
+                }
+                else if (c == '_')
+                {
+                    c = '-';
+                    lastCharWasLowerCase = false;
+                }
+                else if (char.IsUpper(c))
+                {
+                    if (lastCharWasLowerCase)
+                    {
+                        result.Append("-");
+                    }
+
+                    c = char.ToLower(c);
+                    lastCharWasLowerCase = false;
+                }
+                else
+                {
+                    lastCharWasLowerCase = true;
+                }
+
+                result.Append(c);
+            }
+
+            return result.ToString();
+        }
     }
 }

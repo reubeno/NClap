@@ -28,6 +28,7 @@ namespace NClap.Metadata
     {
         // Parameters
         private readonly IReadOnlyList<ArgumentValidationAttribute> _validationAttributes;
+        private readonly ArgumentSetAttribute _setAttribute;
         private readonly bool _isPositional;
         private readonly ColoredErrorReporter _reporter;
         private readonly IArgumentType _argType;
@@ -45,15 +46,17 @@ namespace NClap.Metadata
         /// </summary>
         /// <param name="member">Field to describe.</param>
         /// <param name="attribute">Argument attribute on the field.</param>
+        /// <param name="setAttribute">Attribute on the containing argument set.</param>
         /// <param name="options">Provides parser options.</param>
         /// <param name="defaultFieldValue">Default value for the field.</param>
-        public Argument(IMutableMemberInfo member, ArgumentBaseAttribute attribute, CommandLineParserOptions options, object defaultFieldValue = null)
+        public Argument(IMutableMemberInfo member, ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object defaultFieldValue = null)
         {
             Contract.Requires(attribute != null, "attribute cannot be null");
             Contract.Requires(member != null, "field cannot be null");
 
             Member = member;
             Attribute = attribute;
+            _setAttribute = setAttribute;
             _isPositional = attribute is PositionalArgumentAttribute;
             _reporter = options?.Reporter ?? (s => { });
             _argType = Attribute.GetArgumentType(member.MemberType);
@@ -62,9 +65,9 @@ namespace NClap.Metadata
             _validationAttributes = GetValidationAttributes(_argType, Member);
             _argumentParseContext = CreateParseContext(attribute, options);
 
-            LongName = GetLongName(attribute, member.MemberInfo);
+            LongName = GetLongName(attribute, setAttribute, member.MemberInfo);
             ExplicitShortName = HasExplicitShortName(attribute);
-            ShortName = GetShortName(attribute, member.MemberInfo);
+            ShortName = GetShortName(attribute, setAttribute, member.MemberInfo);
             DefaultValue = GetDefaultValue(attribute, member, defaultFieldValue);
 
             var nullableBase = Nullable.GetUnderlyingType(member.MemberType);
@@ -224,15 +227,13 @@ namespace NClap.Metadata
         }
 
         /// <summary>
-        /// Formats the argument into a string, in accordance with the provided
-        /// ArgumentSetAttribute.
+        /// Formats the argument into a string.
         /// </summary>
-        /// <param name="attrib">Argument set metadata.</param>
         /// <param name="value">Value to format.</param>
         /// <param name="suppressArgNames">True to suppress argument names;
         /// false to leave them in.</param>
         /// <returns>The formatted string.</returns>
-        public IEnumerable<string> Format(ArgumentSetAttribute attrib, object value, bool suppressArgNames = false)
+        public IEnumerable<string> Format(object value, bool suppressArgNames = false)
         {
             if (_collectionArgType != null)
             {
@@ -244,7 +245,7 @@ namespace NClap.Metadata
                     }
                     else
                     {
-                        yield return Format(attrib, _collectionArgType.ElementType, item);
+                        yield return Format(_collectionArgType.ElementType, item);
                     }
                 }
             }
@@ -254,17 +255,15 @@ namespace NClap.Metadata
             }
             else
             {
-                yield return Format(attrib, _argType, value);
+                yield return Format(_argType, value);
             }
         }
 
         /// <summary>
         /// Generates syntax help information for this argument.
         /// </summary>
-        /// <param name="setAttribute">The argument set attribute that should be
-        /// used for generating syntax help.</param>
         /// <returns>The help content in string form.</returns>
-        public string GetSyntaxHelp(ArgumentSetAttribute setAttribute)
+        public string GetSyntaxHelp()
         {
             Contract.Ensures(Contract.Result<string>() != null);
 
@@ -290,13 +289,13 @@ namespace NClap.Metadata
             }
             else
             {
-                if ((setAttribute.NamedArgumentPrefixes.Length < 1) ||
-                    (setAttribute.ArgumentValueSeparators.Length < 1))
+                if ((_setAttribute.NamedArgumentPrefixes.Length < 1) ||
+                    (_setAttribute.ArgumentValueSeparators.Length < 1))
                 {
-                    throw new ArgumentOutOfRangeException(nameof(setAttribute));
+                    throw new NotSupportedException();
                 }
 
-                builder.Append(setAttribute.NamedArgumentPrefixes[0]);
+                builder.Append(_setAttribute.NamedArgumentPrefixes[0]);
                 builder.Append(LongName);
 
                 // We use a special hard-coded syntax if this argument consumes
@@ -323,7 +322,7 @@ namespace NClap.Metadata
                         builder.Append("[");
                     }
 
-                    builder.Append(setAttribute.ArgumentValueSeparators[0]);
+                    builder.Append(_setAttribute.ArgumentValueSeparators[0]);
                     builder.Append(_argType.SyntaxSummary);
 
                     if (supportsEmptyStrings)
@@ -438,8 +437,7 @@ namespace NClap.Metadata
             SeenValue = true;
 
             // Parse the string version of the value.
-            object newValue;
-            if (!ParseValue(value, out newValue))
+            if (!ParseValue(value, out object newValue))
             {
                 return false;
             }
@@ -554,6 +552,12 @@ namespace NClap.Metadata
             return _argType.GetCompletions(context, valueToComplete);
         }
 
+        /// <summary>
+        /// Checks whether this argument requires an option argument.
+        /// </summary>
+        /// <returns>true if it's required, false if it's optional.</returns>
+        public bool RequiresOptionArgument => !IsEmptyStringValid();
+
         private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, CommandLineParserOptions options)
         {
             return new ArgumentParseContext
@@ -595,10 +599,24 @@ namespace NClap.Metadata
             return type as ICollectionArgumentType;
         }
 
-        private static string GetLongName(ArgumentBaseAttribute attribute, MemberInfo member) =>
-            attribute.LongName ?? member.Name;
+        private static string GetLongName(ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, MemberInfo member)
+        {
+            if (attribute.LongName != null)
+            {
+                return attribute.LongName;
+            }
 
-        private static string GetShortName(ArgumentBaseAttribute attribute, MemberInfo member)
+            var longName = member.Name;
+
+            if (setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+            {
+                longName = StringUtilities.ToHyphenatedLowerCase(longName);
+            }
+
+            return longName;
+        }
+
+        private static string GetShortName(ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, MemberInfo member)
         {
             if (attribute is PositionalArgumentAttribute)
             {
@@ -611,10 +629,17 @@ namespace NClap.Metadata
                 return namedAttribute.ShortName.Length == 0 ? null : namedAttribute.ShortName;
             }
 
-            var longName = GetLongName(attribute, member);
+            var longName = GetLongName(attribute, setAttribute, member);
             Contract.Assume(longName.Length >= 1, "Probably this should be a postcondition for LongName");
 
-            return longName.Substring(0, 1);
+            var shortName = longName.Substring(0, 1);
+
+            if (setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.PreferLowerCaseForShortNames))
+            {
+                shortName = shortName.ToLower();
+            }
+
+            return shortName;
         }
 
         private static object GetDefaultValue(ArgumentBaseAttribute attribute, IMutableMemberInfo member, object defaultFieldValue)
@@ -670,17 +695,14 @@ namespace NClap.Metadata
             return (object)value != null;
         }
 
-        private bool IsEmptyStringValid()
-        {
-            object parsedEmptyString;
-
-            return _argType.TryParse(_argumentParseContext, string.Empty, out parsedEmptyString) &&
+        private bool IsEmptyStringValid() =>
+            _argType.TryParse(_argumentParseContext, string.Empty, out object parsedEmptyString) &&
                    TryValidateValue(
                        parsedEmptyString,
-                       new ArgumentValidationContext(_argumentParseContext.FileSystemReader));
-        }
+                       new ArgumentValidationContext(_argumentParseContext.FileSystemReader),
+                       reportInvalidValue: false);
 
-        private string Format(ArgumentSetAttribute attrib, IObjectFormatter type, object value)
+        private string Format(IObjectFormatter type, object value)
         {
             var formattedValue = type.Format(value);
 
@@ -692,22 +714,25 @@ namespace NClap.Metadata
             return string.Format(
                 CultureInfo.CurrentCulture,
                 "{0}{1}{2}{3}",
-                attrib.NamedArgumentPrefixes.FirstOrDefault(),
+                _setAttribute.NamedArgumentPrefixes.FirstOrDefault(),
                 LongName,
-                attrib.ArgumentValueSeparators.FirstOrDefault(),
+                _setAttribute.ArgumentValueSeparators.FirstOrDefault(),
                 formattedValue);
         }
 
-        private bool TryValidateValue(object value, ArgumentValidationContext validationContext) =>
+        private bool TryValidateValue(object value, ArgumentValidationContext validationContext, bool reportInvalidValue = true) =>
             _validationAttributes.All(attrib =>
             {
-                string reason;
-                if (attrib.TryValidate(validationContext, value, out reason))
+                if (attrib.TryValidate(validationContext, value, out string reason))
                 {
                     return true;
                 }
 
-                ReportBadArgumentValue(_valueType.Format(value), reason);
+                if (reportInvalidValue)
+                {
+                    ReportBadArgumentValue(_valueType.Format(value), reason);
+                }
+
                 return false;
             });
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace NClap.Metadata
 {
@@ -12,6 +13,7 @@ namespace NClap.Metadata
     public sealed class ArgumentSetAttribute : Attribute
     {
         private string[] _namedArgumentPrefixes;
+        private string[] _shortNameArgumentPrefixes;
         private char[] _argumentValueSeparators;
 
         /// <summary>
@@ -19,10 +21,31 @@ namespace NClap.Metadata
         /// </summary>
         public ArgumentSetAttribute()
         {
-            // Initialize properties with defaults.
+            // Detect whether '/' is a file-system separator; if it is, then we
+            // choose not to include it in any default prefix lists.
+            bool useForwardSlashAsPrefix = !Path.DirectorySeparatorChar.Equals('/');
+
+            // Initialize properties with basic defaults.
             AnswerFileArgumentPrefix = "@";
-            NamedArgumentPrefixes = new[] { "/", "-" };
             ArgumentValueSeparators = new[] { '=', ':' };
+
+            // Initialize context-sensitive defaults.
+            if (useForwardSlashAsPrefix)
+            {
+                NamedArgumentPrefixes = new[] { "/", "-" };
+                ShortNameArgumentPrefixes = new[] { "/", "-" };
+                AllowNamedArgumentValueAsSucceedingToken = false;
+                NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
+            }
+            else
+            {
+                NamedArgumentPrefixes = new[] { "--" };
+                ShortNameArgumentPrefixes = new[] { "-" };
+                AllowNamedArgumentValueAsSucceedingToken = true;
+                NameGenerationFlags =
+                    ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames |
+                    ArgumentNameGenerationFlags.PreferLowerCaseForShortNames;
+            }
         }
 
         /// <summary>
@@ -38,7 +61,7 @@ namespace NClap.Metadata
 
         /// <summary>
         /// If this is non-null, it is the argument prefix that references an
-        /// argument answer file.  Defaults to "@".
+        /// argument answer file.
         /// </summary>
         public string AnswerFileArgumentPrefix { get; set; }
 
@@ -51,7 +74,7 @@ namespace NClap.Metadata
 
         /// <summary>
         /// If this is non-null, it is the set of prefixes that indicate named
-        /// arguments.  Defaults to { "/", "-" }.  The first separator listed
+        /// arguments indicated by long name.  The first separator listed
         /// in this array is considered "preferred" and will be used in
         /// generated usage help information.  This array may not be null.
         /// </summary>
@@ -75,11 +98,35 @@ namespace NClap.Metadata
         }
 
         /// <summary>
+        /// If this is non-null, it is the set of prefixes that indicate named
+        /// arguments' short names.  The first separator listed in this array
+        /// is considered "preferred" and will be used in generated usage help
+        /// information.  This array may not be null.
+        /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
+        public string[] ShortNameArgumentPrefixes
+        {
+            get
+            {
+                return _shortNameArgumentPrefixes;
+            }
+
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                _shortNameArgumentPrefixes = value;
+            }
+        }
+
+        /// <summary>
         /// The set of characters that separate a named argument from the
-        /// value associated with it.  Defaults to { '=', ':' }.  The first
-        /// separator listed in this array is considered "preferred" and will
-        /// be used in generated usage help information.  This array may not
-        /// be null.
+        /// value associated with it.  The first separator listed in this
+        /// array is considered "preferred" and will be used in generated
+        /// usage help information.  This array may not be null.
         /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public char[] ArgumentValueSeparators
@@ -99,5 +146,17 @@ namespace NClap.Metadata
                 _argumentValueSeparators = value;
             }
         }
+
+        /// <summary>
+        /// True to indicate that a named argument's value may be present in
+        /// the succeeding token after the name; false to indicate that it
+        /// must be part of the same token.
+        /// </summary>
+        public bool AllowNamedArgumentValueAsSucceedingToken { get; set; }
+
+        /// <summary>
+        /// Flags indicating how to auto-generate names.
+        /// </summary>
+        public ArgumentNameGenerationFlags NameGenerationFlags { get; set; }
     }
 }
