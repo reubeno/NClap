@@ -311,7 +311,7 @@ namespace NClap.Parser
                         parameterMetadata.Add(string.Format(
                             CultureInfo.CurrentCulture,
                             "Short form: {0}{1}",
-                            _setAttribute.NamedArgumentPrefixes[0],
+                            _setAttribute.ShortNameArgumentPrefixes[0],
                             argInfo.ShortName));
                     }
 
@@ -383,7 +383,7 @@ namespace NClap.Parser
             if (options.HasFlag(UsageInfoOptions.IncludeRemarks))
             {
                 const string defaultHelpArgumentName = "?";
-                var namedArgPrefix = _setAttribute.NamedArgumentPrefixes.FirstOrDefault();
+                var namedArgPrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
 
                 if (_namedArgumentMap.ContainsKey(defaultHelpArgumentName) &&
                     (namedArgPrefix != null))
@@ -450,12 +450,20 @@ namespace NClap.Parser
             Parse(tokensToParse, inProgressParsedObject);
 
             // See where we are.
-            var namedArgumentPrefix = TryGetNamedArgumentPrefix(tokenToComplete);
-            if (namedArgumentPrefix != null)
+            var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete);
+            if (longNameArgumentPrefix != null)
             {
-                var afterPrefix = tokenToComplete.Substring(namedArgumentPrefix.Length);
+                var afterPrefix = tokenToComplete.Substring(longNameArgumentPrefix.Length);
                 return GetNamedArgumentCompletions(tokenList, indexOfTokenToComplete, afterPrefix, inProgressParsedObject)
-                           .Select(completion => namedArgumentPrefix + completion);
+                           .Select(completion => longNameArgumentPrefix + completion);
+            }
+
+            var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete);
+            if (shortNameArgumentPrefix != null)
+            {
+                var afterPrefix = tokenToComplete.Substring(shortNameArgumentPrefix.Length);
+                return GetNamedArgumentCompletions(tokenList, indexOfTokenToComplete, afterPrefix, inProgressParsedObject)
+                           .Select(completion => shortNameArgumentPrefix + completion);
             }
 
             var answerFileArgumentPrefix = TryGetAnswerFilePrefix(tokenToComplete);
@@ -508,11 +516,8 @@ namespace NClap.Parser
             Contract.Invariant(_setAttribute != null);
         }
 
-        private IEnumerable<char> ArgumentValueSeparators =>
-            _setAttribute.ArgumentValueSeparators;
-
         private IEnumerable<char> ArgumentTerminatorsAndSeparators =>
-            ArgumentNameTerminators.Concat(ArgumentValueSeparators);
+            ArgumentNameTerminators.Concat(_setAttribute.ArgumentValueSeparators);
 
         private static IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
 
@@ -724,39 +729,27 @@ namespace NClap.Parser
                 // from the argument value; it might be meaningful.
                 var argument = args[index];
 
-                var namedArgumentPrefix = TryGetNamedArgumentPrefix(argument);
+                var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(argument);
+                var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(argument);
                 var answerFilePrefix = TryGetAnswerFilePrefix(argument);
 
-                if (namedArgumentPrefix != null)
+                string optionArgument = null;
+                Argument arg = null;
+                if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
                 {
-                    var prefixLength = namedArgumentPrefix.Length;
-                    Contract.Assert(argument.Length >= prefixLength, "Domain knowledge");
+                    bool parsed = false;
 
-                    // Valid separators include all registered argument value
-                    // separators plus '+' and '-' for booleans.
-                    var separators = ArgumentTerminatorsAndSeparators.ToArray();
-
-                    var endIndex = argument.IndexOfAny(separators, prefixLength);
-                    Contract.Assume(endIndex != 0, "Missing postcondition");
-
-                    // Extract the argument's name, separate from its prefix
-                    // or optional argument.
-                    var option = argument.Substring(
-                        prefixLength,
-                        endIndex < 0 ? argument.Length - prefixLength : endIndex - prefixLength);
-
-                    string optionArgument;
-                    if (argument.Length > prefixLength + option.Length &&
-                        _setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + option.Length] == sep))
+                    if (!parsed && longNameArgumentPrefix != null)
                     {
-                        optionArgument = argument.Substring(prefixLength + option.Length + 1);
-                    }
-                    else
-                    {
-                        optionArgument = argument.Substring(prefixLength + option.Length);
+                        parsed = TryParseNamedArgument(argument, longNameArgumentPrefix, out optionArgument, out arg);
                     }
 
-                    if (!_namedArgumentMap.TryGetValue(option, out Argument arg))
+                    if (!parsed && shortNameArgumentPrefix != null)
+                    {
+                        parsed = TryParseNamedArgument(argument, shortNameArgumentPrefix, out optionArgument, out arg);
+                    }
+
+                    if (!parsed)
                     {
                         ReportUnrecognizedArgument(argument);
                         hasError = true;
@@ -830,6 +823,37 @@ namespace NClap.Parser
             return !hasError;
         }
 
+        private bool TryParseNamedArgument(string argument, string argumentPrefix, out string optionArgument, out Argument arg)
+        {
+            var prefixLength = argumentPrefix.Length;
+            Contract.Assert(argument.Length >= prefixLength, "Domain knowledge");
+
+            // Valid separators include all registered argument value
+            // separators plus '+' and '-' for booleans.
+            var separators = ArgumentTerminatorsAndSeparators.ToArray();
+
+            var endIndex = argument.IndexOfAny(separators, prefixLength);
+            Contract.Assume(endIndex != 0, "Missing postcondition");
+
+            // Extract the argument's name, separate from its prefix
+            // or optional argument.
+            var option = argument.Substring(
+                prefixLength,
+                endIndex < 0 ? argument.Length - prefixLength : endIndex - prefixLength);
+
+            if (argument.Length > prefixLength + option.Length &&
+                _setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + option.Length] == sep))
+            {
+                optionArgument = argument.Substring(prefixLength + option.Length + 1);
+            }
+            else
+            {
+                optionArgument = argument.Substring(prefixLength + option.Length);
+            }
+
+            return _namedArgumentMap.TryGetValue(option, out arg);
+        }
+
         private IReadOnlyList<ArgumentUsageInfo> GetArgumentUsageInfo()
         {
             var help = new ArgumentUsageInfo[NumberOfArgumentsToDisplay()];
@@ -882,7 +906,7 @@ namespace NClap.Parser
             }
 
             var separator = namedArgumentAfterPrefix[separatorIndex];
-            if (!ArgumentValueSeparators.Contains(separator))
+            if (!_setAttribute.ArgumentValueSeparators.Contains(separator))
             {
                 return emptyCompletions();
             }
@@ -899,8 +923,12 @@ namespace NClap.Parser
                       .Select(completion => string.Concat(name, separator.ToString(), completion));
         }
 
-        private string TryGetNamedArgumentPrefix(string arg) =>
+        private string TryGetLongNameArgumentPrefix(string arg) =>
             _setAttribute.NamedArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+        private string TryGetShortNameArgumentPrefix(string arg) =>
+            _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault(
                 prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
 
         private string TryGetAnswerFilePrefix(string arg)
