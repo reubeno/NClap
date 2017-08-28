@@ -34,11 +34,17 @@ namespace NClap.Metadata
             {
                 NamedArgumentPrefixes = new[] { "/", "-" };
                 ShortNameArgumentPrefixes = new[] { "/", "-" };
+                AllowNamedArgumentValueAsSucceedingToken = false;
+                NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
             }
             else
             {
                 NamedArgumentPrefixes = new[] { "--" };
                 ShortNameArgumentPrefixes = new[] { "-" };
+                AllowNamedArgumentValueAsSucceedingToken = true;
+                NameGenerationFlags =
+                    ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames |
+                    ArgumentNameGenerationFlags.PreferLowerCaseForShortNames;
             }
         }
 
@@ -140,5 +146,17 @@ namespace NClap.Metadata
                 _argumentValueSeparators = value;
             }
         }
+
+        /// <summary>
+        /// True to indicate that a named argument's value may be present in
+        /// the succeeding token after the name; false to indicate that it
+        /// must be part of the same token.
+        /// </summary>
+        public bool AllowNamedArgumentValueAsSucceedingToken { get; set; }
+
+        /// <summary>
+        /// Flags indicating how to auto-generate names.
+        /// </summary>
+        public ArgumentNameGenerationFlags NameGenerationFlags { get; set; }
     }
 }

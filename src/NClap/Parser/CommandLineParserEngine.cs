@@ -408,7 +408,7 @@ namespace NClap.Parser
             return _namedArguments.Concat(_positionalArguments.Values)
                                   .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
                                   .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
-                                  .SelectMany(argAndValue => argAndValue.Argument.Format(_setAttribute, argAndValue.Value))
+                                  .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
                                   .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
         }
 
@@ -560,7 +560,7 @@ namespace NClap.Parser
             // Find all fields and properties that have argument attributes on
             // them. For each that we find, capture information about them.
             var argList = GetAllFieldsAndProperties(type, true)
-                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, options))
+                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, setAttribute, options))
                           .Where(arg => arg != null);
 
             // If the argument set attribute indicates that we should also
@@ -571,7 +571,7 @@ namespace NClap.Parser
                 argList = argList.Concat(GetAllFieldsAndProperties(type, false)
                     .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, options)));
+                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options)));
             }
 
             // Create a map of the arguments, based on member.
@@ -606,7 +606,7 @@ namespace NClap.Parser
         }
 
         private static Argument CreateArgumentDescriptorIfApplicable(IMutableMemberInfo member, object defaultValues,
-            CommandLineParserOptions options)
+            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
         {
             var attribute = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
             if (attribute == null)
@@ -614,10 +614,11 @@ namespace NClap.Parser
                 return null;
             }
 
-            return CreateArgumentDescriptor(member, attribute, defaultValues, options);
+            return CreateArgumentDescriptor(member, attribute, defaultValues, setAttribute, options);
         }
 
-        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues, CommandLineParserOptions options)
+        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues,
+            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
         {
             if (!member.IsReadable || !member.IsWritable)
             {
@@ -632,7 +633,7 @@ namespace NClap.Parser
             }
 
             var defaultFieldValue = (defaultValues != null) ? member.GetValue(defaultValues) : null;
-            return new Argument(member, attribute, options, defaultFieldValue);
+            return new Argument(member, attribute, setAttribute, options, defaultFieldValue);
         }
 
         private static IReadOnlyDictionary<string, Argument> CreateNamedArgumentMap(IReadOnlyList<Argument> arguments)
@@ -767,6 +768,19 @@ namespace NClap.Parser
                     }
                     else
                     {
+                        // If our policy allows a named argument's value to be placed
+                        // in the following token, and if we're missing a required
+                        // value, and if there's at least one more token, then try
+                        // to parse the next token as the current argument's value.
+                        if (_setAttribute.AllowNamedArgumentValueAsSucceedingToken &&
+                            string.IsNullOrEmpty(optionArgument) &&
+                            arg.RequiresOptionArgument &&
+                            index + 1 < args.Count)
+                        {
+                            ++index;
+                            optionArgument = args[index];
+                        }
+
                         hasError |= !arg.SetValue(optionArgument, destination);
                     }
                 }
@@ -865,7 +879,7 @@ namespace NClap.Parser
             {
                 Contract.Assume(arg != null);
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
+                help[index++] = new ArgumentUsageInfo(arg);
             }
 
             // Enumerate named arguments next, in case-insensitive sort order.
@@ -873,7 +887,7 @@ namespace NClap.Parser
             {
                 Contract.Assume(arg != null);
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(_setAttribute, arg);
+                help[index++] = new ArgumentUsageInfo(arg);
             }
 
             // Add an extra item for answer files, if that is supported on this

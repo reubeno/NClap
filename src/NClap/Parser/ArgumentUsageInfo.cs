@@ -11,15 +11,14 @@ namespace NClap.Parser
         /// <summary>
         /// Constructor that forms the info from the argument's metadata.
         /// </summary>
-        /// <param name="setAttribute">Argument set attribute.</param>
         /// <param name="arg">Argument metadata.</param>
-        public ArgumentUsageInfo(ArgumentSetAttribute setAttribute, Argument arg)
+        public ArgumentUsageInfo(Argument arg)
         {
-            Syntax = arg.GetSyntaxHelp(setAttribute);
+            Syntax = arg.GetSyntaxHelp();
             Description = arg.Attribute.HelpText;
             Required = arg.IsRequired;
             ShortName = arg.ShortName;
-            DefaultValue = TryGetDefaultValueString(setAttribute, arg);
+            DefaultValue = TryGetDefaultValueString(arg);
         }
 
         /// <summary>
@@ -75,14 +74,12 @@ namespace NClap.Parser
         /// <summary>
         /// Tries to construct a string describing the argument's default value.
         /// </summary>
-        /// <param name="setAttribute">Metadata regarding the argument set
-        /// containing this argument.</param>
         /// <param name="arg">The argument to retrieve a default value string
         /// from.</param>
         /// <returns>If one should be advertised, returns the string version of
         /// the default value for this argument; otherwise, returns null.
         /// </returns>
-        private static string TryGetDefaultValueString(ArgumentSetAttribute setAttribute, Argument arg)
+        private static string TryGetDefaultValueString(Argument arg)
         {
             // Firstly, if the argument is required, then there's no need to
             // indicate any default value.
@@ -124,7 +121,7 @@ namespace NClap.Parser
 
             // At this point, it's probably important to display the default
             // value.
-            var formattedArg = arg.Format(setAttribute, defaultValue, suppressArgNames: true).ToList();
+            var formattedArg = arg.Format(defaultValue, suppressArgNames: true).ToList();
             if (formattedArg.Count == 0)
             {
                 return null;

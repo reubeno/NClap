@@ -351,5 +351,20 @@ namespace NClap.Tests.Utilities
             StringUtilities.QuoteIfNeeded("\tHelloWorld\t").Should().Be("\"\tHelloWorld\t\"");
             StringUtilities.QuoteIfNeeded("\t\t").Should().Be("\"\t\t\"");
         }
+
+        [TestMethod]
+        public void ToHyphenatedLowerCaseIsCorrect()
+        {
+            StringUtilities.ToHyphenatedLowerCase(string.Empty).Should().Be(string.Empty);
+            StringUtilities.ToHyphenatedLowerCase("HelloWorld").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("helloWorld").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("hello-world").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("hello_world").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("HELLO_WORLD").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("HElLO_WORLD").Should().Be("hel-lo-world");
+            StringUtilities.ToHyphenatedLowerCase("Hello_World").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("Hello_world").Should().Be("hello-world");
+            StringUtilities.ToHyphenatedLowerCase("hello_world").Should().Be("hello-world");
+        }
     }
 }
