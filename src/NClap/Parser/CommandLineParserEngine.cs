@@ -896,8 +896,17 @@ namespace NClap.Parser
             {
                 Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
 
+                var pseudoArgLongName = "FilePath";
+
+                if (_setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+                {
+                    pseudoArgLongName = StringUtilities.ToHyphenatedLowerCase(pseudoArgLongName);
+                }
+
                 help[index++] = new ArgumentUsageInfo(
-                    string.Format(CultureInfo.CurrentCulture, "[{0}<FilePath>]*", _setAttribute.AnswerFileArgumentPrefix),
+                    string.Format(CultureInfo.CurrentCulture, "[{0}<{1}>]*",
+                                  _setAttribute.AnswerFileArgumentPrefix,
+                                  pseudoArgLongName),
                     "Read response file for more options.",
                     false);
             }
