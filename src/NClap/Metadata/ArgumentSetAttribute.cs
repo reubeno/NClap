@@ -29,7 +29,7 @@ namespace NClap.Metadata
             AnswerFileArgumentPrefix = "@";
             ArgumentValueSeparators = new[] { '=', ':' };
 
-            // Initialize context-hsensitive defaults.
+            // Initialize context-sensitive defaults.
             if (useForwardSlashAsPrefix)
             {
                 NamedArgumentPrefixes = new[] { "/", "-" };

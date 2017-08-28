@@ -21,7 +21,7 @@
     <Version>1.6.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <PackageVersion>$(Version)</PackageVersion>
+    <PackageVersion>$(Version)-beta</PackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://reubeno.github.io/NClap/LICENSE.txt</PackageLicenseUrl>
