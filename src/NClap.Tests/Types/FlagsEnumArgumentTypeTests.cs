@@ -68,9 +68,8 @@ namespace NClap.Tests.Types
             var type = new FlagsEnumArgumentType(typeof(MyFlags));
             var c = ArgumentParseContext.Default;
 
-            object flags;
 
-            type.TryParse(c, string.Empty, out flags).Should().BeFalse();
+            type.TryParse(c, string.Empty, out object flags).Should().BeFalse();
             flags.Should().BeNull();
 
             type.TryParse(c, "None", out flags).Should().BeTrue();

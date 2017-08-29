@@ -180,8 +180,7 @@ namespace NClap.Tests.Parser
 
             foreach (var attrib in attribs)
             {
-                string reason;
-                Action tryValidateWithNullContext = () => attrib.TryValidate(null, 0, out reason);
+                Action tryValidateWithNullContext = () => attrib.TryValidate(null, 0, out string reason);
                 tryValidateWithNullContext.ShouldThrow<ArgumentNullException>("because {0} shouldn't let it", attrib.GetType().Name);
             }
         }

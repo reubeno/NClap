@@ -145,8 +145,7 @@ namespace NClap.Tests.Types
         {
             var listOfIntArgType = new CollectionOfTArgumentType(typeof(List<int>));
 
-            object value;
-            listOfIntArgType.TryParse(ArgumentParseContext.Default, "1, 2", out value).Should().BeTrue();
+            listOfIntArgType.TryParse(ArgumentParseContext.Default, "1, 2", out object value).Should().BeTrue();
             value.Should().BeOfType<List<int>>();
 
             var list = (List<int>)value;
@@ -159,8 +158,7 @@ namespace NClap.Tests.Types
         {
             var listOfIntArgType = new CollectionOfTArgumentType(typeof(List<int>));
 
-            object value;
-            listOfIntArgType.TryParse(ArgumentParseContext.Default, "1, z", out value).Should().BeFalse();
+            listOfIntArgType.TryParse(ArgumentParseContext.Default, "1, z", out object value).Should().BeFalse();
             value.Should().BeNull();
         }
 
@@ -203,9 +201,8 @@ namespace NClap.Tests.Types
             var defaultContext = ArgumentParseContext.Default;
             var context = new ArgumentParseContext { NumberOptions = NumberOptions.AllowMetricUnitSuffix };
 
-            object value;
 
-            ArgumentType.Int.TryParse(defaultContext, "3k", out value).Should().BeFalse();
+            ArgumentType.Int.TryParse(defaultContext, "3k", out object value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "3kB", out value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "3MB", out value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "3T", out value).Should().BeFalse();
@@ -234,9 +231,8 @@ namespace NClap.Tests.Types
             var defaultContext = ArgumentParseContext.Default;
             var context = new ArgumentParseContext { NumberOptions = NumberOptions.AllowBinaryMetricUnitSuffix };
 
-            object value;
 
-            ArgumentType.Int.TryParse(defaultContext, "3k", out value).Should().BeFalse();
+            ArgumentType.Int.TryParse(defaultContext, "3k", out object value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "3b", out value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "3ib", out value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "3B", out value).Should().BeFalse();
@@ -278,9 +274,8 @@ namespace NClap.Tests.Types
         public void ParsingDecimalUnits()
         {
             var context = new ArgumentParseContext { NumberOptions = NumberOptions.AllowMetricUnitSuffix };
-            object value;
 
-            ArgumentType.Int.TryParse(context, "1.1234k", out value).Should().BeFalse();
+            ArgumentType.Int.TryParse(context, "1.1234k", out object value).Should().BeFalse();
 
             ArgumentType.Int.TryParse(context, "1.5k", out value).Should().BeTrue();
             value.Should().Be(1500);
@@ -301,9 +296,8 @@ namespace NClap.Tests.Types
         public void ParsingUnitsWithOverflow()
         {
             var context = new ArgumentParseContext { NumberOptions = NumberOptions.AllowBinaryMetricUnitSuffix };
-            object value;
 
-            ArgumentType.Int.TryParse(context, "10GB", out value).Should().BeFalse();
+            ArgumentType.Int.TryParse(context, "10GB", out object value).Should().BeFalse();
             ArgumentType.Int.TryParse(context, "10TB", out value).Should().BeFalse();
         }
 
@@ -392,8 +386,7 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void TryGetTypeThrowsOnNull()
         {
-            IArgumentType ty;
-            Action getAction = () => ArgumentType.TryGetType(null, out ty);
+            Action getAction = () => ArgumentType.TryGetType(null, out IArgumentType ty);
             getAction.ShouldThrow<ArgumentNullException>();
         }
 

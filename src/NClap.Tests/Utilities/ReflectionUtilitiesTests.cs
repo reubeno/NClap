@@ -36,10 +36,9 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void NonConvertibleValues()
         {
-            object value;
 
             typeof(int).IsImplicitlyConvertibleFrom(0xFFFFFFFFFFFF).Should().BeFalse();
-            typeof(int).TryConvertFrom(0xFFFFFFFFFFFF, out value).Should().BeFalse();
+            typeof(int).TryConvertFrom(0xFFFFFFFFFFFF, out object value).Should().BeFalse();
             value.Should().BeNull();
 
             typeof(int).IsImplicitlyConvertibleFrom(null).Should().BeFalse();
@@ -76,9 +75,8 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void ConvertValues()
         {
-            object obj;
 
-            typeof(int).TryConvertFrom(0.0, out obj).Should().BeTrue();
+            typeof(int).TryConvertFrom(0.0, out object obj).Should().BeTrue();
             obj.Should().BeOfType<int>().And.Be(0);
 
             typeof(int).TryConvertFrom(true, out obj).Should().BeTrue();

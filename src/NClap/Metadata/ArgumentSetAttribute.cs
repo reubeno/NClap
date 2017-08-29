@@ -88,12 +88,7 @@ namespace NClap.Metadata
 
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _namedArgumentPrefixes = value;
+                _namedArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 
@@ -113,12 +108,7 @@ namespace NClap.Metadata
 
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _shortNameArgumentPrefixes = value;
+                _shortNameArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 
@@ -138,12 +128,7 @@ namespace NClap.Metadata
 
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _argumentValueSeparators = value;
+                _argumentValueSeparators = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 

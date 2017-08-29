@@ -378,8 +378,7 @@ namespace NClap.Metadata
             // but the rest of the line was empty, longer array contains rest of the line.
             if (IsCollection && (SeenValue || !TakesRestOfLine) && (destination != null))
             {
-                object collection;
-                if (!TryCreateCollection(_collectionArgType, _collectionValues, out collection))
+                if (!TryCreateCollection(_collectionArgType, _collectionValues, out object collection))
                 {
                     return false;
                 }
@@ -590,8 +589,7 @@ namespace NClap.Metadata
 
         private static ICollectionArgumentType AsCollectionType(IArgumentType type)
         {
-            var extension = type as ArgumentTypeExtension;
-            if (extension != null)
+            if (type is ArgumentTypeExtension extension)
             {
                 type = extension.InnerType;
             }
