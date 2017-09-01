@@ -11,8 +11,8 @@
 namespace NClap {
     using System;
     using System.Reflection;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -20,7 +20,7 @@ namespace NClap {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -58,6 +58,24 @@ namespace NClap {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read response file for more options..
+        /// </summary>
+        internal static string AnswerFileArgumentDescription {
+            get {
+                return ResourceManager.GetString("AnswerFileArgumentDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FilePath.
+        /// </summary>
+        internal static string AnswerFileArgumentName {
+            get {
+                return ResourceManager.GetString("AnswerFileArgumentName", resourceCulture);
             }
         }
         
@@ -434,6 +452,15 @@ namespace NClap {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default value: {0}.
+        /// </summary>
+        internal static string UsageInfoDefaultValueFormat {
+            get {
+                return ResourceManager.GetString("UsageInfoDefaultValueFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DESCRIPTION.
         /// </summary>
         internal static string UsageInfoDescriptionHeader {
@@ -493,6 +520,15 @@ namespace NClap {
         internal static string UsageInfoRequiredParametersHeader {
             get {
                 return ResourceManager.GetString("UsageInfoRequiredParametersHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Short form: {0}{1}.
+        /// </summary>
+        internal static string UsageInfoShortFormFormat {
+            get {
+                return ResourceManager.GetString("UsageInfoShortFormFormat", resourceCulture);
             }
         }
         

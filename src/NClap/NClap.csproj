@@ -6,10 +6,13 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\NClap.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <!-- <RunCodeAnalysis>true</RunCodeAnalysis> -->
     <Features>IOperation</Features>
     <DebugType>full</DebugType>
     <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461' ">
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup>
     <Title>NClap</Title>
@@ -38,6 +41,9 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Strings.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Strings.Designer.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.3.0-beta1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -50,5 +56,12 @@
     <PackageReference Include="System.Diagnostics.FileVersionInfo" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     <PackageReference Include="System.Runtime" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

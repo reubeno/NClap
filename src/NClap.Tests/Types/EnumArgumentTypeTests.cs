@@ -3,8 +3,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 using NClap.Types;
-using NSubstitute;
-using System.Reflection;
 
 namespace NClap.Tests.Types
 {
@@ -24,6 +22,35 @@ namespace NClap.Tests.Types
 
             [ArgumentValue(ShortName = "s")]
             Bar
+        }
+
+        enum SampleEnum
+        {
+            [ArgumentValue(LongName = "Fo", ShortName = "f")]
+            Foo,
+
+            [ArgumentValue(ShortName = "o")]
+            Other,
+
+            [ArgumentValue(Flags = ArgumentValueFlags.Disallowed)]
+            Unusable,
+
+            [ArgumentValue(Flags = ArgumentValueFlags.Hidden)]
+            NotPublicized
+        }
+
+        [TestMethod]
+        public void EnumWithCustomLongAndShortNames()
+        {
+            var type = EnumArgumentType.Create(typeof(SampleEnum));
+            type.SyntaxSummary.Should().Be("{Fo | o}");
+        }
+
+        [TestMethod]
+        public void DisallowedEnumValue()
+        {
+            var type = EnumArgumentType.Create(typeof(SampleEnum));
+            type.TryParse(ArgumentParseContext.Default, "Unusable", out object o).Should().BeFalse();
         }
 
         [TestMethod]

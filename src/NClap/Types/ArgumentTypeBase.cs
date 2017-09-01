@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using NClap.Utilities;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Types
 {
@@ -25,7 +25,7 @@ namespace NClap.Types
         /// <summary>
         /// The type's human-readable (display) name.
         /// </summary>
-        public string DisplayName => Type.Name;
+        public string DisplayName => Type.Name.ToLower();
 
         /// <summary>
         /// The Type object associated with values described by this interface.
@@ -82,9 +82,8 @@ namespace NClap.Types
                 throw new ArgumentNullException(nameof(value));
             }
 
-            object convertedValue;
             if ((value.GetType() != Type) &&
-                !Type.TryConvertFrom(value, out convertedValue))
+                !Type.TryConvertFrom(value, out object convertedValue))
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }

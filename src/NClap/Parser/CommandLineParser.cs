@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.IO;
-
+using System.Linq;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Utilities;
@@ -100,7 +100,7 @@ namespace NClap.Parser
                 options = new CommandLineParserOptions { Reporter = DefaultReporter };
             }
 
-            Contract.Requires(Contract.ForAll(arguments, arg => arg != null));
+            Debug.Assert(arguments.All(a => a != null));
 
             // Check if the object inherits from HelpArgumentsBase.
             var helpDestination = destination as HelpArgumentsBase;
@@ -217,9 +217,9 @@ namespace NClap.Parser
         /// <returns>True if no errors were detected.</returns>
         public static bool Parse<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class
         {
-            Contract.Requires(arguments != null);
-            Contract.Requires(Contract.ForAll(arguments, arg => arg != null));
-            Contract.Requires(destination != null, "destination cannot be null");
+            Debug.Assert(arguments != null);
+            Debug.Assert(arguments.All(arg => arg != null));
+            Debug.Assert(destination != null, "destination cannot be null");
 
             var parser = new CommandLineParserEngine(destination.GetType(), destination, options);
             return parser.Parse(arguments, destination);
@@ -279,7 +279,7 @@ namespace NClap.Parser
         /// info for.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type) =>
+        public static ColoredMultistring GetUsageInfo(Type type) => 
             GetUsageInfo(type, type.GetDefaultValue());
 
         /// <summary>

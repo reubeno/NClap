@@ -113,8 +113,7 @@ namespace NClap.Types
 
             var parsedElements = elementStrings.Select(elementString =>
             {
-                object parsedElement;
-                if (!_elementArgumentType.TryParse(context, elementString, out parsedElement))
+                if (!_elementArgumentType.TryParse(context, elementString, out object parsedElement))
                 {
                     throw new ArgumentOutOfRangeException(nameof(stringToParse));
                 }

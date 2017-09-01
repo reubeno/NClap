@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -166,8 +164,8 @@ namespace NClap.Parser
         /// <returns>True if no parse errors were encountered.</returns>
         public bool Parse(IList<string> args, object destination)
         {
-            Contract.Requires(args != null, "args cannot be null");
-            Contract.Requires(Contract.ForAll(args, x => x != null), "elements of args cannot be null");
+            Debug.Assert(args != null);
+            Debug.Assert(args.All(x => x != null));
 
             var hasError = !ParseArgumentList(args, destination);
 
@@ -175,8 +173,7 @@ namespace NClap.Parser
             // args.
             foreach (var arg in _namedArguments.Concat(_positionalArguments.Values))
             {
-                Contract.Assume(arg != null);
-                hasError |= !arg.Finish(destination, _options.FileSystemReader);
+                hasError |= !arg.TryFinalize(destination, _options.FileSystemReader);
             }
 
             return !hasError;
@@ -265,24 +262,16 @@ namespace NClap.Parser
             }
 
             // Define a private lambda to simplify parameter syntax.
+            //
+            // We add logic here to trim out a single pair of enclosing
+            // square brackets if it's present -- it's just noisy here.
+            // The containing section already makes it sufficiently clear
+            // whether the parameter is required or optional.
+            //
+            // TODO: Make this logic more generic, and put it elsewhere.
             Func<string, string> simplifyParameterSyntax = s =>
-            {
-                //
-                // We add logic here to trim out a single pair of enclosing
-                // square brackets if it's present -- it's just noisy here.
-                // The containing section already makes it sufficiently clear
-                // whether the parameter is required or optional.
-                //
-                // TODO: Make this logic more generic, and put it elsewhere.
-                //
-
-                if (s.StartsWith("[") && s.EndsWith("]"))
-                {
-                    s = s.Substring(1, s.Length - 2);
-                }
-
-                return s;
-            };
+                s.TrimStart('[')
+                 .TrimEnd(']', '*', '+');
 
             // Define a private lambda that appends parameter info.
             Action<IEnumerable<ArgumentUsageInfo>> appendParametersSection = argsInfo =>
@@ -310,7 +299,7 @@ namespace NClap.Parser
                     {
                         parameterMetadata.Add(string.Format(
                             CultureInfo.CurrentCulture,
-                            "Short form: {0}{1}",
+                            Strings.UsageInfoShortFormFormat,
                             _setAttribute.ShortNameArgumentPrefixes[0],
                             argInfo.ShortName));
                     }
@@ -321,7 +310,7 @@ namespace NClap.Parser
                     {
                         parameterMetadata.Add(string.Format(
                             CultureInfo.CurrentCulture,
-                            "Default value: {0}",
+                            Strings.UsageInfoDefaultValueFormat,
                             argInfo.DefaultValue));
                     }
 
@@ -501,21 +490,6 @@ namespace NClap.Parser
                 inProgressParsedObject);
         }
 
-        /// <summary>
-        /// Code contracts object invariant for this class.
-        /// </summary>
-        [ContractInvariantMethod]
-        [SuppressMessage("Microsoft.Performance", "CA1811: Avoid uncalled private code", Justification = "Invoked by Code Contracts")]
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "It does use local members in debug builds")]
-        internal void ObjectInvariant()
-        {
-            Contract.Invariant(_namedArgumentMap != null);
-            Contract.Invariant(_namedArguments != null);
-            Contract.Invariant(_positionalArguments != null);
-            Contract.Invariant(_options != null);
-            Contract.Invariant(_setAttribute != null);
-        }
-
         private IEnumerable<char> ArgumentTerminatorsAndSeparators =>
             ArgumentNameTerminators.Concat(_setAttribute.ArgumentValueSeparators);
 
@@ -623,7 +597,6 @@ namespace NClap.Parser
             if (!member.IsReadable || !member.IsWritable)
             {
                 var declaringType = member.MemberInfo.DeclaringType;
-                Contract.Assume(declaringType != null);
 
                 throw new InvalidArgumentSetException(member, string.Format(
                     CultureInfo.CurrentCulture,
@@ -643,8 +616,6 @@ namespace NClap.Parser
             // Add explicit names to the map.
             foreach (var argument in arguments)
             {
-                Contract.Assume(argument != null);
-
                 if (argumentMap.ContainsKey(argument.LongName))
                 {
                     throw new InvalidArgumentSetException(argument, string.Format(
@@ -720,7 +691,8 @@ namespace NClap.Parser
         /// <returns>True if no error occurred; false otherwise.</returns>
         private bool ParseArgumentList(IList<string> args, object destination)
         {
-            Contract.Requires((args != null) && Contract.ForAll(args, x => x != null));
+            Debug.Assert(args != null);
+            Debug.Assert(args.All(x => x != null));
 
             var hasError = false;
 
@@ -791,7 +763,6 @@ namespace NClap.Parser
                     if (TryLexArgumentAnswerFile(filePath, out IEnumerable<string> nestedArgs))
                     {
                         var nestedArgsArray = nestedArgs.ToArray();
-                        Contract.Assume((nestedArgs == null) || Contract.ForAll(nestedArgsArray, x => x != null));
 
                         hasError |= !ParseArgumentList(nestedArgsArray, destination);
                     }
@@ -840,14 +811,13 @@ namespace NClap.Parser
         private bool TryParseNamedArgument(string argument, string argumentPrefix, out string optionArgument, out Argument arg)
         {
             var prefixLength = argumentPrefix.Length;
-            Contract.Assert(argument.Length >= prefixLength, "Domain knowledge");
+            Debug.Assert(argument.Length >= prefixLength);
 
             // Valid separators include all registered argument value
             // separators plus '+' and '-' for booleans.
             var separators = ArgumentTerminatorsAndSeparators.ToArray();
 
             var endIndex = argument.IndexOfAny(separators, prefixLength);
-            Contract.Assume(endIndex != 0, "Missing postcondition");
 
             // Extract the argument's name, separate from its prefix
             // or optional argument.
@@ -877,16 +847,12 @@ namespace NClap.Parser
             // Enumerate positional arguments first, in position order.
             foreach (var arg in _positionalArguments.Values.Where(a => a.Hidden == false))
             {
-                Contract.Assume(arg != null);
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
                 help[index++] = new ArgumentUsageInfo(arg);
             }
 
             // Enumerate named arguments next, in case-insensitive sort order.
             foreach (var arg in _namedArguments.Where(a => a.Hidden == false).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
             {
-                Contract.Assume(arg != null);
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
                 help[index++] = new ArgumentUsageInfo(arg);
             }
 
@@ -894,9 +860,7 @@ namespace NClap.Parser
             // argument set.
             if ((index > 0) && (_setAttribute.AnswerFileArgumentPrefix != null))
             {
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-
-                var pseudoArgLongName = "FilePath";
+                var pseudoArgLongName = Strings.AnswerFileArgumentName;
 
                 if (_setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
                 {
@@ -904,10 +868,8 @@ namespace NClap.Parser
                 }
 
                 help[index++] = new ArgumentUsageInfo(
-                    string.Format(CultureInfo.CurrentCulture, "[{0}<{1}>]*",
-                                  _setAttribute.AnswerFileArgumentPrefix,
-                                  pseudoArgLongName),
-                    "Read response file for more options.",
+                    $"[{_setAttribute.AnswerFileArgumentPrefix}<{pseudoArgLongName}>]*",
+                    Strings.AnswerFileArgumentDescription,
                     false);
             }
 
@@ -1016,8 +978,8 @@ namespace NClap.Parser
 
         private void ReportLine(string message, params object[] args)
         {
-            Contract.Requires(_options != null);
-            Contract.Requires(_options.Reporter != null);
+            Debug.Assert(_options != null);
+            Debug.Assert(_options.Reporter != null);
             _options.Reporter(string.Format(CultureInfo.CurrentCulture, message + Environment.NewLine, args));
         }
     }

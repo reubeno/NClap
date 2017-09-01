@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -51,8 +50,8 @@ namespace NClap.Metadata
         /// <param name="defaultFieldValue">Default value for the field.</param>
         public Argument(IMutableMemberInfo member, ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object defaultFieldValue = null)
         {
-            Contract.Requires(attribute != null, "attribute cannot be null");
-            Contract.Requires(member != null, "field cannot be null");
+            Debug.Assert(attribute != null);
+            Debug.Assert(member != null);
 
             Member = member;
             Attribute = attribute;
@@ -71,8 +70,7 @@ namespace NClap.Metadata
             DefaultValue = GetDefaultValue(attribute, member, defaultFieldValue);
 
             var nullableBase = Nullable.GetUnderlyingType(member.MemberType);
-            Contract.Assume(nullableBase == null || !IsCollection, "Collection types shouldn't be derived from Nullable<T>");
-
+            
             if (_collectionArgType != null)
             {
                 _collectionValues = new ArrayList();
@@ -91,7 +89,7 @@ namespace NClap.Metadata
                 _valueType = _argType;
             }
 
-            Contract.Assert(_valueType != null);
+            Debug.Assert(_valueType != null);
 
             if (Unique && !IsCollection)
             {
@@ -99,13 +97,6 @@ namespace NClap.Metadata
             }
 
             Debug.Assert(!string.IsNullOrEmpty(LongName));
-            Contract.Assume(!_isPositional || !ExplicitShortName);
-            Contract.Assume(!(TakesRestOfLine && AllowMultiple), "Arguments may be RestOfLine or AllowMultiple but not both");
-            Contract.Assume(
-                !IsCollection || AllowMultiple || TakesRestOfLine,
-                "Collection arguments must have allow multiple or take rest of line");
-            Contract.Assume(!Unique || IsCollection, "Unique only applicable to collection arguments");
-            Contract.Assume(!(IsRequired && HasDefaultValue && DefaultValue != null), "Required arguments cannot have default value");
         }
 
         /// <summary>
@@ -265,8 +256,6 @@ namespace NClap.Metadata
         /// <returns>The help content in string form.</returns>
         public string GetSyntaxHelp()
         {
-            Contract.Ensures(Contract.Result<string>() != null);
-
             var builder = new StringBuilder();
 
             if (!IsRequired)
@@ -354,9 +343,9 @@ namespace NClap.Metadata
         /// <param name="destination">The destination object being filled in.
         /// </param>
         /// <param name="fileSystemReader">File system reader to use.</param>
-        /// <returns>False indicates that finalization completed successfully;
-        /// true indicates that a failure occurred.</returns>
-        public bool Finish<T>(T destination, IFileSystemReader fileSystemReader)
+        /// <returns>True indicates that finalization completed successfully;
+        /// false indicates that a failure occurred.</returns>
+        public bool TryFinalize<T>(T destination, IFileSystemReader fileSystemReader)
         {
             if (!SeenValue && HasDefaultValue)
             {
@@ -479,7 +468,7 @@ namespace NClap.Metadata
         /// <param name="destination">Object being filled in.</param>
         public bool TrySetRestOfLine<T>(string first, IEnumerable<string> restOfLine, T destination)
         {
-            Contract.Requires(restOfLine != null, "rest cannot be null");
+            Debug.Assert(restOfLine != null);
             return TrySetRestOfLine(new[] { first }.Concat(restOfLine), destination);
         }
 
@@ -492,9 +481,9 @@ namespace NClap.Metadata
         /// <param name="destination">Object being filled in.</param>
         public bool TrySetRestOfLine<T>(IEnumerable<string> restOfLine, T destination)
         {
-            Contract.Requires(restOfLine != null, "restOfLine cannot be null");
+            Debug.Assert(restOfLine != null);
+            Debug.Assert(SeenValue == false);
 
-            Contract.Assume(SeenValue == false, "it shouldn't be possible for a rest of line argument to be seen more than once");
             SeenValue = true;
 
             if (IsCollection)
@@ -557,15 +546,14 @@ namespace NClap.Metadata
         /// <returns>true if it's required, false if it's optional.</returns>
         public bool RequiresOptionArgument => !IsEmptyStringValid();
 
-        private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, CommandLineParserOptions options)
-        {
-            return new ArgumentParseContext
+        private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, CommandLineParserOptions options) =>
+            new ArgumentParseContext
             {
                 NumberOptions = attribute.NumberOptions,
+                AllowEmpty = attribute.AllowEmpty,
                 FileSystemReader = options.FileSystemReader,
                 ParserContext = options.Context
             };
-        }
 
         private static IReadOnlyList<ArgumentValidationAttribute> GetValidationAttributes(IArgumentType argType, IMutableMemberInfo memberInfo)
         {
@@ -628,8 +616,7 @@ namespace NClap.Metadata
             }
 
             var longName = GetLongName(attribute, setAttribute, member);
-            Contract.Assume(longName.Length >= 1, "Probably this should be a postcondition for LongName");
-
+            
             var shortName = longName.Substring(0, 1);
 
             if (setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.PreferLowerCaseForShortNames))
@@ -683,22 +670,16 @@ namespace NClap.Metadata
         private static string CreateCommandLine(IEnumerable<string> arguments) =>
             string.Join(" ", arguments.Select(StringUtilities.QuoteIfNeeded));
 
-        private static bool IsObjectPresent<T>(T value)
-        {
-            if (typeof(T).GetTypeInfo().IsValueType)
-            {
-                return true;
-            }
-
-            return (object)value != null;
-        }
+        private static bool IsObjectPresent<T>(T value) =>
+            typeof(T).GetTypeInfo().IsValueType ||
+            (object)value != null;
 
         private bool IsEmptyStringValid() =>
             _argType.TryParse(_argumentParseContext, string.Empty, out object parsedEmptyString) &&
-                   TryValidateValue(
-                       parsedEmptyString,
-                       new ArgumentValidationContext(_argumentParseContext.FileSystemReader),
-                       reportInvalidValue: false);
+            TryValidateValue(
+                parsedEmptyString,
+                new ArgumentValidationContext(_argumentParseContext.FileSystemReader),
+                reportInvalidValue: false);
 
         private string Format(IObjectFormatter type, object value)
         {
@@ -709,9 +690,7 @@ namespace NClap.Metadata
                 return formattedValue;
             }
 
-            return string.Format(
-                CultureInfo.CurrentCulture,
-                "{0}{1}{2}{3}",
+            return string.Concat(
                 _setAttribute.NamedArgumentPrefixes.FirstOrDefault(),
                 LongName,
                 _setAttribute.ArgumentValueSeparators.FirstOrDefault(),
@@ -804,7 +783,7 @@ namespace NClap.Metadata
 
         private void ReportLine(string message, params object[] args)
         {
-            Contract.Requires(_reporter != null);
+            Debug.Assert(_reporter != null);
             _reporter(string.Format(CultureInfo.CurrentCulture, message + Environment.NewLine, args));
         }
     }

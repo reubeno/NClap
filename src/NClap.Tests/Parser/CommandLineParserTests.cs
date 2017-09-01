@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using NClap.Exceptions;
 using NSubstitute;
 
 namespace NClap.Tests.Parser
@@ -158,8 +158,8 @@ namespace NClap.Tests.Parser
 
             public override string MyStringProperty
             {
-                get { return base.MyStringProperty; }
-                set { base.MyStringProperty = value; }
+                get => base.MyStringProperty;
+                set => base.MyStringProperty = value;
             }
         }
 
@@ -225,10 +225,7 @@ namespace NClap.Tests.Parser
         class UnsettablePropertyArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
-            public int Value
-            {
-                get { return 0; }
-            }
+            public int Value => 0;
         }
 
         class SamePositionArguments
@@ -244,6 +241,24 @@ namespace NClap.Tests.Parser
         {
             [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]
             public int Value1;
+        }
+
+        class PositionPlusRestOfLineArguments
+        {
+            [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
+            public int Value;
+
+            [PositionalArgument(ArgumentFlags.RestOfLine, Position = 1)]
+            public string RestOfLine;
+        }
+
+        class NamedPlusRestOfLineArguments
+        {
+            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            public int Value;
+
+            [PositionalArgument(ArgumentFlags.RestOfLine)]
+            public string RestOfLine;
         }
 
         class RestOfLinePlusPositionArguments
@@ -305,11 +320,7 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public string Value
             {
-                get
-                {
-                    return _value;
-                }
-
+                get => _value;
                 set
                 {
                     if (string.IsNullOrWhiteSpace(value))
@@ -336,8 +347,8 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public string Value
             {
-                get { return string.Empty; }
-                set { throw new TException(); }
+                get => string.Empty;
+                set => throw new TException();
             }
         }
 
@@ -346,8 +357,8 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public Guid Value
             {
-                get { return Guid.Empty; }
-                set { throw new TException(); }
+                get => Guid.Empty;
+                set => throw new TException();
             }
         }
 
@@ -733,7 +744,7 @@ namespace NClap.Tests.Parser
 
             usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsPositionalArgumentString));
             usage.Should().NotBeNull();
-            usage.ToString().Should().Contain("<AllArguments : <String>>...");
+            usage.ToString().Should().Contain("<AllArguments : <string>>...");
         }
 
         [TestMethod]
@@ -936,6 +947,26 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
+        public void PositionPlusRestOfLineArgumentsTest()
+        {
+            var args = new PositionPlusRestOfLineArguments();
+            CommandLineParser.Parse(new[] { "10", "bar", "baz" }, args).Should().BeTrue();
+
+            args.Value.Should().Be(10);
+            args.RestOfLine.Should().Be("bar baz");
+        }
+
+        [TestMethod]
+        public void NamedPlusRestOfLineArgumentsTest()
+        {
+            var args = new NamedPlusRestOfLineArguments();
+            CommandLineParser.Parse(new[] { "/Value=10", "bar", "baz" }, args).Should().BeTrue();
+
+            args.Value.Should().Be(10);
+            args.RestOfLine.Should().Be("bar baz");
+        }
+
+        [TestMethod]
         public void RestOfLinePlusPositionalArgumentThrows()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new RestOfLinePlusPositionArguments());
@@ -957,13 +988,6 @@ namespace NClap.Tests.Parser
             CommandLineParser.Parse(new[] { "foo", "9" }, args).Should().BeTrue();
             args.Value0.Should().Be("foo");
             args.Value1.Should().Be(9);
-        }
-
-        [TestMethod]
-        public void ObjectInvariantDoesNotThrow()
-        {
-            var cl = new CommandLineParserEngine(typeof(SimpleArguments));
-            cl.ObjectInvariant();
         }
 
         [TestMethod]

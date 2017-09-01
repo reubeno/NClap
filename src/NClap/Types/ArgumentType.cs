@@ -77,7 +77,7 @@ namespace NClap.Types
         /// <summary>
         /// Describes System.String.
         /// </summary>
-        public static IArgumentType String { get; } = SimpleArgumentType.Create(s => s);
+        public static IArgumentType String { get; } = StringArgumentType.Create();
 
         /// <summary>
         /// Describes System.Guid.

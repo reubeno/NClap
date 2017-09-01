@@ -73,11 +73,11 @@ namespace NClap.Types
         /// A summary of the concrete syntax required to indicate a value of
         /// the type described by this interface (e.g. "&lt;Int32&gt;").
         /// </summary>
-        public override string SyntaxSummary => string.Format(
-            CultureInfo.CurrentCulture,
-            "{{{0}}}",
+        public override string SyntaxSummary => string.Concat(
+            "{",
             string.Join(" | ", _values.Where(value => !IsValueDisallowed(value) && !IsValueHidden(value))
-                                      .Select(GetDisplayNameForHelp)));
+                                      .Select(GetDisplayNameForHelp)),
+            "}");
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -145,16 +145,6 @@ namespace NClap.Types
         /// </returns>
         private bool IsValueDisallowed(FieldInfo value) =>
             DoesValueHaveFlags(value, ArgumentValueFlags.Disallowed);
-
-        /// <summary>
-        /// Checks if the indicated (named) value should be hidden from help
-        /// content.
-        /// </summary>
-        /// <param name="valueName">The name of the value to check.</param>
-        /// <returns>True if the value should be hidden; false otherwise.
-        /// </returns>
-        private bool IsValueHidden(string valueName) =>
-            DoesValueHaveFlags(valueName, ArgumentValueFlags.Hidden);
 
         /// <summary>
         /// Checks if the indicated (named) value should be hidden from help

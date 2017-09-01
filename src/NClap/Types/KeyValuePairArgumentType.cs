@@ -115,14 +115,12 @@ namespace NClap.Types
             var keyString = stringToParse.Substring(0, separatorIndex);
             var valueString = stringToParse.Substring(separatorIndex + 1);
 
-            object key;
-            if (!_keyType.TryParse(context, keyString, out key))
+            if (!_keyType.TryParse(context, keyString, out object key))
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            object value;
-            if (!_valueType.TryParse(context, valueString, out value))
+            if (!_valueType.TryParse(context, valueString, out object value))
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }

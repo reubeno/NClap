@@ -17,8 +17,8 @@ namespace NClap.Tests.Utilities
         {
             public T Value
             {
-                get { return default(T); }
-                set { throw new ArgumentOutOfRangeException(); }
+                get => default(T);
+                set => throw new ArgumentOutOfRangeException();
             }
         }
 

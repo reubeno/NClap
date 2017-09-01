@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AnswerFileArgumentDescription" xml:space="preserve">
+    <value>Read response file for more options.</value>
+  </data>
+  <data name="AnswerFileArgumentName" xml:space="preserve">
+    <value>FilePath</value>
+  </data>
   <data name="BadArgumentValue" xml:space="preserve">
     <value>'{0}' is not a valid value for the '{1}' command line option.</value>
   </data>
@@ -243,6 +249,9 @@ Reason:
   <data name="UnterminatedQuotes" xml:space="preserve">
     <value>Unterminated quotes found.</value>
   </data>
+  <data name="UsageInfoDefaultValueFormat" xml:space="preserve">
+    <value>Default value: {0}</value>
+  </data>
   <data name="UsageInfoDescriptionHeader" xml:space="preserve">
     <value>DESCRIPTION</value>
   </data>
@@ -263,6 +272,9 @@ Reason:
   </data>
   <data name="UsageInfoRequiredParametersHeader" xml:space="preserve">
     <value>REQUIRED PARAMETERS</value>
+  </data>
+  <data name="UsageInfoShortFormFormat" xml:space="preserve">
+    <value>Short form: {0}{1}</value>
   </data>
   <data name="UsageInfoSyntaxHeader" xml:space="preserve">
     <value>SYNTAX</value>

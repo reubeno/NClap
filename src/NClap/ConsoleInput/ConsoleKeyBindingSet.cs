@@ -231,14 +231,9 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Enumerates all operations bound within this binding set.
         /// </summary>
-        public IEnumerable<ConsoleInputOperation> Values
-        {
-            get
-            {
-                return KeyTables.SelectMany(tablePair => tablePair.Item2.Values).Concat(
-                    CharTables.SelectMany(tablePair => tablePair.Item2.Values));
-            }
-        }
+        public IEnumerable<ConsoleInputOperation> Values =>
+            KeyTables.SelectMany(tablePair => tablePair.Item2.Values).Concat(
+                CharTables.SelectMany(tablePair => tablePair.Item2.Values));
 
         /// <summary>
         /// Checks if the specified key is bound.

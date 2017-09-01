@@ -42,12 +42,7 @@ namespace NClap.Utilities
         /// to display the text.</param>
         public ColoredString(string content, ConsoleColor? foregroundColor, ConsoleColor? backgroundColor)
         {
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-
-            Content = content;
+            Content = content ?? throw new ArgumentNullException(nameof(content));
             ForegroundColor = foregroundColor;
             BackgroundColor = backgroundColor;
         }
@@ -96,7 +91,7 @@ namespace NClap.Utilities
         /// <param name="otherValue">The second value.</param>
         /// <returns>True if they are equal; false otherwise.</returns>
         public static bool operator ==(ColoredString value, ColoredString otherValue) =>
-            value.Equals(otherValue);
+            value.Equals(otherValue, StringComparison.Ordinal);
 
         /// <summary>
         /// Compares two ColoredString objects.
@@ -105,7 +100,7 @@ namespace NClap.Utilities
         /// <param name="otherValue">The second value.</param>
         /// <returns>True if they are not equal; false otherwise.</returns>
         public static bool operator !=(ColoredString value, ColoredString otherValue) =>
-            !value.Equals(otherValue);
+            !value.Equals(otherValue, StringComparison.Ordinal);
 
         /// <summary>
         /// The string's content.
@@ -135,8 +130,9 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="obj">The object to compare.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison")]
         public override bool Equals(object obj) =>
-            (obj is ColoredString) && Equals((ColoredString)obj);
+            obj is ColoredString && Equals((ColoredString)obj);
 
         /// <summary>
         /// Compares the specified object against this object.

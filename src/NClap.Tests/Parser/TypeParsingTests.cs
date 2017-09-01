@@ -14,7 +14,7 @@ namespace NClap.Tests.Parser
     {
         public class ArgumentsWithType<T>
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true)]
             public T Value;
         }
 

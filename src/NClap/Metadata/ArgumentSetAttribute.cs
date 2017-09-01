@@ -12,8 +12,13 @@ namespace NClap.Metadata
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class ArgumentSetAttribute : Attribute
     {
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private string[] _namedArgumentPrefixes;
+
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private string[] _shortNameArgumentPrefixes;
+
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private char[] _argumentValueSeparators;
 
         /// <summary>
@@ -81,15 +86,8 @@ namespace NClap.Metadata
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] NamedArgumentPrefixes
         {
-            get
-            {
-                return _namedArgumentPrefixes;
-            }
-
-            set
-            {
-                _namedArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            get => _namedArgumentPrefixes;
+            set => _namedArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -101,15 +99,8 @@ namespace NClap.Metadata
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] ShortNameArgumentPrefixes
         {
-            get
-            {
-                return _shortNameArgumentPrefixes;
-            }
-
-            set
-            {
-                _shortNameArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            get => _shortNameArgumentPrefixes;
+            set => _shortNameArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -121,15 +112,8 @@ namespace NClap.Metadata
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public char[] ArgumentValueSeparators
         {
-            get
-            {
-                return _argumentValueSeparators;
-            }
-
-            set
-            {
-                _argumentValueSeparators = value ?? throw new ArgumentNullException(nameof(value));
-            }
+            get => _argumentValueSeparators;
+            set => _argumentValueSeparators = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

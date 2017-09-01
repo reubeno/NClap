@@ -177,7 +177,7 @@ namespace NClap.Utilities
                 return value;
             }
 
-            return string.Format(CultureInfo.InvariantCulture, "\"{0}\"", value);
+            return string.Concat("\"", value, "\"");
         }
         
         /// <summary>

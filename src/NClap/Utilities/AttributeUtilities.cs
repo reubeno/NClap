@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -23,7 +23,7 @@ namespace NClap.Utilities
         /// value (e.g. null) if there are no such attributes present.</returns>
         public static T GetSingleAttribute<T>(this ICustomAttributeProvider attributeProvider)
         {
-            Contract.Requires(attributeProvider != null);
+            Debug.Assert(attributeProvider != null);
             return attributeProvider.GetCustomAttributes(typeof(T), true).Cast<T>().SingleOrDefault();
         }
     }
