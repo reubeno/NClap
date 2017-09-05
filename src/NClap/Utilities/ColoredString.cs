@@ -65,6 +65,19 @@ namespace NClap.Utilities
         public ConsoleColor? BackgroundColor { get; }
 
         /// <summary>
+        /// Length of the content of the string.
+        /// </summary>
+        public int Length => Content.Length;
+
+        /// <summary>
+        /// Accesses a character in the string.
+        /// </summary>
+        /// <param name="index">Zero-based index of the character.</param>
+        /// <returns>The character at the specified index.</returns>
+        /// <returns></returns>
+        public char this[int index] => Content[index];
+
+        /// <summary>
         /// Implicitly converts a ColoredString to a string by stripping
         /// color information.
         /// </summary>

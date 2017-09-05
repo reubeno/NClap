@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Parser;
+using NClap.Repl;
 using NClap.Types;
 using NClap.Utilities;
-using NClap.Repl;
 
 namespace NClap.TestApp
 {
@@ -23,6 +23,9 @@ namespace NClap.TestApp
         [Verb(typeof(SetPrompt))]
         SetPromptXy,
 
+        [Verb(typeof(CliHelp))]
+        CliHelp,
+
         [Verb(Exits = true, HelpText = "Exits the loop")]
         Exit
     }
@@ -32,11 +35,23 @@ namespace NClap.TestApp
         [PositionalArgument(ArgumentFlags.Required)] public string Prompt { get; set; }
     }
 
+    class CliHelp : IVerb
+    {
+        public void Execute(object context)
+        {
+            var info = CommandLineParser.GetUsageInfo(typeof(ProgramArguments), UsageInfoOptions.Default | UsageInfoOptions.CondenseOutput);
+            CommandLineParser.DefaultReporter(info);
+        }
+    }
+
+    [ArgumentSet(Style = ArgumentSetStyle.GetOpt)]
     class Here : IVerb
     {
         [NamedArgument(ArgumentFlags.AtMostOnce)] public int Hello { get; set; }
 
         [NamedArgument(ArgumentFlags.AtMostOnce)] public bool SomeBool { get; set; }
+
+        [NamedArgument(ArgumentFlags.AtMostOnce)] public bool AnotherBool { get; set; }
 
         [NamedArgument(ArgumentFlags.AtMostOnce)] public VerbType SomeEnum { get; set; }
 

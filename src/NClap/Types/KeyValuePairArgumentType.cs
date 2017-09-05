@@ -127,5 +127,11 @@ namespace NClap.Types
 
             return _constructor.Invoke(new[] { key, value });
         }
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public override IEnumerable<IArgumentType> DependentTypes =>
+            new[] { _keyType, _valueType };
     }
 }

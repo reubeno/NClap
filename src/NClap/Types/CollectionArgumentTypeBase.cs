@@ -125,6 +125,11 @@ namespace NClap.Types
         }
 
         /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public override IEnumerable<IArgumentType> DependentTypes => new[] { _elementArgumentType };
+
+        /// <summary>
         /// Enumerates the objects contained within the provided collection;
         /// the collection must be of the type described by this object.
         /// </summary>

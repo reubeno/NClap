@@ -43,7 +43,7 @@ namespace NClap.Tests.Types
         public void EnumWithCustomLongAndShortNames()
         {
             var type = EnumArgumentType.Create(typeof(SampleEnum));
-            type.SyntaxSummary.Should().Be("{Fo | o}");
+            type.SyntaxSummary.Should().Be("{Fo|o}");
         }
 
         [TestMethod]

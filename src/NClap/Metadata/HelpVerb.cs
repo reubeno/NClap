@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using NClap.ConsoleInput;
 using NClap.Parser;
 using NClap.Utilities;
-using System.Reflection;
 
 namespace NClap.Metadata
 {
@@ -17,7 +17,7 @@ namespace NClap.Metadata
         /// The default options to use for generate usage info.
         /// </summary>
         public static UsageInfoOptions DefaultUsageInfoOptions { get; set; } =
-            UsageInfoOptions.Default | UsageInfoOptions.UseColor;
+            UsageInfoOptions.Default | UsageInfoOptions.CondenseOutput;
 
         /// <summary>
         /// The output handler function for this class.
@@ -97,13 +97,6 @@ namespace NClap.Metadata
             }
 
             var usageInfo = CommandLineParser.GetUsageInfo(implementingType, null, null, verb.ToString(), HelpVerb.DefaultUsageInfoOptions);
-
-            /*
-            if (!string.IsNullOrEmpty(attrib.HelpText))
-            {
-                usageInfo = attrib.HelpText + "\n\n" + usageInfo;
-            }
-            */
 
             outputHandler(usageInfo);
         }

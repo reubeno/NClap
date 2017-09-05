@@ -60,6 +60,7 @@ namespace NClap.Utilities
             builder.Append(Wrap(text, width, indent));
         }
 
+
         /// <summary>
         /// Wrap the provided text at the given width, indenting it with the
         /// given indentation width.
@@ -68,32 +69,47 @@ namespace NClap.Utilities
         /// <param name="width">Maximum width of the text, in number of
         /// characters.</param>
         /// <param name="indent">The number of characters to indent
-        /// lines after the first one; 0 to indicate no indentation
-        /// should occur.</param>
+        /// lines; 0 to indicate no indentation should occur.</param>
+        /// <param name="hangingIndent">The number of characters to
+        /// unindent the first line.</param>
         /// <returns>The wrapped text.</returns>
-        public static string Wrap(string text, int width, int indent = 0)
+        public static ColoredString Wrap(this ColoredString text, int width, int indent = 0, int hangingIndent = 0) =>
+            new ColoredString(Wrap(text.Content, width, indent, hangingIndent), text.ForegroundColor, text.BackgroundColor);
+
+        /// <summary>
+        /// Wrap the provided text at the given width, indenting it with the
+        /// given indentation width.
+        /// </summary>
+        /// <param name="text">Text to wrap.</param>
+        /// <param name="width">Maximum width of the text, in number of
+        /// characters.</param>
+        /// <param name="indent">The number of characters to indent
+        /// lines; 0 to indicate no indentation should occur.</param>
+        /// <param name="hangingIndent">The number of characters to
+        /// unindent the first line.</param>
+        /// <returns>The wrapped text.</returns>
+        public static IString Wrap(this IString text, int width, int indent = 0, int hangingIndent = 0)
         {
             if (text == null)
             {
                 throw new ArgumentNullException(nameof(text));
             }
 
-            if ((width < 0) || (width <= indent))
+            if ((width < 0) || (width <= indent) || (hangingIndent > indent))
             {
                 throw new ArgumentOutOfRangeException(nameof(width));
             }
 
-            var builder = new StringBuilder();
+            var builder = text.CreateBuilder();
 
             char[] whiteSpaceChars = { ' ', '\t', '\n' };
 
-            var textWidth = width - indent;
-
             var firstLine = true;
             foreach (var line in text.Replace("\r", string.Empty)
-                                     .Split(new[] {'\n'}, StringSplitOptions.None)
+                                     .Split('\n')
                                      .Select(line => line.TrimEnd()))
             {
+                // Handle empty lines specially.
                 if (line.Length == 0)
                 {
                     if (!firstLine)
@@ -101,13 +117,14 @@ namespace NClap.Utilities
                         builder.Append(Environment.NewLine);
                     }
 
-                    firstLine = false;
-
                     // If there's an indent, insert it.
                     if (indent > 0)
                     {
                         builder.Append(' ', indent);
                     }
+
+                    firstLine = false;
+                    continue;
                 }
 
                 // Process this line.
@@ -121,20 +138,25 @@ namespace NClap.Utilities
                         builder.Append(Environment.NewLine);
                     }
 
-                    firstLine = false;
-
-                    // If there's an indent, insert it.
-                    if (indent > 0)
+                    // If there's an indent for this line, then insert it.
+                    var effectiveIndent = firstLine ? indent - hangingIndent : indent;
+                    if (effectiveIndent > 0)
                     {
-                        builder.Append(' ', indent);
+                        builder.Append(' ', effectiveIndent);
                     }
 
-                    // Find number of chars to display on this line
+                    // Figure out how many non-indent characters we'll be able to write.
+                    var textWidth = width - effectiveIndent;
+
+                    // Figure out the end of the range we can include.
                     var endIndex = Math.Min(index + textWidth, line.Length);
                     var count = endIndex - index;
 
-                    if ((endIndex + 1 < line.Length) &&
-                        !char.IsWhiteSpace(line[endIndex + 1]))
+                    // Now sort out whether we need to pick a better line break, on a
+                    // whitespace (word) boundary. If the next character is a whitespace
+                    // character, then we don't need to worry about this. If this is
+                    // the last character in the line, then we don't need to worry either.
+                    if ((endIndex < line.Length) && !char.IsWhiteSpace(line[endIndex]))
                     {
                         // Find the last whitespace character in the range of text
                         // we're considering adding.  If we found one, then break
@@ -147,7 +169,7 @@ namespace NClap.Utilities
                     }
 
                     // Add chars.
-                    builder.Append(line, index, endIndex - index);
+                    builder.Append(line.Substring(index, endIndex - index));
 
                     // Advance the index to match what we just added.
                     index = endIndex;
@@ -155,12 +177,14 @@ namespace NClap.Utilities
                     // Don't start a new line with non-newline whitespace.
                     while ((index < line.Length) && char.IsWhiteSpace(line[index]))
                     {
-                        index++;
+                        ++index;
                     }
+
+                    firstLine = false;
                 }
             }
 
-            return builder.ToString();
+            return builder.Generate();
         }
 
         /// <summary>
@@ -421,7 +445,17 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="s">The input string.</param>
         /// <returns>The converted string.</returns>
-        public static string ToHyphenatedLowerCase(string s)
+        public static string ToHyphenatedLowerCase(this string s) => ToLowerCaseWithSeparator(s, '-');
+
+        /// <summary>
+        /// Make a best effort to convert a string to being a snake-cased
+        /// string.
+        /// </summary>
+        /// <param name="s">The input string.</param>
+        /// <returns>The converted string.</returns>
+        public static string ToSnakeCase(this string s) => ToLowerCaseWithSeparator(s, '_');
+
+        private static string ToLowerCaseWithSeparator(string s, char separator)
         {
             var result = new StringBuilder();
 
@@ -434,16 +468,16 @@ namespace NClap.Utilities
                 {
                     c = char.ToLower(c);
                 }
-                else if (c == '_')
+                else if (c == '_' || c == '-')
                 {
-                    c = '-';
+                    c = separator;
                     lastCharWasLowerCase = false;
                 }
                 else if (char.IsUpper(c))
                 {
                     if (lastCharWasLowerCase)
                     {
-                        result.Append("-");
+                        result.Append(separator.ToString());
                     }
 
                     c = char.ToLower(c);

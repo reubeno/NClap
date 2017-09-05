@@ -10,7 +10,7 @@
         /// True if the user wants to receive usage help information; false
         /// otherwise.
         /// </summary>
-        [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "?")]
+        [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "?", HelpText = "Display help information")]
         public bool Help { get; set; }
     }
 }

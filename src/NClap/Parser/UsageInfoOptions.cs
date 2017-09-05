@@ -16,16 +16,30 @@ namespace NClap.Parser
         /// <summary>
         /// Include default sets of optional information.
         /// </summary>
-        Default = IncludeDescription |
-                  IncludeParameterDescriptions |
-                  IncludeParameterShortNameAliases |
-                  IncludeParameterDefaultValues |
-                  UseColor,
+        Default =
+            IncludeName |
+            IncludeBasicSyntax |
+            IncludeDescription |
+            IncludeParameterDescriptions |
+            IncludeParameterShortNameAliases |
+            IncludeParameterDefaultValues |
+            IncludeEnumValues |
+            UseColor,
 
         /// <summary>
         /// Abridged default set of optional information.
         /// </summary>
-        DefaultAbridged = IncludeRequiredParameterDescriptions | UseColor | IncludeRemarks,
+        DefaultAbridged = 
+            IncludeName |
+            IncludeBasicSyntax |
+            IncludeRequiredParameterDescriptions |
+            UseColor |
+            IncludeRemarks,
+
+        /// <summary>
+        /// Condense the output as much as possible.
+        /// </summary>
+        CondenseOutput = 0x800,
 
         /// <summary>
         /// Include a product logo in the usage information.
@@ -33,9 +47,19 @@ namespace NClap.Parser
         IncludeLogo = 0x1,
 
         /// <summary>
+        /// Include the program or command name.
+        /// </summary>
+        IncludeName = 0x400,
+
+        /// <summary>
         /// Include description.
         /// </summary>
         IncludeDescription = 0x2,
+
+        /// <summary>
+        /// Include basic syntax.
+        /// </summary>
+        IncludeBasicSyntax = 0x200,
 
         /// <summary>
         /// Include required parameter descriptions.
@@ -61,6 +85,11 @@ namespace NClap.Parser
         /// Include information about parameters with short name aliases.
         /// </summary>
         IncludeParameterShortNameAliases = 0x20,
+
+        /// <summary>
+        /// Include information about possible values for enum types.
+        /// </summary>
+        IncludeEnumValues = 0x1000,
 
         /// <summary>
         /// Include example usage.

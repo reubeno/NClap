@@ -213,7 +213,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(EnumArguments));
             arg.EffectiveDefaultValue.Should().Be(TestEnum.First);
-            arg.GetSyntaxHelp().Should().Be("[/Value={First | Second | Third}]");
+            arg.GetSyntaxHelp().Should().Be("[/Value={First|Second|Third}]");
         }
 
         [TestMethod]

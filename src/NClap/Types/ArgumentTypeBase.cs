@@ -25,7 +25,7 @@ namespace NClap.Types
         /// <summary>
         /// The type's human-readable (display) name.
         /// </summary>
-        public string DisplayName => Type.Name.ToLower();
+        public virtual string DisplayName => Type.Name.ToSnakeCase();
 
         /// <summary>
         /// The Type object associated with values described by this interface.
@@ -116,7 +116,13 @@ namespace NClap.Types
         public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             // By default, return an empty enumeration of strings.
             Enumerable.Empty<string>();
-        
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public virtual IEnumerable<IArgumentType> DependentTypes =>
+            Enumerable.Empty<IArgumentType>();
+
         /// <summary>
         /// Parses the provided string.  Throws an exception if the string
         /// cannot be parsed.

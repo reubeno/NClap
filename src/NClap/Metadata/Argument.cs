@@ -30,7 +30,6 @@ namespace NClap.Metadata
         private readonly ArgumentSetAttribute _setAttribute;
         private readonly bool _isPositional;
         private readonly ColoredErrorReporter _reporter;
-        private readonly IArgumentType _argType;
         private readonly IArgumentType _valueType;
         private readonly ICollectionArgumentType _collectionArgType;
 
@@ -58,10 +57,10 @@ namespace NClap.Metadata
             _setAttribute = setAttribute;
             _isPositional = attribute is PositionalArgumentAttribute;
             _reporter = options?.Reporter ?? (s => { });
-            _argType = Attribute.GetArgumentType(member.MemberType);
-            _collectionArgType = AsCollectionType(_argType);
+            ArgumentType = Attribute.GetArgumentType(member.MemberType);
+            _collectionArgType = AsCollectionType(ArgumentType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
-            _validationAttributes = GetValidationAttributes(_argType, Member);
+            _validationAttributes = GetValidationAttributes(ArgumentType, Member);
             _argumentParseContext = CreateParseContext(attribute, options);
 
             LongName = GetLongName(attribute, setAttribute, member.MemberInfo);
@@ -86,7 +85,7 @@ namespace NClap.Metadata
             }
             else
             {
-                _valueType = _argType;
+                _valueType = ArgumentType;
             }
 
             Debug.Assert(_valueType != null);
@@ -137,7 +136,7 @@ namespace NClap.Metadata
                 var defaultValue = HasDefaultValue ? DefaultValue : null;
                 if ((defaultValue == null) && !IsCollection)
                 {
-                    defaultValue = _argType.Type.GetDefaultValue();
+                    defaultValue = ArgumentType.Type.GetDefaultValue();
                 }
 
                 return defaultValue;
@@ -202,6 +201,11 @@ namespace NClap.Metadata
         public IMutableMemberInfo Member { get; }
 
         /// <summary>
+        /// Type of the argument.
+        /// </summary>
+        public IArgumentType ArgumentType { get; }
+
+        /// <summary>
         /// Registers an Argument that conflicts with the one described by this
         /// object.  If the specified argument has already previously been
         /// registered, then this operation is a no-op.
@@ -242,11 +246,11 @@ namespace NClap.Metadata
             }
             else if (suppressArgNames)
             {
-                yield return _argType.Format(value);
+                yield return ArgumentType.Format(value);
             }
             else
             {
-                yield return Format(_argType, value);
+                yield return Format(ArgumentType, value);
             }
         }
 
@@ -254,7 +258,7 @@ namespace NClap.Metadata
         /// Generates syntax help information for this argument.
         /// </summary>
         /// <returns>The help content in string form.</returns>
-        public string GetSyntaxHelp()
+        public string GetSyntaxHelp(bool detailed = true)
         {
             var builder = new StringBuilder();
 
@@ -267,8 +271,13 @@ namespace NClap.Metadata
             {
                 builder.Append("<");
                 builder.Append(LongName);
-                builder.Append(" : ");
-                builder.Append(_argType.SyntaxSummary);
+
+                if (detailed)
+                {
+                    builder.Append(" : ");
+                    builder.Append(ArgumentType.SyntaxSummary);
+                }
+
                 builder.Append(">");
 
                 if (TakesRestOfLine)
@@ -297,7 +306,7 @@ namespace NClap.Metadata
                 // We special-case bool arguments (switches) whose default value
                 // is false; in such cases, we can get away with a shorter
                 // syntax help that just indicates how to flip the switch on.
-                else if ((_argType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
+                else if ((ArgumentType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
                 {
                 }
 
@@ -312,7 +321,7 @@ namespace NClap.Metadata
                     }
 
                     builder.Append(_setAttribute.ArgumentValueSeparators[0]);
-                    builder.Append(_argType.SyntaxSummary);
+                    builder.Append(ArgumentType.SyntaxSummary);
 
                     if (supportsEmptyStrings)
                     {
@@ -537,7 +546,7 @@ namespace NClap.Metadata
                 InProgressParsedObject = inProgressParsedObject
             };
 
-            return _argType.GetCompletions(context, valueToComplete);
+            return ArgumentType.GetCompletions(context, valueToComplete);
         }
 
         /// <summary>
@@ -596,7 +605,7 @@ namespace NClap.Metadata
 
             if (setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
             {
-                longName = StringUtilities.ToHyphenatedLowerCase(longName);
+                longName = longName.ToHyphenatedLowerCase();
             }
 
             return longName;
@@ -675,7 +684,7 @@ namespace NClap.Metadata
             (object)value != null;
 
         private bool IsEmptyStringValid() =>
-            _argType.TryParse(_argumentParseContext, string.Empty, out object parsedEmptyString) &&
+            ArgumentType.TryParse(_argumentParseContext, string.Empty, out object parsedEmptyString) &&
             TryValidateValue(
                 parsedEmptyString,
                 new ArgumentValidationContext(_argumentParseContext.FileSystemReader),
@@ -691,7 +700,7 @@ namespace NClap.Metadata
             }
 
             return string.Concat(
-                _setAttribute.NamedArgumentPrefixes.FirstOrDefault(),
+                _setAttribute.NamedArgumentPrefixes.FirstOrDefault() ?? string.Empty,
                 LongName,
                 _setAttribute.ArgumentValueSeparators.FirstOrDefault(),
                 formattedValue);
@@ -763,11 +772,23 @@ namespace NClap.Metadata
             return false;
         }
 
-        private void ReportMissingRequiredArgument() =>
-            ReportLine(_isPositional ? Strings.MissingRequiredPositionalArgument : Strings.MissingRequiredNamedArgument, LongName);
+        private void ReportMissingRequiredArgument()
+        {
+            if (_isPositional)
+            {
+                ReportLine(Strings.MissingRequiredPositionalArgument, LongName);
+            }
+            else
+            {
+                ReportLine(
+                    Strings.MissingRequiredNamedArgument,
+                    _setAttribute.NamedArgumentPrefixes.FirstOrDefault() ?? string.Empty,
+                    LongName);
+            }
+        }
 
         private void ReportDuplicateArgumentValue(string value) =>
-            ReportLine(Strings.DuplicateArgument, LongName, value);
+        ReportLine(Strings.DuplicateArgument, LongName, value);
 
         private void ReportConflictingArgument(string value, Argument conflictingArg) =>
             ReportLine(Strings.ConflictingArgument, LongName, value, conflictingArg.LongName);

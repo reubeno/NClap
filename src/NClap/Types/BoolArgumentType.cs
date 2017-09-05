@@ -16,11 +16,13 @@ namespace NClap.Types
         {
         }
 
+#if false // DBG:RRO
         /// <summary>
         /// A summary of the concrete syntax required to indicate a value of
         /// the type described by this interface (e.g. "&gt;Int32&lt;").
         /// </summary>
         public override string SyntaxSummary => "{True | False}";
+#endif
 
         /// <summary>
         /// Public factory method.

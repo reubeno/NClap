@@ -482,14 +482,14 @@ namespace NClap.Tests.Parser
             var args = calls[0].GetArguments();
             args.Length.Should().Be(1);
             args.All(arg => arg is string).Should().BeTrue();
-            args.Cast<string>().Any(arg => arg.Contains("NAME")).Should().BeTrue();
+            args.Cast<string>().Any(arg => arg.Contains("Usage:")).Should().BeTrue();
         }
 
         [TestMethod]
         public void GetUsageStringWorks()
         {
             GetUsageStringWorks(new SimpleArguments());
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.UseColor);
+            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeBasicSyntax | UsageInfoOptions.UseColor);
             GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeLogo);
             GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeExamples);
             GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeParameterDescriptions | UsageInfoOptions.IncludeParameterDefaultValues);
@@ -546,7 +546,7 @@ namespace NClap.Tests.Parser
             string usageStr = cl.GetUsageInfo(width, null, options ?? UsageInfoOptions.Default);
             usageStr.Should().NotBeNullOrWhiteSpace();
 
-            string narrowUsageStr = cl.GetUsageInfo(60, null, UsageInfoOptions.None);
+            string narrowUsageStr = cl.GetUsageInfo(60, null, options ?? UsageInfoOptions.Default);
             narrowUsageStr.Should().NotBeNullOrWhiteSpace();
         }
 
@@ -646,15 +646,19 @@ namespace NClap.Tests.Parser
             var args = new RequiredArguments();
 
             var reportedBuilder = new StringBuilder();
-            NClap.Parser.ErrorReporter reporter = s => reportedBuilder.Append(s);
+
+            var options = new CommandLineParserOptions
+            {
+                Reporter = s => reportedBuilder.Append(s)
+            };
 
             // Make sure the parse fails.
-            CommandLineParser.ParseWithUsage(new List<string>(), args, reporter).Should().BeFalse();
+            CommandLineParser.ParseWithUsage(new List<string>(), args, options, UsageInfoOptions.Default).Should().BeFalse();
 
             // Make sure the reported content contains an empty line followed by
             // generic usage info.
             var reported = reportedBuilder.ToString();
-            reported.Should().Contain(Environment.NewLine + Environment.NewLine + "NAME");
+            reported.Should().Contain(Environment.NewLine + Environment.NewLine + "Usage:");
         }
 
         [TestMethod]
@@ -744,7 +748,7 @@ namespace NClap.Tests.Parser
 
             usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsPositionalArgumentString));
             usage.Should().NotBeNull();
-            usage.ToString().Should().Contain("<AllArguments : <string>>...");
+            usage.ToString().Should().Contain("<AllArguments>...");
         }
 
         [TestMethod]

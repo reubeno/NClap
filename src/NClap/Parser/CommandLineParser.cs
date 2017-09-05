@@ -69,7 +69,7 @@ namespace NClap.Parser
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
         public static bool ParseWithUsage<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class =>
-            ParseWithUsage(arguments, destination, options, UsageInfoOptions.Default);
+            ParseWithUsage(arguments, destination, options, UsageInfoOptions.DefaultAbridged);
 
         /// <summary>
         /// Parses command-line arguments into a reference-type object.
@@ -166,7 +166,7 @@ namespace NClap.Parser
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
         public static bool ParseWithUsage<T>(IList<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct =>
-            ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.Default);
+            ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.DefaultAbridged);
 
         /// <summary>
         /// Parses command-line arguments into a value-type object.
@@ -334,7 +334,7 @@ namespace NClap.Parser
         /// <returns>Printable string containing a user friendly description of
         /// command-line arguments.</returns>
         public static ColoredMultistring GetUsageInfo(Type type, object defaultValues, int? columns) =>
-            GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.Default);
+            GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.DefaultAbridged);
 
         /// <summary>
         /// Returns a Usage string for command line argument parsing. Use
@@ -367,6 +367,12 @@ namespace NClap.Parser
                 {
                     // If can't determine the console's width, then default it.
                     columns = DefaultConsoleWidth;
+                }
+
+                // N.B. Leave room so that we don't cycle over to next line.
+                if (columns > 0)
+                {
+                    --columns;
                 }
             }
 

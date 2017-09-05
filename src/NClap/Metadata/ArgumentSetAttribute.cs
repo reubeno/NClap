@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using NClap.Utilities;
 
 namespace NClap.Metadata
 {
@@ -9,17 +10,15 @@ namespace NClap.Metadata
     /// (i.e. classes including fields and/or properties with
     /// ArgumentAttributes).
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class ArgumentSetAttribute : Attribute
     {
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private string[] _namedArgumentPrefixes;
-
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private string[] _shortNameArgumentPrefixes;
-
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private char[] _argumentValueSeparators;
+        private bool _allowMultipleShortNamesInOneToken;
+        private bool _allowElidingSeparatorAfterShortName;
 
         /// <summary>
         /// Default constructor.
@@ -32,24 +31,15 @@ namespace NClap.Metadata
 
             // Initialize properties with basic defaults.
             AnswerFileArgumentPrefix = "@";
-            ArgumentValueSeparators = new[] { '=', ':' };
 
-            // Initialize context-sensitive defaults.
+            // Initialize style, with a guess as to the default.
             if (useForwardSlashAsPrefix)
             {
-                NamedArgumentPrefixes = new[] { "/", "-" };
-                ShortNameArgumentPrefixes = new[] { "/", "-" };
-                AllowNamedArgumentValueAsSucceedingToken = false;
-                NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
+                Style = ArgumentSetStyle.WindowsCommandLine;
             }
             else
             {
-                NamedArgumentPrefixes = new[] { "--" };
-                ShortNameArgumentPrefixes = new[] { "-" };
-                AllowNamedArgumentValueAsSucceedingToken = true;
-                NameGenerationFlags =
-                    ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames |
-                    ArgumentNameGenerationFlags.PreferLowerCaseForShortNames;
+                Style = ArgumentSetStyle.GetOpt;
             }
         }
 
@@ -87,7 +77,21 @@ namespace NClap.Metadata
         public string[] NamedArgumentPrefixes
         {
             get => _namedArgumentPrefixes;
-            set => _namedArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
+
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (AllowMultipleShortNamesInOneToken && value.Overlaps(ShortNameArgumentPrefixes))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _namedArgumentPrefixes = value;
+            }
         }
 
         /// <summary>
@@ -100,7 +104,21 @@ namespace NClap.Metadata
         public string[] ShortNameArgumentPrefixes
         {
             get => _shortNameArgumentPrefixes;
-            set => _shortNameArgumentPrefixes = value ?? throw new ArgumentNullException(nameof(value));
+
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                if (AllowMultipleShortNamesInOneToken && value.Overlaps(NamedArgumentPrefixes))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                _shortNameArgumentPrefixes = value;
+            }
         }
 
         /// <summary>
@@ -117,6 +135,58 @@ namespace NClap.Metadata
         }
 
         /// <summary>
+        /// General argument parsing style; setting this property impacts other properties as well.
+        /// </summary>
+        public ArgumentSetStyle Style
+        {
+            get => throw new NotSupportedException($"{nameof(Style)} property is not readable");
+
+            set
+            {
+                switch (value)
+                {
+                case ArgumentSetStyle.Unspecified:
+                    break;
+
+                case ArgumentSetStyle.WindowsCommandLine:
+                    NamedArgumentPrefixes = new[] { "/", "-" };
+                    ShortNameArgumentPrefixes = new[] { "/", "-" };
+                    ArgumentValueSeparators = new[] { '=', ':' };
+                    AllowNamedArgumentValueAsSucceedingToken = false;
+                    AllowMultipleShortNamesInOneToken = false;
+                    AllowElidingSeparatorAfterShortName = false;
+                    NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
+                    break;
+
+                case ArgumentSetStyle.PowerShell:
+                    NamedArgumentPrefixes = new[] { "-" };
+                    ShortNameArgumentPrefixes = new[] { "-" };
+                    ArgumentValueSeparators = new[] { ':' };
+                    AllowNamedArgumentValueAsSucceedingToken = false;
+                    AllowMultipleShortNamesInOneToken = false;
+                    AllowElidingSeparatorAfterShortName = false;
+                    NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
+                    break;
+
+                case ArgumentSetStyle.GetOpt:
+                    NamedArgumentPrefixes = new[] { "--" };
+                    ShortNameArgumentPrefixes = new[] { "-" };
+                    ArgumentValueSeparators = new[] { '=' };
+                    AllowNamedArgumentValueAsSucceedingToken = true;
+                    AllowMultipleShortNamesInOneToken = true;
+                    AllowElidingSeparatorAfterShortName = true;
+                    NameGenerationFlags =
+                        ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames |
+                        ArgumentNameGenerationFlags.PreferLowerCaseForShortNames;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value), $"Unknown style: {value}");
+                }
+            }
+        }
+
+        /// <summary>
         /// True to indicate that a named argument's value may be present in
         /// the succeeding token after the name; false to indicate that it
         /// must be part of the same token.
@@ -127,5 +197,59 @@ namespace NClap.Metadata
         /// Flags indicating how to auto-generate names.
         /// </summary>
         public ArgumentNameGenerationFlags NameGenerationFlags { get; set; }
+
+        /// <summary>
+        /// True to allow a command-line argument to indicate multiple short
+        /// names in one token, or false to disable this behavior. This
+        /// behavior is only useful with arguments that take no values, 
+        /// when the short name prefixes are disjoint from the long name
+        /// prefixes, and when short names are constrained to be one character
+        /// long. Enabling this behavior will fail if any of these conditions
+        /// are not true.
+        /// </summary>
+        public bool AllowMultipleShortNamesInOneToken
+        {
+            get => _allowMultipleShortNamesInOneToken;
+
+            set
+            {
+                if (value && _namedArgumentPrefixes.Overlaps(_shortNameArgumentPrefixes))
+                {
+                    throw new NotSupportedException(
+                        $"Cannot enable {nameof(AllowMultipleShortNamesInOneToken)}; long name prefixes are not disjoint from short name prefixes.");
+                }
+
+                _allowMultipleShortNamesInOneToken = value;
+            }
+        }
+
+        /// <summary>
+        /// True to indicate that a short-name argument's value may be present in
+        /// the same token as the name, without a separator between the name and
+        /// it; false to indicate that it must be part of the same token. This
+        /// behavior requires that short names be only one character long.
+        /// </summary>
+        public bool AllowElidingSeparatorAfterShortName
+        {
+            get => _allowElidingSeparatorAfterShortName;
+
+            set
+            {
+                if (value && _namedArgumentPrefixes.Overlaps(_shortNameArgumentPrefixes))
+                {
+                    throw new NotSupportedException(
+                        $"Cannot enable {nameof(AllowElidingSeparatorAfterShortName)}; long name prefixes are not disjoint from short name prefixes.");
+                }
+
+                _allowElidingSeparatorAfterShortName = value;
+            }
+        }
+
+        /// <summary>
+        /// Indicates whether short names of named arguments are constrained to
+        /// being one character long.
+        /// </summary>
+        public bool ShortNamesAreOneCharacterLong =>
+            AllowMultipleShortNamesInOneToken || AllowElidingSeparatorAfterShortName;
     }
 }

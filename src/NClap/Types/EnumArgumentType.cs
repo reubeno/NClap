@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using NClap.Metadata;
 
 namespace NClap.Types
 {
@@ -12,8 +11,9 @@ namespace NClap.Types
     /// </summary>
     class EnumArgumentType : ArgumentTypeBase
     {
-        private readonly IReadOnlyDictionary<string, FieldInfo> _valueNameMap;
-        private readonly IReadOnlyList<FieldInfo> _values;
+        private readonly IReadOnlyDictionary<string, EnumArgumentValue> _valuesByName;
+        private readonly IReadOnlyDictionary<object, EnumArgumentValue> _valuesByValue;
+        private readonly IReadOnlyList<EnumArgumentValue> _values;
 
         /// <summary>
         /// The type underlying this enumeration type.
@@ -54,8 +54,9 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            _valueNameMap = ConstructValueNameMap(type);
-            _values = _valueNameMap.Values.Distinct().ToList();
+            _values = GetAllValues(type).ToList();
+            _valuesByName = ConstructValueNameMap(_values);
+            _valuesByValue = _values.ToDictionary(v => v.Value, v => v);
         }
 
         /// <summary>
@@ -69,15 +70,17 @@ namespace NClap.Types
             return (flagsAttrib != null) ? new FlagsEnumArgumentType(type) : new EnumArgumentType(type);
         }
 
+#if false // DBG:RRO
         /// <summary>
         /// A summary of the concrete syntax required to indicate a value of
         /// the type described by this interface (e.g. "&lt;Int32&gt;").
         /// </summary>
         public override string SyntaxSummary => string.Concat(
             "{",
-            string.Join(" | ", _values.Where(value => !IsValueDisallowed(value) && !IsValueHidden(value))
-                                      .Select(GetDisplayNameForHelp)),
+            string.Join("|", _values.Where(value => !IsValueDisallowed(value) && !IsValueHidden(value))
+                                    .Select(GetDisplayNameForHelp)),
             "}");
+#endif
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -89,7 +92,7 @@ namespace NClap.Types
         /// strings could be generated, or if the type doesn't support
         /// completion, then an empty enumeration is returned.</returns>
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
-            SelectCompletions(context, valueToComplete, Type.GetTypeInfo().GetEnumNames());
+            SelectCompletions(context, valueToComplete, _valuesByName.Keys.OrderBy(k => k));
 
         /// <summary>
         /// Parses the provided string.  Throws an exception if the string
@@ -100,177 +103,79 @@ namespace NClap.Types
         /// <returns>The parsed object.</returns>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
+            object parsedObject;
+
             // First try looking up the string in our name map.
-            if (_valueNameMap.TryGetValue(stringToParse, out FieldInfo field))
+            if (!_valuesByName.TryGetValue(stringToParse, out EnumArgumentValue value))
             {
-                stringToParse = field.Name;
+                // Otherwise, only let through literal integers.
+                if (!int.TryParse(stringToParse, NumberStyles.AllowLeadingSign, null, out int parsedInt))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(stringToParse));
+                }
+
+                // Now use base facilities for parsing.
+                parsedObject = Enum.Parse(Type, stringToParse, true /* ignore case */);
+
+                // Try looking it up again, this time by value.
+                if (!_valuesByValue.TryGetValue(parsedObject, out value))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(stringToParse));
+                }
             }
 
-            // Otherwise, only let through literal integers.
-            else if (!int.TryParse(stringToParse, NumberStyles.AllowLeadingSign, null, out int parsedInt))
+            if (value.Disallowed)
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            // Now use base facilities for parsing.
-            var parsedObject = Enum.Parse(Type, stringToParse, true /* ignore case */);
-
-            // Try to look find any <see cref="ArgumentValueAttribute" />
-            // associated with this value.
-            var name = Enum.GetName(Type, parsedObject);
-            if (IsValueDisallowed(name))
-            {
-                throw new ArgumentOutOfRangeException(nameof(stringToParse));
-            }
-
-            return parsedObject;
+            return value.Value;
         }
 
         /// <summary>
-        /// Checks if the indicated (named) value has been disallowed by
-        /// metadata.
+        /// Enumerate the values allowed for this enum.
         /// </summary>
-        /// <param name="valueName">The name of the value to check.</param>
-        /// <returns>True if the value has been disallowed; false otherwise.
-        /// </returns>
-        private bool IsValueDisallowed(string valueName) =>
-            DoesValueHaveFlags(valueName, ArgumentValueFlags.Disallowed);
+        /// <returns></returns>
+        public IEnumerable<IArgumentValue> GetValues() => _values;
+
+        private static IEnumerable<EnumArgumentValue> GetAllValues(Type type) =>
+            type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static).Select(f => new EnumArgumentValue(f));
 
         /// <summary>
-        /// Checks if the indicated (named) value has been disallowed by
-        /// metadata.
+        /// Constructs a map from the provided enum values, useful for parsing.
         /// </summary>
-        /// <param name="value">The value to check.</param>
-        /// <returns>True if the value has been disallowed; false otherwise.
-        /// </returns>
-        private bool IsValueDisallowed(FieldInfo value) =>
-            DoesValueHaveFlags(value, ArgumentValueFlags.Disallowed);
-
-        /// <summary>
-        /// Checks if the indicated (named) value should be hidden from help
-        /// content.
-        /// </summary>
-        /// <param name="value">The value to check.</param>
-        /// <returns>True if the value should be hidden; false otherwise.
-        /// </returns>
-        private bool IsValueHidden(FieldInfo value) =>
-            DoesValueHaveFlags(value, ArgumentValueFlags.Hidden);
-
-        /// <summary>
-        /// Checks if the indicated (named) value is associated with
-        /// ArgumentValueFlags metadata and has the indicated flags.
-        /// </summary>
-        /// <param name="valueName">The name of the value to check.</param>
-        /// <param name="flags">The flags to check the presence of.</param>
-        /// <returns>True if the value has the indicated flag; false otherwise.
-        /// </returns>
-        private bool DoesValueHaveFlags(string valueName, ArgumentValueFlags flags)
-        {
-            if (valueName == null)
-            {
-                return false;
-            }
-
-            if (!_valueNameMap.TryGetValue(valueName, out FieldInfo field))
-            {
-                return false;
-            }
-
-            return DoesValueHaveFlags(field, flags);
-        }
-
-        /// <summary>
-        /// Checks if the indicated (named) value is associated with
-        /// ArgumentValueFlags metadata and has the indicated flags.
-        /// </summary>
-        /// <param name="value">Info for the value to check.</param>
-        /// <param name="flags">The flags to check the presence of.</param>
-        /// <returns>True if the value has the indicated flag; false otherwise.
-        /// </returns>
-        private bool DoesValueHaveFlags(FieldInfo value, ArgumentValueFlags flags)
-        {
-            var attrib = TryGetArgumentValueAttribute(value);
-            if (attrib == null)
-            {
-                return false;
-            }
-
-            return attrib.Flags.HasFlag(flags);
-        }
-
-        private string GetDisplayNameForHelp(FieldInfo value)
-        {
-            string displayName = value.Name.ToString();
-
-            var attrib = TryGetArgumentValueAttribute(value);
-            if (attrib?.LongName != null)
-            {
-                displayName = attrib.LongName;
-            }
-            else if (attrib?.ShortName != null)
-            {
-                displayName = attrib.ShortName;
-            }
-
-            return displayName;
-        }
-
-        /// <summary>
-        /// Constructs a map associating the set of strings that may be used
-        /// to indicate a value of the given enum type, along with the
-        /// values they map to.
-        /// </summary>
-        /// <param name="type">The enum type in question.</param>
+        /// <param name="values">The values in question.</param>
         /// <returns>The constructed map.</returns>
-        private static IReadOnlyDictionary<string, FieldInfo> ConstructValueNameMap(Type type)
+        private static IReadOnlyDictionary<string, EnumArgumentValue> ConstructValueNameMap(IEnumerable<EnumArgumentValue> values)
         {
-            var valueNameMap = new Dictionary<string, FieldInfo>(StringComparer.OrdinalIgnoreCase);
+            var valueNameMap = new Dictionary<string, EnumArgumentValue>(StringComparer.OrdinalIgnoreCase);
 
             // Process each value allowed on the given type, adding all synonyms
             // that indicate them.
-            foreach (var field in type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static))
+            foreach (var value in values.Where(v => !v.Disallowed))
             {
-                var attrib = TryGetArgumentValueAttribute(field);
-
-                // Skip values marked disallowed.
-                if (attrib?.Flags.HasFlag(ArgumentValueFlags.Disallowed) ?? false)
-                {
-                    continue;
-                }
-
-                var longName = attrib?.LongName ?? field.Name;
-                var shortName = attrib?.ShortName;
-
                 // Make sure the long name for the value isn't a duplicate.
-                if (valueNameMap.ContainsKey(longName))
+                if (valueNameMap.ContainsKey(value.LongName))
                 {
-                    throw new ArgumentOutOfRangeException(nameof(type), Strings.EnumValueLongNameIsInvalid);
+                    throw new ArgumentOutOfRangeException(nameof(values), Strings.EnumValueLongNameIsInvalid);
                 }
 
                 // If explicitly provided, make sure the short name for the
                 // value isn't a duplicate.
-                if ((shortName != null) && valueNameMap.ContainsKey(shortName))
+                if ((value.ShortName != null) && valueNameMap.ContainsKey(value.ShortName))
                 {
-                    throw new ArgumentOutOfRangeException(nameof(type), Strings.EnumValueShortNameIsInvalid);
+                    throw new ArgumentOutOfRangeException(nameof(values), Strings.EnumValueShortNameIsInvalid);
                 }
 
                 // Add the long and short name.
-                valueNameMap[longName] = field;
-                if (shortName != null)
+                valueNameMap[value.LongName] = value;
+                if (value.ShortName != null)
                 {
-                    valueNameMap[shortName] = field;
+                    valueNameMap[value.ShortName] = value;
                 }
             }
 
             return valueNameMap;
         }
-
-        private static ArgumentValueAttribute TryGetArgumentValueAttribute(FieldInfo field) =>
-            // Look for an <see cref="ArgumentValueAttribute" /> attribute,
-            // which might further customize how we can parse strings into
-            // this value.
-            field.GetCustomAttributes(typeof(ArgumentValueAttribute), false)
-                    .Cast<ArgumentValueAttribute>()
-                    .SingleOrDefault();
     }
 }

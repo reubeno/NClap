@@ -121,5 +121,10 @@ namespace NClap.Types
         /// completion, then an empty enumeration is returned.</returns>
         public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             (Completer ?? InnerType).GetCompletions(context, valueToComplete);
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public virtual IEnumerable<IArgumentType> DependentTypes => InnerType.DependentTypes;
     }
 }

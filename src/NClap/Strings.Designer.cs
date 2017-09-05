@@ -80,6 +80,15 @@ namespace NClap {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Short name is too long: {0}.
+        /// </summary>
+        internal static string ArgumentShortNameTooLong {
+            get {
+                return ResourceManager.GetString("ArgumentShortNameTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid value for the &apos;{1}&apos; command line option..
         /// </summary>
         internal static string BadArgumentValue {
@@ -254,6 +263,15 @@ namespace NClap {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FilePath.
+        /// </summary>
+        internal static string FileSystemPathDisplayName {
+            get {
+                return ResourceManager.GetString("FileSystemPathDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The implementing type for this verb (&apos;{0}&apos;) does not implement the &apos;{1}&apos; interface..
         /// </summary>
         internal static string ImplementingTypeNotIVerb {
@@ -281,6 +299,15 @@ namespace NClap {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An invalid value long name was found..
+        /// </summary>
+        internal static string InvalidValueLongName {
+            get {
+                return ResourceManager.GetString("InvalidValueLongName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Member &apos;{0}&apos; in type &apos;{1}&apos; cannot be associated with an argument..
         /// </summary>
         internal static string MemberNotSupported {
@@ -290,7 +317,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing required named argument &apos;/{0}&apos;..
+        ///   Looks up a localized string similar to Missing required named argument &apos;{0}{1}&apos;..
         /// </summary>
         internal static string MissingRequiredNamedArgument {
             get {
@@ -452,16 +479,16 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Default value: {0}.
+        ///   Looks up a localized string similar to Default:.
         /// </summary>
-        internal static string UsageInfoDefaultValueFormat {
+        internal static string UsageInfoDefaultValue {
             get {
-                return ResourceManager.GetString("UsageInfoDefaultValueFormat", resourceCulture);
+                return ResourceManager.GetString("UsageInfoDefaultValue", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DESCRIPTION.
+        ///   Looks up a localized string similar to Description.
         /// </summary>
         internal static string UsageInfoDescriptionHeader {
             get {
@@ -470,7 +497,16 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to EXAMPLES.
+        ///   Looks up a localized string similar to Valid &apos;{0}&apos; values:.
+        /// </summary>
+        internal static string UsageInfoEnumValueHeaderFormat {
+            get {
+                return ResourceManager.GetString("UsageInfoEnumValueHeaderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Examples.
         /// </summary>
         internal static string UsageInfoExamplesHeader {
             get {
@@ -488,7 +524,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NAME.
+        ///   Looks up a localized string similar to Name.
         /// </summary>
         internal static string UsageInfoNameHeader {
             get {
@@ -497,7 +533,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OPTIONAL PARAMETERS.
+        ///   Looks up a localized string similar to Optional Parameters.
         /// </summary>
         internal static string UsageInfoOptionalParametersHeader {
             get {
@@ -506,7 +542,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to REMARKS.
+        ///   Looks up a localized string similar to Remarks.
         /// </summary>
         internal static string UsageInfoRemarksHeader {
             get {
@@ -515,7 +551,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to REQUIRED PARAMETERS.
+        ///   Looks up a localized string similar to Required Parameters.
         /// </summary>
         internal static string UsageInfoRequiredParametersHeader {
             get {
@@ -524,20 +560,29 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Short form: {0}{1}.
+        ///   Looks up a localized string similar to Alias:.
         /// </summary>
-        internal static string UsageInfoShortFormFormat {
+        internal static string UsageInfoShortForm {
             get {
-                return ResourceManager.GetString("UsageInfoShortFormFormat", resourceCulture);
+                return ResourceManager.GetString("UsageInfoShortForm", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SYNTAX.
+        ///   Looks up a localized string similar to Syntax.
         /// </summary>
         internal static string UsageInfoSyntaxHeader {
             get {
                 return ResourceManager.GetString("UsageInfoSyntaxHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage.
+        /// </summary>
+        internal static string UsageInfoUsageHeader {
+            get {
+                return ResourceManager.GetString("UsageInfoUsageHeader", resourceCulture);
             }
         }
         
