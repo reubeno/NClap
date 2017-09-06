@@ -70,18 +70,6 @@ namespace NClap.Types
             return (flagsAttrib != null) ? new FlagsEnumArgumentType(type) : new EnumArgumentType(type);
         }
 
-#if false // DBG:RRO
-        /// <summary>
-        /// A summary of the concrete syntax required to indicate a value of
-        /// the type described by this interface (e.g. "&lt;Int32&gt;").
-        /// </summary>
-        public override string SyntaxSummary => string.Concat(
-            "{",
-            string.Join("|", _values.Where(value => !IsValueDisallowed(value) && !IsValueHidden(value))
-                                    .Select(GetDisplayNameForHelp)),
-            "}");
-#endif
-
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
         /// contain the provided string as a strict prefix.

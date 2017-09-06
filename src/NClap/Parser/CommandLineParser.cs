@@ -18,8 +18,7 @@ namespace NClap.Parser
         /// <summary>
         /// Retrieves the current console's width in characters.
         /// </summary>
-        internal static Func<int> GetConsoleWidth { get; set; } =
-            () => Console.WindowWidth;
+        internal static Func<int> GetConsoleWidth { get; set; } = () => Console.WindowWidth;
 
         /// <summary>
         /// Default console width in characters.

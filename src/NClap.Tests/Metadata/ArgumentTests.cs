@@ -213,7 +213,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(EnumArguments));
             arg.EffectiveDefaultValue.Should().Be(TestEnum.First);
-            arg.GetSyntaxHelp().Should().Be("[/Value={First|Second|Third}]");
+            arg.GetSyntaxHelp().Should().Be("[/Value=<test_enum>]");
         }
 
         [TestMethod]
@@ -229,7 +229,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(BoolArgumentsWithTrueDefault));
             arg.EffectiveDefaultValue.Should().Be(true);
-            arg.GetSyntaxHelp().Should().Be("[/Value[={True | False}]]");
+            arg.GetSyntaxHelp().Should().Be("[/Value[=<bool>]]");
         }
 
         [TestMethod]

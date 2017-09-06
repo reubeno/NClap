@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Parser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using NClap.Exceptions;
 
 namespace NClap.Tests.Metadata
 {
@@ -130,7 +131,7 @@ namespace NClap.Tests.Metadata
             Parse(args, out T parsedArgs).Should().Be(expectedParseResult);
             if (expectedParseResult)
             {
-                typeof(T).GetField("Value").GetValue(parsedArgs).Should().Be(expectedValue);
+                typeof(T).GetTypeInfo().GetField("Value").GetValue(parsedArgs).Should().Be(expectedValue);
             }
         }
 

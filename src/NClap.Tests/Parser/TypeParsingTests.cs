@@ -375,7 +375,6 @@ namespace NClap.Tests.Parser
             ShouldParseAs(new[] { "/value=0" }, TestEnum.Default);
             ShouldParseAs(new[] { "/value=SomeValue" }, TestEnum.SomeValue);
             ShouldParseAs(new[] { "/value=SOMEVALUE" }, TestEnum.SomeValue);
-            ShouldParseAs(new[] { "/value=-1" }, (TestEnum)(-1));
 
             ShouldFailToParse<TestEnum>(new[] { "/value" });
             ShouldFailToParse<TestEnum>(new[] { "/value=" });
@@ -383,6 +382,7 @@ namespace NClap.Tests.Parser
             ShouldFailToParse<TestEnum>(new[] { "/value=Some Value" });
             ShouldFailToParse<TestEnum>(new[] { "/value= SomeValue " });
             ShouldFailToParse<TestEnum>(new[] { "/value=0x0" });
+            ShouldFailToParse<TestEnum>(new[] { "/value=-1" });
             ShouldFailToParse<TestEnum>(new[] { "/value=SomeDisallowedValue" });
         }
 
@@ -671,29 +671,20 @@ namespace NClap.Tests.Parser
             }
         }
 
-        private static void ShouldParseAs<T>(IEnumerable<string> args, T expectedValue)
-        {
+        private static void ShouldParseAs<T>(IEnumerable<string> args, T expectedValue) =>
             ValidateParse(args, true, expectedValue);
-        }
 
-        private static void ShouldFailToParse<T>(IEnumerable<string> args)
-        {
+        private static void ShouldFailToParse<T>(IEnumerable<string> args) =>
             ValidateParse<T>(args, false);
-        }
 
-        private static void ShouldParseCollectionAs<T>(IEnumerable<string> args, Func<T, bool> valueValidator)
-        {
+        private static void ShouldParseCollectionAs<T>(IEnumerable<string> args, Func<T, bool> valueValidator) =>
             ValidateCollectionParse(args, true, valueValidator);
-        }
 
-        private static void ShouldFailToParseCollection<T>(IEnumerable<string> args)
-        {
+        private static void ShouldFailToParseCollection<T>(IEnumerable<string> args) =>
             ValidateCollectionParse<T>(args, false);
-        }
 
         private static void ValidateCollectionParse<T>(IEnumerable<string> args, bool expectedParseResult, Func<T, bool> valueValidator = null)
         {
-
             Parse(args, out ArgumentsWithCollectionType<T> parsedArgs).Should().Be(expectedParseResult);
             if (expectedParseResult)
             {
@@ -703,7 +694,6 @@ namespace NClap.Tests.Parser
 
         private static void ValidateParse<T>(IEnumerable<string> args, bool expectedParseResult, T expectedValue = default(T))
         {
-
             var argsList = args.ToList();
 
             Parse(argsList, out ArgumentsWithType<T> parsedArgs).Should().Be(expectedParseResult, "because we're parsing: \"{0}\"", string.Join(" ", argsList));

@@ -73,8 +73,30 @@ namespace NClap.Utilities
         /// <param name="hangingIndent">The number of characters to
         /// unindent the first line.</param>
         /// <returns>The wrapped text.</returns>
-        public static ColoredString Wrap(this ColoredString text, int width, int indent = 0, int hangingIndent = 0) =>
-            new ColoredString(Wrap(text.Content, width, indent, hangingIndent), text.ForegroundColor, text.BackgroundColor);
+        public static ColoredString Wrap(this ColoredString text, int width, int indent = 0, int hangingIndent = 0)
+        {
+            if (text == null)
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+
+            return new ColoredString(Wrap(text.Content, width, indent, hangingIndent), text.ForegroundColor, text.BackgroundColor);
+        }
+
+        /// <summary>
+        /// Wrap the provided text at the given width, indenting it with the
+        /// given indentation width.
+        /// </summary>
+        /// <param name="text">Text to wrap.</param>
+        /// <param name="width">Maximum width of the text, in number of
+        /// characters.</param>
+        /// <param name="indent">The number of characters to indent
+        /// lines; 0 to indicate no indentation should occur.</param>
+        /// <param name="hangingIndent">The number of characters to
+        /// unindent the first line.</param>
+        /// <returns>The wrapped text.</returns>
+        public static string Wrap(this string text, int width, int indent = 0, int hangingIndent = 0) =>
+            Wrap((IString)(StringWrapper)text, width, indent, hangingIndent).ToString();
 
         /// <summary>
         /// Wrap the provided text at the given width, indenting it with the

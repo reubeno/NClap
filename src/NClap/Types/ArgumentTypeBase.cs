@@ -50,6 +50,11 @@ namespace NClap.Types
         /// <returns>True on success; false otherwise.</returns>
         public bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
         {
+            if (stringToParse == null)
+            {
+                throw new ArgumentNullException(nameof(stringToParse));
+            }
+
             try
             {
                 value = Parse(context, stringToParse);

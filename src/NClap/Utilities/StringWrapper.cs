@@ -17,6 +17,11 @@ namespace NClap.Utilities
         /// <param name="s">String to wrap.</param>
         public StringWrapper(string s)
         {
+            if (s == null)
+            {
+                throw new ArgumentNullException(nameof(s));
+            }
+
             Content = s;
         }
 
@@ -33,6 +38,12 @@ namespace NClap.Utilities
         /// <param name="s">String to unwrap.</param>
         [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
         public static implicit operator string(StringWrapper s) => s.Content;
+
+        /// <summary>
+        /// Retrieves inner string content.
+        /// </summary>
+        /// <returns>String.</returns>
+        public override string ToString() => Content;
 
         /// <summary>
         /// Inner string content.

@@ -629,6 +629,7 @@ namespace NClap.Parser
                         }
                         else
                         {
+                            Debug.Assert(parsedArg.Value != null);
                             hasError = !parsedArg.Arg.SetValue(parsedArg.Value, destination) || hasError;
                         }
                     }
@@ -666,6 +667,7 @@ namespace NClap.Parser
                         }
                         else
                         {
+                            Debug.Assert(argument != null);
                             hasError = !positionalArg.SetValue(argument, destination) || hasError;
                         }
 
@@ -707,10 +709,19 @@ namespace NClap.Parser
 
             // Extract the option argument (a.k.a. value), if there is one.
             string optionArgument = null;
-            if (argument.Length > prefixLength + options.Length &&
-                _setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + options.Length] == sep))
+            if (argument.Length > prefixLength + options.Length)
             {
-                optionArgument = argument.Substring(prefixLength + options.Length + 1);
+                // If there's an argument value separator, then extract the value after the separator.
+                if (_setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + options.Length] == sep))
+                {
+                    optionArgument = argument.Substring(prefixLength + options.Length + 1);
+                }
+
+                // Otherwise, it might be a terminator; extract the rest of the string.
+                else
+                {
+                    optionArgument = argument.Substring(prefixLength + options.Length);
+                }
             }
 
             // Now try to figure out how many names are present.
@@ -748,7 +759,11 @@ namespace NClap.Parser
                         lastChar = true;
                     }
 
-                    args.Add(new ArgumentAndValue { Arg = arg, Value = lastChar ? optionArgument : null } );
+                    args.Add(new ArgumentAndValue
+                    {
+                        Arg = arg,
+                        Value = lastChar ? (optionArgument ?? string.Empty) : string.Empty
+                    } );
                 }
 
                 parsedArgs = args;
@@ -762,7 +777,7 @@ namespace NClap.Parser
                     return false;
                 }
 
-                parsedArgs = new[] { new ArgumentAndValue { Arg = arg, Value = optionArgument } };
+                parsedArgs = new[] { new ArgumentAndValue { Arg = arg, Value = optionArgument ?? string.Empty } };
             }
 
             return true;

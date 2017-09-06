@@ -17,6 +17,7 @@ namespace NClap.Parser
         /// Include default sets of optional information.
         /// </summary>
         Default =
+            CondenseOutput |
             IncludeName |
             IncludeBasicSyntax |
             IncludeDescription |
@@ -29,7 +30,8 @@ namespace NClap.Parser
         /// <summary>
         /// Abridged default set of optional information.
         /// </summary>
-        DefaultAbridged = 
+        DefaultAbridged =
+            CondenseOutput |
             IncludeName |
             IncludeBasicSyntax |
             IncludeRequiredParameterDescriptions |

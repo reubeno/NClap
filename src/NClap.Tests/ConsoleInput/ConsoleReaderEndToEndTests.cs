@@ -23,6 +23,7 @@ namespace NClap.Tests.ConsoleInput
             Process("hello".AsKeys()).Should().Be("hello");
         }
 
+#if NET461
         [TestMethod]
         public void NoOp()
         {
@@ -31,6 +32,7 @@ namespace NClap.Tests.ConsoleInput
                 ConsoleKey.RightWindows.AsInfo())
                 .Should().BeEmpty();
         }
+#endif
 
         [TestMethod]
         public void Replace()

@@ -43,7 +43,17 @@ namespace NClap.Tests.Types
         public void EnumWithCustomLongAndShortNames()
         {
             var type = EnumArgumentType.Create(typeof(SampleEnum));
-            type.SyntaxSummary.Should().Be("{Fo|o}");
+
+            type.TryParse(ArgumentParseContext.Default, "Fo", out object o).Should().BeTrue();
+            o.Should().Be(SampleEnum.Foo);
+
+            type.TryParse(ArgumentParseContext.Default, "f", out o).Should().BeTrue();
+            o.Should().Be(SampleEnum.Foo);
+
+            type.TryParse(ArgumentParseContext.Default, "o", out o).Should().BeTrue();
+            o.Should().Be(SampleEnum.Other);
+
+            type.TryParse(ArgumentParseContext.Default, "Foo", out o).Should().BeFalse();
         }
 
         [TestMethod]
