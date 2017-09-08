@@ -41,7 +41,7 @@ namespace NClap.Utilities
             [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             get
             {
-                int currentCount = 0;
+                var currentCount = 0;
                 foreach (var piece in Content)
                 {
                     if (index - currentCount < piece.Length)
@@ -158,7 +158,7 @@ namespace NClap.Utilities
         /// <returns>The substring.</returns>
         public IString Substring(int startIndex, int length)
         {
-            int currentIndex = 0;
+            var currentIndex = 0;
             var lengthLeft = length;
             var builder = new ColoredMultistringBuilder();
 

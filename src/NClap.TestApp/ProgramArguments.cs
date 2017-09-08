@@ -35,6 +35,9 @@ namespace NClap.TestApp
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 2, HelpText = "That other path")]
         public FileSystemPath OtherPath { get; set; }
 
+        [PositionalArgument(ArgumentFlags.RestOfLine, Position = 3)]
+        public VerbGroup<VerbType> TheVerb { get; set; }
+
         [NamedArgument(HelpText = "My named mode")]
         public ProgramMode NamedMode { get; set; }
 

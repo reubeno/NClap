@@ -481,7 +481,7 @@ namespace NClap.Utilities
         {
             var result = new StringBuilder();
 
-            bool lastCharWasLowerCase = false;
+            var lastCharWasLowerCase = false;
             for (int i = 0; i < s.Length; ++i)
             {
                 var c = s[i];

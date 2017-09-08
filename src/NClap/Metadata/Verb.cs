@@ -4,15 +4,16 @@ using System.Threading.Tasks;
 namespace NClap.Metadata
 {
     /// <summary>
-    /// Represents a verb/command.
+    /// Base class for implementing verbs.
     /// </summary>
-    public interface IVerb
+    public abstract class Verb : IVerb
     {
         /// <summary>
         /// Executes the verb.
         /// </summary>
         /// <param name="cancel">Cancellation token.</param>
         /// <returns>Result of execution.</returns>
-        Task<VerbResult> ExecuteAsync(CancellationToken cancel);
+        public virtual Task<VerbResult> ExecuteAsync(CancellationToken cancel) =>
+            Task.FromResult(VerbResult.UsageError);
     }
 }

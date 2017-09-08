@@ -55,7 +55,7 @@ namespace NClap.Parser
         /// <param name="reporter">The destination for parse errors.</param>
         /// <returns>True if no errors were detected.</returns>
         public static bool ParseWithUsage<T>(IList<string> arguments, T destination, ErrorReporter reporter) where T : class =>
-            ParseWithUsage(arguments, destination, new CommandLineParserOptions { Reporter = s => reporter(s) });
+            ParseWithUsage(arguments, destination, new CommandLineParserOptions { Reporter = s => reporter?.Invoke(s) });
 
         /// <summary>
         /// Parses command-line arguments into a reference-type object.
@@ -68,7 +68,7 @@ namespace NClap.Parser
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
         public static bool ParseWithUsage<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class =>
-            ParseWithUsage(arguments, destination, options, UsageInfoOptions.DefaultAbridged);
+            ParseWithUsage(arguments, destination, options, UsageInfoOptions.Default);
 
         /// <summary>
         /// Parses command-line arguments into a reference-type object.
@@ -104,26 +104,13 @@ namespace NClap.Parser
             // Check if the object inherits from HelpArgumentsBase.
             var helpDestination = destination as HelpArgumentsBase;
 
-            var abridgedOptions = usageInfoOptions;
-            if (helpDestination != null)
-            {
-                abridgedOptions &= ~(UsageInfoOptions.IncludeOptionalParameterDescriptions | UsageInfoOptions.IncludeDescription);
-                abridgedOptions |= UsageInfoOptions.IncludeRemarks;
-            }
-
             // Parse!
             if (!Parse(arguments, destination, options))
             {
-                var optionsForParseError = usageInfoOptions;
-                if (!helpDestination?.Help ?? false)
-                {
-                    optionsForParseError = abridgedOptions;
-                }
-
                 // An error was encountered in arguments. Display the usage
                 // message.
                 options.Reporter?.Invoke(Environment.NewLine);
-                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, optionsForParseError));
+                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, usageInfoOptions));
 
                 return false;
             }
@@ -165,7 +152,7 @@ namespace NClap.Parser
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
         public static bool ParseWithUsage<T>(IList<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct =>
-            ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.DefaultAbridged);
+            ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.Default);
 
         /// <summary>
         /// Parses command-line arguments into a value-type object.
@@ -333,7 +320,7 @@ namespace NClap.Parser
         /// <returns>Printable string containing a user friendly description of
         /// command-line arguments.</returns>
         public static ColoredMultistring GetUsageInfo(Type type, object defaultValues, int? columns) =>
-            GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.DefaultAbridged);
+            GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.Default);
 
         /// <summary>
         /// Returns a Usage string for command line argument parsing. Use
@@ -360,7 +347,7 @@ namespace NClap.Parser
             {
                 try
                 {
-                    columns = GetConsoleWidth();
+                    columns = GetConsoleWidth?.Invoke() ?? DefaultConsoleWidth;
                 }
                 catch (IOException)
                 {

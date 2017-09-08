@@ -8,22 +8,18 @@ namespace NClap.Tests.Parser
     [TestClass]
     public class VerbParsingTests
     {
-        class SomethingVerb : IVerb
+        class SomethingVerb : SynchronousVerb
         {
             public bool ThatSomething { get; set; }
 
-            public void Execute(object context)
-            {
-            }
+            public override VerbResult Execute() => VerbResult.Success;
         }
 
-        class OtherThingVerb : IVerb
+        class OtherThingVerb : SynchronousVerb
         {
             public bool ThatOtherThing { get; set; }
 
-            public void Execute(object context)
-            {
-            }
+            public override VerbResult Execute() => VerbResult.Success;
         }
 
         enum SimpleVerbType

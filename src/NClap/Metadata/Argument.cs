@@ -257,6 +257,9 @@ namespace NClap.Metadata
         /// <summary>
         /// Generates syntax help information for this argument.
         /// </summary>
+        /// <param name="detailed">true to return detailed information,
+        /// including full argument type information; false to return abridged
+        /// information.</param>
         /// <returns>The help content in string form.</returns>
         public string GetSyntaxHelp(bool detailed = true)
         {

@@ -26,7 +26,7 @@ namespace NClap.TestApp
         [Verb(typeof(CliHelp))]
         CliHelp,
 
-        [Verb(Exits = true, HelpText = "Exits the loop")]
+        [Verb(typeof(ExitVerb), HelpText = "Exits the loop")]
         Exit
     }
 
@@ -35,17 +35,18 @@ namespace NClap.TestApp
         [PositionalArgument(ArgumentFlags.Required)] public string Prompt { get; set; }
     }
 
-    class CliHelp : IVerb
+    class CliHelp : SynchronousVerb
     {
-        public void Execute(object context)
+        public override VerbResult Execute()
         {
             var info = CommandLineParser.GetUsageInfo(typeof(ProgramArguments), UsageInfoOptions.Default | UsageInfoOptions.CondenseOutput);
             CommandLineParser.DefaultReporter(info);
+            return VerbResult.Success;
         }
     }
 
     [ArgumentSet(Style = ArgumentSetStyle.GetOpt)]
-    class Here : IVerb
+    class Here : SynchronousVerb
     {
         [NamedArgument(ArgumentFlags.AtMostOnce)] public int Hello { get; set; }
 
@@ -65,9 +66,7 @@ namespace NClap.TestApp
 
         [PositionalArgument(ArgumentFlags.Required)] public FileSystemPath Path { get; set; }
 
-        public void Execute(object o)
-        {
-        }
+        public override VerbResult Execute() => VerbResult.Success;
     }
 
     class SomeArgCompleter : IStringCompleter
@@ -76,13 +75,11 @@ namespace NClap.TestApp
             new[] { "xyzzy", "fizzy" };
     }
 
-    class HereToo : IVerb
+    class HereToo : SynchronousVerb
     {
         [PositionalArgument(ArgumentFlags.Required, Completer = typeof(SomeArgCompleter))] public string SomeArg { get; set; }
 
-        public void Execute(object o)
-        {
-        }
+        public override VerbResult Execute() => VerbResult.Success;
     }
 
     class Program

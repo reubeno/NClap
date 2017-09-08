@@ -37,12 +37,13 @@ namespace NClap.Metadata
         /// <summary>
         /// The argument is not required, but if it is encountered, then the
         /// rest of the command line will be consumed and used as its value
-        /// (whether or not the arguments start with a -, / or @.  Only valid
-        /// for string collections.  It is different from a default argument
-        /// which just consumes parts of the command line that don't start with
-        /// those characters and aren't used as values for other arguments.  If
-        /// a "RestOfLine" argument is encountered on the command line, parsing
-        /// stops and the rest of the line is passed as is.
+        /// (whether or not the arguments start with a prefix indicating a
+        /// named argument or answer file).  Only valid for string collections.
+        /// It is different from a default argument which just consumes parts
+        /// of the command line that don't start with those characters and
+        /// aren't used as values for other arguments.  If a "RestOfLine"
+        /// argument is encountered on the command line, parsing stops and
+        /// the rest of the line is passed as-is.
         /// </summary>
         RestOfLine = 0x08,
 

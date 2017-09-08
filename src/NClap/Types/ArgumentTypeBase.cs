@@ -48,6 +48,7 @@ namespace NClap.Types
         /// <param name="value">On success, receives the parsed value; null
         /// otherwise.</param>
         /// <returns>True on success; false otherwise.</returns>
+        [SuppressMessage("Design", "CC0004:Catch block cannot be empty")]
         public bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
         {
             if (stringToParse == null)
@@ -105,6 +106,7 @@ namespace NClap.Types
         /// <param name="candidates">Candidate strings to select from.</param>
         /// <returns>An enumeration of the selected strings.</returns>
         [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "context")]
+        [SuppressMessage("Usage", "CC0057:Unused parameters")]
         protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<string> candidates) =>
             candidates.Where(name => name.StartsWith(valueToComplete, StringComparison.OrdinalIgnoreCase))
                       .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
@@ -146,7 +148,7 @@ namespace NClap.Types
         /// <param name="candidates">Candidate objects whose formatted strings
         /// should be selected from.</param>
         /// <returns>An enumeration of the selected strings.</returns>
-        protected IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<object> candidates) =>
+        protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<object> candidates) =>
             SelectCompletions(context, valueToComplete, candidates.Select(candidate => candidate.ToString()));
     }
 }

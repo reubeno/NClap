@@ -20,7 +20,7 @@ namespace NClap.Utilities
         /// <returns>The resulting enumeration.</returns>
         public static IEnumerable<T> InsertBetween<T>(this IEnumerable<T> values, T valueToInsert)
         {
-            bool firstValue = true;
+            var firstValue = true;
             foreach (var v in values)
             {
                 if (!firstValue)

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +31,7 @@ namespace NClap.Metadata
     /// Verb for display help about the verbs available.
     /// </summary>
     /// <typeparam name="TVerbType">The verb type.</typeparam>
-    internal class HelpVerb<TVerbType> : IVerb
+    internal class HelpVerb<TVerbType> : SynchronousVerb
         where TVerbType : struct
     {
         /// <summary>
@@ -48,8 +50,7 @@ namespace NClap.Metadata
         /// <summary>
         /// Displays help about the available verbs.
         /// </summary>
-        /// <param name="context"></param>
-        public void Execute(object context)
+        public override VerbResult Execute()
         {
             var outputHandler = HelpVerb.OutputHandler ?? BasicConsoleInputAndOutput.Default.Write;
 
@@ -61,10 +62,15 @@ namespace NClap.Metadata
             {
                 DisplayGeneralHelp(outputHandler);
             }
+
+            return VerbResult.Success;
         }
 
+        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
         private static void DisplayGeneralHelp(Action<ColoredMultistring> outputHandler)
         {
+            Debug.Assert(outputHandler != null);
+
             var verbNames = typeof(TVerbType).GetTypeInfo().GetEnumValues()
                 .Cast<TVerbType>()
                 .OrderBy(type => type.ToString(), StringComparer.CurrentCultureIgnoreCase);
@@ -86,8 +92,11 @@ namespace NClap.Metadata
             outputHandler(string.Format(CultureInfo.CurrentCulture, Strings.ValidVerbsHeader, verbSummary));
         }
 
+        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
         private static void DisplayVerbHelp(Action<ColoredMultistring> outputHandler, TVerbType verb)
         {
+            Debug.Assert(outputHandler != null);
+
             var attrib = GetVerbAttribute(verb);
             var implementingType = attrib.GetImplementingType(typeof(TVerbType));
             if (implementingType == null)

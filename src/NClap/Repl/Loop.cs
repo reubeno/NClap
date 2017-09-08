@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Parser;
-using System.Reflection;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Repl
 {
@@ -15,12 +16,9 @@ namespace NClap.Repl
     /// </summary>
     /// <typeparam name="TVerbType">Enum type that defines possible verbs.
     /// </typeparam>
-    /// <typeparam name="TContext">Type of the context object passed to
-    /// all verbs.</typeparam>
     [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords")]
-    public class Loop<TVerbType, TContext> where TVerbType : struct
+    public class Loop<TVerbType> where TVerbType : struct
     {
-        private readonly TContext _context;
         private readonly IReadOnlyDictionary<TVerbType, VerbAttribute> _verbMap;
         private readonly IReadOnlyList<string> _verbNames;
 
@@ -30,8 +28,7 @@ namespace NClap.Repl
         /// </summary>
         /// <param name="loopClient">The client to use.</param>
         /// <param name="options">Options for loop.</param>
-        /// <param name="context">Caller-provided context object.</param>
-        public Loop(ILoopClient loopClient, LoopOptions options, TContext context) : this(options, context)
+        public Loop(ILoopClient loopClient, LoopOptions options) : this(options)
         {
             Client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
         }
@@ -43,8 +40,7 @@ namespace NClap.Repl
         /// the loop's input and output behaviors; if not provided, default
         /// parameters are used.</param>
         /// <param name="options">Options for loop.</param>
-        /// <param name="context">Caller-provided context object.</param>
-        public Loop(LoopInputOutputParameters parameters, LoopOptions options, TContext context) : this(options, context)
+        public Loop(LoopInputOutputParameters parameters, LoopOptions options) : this(options)
         {
             var consoleInput = parameters?.ConsoleInput ?? BasicConsoleInputAndOutput.Default;
             var consoleOutput = parameters?.ConsoleOutput ?? BasicConsoleInputAndOutput.Default;
@@ -74,12 +70,9 @@ namespace NClap.Repl
         /// constructors.
         /// </summary>
         /// <param name="options">Options for loop.</param>
-        /// <param name="context">Caller-provided context object.</param>
-        private Loop(LoopOptions options, TContext context)
+        private Loop(LoopOptions options)
         {
             EndOfLineCommentCharacter = options?.EndOfLineCommentCharacter;
-
-            _context = context;
 
             _verbMap = typeof(TVerbType).GetTypeInfo().GetMembers().SelectMany(
                 member => member.GetCustomAttributes(typeof(VerbAttribute), false)
@@ -106,11 +99,31 @@ namespace NClap.Repl
         public char? EndOfLineCommentCharacter { get; set; }
 
         /// <summary>
+        /// Instantiate and execute a loop.
+        /// </summary>
+        /// <param name="client">The loop client.</param>
+        /// <param name="options">Optionally provides loop options.</param>
+        [SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
+        public static void Execute(ILoopClient client, LoopOptions options = null) =>
+            new Loop<TVerbType>(client, options).Execute();
+
+        /// <summary>
+        /// Instantiate and execute a loop.
+        /// </summary>
+        /// <param name="parameters">Optionally provides parameters controlling
+        /// the loop's input and output behaviors; if not provided, default
+        /// parameters are used.</param>
+        /// <param name="options">Optionally provides loop options.</param>
+        [SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
+        public static void Execute(LoopInputOutputParameters parameters, LoopOptions options = null) =>
+            new Loop<TVerbType>(parameters, options).Execute();
+
+        /// <summary>
         /// Executes the loop.
         /// </summary>
         public void Execute()
         {
-            while (ExecuteOnce())
+            while (ExecuteOnce() != VerbResult.Terminate)
             {
             }
         }
@@ -148,9 +161,8 @@ namespace NClap.Repl
             }
 
             var verbToken = tokenList[0];
-            TVerbType verbType;
 
-            if (!TryParseVerb(verbToken, out verbType))
+            if (!TryParseVerb(verbToken, out TVerbType verbType))
             {
                 return emptyCompletions();
             }
@@ -174,7 +186,7 @@ namespace NClap.Repl
                 parsedObjectFactory = () => constructor.Invoke(Array.Empty<object>());
             }
 
-            var options = new CommandLineParserOptions { Context = _context };
+            var options = new CommandLineParserOptions();
             return CommandLineParser.GetCompletions(
                 implementingType,
                 tokenList.Skip(1),
@@ -186,7 +198,7 @@ namespace NClap.Repl
         private static bool TryParseVerb(string value, out TVerbType verbType) =>
             Enum.TryParse(value, true /* ignore case */, out verbType);
 
-        private bool ExecuteOnce()
+        private VerbResult ExecuteOnce()
         {
             Client.DisplayPrompt();
 
@@ -194,19 +206,18 @@ namespace NClap.Repl
 
             if (args == null)
             {
-                return false;
+                return VerbResult.Terminate;
             }
 
             if (args.Length == 0)
             {
-                return true;
+                return VerbResult.Success;
             }
 
-            TVerbType verbType;
-            if (!TryParseVerb(args[0], out verbType))
+            if (!TryParseVerb(args[0], out TVerbType verbType))
             {
                 Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.UnrecognizedVerb, args[0]));
-                return true;
+                return VerbResult.UsageError;
             }
 
             return Execute(verbType, args.Skip(1));
@@ -258,13 +269,14 @@ namespace NClap.Repl
             return input;
         }
 
-        private bool Execute(TVerbType verbType, IEnumerable<string> args)
+        private VerbResult Execute(TVerbType verbType, IEnumerable<string> args)
         {
-            VerbAttribute attrib;
-            if (!_verbMap.TryGetValue(verbType, out attrib))
+            if (!_verbMap.TryGetValue(verbType, out VerbAttribute attrib))
             {
                 throw new NotSupportedException();
             }
+
+            var result = VerbResult.Success;
 
             var implementingType = attrib.GetImplementingType(typeof(TVerbType));
             if (implementingType != null)
@@ -273,32 +285,31 @@ namespace NClap.Repl
                 if (constructor == null)
                 {
                     Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.NoAccessibleParameterlessConstructor, implementingType.FullName));
-                    return true;
+                    return VerbResult.RuntimeFailure;
                 }
 
-                var verb = constructor.Invoke(Array.Empty<object>()) as IVerb<TContext>;
+                var verb = constructor.Invoke(Array.Empty<object>()) as IVerb;
                 if (verb == null)
                 {
                     Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.ImplementingTypeNotIVerb, implementingType.FullName, typeof(IVerb).FullName));
-                    return true;
+                    return VerbResult.RuntimeFailure;
                 }
 
                 var options = new CommandLineParserOptions
                 {
-                    Context = _context,
                     Reporter = error => Client.OnError(error.ToString().TrimEnd())
                 };
 
                 if (!CommandLineParser.Parse(args.ToList(), verb, options))
                 {
                     Client.OnError(Strings.InvalidUsage);
-                    return true;
+                    return VerbResult.UsageError;
                 }
 
-                verb.Execute(_context);
+                result = verb.ExecuteAsync(CancellationToken.None).Result;
             }
 
-            return !attrib.Exits;
+            return result;
         }
     }
 }

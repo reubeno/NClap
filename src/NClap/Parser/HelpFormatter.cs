@@ -21,7 +21,7 @@ namespace NClap.Parser
             var builder = new ColoredMultistringBuilder();
 
             // Generate and sequence sections.
-            bool firstSection = true;
+            var firstSection = true;
             foreach (var section in sections)
             {
                 if (!firstSection)
@@ -66,7 +66,7 @@ namespace NClap.Parser
         // whether the parameter is required or optional.
         //
         // TODO: Make this logic more generic, and put it elsewhere.
-        protected string SimplifyParameterSyntax(string s) =>
+        protected static string SimplifyParameterSyntax(string s) =>
             s.TrimStart('[')
              .TrimEnd(']', '*', '+');
 

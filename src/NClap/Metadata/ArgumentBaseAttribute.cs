@@ -8,7 +8,7 @@ using NClap.Types;
 namespace NClap.Metadata
 {
     /// <summary>
-    /// Abstract base class for logic shared between ArgumentAttribute and
+    /// Abstract base class for logic shared between NamedArgumentAttribute and
     /// PositionalArgumentAttribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]

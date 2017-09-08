@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -33,7 +34,7 @@ namespace NClap.Utilities
         /// <returns>The type's default value.</returns>
         public static object GetDefaultValue(this Type type) =>
             typeof(ReflectionUtilities).GetTypeInfo()
-                                       .GetMethod("GetDefaultValue", Array.Empty<Type>())
+                                       .GetMethod(nameof(GetDefaultValue), Array.Empty<Type>())
                                        .MakeGenericMethod(type).Invoke(null, null);
 
         /// <summary>
@@ -79,15 +80,16 @@ namespace NClap.Utilities
             }
             catch (InvalidCastException)
             {
+                return false;
             }
             catch (FormatException)
             {
+                return false;
             }
             catch (OverflowException)
             {
+                return false;
             }
-
-            return false;
         }
 
         /// <summary>
@@ -99,6 +101,7 @@ namespace NClap.Utilities
         /// value.</param>
         /// <returns>True if the conversion succeeded; false otherwise.
         /// </returns>
+        [SuppressMessage("Design", "CC0004:Catch block cannot be empty")]
         public static bool TryConvertFrom(this Type destType, object sourceValue, out object convertedValue)
         {
             if (sourceValue != null)
@@ -117,6 +120,7 @@ namespace NClap.Utilities
                     }
                     catch (TargetInvocationException)
                     {
+                        // Fall through.
                     }
                 }
 
@@ -134,6 +138,7 @@ namespace NClap.Utilities
                     }
                     catch (TargetInvocationException)
                     {
+                        // Fall through.
                     }
                 }
             }
@@ -145,12 +150,15 @@ namespace NClap.Utilities
             }
             catch (InvalidCastException)
             {
+                // Fall through.
             }
             catch (FormatException)
             {
+                // Fall through.
             }
             catch (OverflowException)
             {
+                // Fall through.
             }
 
             convertedValue = null;

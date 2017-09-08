@@ -99,7 +99,7 @@ namespace NClap.Parser
             return sections;
         }
 
-        private IEnumerable<EnumArgumentType> GetReferencedEnums(ArgumentSetUsageInfo setInfo) =>
+        private static IEnumerable<EnumArgumentType> GetReferencedEnums(ArgumentSetUsageInfo setInfo) =>
             GetAllArgumentTypes(setInfo)
                 .OfType<EnumArgumentType>()
                 .Select(t => t.Type)
@@ -144,7 +144,7 @@ namespace NClap.Parser
             return builder.ToMultistring();
         }
 
-        private IEnumerable<IArgumentType> GetAllArgumentTypes(ArgumentSetUsageInfo setInfo)
+        private static IEnumerable<IArgumentType> GetAllArgumentTypes(ArgumentSetUsageInfo setInfo)
         {
             var types = new HashSet<IArgumentType>();
             var typesToProcess = new Queue<IArgumentType>();

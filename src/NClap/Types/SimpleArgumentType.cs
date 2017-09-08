@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Types
 {
@@ -56,8 +58,12 @@ namespace NClap.Types
         /// the given type.</param>
         /// <param name="displayName">The type's human-readable name.</param>
         /// <returns>The constructed object.</returns>
-        public static SimpleArgumentType Create<T>(SimpleArgumentTypeParseHandler<T> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler = null, string displayName = null) =>
-            new SimpleArgumentType(typeof(T), s => parseHandler(s), completionHandler, displayName);
+        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
+        public static SimpleArgumentType Create<T>(SimpleArgumentTypeParseHandler<T> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler = null, string displayName = null)
+        {
+            Debug.Assert(parseHandler != null);
+            return new SimpleArgumentType(typeof(T), s => parseHandler(s), completionHandler, displayName);
+        }
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that

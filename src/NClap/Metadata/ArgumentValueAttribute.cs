@@ -9,10 +9,11 @@ namespace NClap.Metadata
     /// Attribute for annotating values that can be used with arguments. It is
     /// most frequently used with values on enum types.
     /// </summary>
+    [SuppressMessage("Performance", "CC0023:Unsealed Attribute")]
     [AttributeUsage(AttributeTargets.Field)]
-    public sealed class ArgumentValueAttribute : Attribute
+    public class ArgumentValueAttribute : Attribute
     {
-        private string _longName = null;
+        private string _longName;
 
         /// <summary>
         /// Flags controlling the use of this value.

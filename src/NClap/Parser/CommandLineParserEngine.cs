@@ -111,8 +111,7 @@ namespace NClap.Parser
                 _options.Reporter = err => { };
             }
 
-            // If no file-system reader was provided, use our default
-            // implementation.
+            // If no file-system reader was provided, use our default implementation.
             if (_options.FileSystemReader == null)
             {
                 _options.FileSystemReader = FileSystemReader.Create();
@@ -152,9 +151,8 @@ namespace NClap.Parser
             // method will validate that we don't have duplicate names.
             _namedArgumentMap = CreateNamedArgumentMap(_namedArguments, _setAttribute);
             
-            // Perform some last-minute validation on arguments; otherwise,
-            // we're good to go.
-            ValidateArguments(_namedArguments, _positionalArguments);
+            // Perform some last-minute validation on arguments; otherwise, we're good to go.
+            ValidateThatPositionalArgumentsDoNotOverlap(_namedArguments, _positionalArguments);
         }
 
         /// <summary>
@@ -529,7 +527,7 @@ namespace NClap.Parser
             return argumentMap;
         }
 
-        private static void ValidateArguments(IEnumerable<Argument> namedArguments, SortedList<int, Argument> positionalArguments)
+        private static void ValidateThatPositionalArgumentsDoNotOverlap(IEnumerable<Argument> namedArguments, SortedList<int, Argument> positionalArguments)
         {
             // Validate positional arguments.
             var lastIndex = -1;
@@ -580,7 +578,7 @@ namespace NClap.Parser
                 IReadOnlyList<ArgumentAndValue> parsedArgs = null;
                 if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
                 {
-                    bool success = false;
+                    var success = false;
 
                     if (!success && longNameArgumentPrefix != null)
                     {
@@ -786,13 +784,13 @@ namespace NClap.Parser
         private IEnumerable<ArgumentUsageInfo> GetArgumentUsageInfo()
         {
             // Enumerate positional arguments first, in position order.
-            foreach (var arg in _positionalArguments.Values.Where(a => a.Hidden == false))
+            foreach (var arg in _positionalArguments.Values.Where(a => !a.Hidden))
             {
                 yield return new ArgumentUsageInfo(arg);
             }
 
             // Enumerate named arguments next, in case-insensitive sort order.
-            foreach (var arg in _namedArguments.Where(a => a.Hidden == false).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
+            foreach (var arg in _namedArguments.Where(a => !a.Hidden).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
             {
                 yield return new ArgumentUsageInfo(arg);
             }

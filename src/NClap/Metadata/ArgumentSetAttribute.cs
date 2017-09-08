@@ -27,7 +27,7 @@ namespace NClap.Metadata
         {
             // Detect whether '/' is a file-system separator; if it is, then we
             // choose not to include it in any default prefix lists.
-            bool useForwardSlashAsPrefix = !Path.DirectorySeparatorChar.Equals('/');
+            var useForwardSlashAsPrefix = !Path.DirectorySeparatorChar.Equals('/');
 
             // Initialize properties with basic defaults.
             AnswerFileArgumentPrefix = "@";
