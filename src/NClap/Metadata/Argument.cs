@@ -28,6 +28,7 @@ namespace NClap.Metadata
         // Parameters
         private readonly IReadOnlyList<ArgumentValidationAttribute> _validationAttributes;
         private readonly ArgumentSetAttribute _setAttribute;
+        private readonly object _fixedDestination;
         private readonly bool _isPositional;
         private readonly ColoredErrorReporter _reporter;
         private readonly IArgumentType _valueType;
@@ -47,14 +48,24 @@ namespace NClap.Metadata
         /// <param name="setAttribute">Attribute on the containing argument set.</param>
         /// <param name="options">Provides parser options.</param>
         /// <param name="defaultFieldValue">Default value for the field.</param>
-        public Argument(IMutableMemberInfo member, ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object defaultFieldValue = null)
+        /// <param name="parentMember">Parent member under which this field sits.</param>
+        /// <param name="fixedDestination">Optionally provides fixed parse destination object.</param>
+        public Argument(IMutableMemberInfo member,
+            ArgumentBaseAttribute attribute,
+            ArgumentSetAttribute setAttribute,
+            CommandLineParserOptions options,
+            object defaultFieldValue = null,
+            IMutableMemberInfo parentMember = null,
+            object fixedDestination = null)
         {
             Debug.Assert(attribute != null);
             Debug.Assert(member != null);
 
             Member = member;
+            ParentMember = parentMember;
             Attribute = attribute;
             _setAttribute = setAttribute;
+            _fixedDestination = fixedDestination;
             _isPositional = attribute is PositionalArgumentAttribute;
             _reporter = options?.Reporter ?? (s => { });
             ArgumentType = Attribute.GetArgumentType(member.MemberType);
@@ -161,7 +172,9 @@ namespace NClap.Metadata
         /// on the command line; false indicates that it may only be specified
         /// once.
         /// </summary>
-        public bool AllowMultiple => Attribute.Flags.HasFlag(ArgumentFlags.Multiple);
+        public bool AllowMultiple =>
+            Attribute.Flags.HasFlag(ArgumentFlags.Multiple) ||
+            (Attribute.Flags.HasFlag(ArgumentFlags.Optional) && IsCollection);
 
         /// <summary>
         /// True indicates that each instance of this argument must be unique;
@@ -199,6 +212,12 @@ namespace NClap.Metadata
         /// The object member bound to this argument.
         /// </summary>
         public IMutableMemberInfo Member { get; }
+
+        /// <summary>
+        /// The object member under which this member sits, or null to indicate
+        /// that this member is at top-level under provided objects.
+        /// </summary>
+        public IMutableMemberInfo ParentMember { get; }
 
         /// <summary>
         /// Type of the argument.
@@ -274,14 +293,13 @@ namespace NClap.Metadata
             {
                 builder.Append("<");
                 builder.Append(LongName);
+                builder.Append(">");
 
                 if (detailed)
                 {
                     builder.Append(" : ");
                     builder.Append(ArgumentType.SyntaxSummary);
                 }
-
-                builder.Append(">");
 
                 if (TakesRestOfLine)
                 {
@@ -350,15 +368,17 @@ namespace NClap.Metadata
         /// Finalizes parsing of the argument, reporting any errors from policy
         /// violations (e.g. missing required arguments).
         /// </summary>
-        /// <typeparam name="T">Type of the field associated with the argument.
-        /// </typeparam>
-        /// <param name="destination">The destination object being filled in.
-        /// </param>
+        /// <param name="destination">The destination object being filled in.</param>
         /// <param name="fileSystemReader">File system reader to use.</param>
         /// <returns>True indicates that finalization completed successfully;
         /// false indicates that a failure occurred.</returns>
-        public bool TryFinalize<T>(T destination, IFileSystemReader fileSystemReader)
+        public bool TryFinalize(object destination, IFileSystemReader fileSystemReader)
         {
+            if (_fixedDestination != null)
+            {
+                destination = _fixedDestination;
+            }
+
             if (!SeenValue && HasDefaultValue)
             {
                 if (!TryValidateValue(DefaultValue, new ArgumentValidationContext(fileSystemReader)))
@@ -366,12 +386,9 @@ namespace NClap.Metadata
                     return false;
                 }
 
-                if (destination != null)
+                if (destination != null && !TrySetValue(destination, DefaultValue))
                 {
-                    if (!TrySetValue(destination, DefaultValue))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -405,23 +422,37 @@ namespace NClap.Metadata
         /// </summary>
         /// <param name="containingValue">The containing object.</param>
         /// <returns>The value associated with this argument's field.</returns>
-        public object GetValue(object containingValue) => Member.GetValue(containingValue);
+        public object GetValue(object containingValue)
+        {
+            var parentValue = (ParentMember != null) ?
+                ParentMember.GetValue(containingValue) :
+                containingValue;
+
+            return Member.GetValue(parentValue);
+        }
 
         /// <summary>
         /// Parses the provided value string using this object's value type,
         /// and stores the parsed value in the provided destination.
         /// </summary>
-        /// <typeparam name="T">Type of the expected parsed value.</typeparam>
         /// <param name="value">The string to parse.</param>
-        /// <param name="destination">The destination for the parsed value.
+        /// <param name="destination">The destination for the parsed value.</param>
+        /// <param name="parsedValue">On success, receives the parsed value.
         /// </param>
         /// <returns>True on success; false otherwise.</returns>
-        public bool SetValue<T>(string value, T destination)
+        public bool TryParseAndStore(string value, object destination, out object parsedValue)
         {
+            if (_fixedDestination != null)
+            {
+                destination = _fixedDestination;
+            }
+
             // Check for disallowed duplicate arguments.
             if (SeenValue && !AllowMultiple)
             {
                 ReportDuplicateArgumentValue(value);
+
+                parsedValue = null;
                 return false;
             }
 
@@ -429,6 +460,8 @@ namespace NClap.Metadata
             foreach (var arg in _conflictingArgs.Where(arg => arg.SeenValue))
             {
                 ReportConflictingArgument(value, arg);
+
+                parsedValue = null;
                 return false;
             }
 
@@ -439,11 +472,13 @@ namespace NClap.Metadata
             // Parse the string version of the value.
             if (!ParseValue(value, out object newValue))
             {
+                parsedValue = null;
                 return false;
             }
 
             if (!TryValidateValue(newValue, new ArgumentValidationContext(_argumentParseContext.FileSystemReader)))
             {
+                parsedValue = null;
                 return false;
             }
 
@@ -453,6 +488,8 @@ namespace NClap.Metadata
                 if (Unique && _collectionValues.Contains(newValue))
                 {
                     ReportDuplicateArgumentValue(value);
+
+                    parsedValue = null;
                     return false;
                 }
 
@@ -463,10 +500,12 @@ namespace NClap.Metadata
             {
                 if (!TrySetValue(destination, newValue, value))
                 {
+                    parsedValue = null;
                     return false;
                 }
             }
 
+            parsedValue = newValue;
             return true;
         }
 
@@ -481,20 +520,24 @@ namespace NClap.Metadata
         public bool TrySetRestOfLine<T>(string first, IEnumerable<string> restOfLine, T destination)
         {
             Debug.Assert(restOfLine != null);
-            return TrySetRestOfLine(new[] { first }.Concat(restOfLine), destination);
+            return TrySetRestOfLine(new[] { first }.Concat(restOfLine), _fixedDestination ?? destination);
         }
 
         /// <summary>
         /// Fills out this argument with the remainder of the provided command
         /// line.
         /// </summary>
-        /// <typeparam name="T">Type of the object being filled in.</typeparam>
         /// <param name="restOfLine">Remainder of the command-line tokens.</param>
         /// <param name="destination">Object being filled in.</param>
-        public bool TrySetRestOfLine<T>(IEnumerable<string> restOfLine, T destination)
+        public bool TrySetRestOfLine(IEnumerable<string> restOfLine, object destination)
         {
             Debug.Assert(restOfLine != null);
-            Debug.Assert(SeenValue == false);
+            Debug.Assert(!SeenValue);
+
+            if (_fixedDestination != null)
+            {
+                destination = _fixedDestination;
+            }
 
             SeenValue = true;
 
@@ -736,7 +779,11 @@ namespace NClap.Metadata
 
             try
             {
-                Member.SetValue(containingObject, value);
+                var parentObject = (ParentMember != null) ?
+                    ParentMember.GetValue(containingObject) :
+                    containingObject;
+
+                Member.SetValue(parentObject, value);
                 return true;
             }
             catch (ArgumentException ex)

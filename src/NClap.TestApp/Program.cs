@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Parser;
@@ -79,7 +80,14 @@ namespace NClap.TestApp
     {
         [PositionalArgument(ArgumentFlags.Required, Completer = typeof(SomeArgCompleter))] public string SomeArg { get; set; }
 
-        public override VerbResult Execute() => VerbResult.Success;
+        public override VerbResult Execute()
+        {
+            var line = ConsoleUtilities.ReadLine();
+
+            Console.WriteLine($"Read: [{line}]");
+
+            return VerbResult.Success;
+        }
     }
 
     class Program
@@ -91,6 +99,13 @@ namespace NClap.TestApp
             if (!CommandLineParser.ParseWithUsage(args, programArgs))
             {
                 return -1;
+            }
+
+            if (programArgs.MyVerb?.HasSelection ?? false)
+            {
+                Console.WriteLine($"Executing verb {programArgs.MyVerb.SelectedVerbType.Value}");
+                var result = programArgs.MyVerb.SelectedVerb.ExecuteAsync(CancellationToken.None).Result;
+                Console.WriteLine($"Result: {result}");
             }
 
             RunInteractively();

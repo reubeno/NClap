@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NClap.Metadata;
 using NClap.Utilities;
 
 namespace NClap.Types
@@ -296,7 +297,7 @@ namespace NClap.Types
                 return true;
             }
 
-            // Specially handle KeyValuePair and Tuple types.
+            // Specially handle a few well-known generic types.
             if (type.GetTypeInfo().IsGenericType)
             {
                 var genericTy = type.GetGenericTypeDefinition();
@@ -304,6 +305,11 @@ namespace NClap.Types
                 if (genericTy == typeof(KeyValuePair<,>))
                 {
                     argType = new KeyValuePairArgumentType(type);
+                    return true;
+                }
+                else if (genericTy == typeof(VerbGroup<>))
+                {
+                    argType = new VerbGroupArgumentType(type);
                     return true;
                 }
 

@@ -27,12 +27,12 @@ namespace NClap.ConsoleInput
         /// </param>
         /// <param name="keyBindingSet">The key bindings to use in the reader.
         /// Default bindings are used if this parameter is null.</param>
-        public ConsoleReader(IConsoleLineInput lineInput, IConsoleInput consoleInput = null, IConsoleOutput consoleOutput = null, IReadOnlyConsoleKeyBindingSet keyBindingSet = null)
+        public ConsoleReader(IConsoleLineInput lineInput = null, IConsoleInput consoleInput = null, IConsoleOutput consoleOutput = null, IReadOnlyConsoleKeyBindingSet keyBindingSet = null)
         {
-            LineInput = lineInput ?? throw new ArgumentNullException(nameof(lineInput));
             ConsoleInput = consoleInput ?? BasicConsoleInputAndOutput.Default;
             ConsoleOutput = consoleOutput ?? BasicConsoleInputAndOutput.Default;
             KeyBindingSet = keyBindingSet ?? ConsoleKeyBindingSet.Default;
+            LineInput = lineInput ?? new ConsoleLineInput(ConsoleOutput, new ConsoleInputBuffer(), new ConsoleHistory(), null);
 
             _defaultCursorSize = ConsoleOutput.CursorSize;
         }

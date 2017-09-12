@@ -66,14 +66,16 @@ namespace NClap.Parser
 
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
 
-        private readonly IReadOnlyDictionary<string, Argument> _namedArgumentMap;
-        private readonly IReadOnlyList<Argument> _namedArguments;
-        private readonly SortedList<int, Argument> _positionalArguments;
+        private readonly Dictionary<IMutableMemberInfo, Argument> _argumentsByMember = new Dictionary<IMutableMemberInfo, Argument>();
+        private readonly Dictionary<string, Argument> _namedArgumentMap = new Dictionary<string, Argument>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<Argument> _namedArguments = new List<Argument>();
+        private readonly SortedList<int, Argument> _positionalArguments = new SortedList<int, Argument>();
 
         private readonly CommandLineParserOptions _options;
         private readonly ArgumentSetAttribute _setAttribute;
 
-        private int _nextPositionalArgIndex;
+        private int _nextPositionalArgIndexToImport;
+        private int _nextPositionalArgIndexToParse;
 
         /// <summary>
         /// Creates a new command-line argument parser.
@@ -121,38 +123,9 @@ namespace NClap.Parser
             // isn't one, construct a default empty one.
             _setAttribute = type.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
 
-            // Scan the members of the type and construct argument descriptors
-            // for those members that should treated as arguments.
-            var allArguments = CreateArgumentDescriptors(type, _setAttribute, defaultValues, _options).ToList();
-
-            // Find the subset of arguments that are named.
-            _namedArguments = allArguments.Where(arg => arg.Attribute is NamedArgumentAttribute).ToList();
-
-            // Construct a map of the positional arguments, making sure that
-            // there aren't any duplicate position indices.
-            _positionalArguments = new SortedList<int, Argument>();
-            foreach (var arg in allArguments.Where(arg => arg.Attribute is PositionalArgumentAttribute))
-            {
-                var attrib = (PositionalArgumentAttribute)arg.Attribute;
-                if (_positionalArguments.ContainsKey(attrib.Position))
-                {
-                    throw new InvalidArgumentSetException(arg, string.Format(
-                        CultureInfo.CurrentCulture,
-                        Strings.DuplicatePositionArguments,
-                        _positionalArguments[attrib.Position].Member.MemberInfo.Name,
-                        arg.Member.MemberInfo.Name,
-                        attrib.Position));
-                }
-
-                _positionalArguments.Add(attrib.Position, arg);
-            }
-
-            // Construct a map of the named arguments; internally this helper
-            // method will validate that we don't have duplicate names.
-            _namedArgumentMap = CreateNamedArgumentMap(_namedArguments, _setAttribute);
-            
-            // Perform some last-minute validation on arguments; otherwise, we're good to go.
-            ValidateThatPositionalArgumentsDoNotOverlap(_namedArguments, _positionalArguments);
+            // Scan the provided type for argument definitions.
+            ImportArgumentDefinitionsFromType(type, defaultValues);
+            _nextPositionalArgIndexToImport = _positionalArguments.Count;
         }
 
         /// <summary>
@@ -333,7 +306,7 @@ namespace NClap.Parser
             }
 
             // It must be a positional argument?
-            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndex, out Argument positionalArg))
+            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndexToParse, out Argument positionalArg))
             {
                 return emptyCompletions();
             }
@@ -343,6 +316,130 @@ namespace NClap.Parser
                 indexOfTokenToComplete,
                 tokenToComplete,
                 inProgressParsedObject);
+        }
+
+        private void ImportArgumentDefinitionsFromType(Type defininingType, object defaultValues = null, object fixedDestination = null, int positionalIndexBias = 0)
+        {
+            // Extract argument descriptors from the defining type.
+            var args = GetArgumentDescriptors(defininingType, _setAttribute, defaultValues, _options, fixedDestination).ToList();
+
+            // Index the descriptors.
+            foreach (var arg in args)
+            {
+                _argumentsByMember.Add(arg.Member, arg);
+            }
+
+            // Symmetrically reflect any conflicts.
+            foreach (var arg in args)
+            {
+                foreach (var conflictingMemberName in arg.Attribute.ConflictsWith)
+                {
+                    var conflictingArgs =
+                        args.Where(a => a.Member.MemberInfo.Name.Equals(conflictingMemberName, StringComparison.Ordinal))
+                            .ToList();
+
+                    if (conflictingArgs.Count != 1)
+                    {
+                        throw new InvalidArgumentSetException(arg, string.Format(
+                            CultureInfo.CurrentCulture,
+                            Strings.ConflictingMemberNotFound,
+                            conflictingMemberName,
+                            arg.Member.MemberInfo.Name));
+                    }
+
+                    // Add the conflict both ways -- if only one says it
+                    // conflicts with the other, there's still a conflict.
+                    arg.AddConflictingArgument(conflictingArgs[0]);
+                    conflictingArgs[0].AddConflictingArgument(arg);
+                }
+            }
+
+            // Add arguments.
+            foreach (var arg in args)
+            {
+                if (arg.Attribute is NamedArgumentAttribute)
+                {
+                    ImportNamedArgumentDefinition(arg);
+                }
+                else if (arg.Attribute is PositionalArgumentAttribute)
+                {
+                    ImportPositionalArgumentDefinition(arg, positionalIndexBias);
+                }
+            }
+
+            // Re-validate positional arguments.
+            ValidateThatPositionalArgumentsDoNotOverlap();
+        }
+
+        private void ImportNamedArgumentDefinition(Argument argument)
+        {
+            //
+            // Validate and register the long name.
+            //
+
+            if (_namedArgumentMap.ContainsKey(argument.LongName))
+            {
+                throw new InvalidArgumentSetException(argument, string.Format(
+                    CultureInfo.CurrentCulture,
+                    Strings.DuplicateArgumentLongName,
+                    argument.LongName));
+            }
+
+            _namedArgumentMap.Add(argument.LongName, argument);
+
+            //
+            // Validate and register the short name.
+            //
+
+            if (argument.ExplicitShortName && !string.IsNullOrEmpty(argument.ShortName))
+            {
+                if (_namedArgumentMap.ContainsKey(argument.ShortName))
+                {
+                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
+                        Strings.DuplicateArgumentShortName,
+                        argument.ShortName));
+                }
+
+                if (_setAttribute.AllowMultipleShortNamesInOneToken &&
+                    argument.ShortName.Length > 1)
+                {
+                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
+                        Strings.ArgumentShortNameTooLong,
+                        argument.ShortName));
+                }
+
+                _namedArgumentMap.Add(argument.ShortName, argument);
+            }
+
+            // Add implicit short name if it doesn't collide with the map.
+            if (!string.IsNullOrEmpty(argument.ShortName) &&
+                !_namedArgumentMap.ContainsKey(argument.ShortName))
+            {
+                _namedArgumentMap[argument.ShortName] = argument;
+            }
+            else
+            {
+                argument.ClearShortName();
+            }
+        }
+
+        private void ImportPositionalArgumentDefinition(Argument arg, int positionalIndexBias)
+        {
+            var attrib = (PositionalArgumentAttribute)arg.Attribute;
+            var position = positionalIndexBias + attrib.Position;
+
+            if (_positionalArguments.ContainsKey(position))
+            {
+                throw new InvalidArgumentSetException(arg, string.Format(
+                    CultureInfo.CurrentCulture,
+                    Strings.DuplicatePositionArguments,
+                    _positionalArguments[position].Member.MemberInfo.Name,
+                    arg.Member.MemberInfo.Name,
+                    position));
+            }
+
+            _positionalArguments.Add(position, arg);
+            _nextPositionalArgIndexToImport = position + 1;
         }
 
         private IEnumerable<char> ArgumentTerminatorsAndSeparators =>
@@ -375,79 +472,59 @@ namespace NClap.Parser
             return members;
         }
 
-        /// <summary>
-        /// Constructs argument descriptors for all members in the specified
-        /// type that should be treated as arguments.
-        /// </summary>
-        /// <param name="type">The type to process.</param>
-        /// <param name="setAttribute">The argument set metadata.</param>
-        /// <param name="defaultValues">Optionally, provides default values.</param>
-        /// <param name="options">Options for parsing.</param>
-        /// <returns></returns>
-        private static IEnumerable<Argument> CreateArgumentDescriptors(Type type, ArgumentSetAttribute setAttribute, object defaultValues, CommandLineParserOptions options)
+        private static IEnumerable<Argument> GetArgumentDescriptors(Type type, ArgumentSetAttribute setAttribute, object defaultValues, CommandLineParserOptions options, object fixedDestination)
         {
             // Find all fields and properties that have argument attributes on
             // them. For each that we find, capture information about them.
-            var argList = GetAllFieldsAndProperties(type, true)
-                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, setAttribute, options))
-                          .Where(arg => arg != null);
+            var argList = GetAllFieldsAndProperties(type, includeNonPublicMembers: true)
+                .SelectMany(member => CreateArgumentDescriptorsIfApplicable(member, defaultValues, setAttribute, options, fixedDestination));
 
             // If the argument set attribute indicates that we should also
             // include un-attributed, public, writable members as named
             // arguments, then look for them now.
             if (setAttribute.PublicMembersAreNamedArguments)
             {
-                argList = argList.Concat(GetAllFieldsAndProperties(type, false)
+                argList = argList.Concat(GetAllFieldsAndProperties(type, includeNonPublicMembers: false)
                     .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options)));
+                    .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>() == null)
+                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options, fixedDestination)));
             }
 
-            // Create a map of the arguments, based on member.
-            var args = argList.ToDictionary(arg => arg.Member, arg => arg);
-
-            // Now connect up any conflicts, now that we've created all args.
-            foreach (var arg in args.Values)
-            {
-                foreach (var conflictingMemberName in arg.Attribute.ConflictsWith)
-                {
-                    var conflictingArgs =
-                        args.Where(pair => pair.Key.MemberInfo.Name.Equals(conflictingMemberName, StringComparison.Ordinal))
-                            .ToList();
-
-                    if (conflictingArgs.Count != 1)
-                    {
-                        throw new InvalidArgumentSetException(arg, string.Format(
-                            CultureInfo.CurrentCulture,
-                            Strings.ConflictingMemberNotFound,
-                            conflictingMemberName,
-                            arg.Member.MemberInfo.Name));
-                    }
-
-                    // Add the conflict both ways -- if only one says it
-                    // conflicts with the other, there's still a conflict.
-                    arg.AddConflictingArgument(conflictingArgs[0].Value);
-                    conflictingArgs[0].Value.AddConflictingArgument(arg);
-                }
-            }
-
-            return args.Values;
+            return argList;
         }
 
-        private static Argument CreateArgumentDescriptorIfApplicable(IMutableMemberInfo member, object defaultValues,
-            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
+        private static IEnumerable<Argument> CreateArgumentDescriptorsIfApplicable(IMutableMemberInfo member, object defaultValues,
+            ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object fixedDestination)
         {
-            var attribute = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
-            if (attribute == null)
+            var descriptors = Enumerable.Empty<Argument>();
+
+            var argAttrib = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
+            if (argAttrib != null)
             {
-                return null;
+                descriptors = descriptors.Concat(new[] { CreateArgumentDescriptor(member, argAttrib, defaultValues, setAttribute, options, fixedDestination) });
             }
 
-            return CreateArgumentDescriptor(member, attribute, defaultValues, setAttribute, options);
+            var groupAttrib = member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>();
+            if (groupAttrib != null)
+            {
+                descriptors = descriptors.Concat(GetArgumentDescriptors(member.MemberType,
+                    setAttribute,
+                    /*defaultValues=*/null /*DBG:RRO*/,
+                    options,
+                    fixedDestination));
+            }
+
+            return descriptors;
         }
 
-        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues,
-            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
+        private static Argument CreateArgumentDescriptor(
+            IMutableMemberInfo member,
+            ArgumentBaseAttribute attribute,
+            object defaultValues,
+            ArgumentSetAttribute setAttribute,
+            CommandLineParserOptions options,
+            object fixedDestination)
         {
             if (!member.IsReadable || !member.IsWritable)
             {
@@ -461,74 +538,19 @@ namespace NClap.Parser
             }
 
             var defaultFieldValue = (defaultValues != null) ? member.GetValue(defaultValues) : null;
-            return new Argument(member, attribute, setAttribute, options, defaultFieldValue);
+            return new Argument(member,
+                attribute,
+                setAttribute,
+                options,
+                defaultFieldValue,
+                fixedDestination: fixedDestination);
         }
 
-        private static IReadOnlyDictionary<string, Argument> CreateNamedArgumentMap(IReadOnlyList<Argument> arguments, ArgumentSetAttribute setAttribute)
+        private void ValidateThatPositionalArgumentsDoNotOverlap()
         {
-            var argumentMap = new Dictionary<string, Argument>(StringComparer.OrdinalIgnoreCase);
+            var namedArguments = _namedArgumentMap.Values;
+            var positionalArguments = _positionalArguments;
 
-            // Add explicit names to the map.
-            foreach (var argument in arguments)
-            {
-                //
-                // Validate and register the long name.
-                //
-
-                if (argumentMap.ContainsKey(argument.LongName))
-                {
-                    throw new InvalidArgumentSetException(argument, string.Format(
-                        CultureInfo.CurrentCulture, 
-                        Strings.DuplicateArgumentLongName,
-                        argument.LongName));
-                }
-
-                argumentMap.Add(argument.LongName, argument);
-
-                //
-                // Validate and register the short name.
-                //
-
-                if (argument.ExplicitShortName && !string.IsNullOrEmpty(argument.ShortName))
-                {
-                    if (argumentMap.ContainsKey(argument.ShortName))
-                    {
-                        throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
-                            Strings.DuplicateArgumentShortName,
-                            argument.ShortName));
-                    }
-
-                    if (setAttribute.AllowMultipleShortNamesInOneToken &&
-                        argument.ShortName.Length > 1)
-                    {
-                        throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
-                            Strings.ArgumentShortNameTooLong,
-                            argument.ShortName));
-                    }
-
-                    argumentMap.Add(argument.ShortName, argument);
-                }
-            }
-
-            // Add implicit short names that don't collide to the map.
-            foreach (var argument in arguments.Where(a => !a.ExplicitShortName))
-            {
-                if (!string.IsNullOrEmpty(argument.ShortName) &&
-                    !argumentMap.ContainsKey(argument.ShortName))
-                {
-                    argumentMap[argument.ShortName] = argument;
-                }
-                else
-                {
-                    argument.ClearShortName();
-                }
-            }
-
-            return argumentMap;
-        }
-
-        private static void ValidateThatPositionalArgumentsDoNotOverlap(IEnumerable<Argument> namedArguments, SortedList<int, Argument> positionalArguments)
-        {
             // Validate positional arguments.
             var lastIndex = -1;
             var allArgsConsumed = namedArguments.Any(a => a.TakesRestOfLine);
@@ -628,7 +650,7 @@ namespace NClap.Parser
                         else
                         {
                             Debug.Assert(parsedArg.Value != null);
-                            hasError = !parsedArg.Arg.SetValue(parsedArg.Value, destination) || hasError;
+                            hasError = !TryParseAndStore(parsedArg.Arg, parsedArg.Value, destination) || hasError;
                         }
                     }
                 }
@@ -650,7 +672,7 @@ namespace NClap.Parser
                 }
                 else
                 {
-                    if (_positionalArguments.TryGetValue(_nextPositionalArgIndex, out Argument positionalArg))
+                    if (_positionalArguments.TryGetValue(_nextPositionalArgIndexToParse, out Argument positionalArg))
                     {
                         if (positionalArg.TakesRestOfLine)
                         {
@@ -666,12 +688,12 @@ namespace NClap.Parser
                         else
                         {
                             Debug.Assert(argument != null);
-                            hasError = !positionalArg.SetValue(argument, destination) || hasError;
+                            hasError = !TryParseAndStore(positionalArg, argument, destination) || hasError;
                         }
 
                         if (!positionalArg.AllowMultiple)
                         {
-                            ++_nextPositionalArgIndex;
+                            ++_nextPositionalArgIndexToParse;
                         }
                     }
                     else
@@ -843,6 +865,28 @@ namespace NClap.Parser
                       .Select(completion => string.Concat(name, separator.ToString(), completion));
         }
 
+        private bool TryParseAndStore(Argument arg, string value, object dest)
+        {
+            if (!arg.TryParseAndStore(value, dest, out object parsedValue))
+            {
+                return false;
+            }
+
+            // Inspect the parsed value.
+            if (parsedValue is IArgumentProvider argProvider)
+            {
+                var definingType = argProvider.GetTypeDefiningArguments();
+                if (definingType != null)
+                {
+                    ImportArgumentDefinitionsFromType(definingType,
+                        fixedDestination: argProvider.GetDestinationObject(),
+                        positionalIndexBias: _nextPositionalArgIndexToImport);
+                }
+            }
+
+            return true;
+        }
+
         private string TryGetLongNameArgumentPrefix(string arg) =>
             _setAttribute.NamedArgumentPrefixes.FirstOrDefault(
                 prefix => arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
@@ -864,22 +908,6 @@ namespace NClap.Parser
             }
 
             return _setAttribute.AnswerFileArgumentPrefix;
-        }
-
-        private int NumberOfArgumentsToDisplay()
-        {
-            var count =
-                _namedArguments.Count(a => a.Hidden == false) +
-                _positionalArguments.Count(a => a.Value.Hidden == false);
-
-            // Add one more for the answer file syntax if there are other
-            // arguments and if the answer file syntax has been enabled.
-            if ((count > 0) && (_setAttribute.AnswerFileArgumentPrefix != null))
-            {
-                ++count;
-            }
-
-            return count;
         }
 
         private bool TryLexArgumentAnswerFile(string filePath, out IEnumerable<string> arguments)

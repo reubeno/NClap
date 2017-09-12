@@ -17,6 +17,12 @@ namespace NClap.TestApp
         HiddenMode
     }
 
+    class NestedArguments
+    {
+        [NamedArgument]
+        public string SomethingNested { get; set; }
+    }
+
     [ArgumentSet(
         AdditionalHelp = "Some tool.",
         Examples = new [] {"Foo", "Bar"},
@@ -32,11 +38,11 @@ namespace NClap.TestApp
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1, HelpText = "A positional program mode option")]
         public ProgramMode PosMode { get; set; }
 
+        [ArgumentGroup]
+        public NestedArguments Nested { get; set; } = new NestedArguments();
+
         [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 2, HelpText = "That other path")]
         public FileSystemPath OtherPath { get; set; }
-
-        [PositionalArgument(ArgumentFlags.RestOfLine, Position = 3)]
-        public VerbGroup<VerbType> TheVerb { get; set; }
 
         [NamedArgument(HelpText = "My named mode")]
         public ProgramMode NamedMode { get; set; }
@@ -48,5 +54,8 @@ namespace NClap.TestApp
         [NamedArgument(DefaultValue = 11,
             HelpText = "Some unsigned integer that has a default value turned up all the way to 11")]
         public uint SomeUnsignedInt { get; set; }
+
+        [PositionalArgument(Position = 3)]
+        public VerbGroup<VerbType> MyVerb { get; set; }
     }
 }

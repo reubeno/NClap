@@ -765,7 +765,7 @@ namespace NClap.Tests.Parser
         public void CoerceableDefaultValueWorks()
         {
             var args = new ArgumentsWithCoerceableDefaultValue();
-            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
             args.Argument.Should().Be(1U);
         }
 
@@ -1120,7 +1120,7 @@ namespace NClap.Tests.Parser
         public void DefaultValueOfImplicitlyConvertibleType()
         {
             var args = new DefaultValueOfImplicitlyConvertibleTypeArguments();
-            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
 
             args.Value.Should().Be(10);
             args.ValueProp.Should().Be(10);
@@ -1161,7 +1161,7 @@ namespace NClap.Tests.Parser
             CommandLineParser.Parse(new[] { "/PrivateValue=7" }, args).Should().BeFalse();
 
             args = new UnannotatedArguments();
-            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
             args.StringValue.Should().BeNull();
             args.IntValue.Should().Be(0);
 

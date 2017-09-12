@@ -17,6 +17,12 @@ namespace NClap.Metadata
         AtMostOnce = 0x00,
 
         /// <summary>
+        /// The argument is not required; it may be specified 0 or more times if
+        /// it's a collection, and otherwise at most once.
+        /// </summary>
+        Optional = 0x10,
+
+        /// <summary>
         /// Indicates that this field is required. An error will be displayed
         /// if it is not present when parsing arguments.
         /// </summary>
