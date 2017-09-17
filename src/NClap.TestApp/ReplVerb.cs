@@ -6,9 +6,10 @@ using NClap.Utilities;
 
 namespace NClap.TestApp
 {
+    [ArgumentType(DisplayName = "REPL command")]
     enum ReplVerbType
     {
-        [HelpVerb(HelpText = "Displays verb help")]
+        [HelpVerb(Description = "Displays verb help")]
         Help,
 
         [Verb(typeof(CliHelp))]
@@ -17,7 +18,7 @@ namespace NClap.TestApp
         [Verb(typeof(ReadLineVerb))]
         ReadLine,
 
-        [Verb(typeof(ExitVerb), HelpText = "Exits the loop")]
+        [Verb(typeof(ExitVerb), Description = "Exits the loop")]
         Exit
     }
 

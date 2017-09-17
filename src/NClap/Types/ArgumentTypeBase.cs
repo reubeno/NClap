@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using NClap.Metadata;
 using NClap.Utilities;
 
 namespace NClap.Types
@@ -25,7 +27,14 @@ namespace NClap.Types
         /// <summary>
         /// The type's human-readable (display) name.
         /// </summary>
-        public virtual string DisplayName => Type.Name.ToSnakeCase();
+        public virtual string DisplayName
+        {
+            get
+            {
+                var customDisplayName = Type.GetTypeInfo().GetSingleAttribute<ArgumentTypeAttribute>()?.DisplayName;
+                return !string.IsNullOrEmpty(customDisplayName) ? customDisplayName : Type.Name;
+            }
+        }
 
         /// <summary>
         /// The Type object associated with values described by this interface.

@@ -8,11 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NClap {
-    using System;
+namespace NClap
+{
     using System.Reflection;
-    
-    
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -497,7 +496,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Valid &apos;{0}&apos; values:.
+        ///   Looks up a localized string similar to Valid {0} values:.
         /// </summary>
         internal static string UsageInfoEnumValueHeaderFormat {
             get {

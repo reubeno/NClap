@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using NClap.Metadata;
-using NClap.Utilities;
 
 namespace NClap.Types
 {
@@ -117,7 +116,7 @@ namespace NClap.Types
         public static IArgumentType FileSystemPath { get; } = SimpleArgumentType.Create(
             s => new FileSystemPath(s),
             Types.FileSystemPath.GetCompletions,
-            displayName: Strings.FileSystemPathDisplayName.ToSnakeCase());
+            displayName: Strings.FileSystemPathDisplayName);
 
         /// <summary>
         /// Describes System.Boolean.

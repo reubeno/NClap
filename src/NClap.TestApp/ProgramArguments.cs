@@ -2,17 +2,9 @@
 
 namespace NClap.TestApp
 {
-    enum ProgramVerbType
-    {
-        [ArgumentValue(Flags = ArgumentValueFlags.Disallowed)]
-        Invalid,
-
-        [Verb(typeof(ReplVerb))]
-        Repl
-    }
-
     [ArgumentSet(
         Logo = Logo,
+        Style = ArgumentSetStyle.PowerShell,
         AdditionalHelp = "Some tool that is useful only for testing.")]
     class ProgramArguments : HelpArgumentsBase
     {
@@ -20,6 +12,6 @@ namespace NClap.TestApp
 Version 1.0";
 
         [PositionalArgument(ArgumentFlags.Required, Position = 0)]
-        public VerbGroup<ProgramVerbType> Verb { get; set; }
+        public VerbGroup<ReplVerbType> Verb { get; set; }
     }
 }

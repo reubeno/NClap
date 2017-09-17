@@ -6,6 +6,7 @@ namespace NClap.Metadata
     /// <summary>
     /// Base class for implementing verbs.
     /// </summary>
+    [ArgumentType(DisplayName = "command")]
     public abstract class Verb : IVerb
     {
         /// <summary>

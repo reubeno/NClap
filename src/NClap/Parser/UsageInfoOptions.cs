@@ -17,7 +17,6 @@ namespace NClap.Parser
         /// Include default sets of optional information.
         /// </summary>
         Default =
-            CondenseOutput |
             IncludeLogo |
             IncludeName |
             IncludeBasicSyntax |
@@ -32,7 +31,6 @@ namespace NClap.Parser
         /// Abridged default set of optional information.
         /// </summary>
         DefaultAbridged =
-            CondenseOutput |
             IncludeName |
             IncludeBasicSyntax |
             IncludeRequiredParameterDescriptions |
@@ -40,9 +38,9 @@ namespace NClap.Parser
             IncludeRemarks,
 
         /// <summary>
-        /// Condense the output as much as possible.
+        /// Use vertically expanded form of output.
         /// </summary>
-        CondenseOutput = 0x800,
+        VerticallyExpandedOutput = 0x800,
 
         /// <summary>
         /// Include a product logo in the usage information.

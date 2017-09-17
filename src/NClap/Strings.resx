@@ -265,7 +265,7 @@ Reason:
     <value>Description</value>
   </data>
   <data name="UsageInfoEnumValueHeaderFormat" xml:space="preserve">
-    <value>Valid '{0}' values:</value>
+    <value>Valid {0} values:</value>
   </data>
   <data name="UsageInfoExamplesHeader" xml:space="preserve">
     <value>Examples</value>

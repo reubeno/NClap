@@ -205,13 +205,13 @@ namespace NClap.Parser
 
             // Construct formatter and use it.
             HelpFormatter formatter;
-            if (options.HasFlag(UsageInfoOptions.CondenseOutput))
+            if (options.HasFlag(UsageInfoOptions.VerticallyExpandedOutput))
             {
-                formatter = new CondensedHelpFormatter();
+                formatter = new PowershellStyleHelpFormatter();
             }
             else
             {
-                formatter = new PowershellStyleHelpFormatter();
+                formatter = new CondensedHelpFormatter();
             }
 
             formatter.MaxWidth = maxUsageWidth;

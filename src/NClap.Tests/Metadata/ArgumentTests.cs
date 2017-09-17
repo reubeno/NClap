@@ -15,7 +15,7 @@ namespace NClap.Tests.Metadata
     {
         public class StringArguments
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true, ShortName = "v", DefaultValue = "def", HelpText = "Some value")]
+            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true, ShortName = "v", DefaultValue = "def", Description = "Some value")]
             public string Value;
         }
 

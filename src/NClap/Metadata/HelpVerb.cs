@@ -18,8 +18,7 @@ namespace NClap.Metadata
         /// <summary>
         /// The default options to use for generate usage info.
         /// </summary>
-        public static UsageInfoOptions DefaultUsageInfoOptions { get; set; } =
-            UsageInfoOptions.Default | UsageInfoOptions.CondenseOutput;
+        public static UsageInfoOptions DefaultUsageInfoOptions { get; set; } = UsageInfoOptions.Default;
 
         /// <summary>
         /// The output handler function for this class.
@@ -38,13 +37,13 @@ namespace NClap.Metadata
         /// Optionally specifies the verb to retrieve detailed help information
         /// for.
         /// </summary>
-        [PositionalArgument(ArgumentFlags.AtMostOnce, HelpText = "Verb to get detailed help information for.")]
+        [PositionalArgument(ArgumentFlags.AtMostOnce, Description = "Verb to get detailed help information for.")]
         public TVerbType? Verb { get; set; }
 
         /// <summary>
         /// Options for displaying help.
         /// </summary>
-        [NamedArgument(ArgumentFlags.AtMostOnce, HelpText = "Options for displaying help.")]
+        [NamedArgument(ArgumentFlags.AtMostOnce, Description = "Options for displaying help.")]
         public HelpOptions Options { get; set; }
 
         /// <summary>
@@ -79,14 +78,14 @@ namespace NClap.Metadata
 
             var verbSummary = string.Concat(verbNames.Select(verbType =>
             {
-                var helpText = GetHelpText(verbType);
+                var desc = GetDescription(verbType);
 
                 var formatString = "  {0,-" + verbNameMaxLen.ToString(CultureInfo.InvariantCulture) + "}{1}\n";
                 return string.Format(
                     CultureInfo.CurrentCulture,
                     formatString,
                     verbType,
-                    helpText != null ? " - " + helpText : string.Empty);
+                    desc != null ? " - " + desc : string.Empty);
             }));
 
             outputHandler(string.Format(CultureInfo.CurrentCulture, Strings.ValidVerbsHeader, verbSummary));
@@ -110,11 +109,11 @@ namespace NClap.Metadata
             outputHandler(usageInfo);
         }
 
-        private static string GetHelpText<T>(T value) where T : struct
+        private static string GetDescription<T>(T value) where T : struct
         {
             var attrib = GetVerbAttribute(value);
-            var helpText = attrib?.HelpText;
-            return !string.IsNullOrEmpty(helpText) ? helpText : null;
+            var desc = attrib?.Description;
+            return !string.IsNullOrEmpty(desc) ? desc : null;
         }
 
         private static VerbAttribute GetVerbAttribute<T>(T value) =>

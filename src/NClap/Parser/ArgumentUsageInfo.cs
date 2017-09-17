@@ -16,7 +16,7 @@ namespace NClap.Parser
         public ArgumentUsageInfo(Argument arg) : this(
             syntax: arg.GetSyntaxHelp(detailed: false),
             detailedSyntax: arg.GetSyntaxHelp(detailed: true),
-            description: arg.Attribute.HelpText,
+            description: arg.Attribute.Description,
             required: arg.IsRequired,
             shortName: arg.ShortName,
             defaultValue: TryGetDefaultValueString(arg, onlyReturnExplicitDefaults: true),

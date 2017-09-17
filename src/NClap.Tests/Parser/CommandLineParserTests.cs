@@ -34,7 +34,7 @@ namespace NClap.Tests.Parser
         [ArgumentSet(Examples = new[] { "SimpleArgs /mu=4" })]
         class SimpleArguments : HelpArgumentsBase
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce, HelpText = "Some boolean")]
+            [NamedArgument(ArgumentFlags.AtMostOnce, Description = "Some boolean")]
             public bool MyBool;
 
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "mu")]

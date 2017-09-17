@@ -68,7 +68,7 @@ namespace NClap.Types
         /// <summary>
         /// Description of this value, if it has one; null if it has none.
         /// </summary>
-        public string Description => _attribute.HelpText;
+        public string Description => _attribute.Description;
 
         private static bool TryGetArgumentValueAttribute(FieldInfo fieldInfo, out ArgumentValueAttribute attribute)
         {

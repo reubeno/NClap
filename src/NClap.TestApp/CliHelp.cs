@@ -7,7 +7,7 @@ namespace NClap.TestApp
     {
         public override VerbResult Execute()
         {
-            var info = CommandLineParser.GetUsageInfo(typeof(ProgramArguments), UsageInfoOptions.Default | UsageInfoOptions.CondenseOutput);
+            var info = CommandLineParser.GetUsageInfo(typeof(ProgramArguments), UsageInfoOptions.Default);
             CommandLineParser.DefaultReporter(info);
             return VerbResult.Success;
         }
