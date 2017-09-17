@@ -70,6 +70,13 @@ namespace NClap.Utilities
         public int Length => Content.Length;
 
         /// <summary>
+        /// Checks if the string is empty. Note that a string with no characters
+        /// is considered empty, even if it contains color information.
+        /// </summary>
+        /// <returns>True if empty, false otherwise.</returns>
+        public bool IsEmpty() => string.IsNullOrEmpty(Content);
+
+        /// <summary>
         /// Accesses a character in the string.
         /// </summary>
         /// <param name="index">Zero-based index of the character.</param>

@@ -16,7 +16,7 @@ namespace NClap.Parser
 
         public string Description { get; set; }
 
-        public string Logo { get; } = AssemblyUtilities.GetLogo();
+        public ColoredMultistring Logo { get; set; } = AssemblyUtilities.GetLogo();
 
         public string Remarks { get; set; }
 

@@ -167,7 +167,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(RestOfLineStringArguments));
             arg.EffectiveDefaultValue.Should().BeNull();
-            arg.GetSyntaxHelp().Should().Be("[<Value : <string>>...]");
+            arg.GetSyntaxHelp().Should().Be("[<Value> : <string>...]");
         }
 
         [TestMethod]

@@ -91,6 +91,12 @@ namespace NClap.Utilities
         public override string ToString() => this;
 
         /// <summary>
+        /// Checks if the multistring is empty.
+        /// </summary>
+        /// <returns>True if empty, false otherwise.</returns>
+        public bool IsEmpty() => Content.All(piece => piece.IsEmpty());
+
+        /// <summary>
         /// Generate a new string, with existing instances of <paramref name="pattern"/>
         /// with <paramref name="replacement"/>.
         /// </summary>

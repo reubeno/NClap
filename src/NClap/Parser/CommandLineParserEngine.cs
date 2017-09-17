@@ -67,8 +67,8 @@ namespace NClap.Parser
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
 
         private readonly Dictionary<IMutableMemberInfo, Argument> _argumentsByMember = new Dictionary<IMutableMemberInfo, Argument>();
-        private readonly Dictionary<string, Argument> _namedArgumentMap = new Dictionary<string, Argument>(StringComparer.OrdinalIgnoreCase);
         private readonly List<Argument> _namedArguments = new List<Argument>();
+        private readonly Dictionary<string, Argument> _namedArgumentsByName = new Dictionary<string, Argument>(StringComparer.OrdinalIgnoreCase);
         private readonly SortedList<int, Argument> _positionalArguments = new SortedList<int, Argument>();
 
         private readonly CommandLineParserOptions _options;
@@ -189,10 +189,16 @@ namespace NClap.Parser
                 info.AddExamples(_setAttribute.Examples);
             }
 
+            // Update logo, if one was provided.
+            if (_setAttribute.LogoString != null)
+            {
+                info.Logo = _setAttribute.LogoString;
+            }
+
             // Compose remarks, if any.
             const string defaultHelpArgumentName = "?";
             var namedArgPrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
-            if (_namedArgumentMap.ContainsKey(defaultHelpArgumentName) && namedArgPrefix != null)
+            if (_namedArgumentsByName.ContainsKey(defaultHelpArgumentName) && namedArgPrefix != null)
             {
                 info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
             }
@@ -222,11 +228,12 @@ namespace NClap.Parser
         public IEnumerable<string> Format(object value)
         {
             // First format named arguments, then positional default arguments.
-            return _namedArguments.Concat(_positionalArguments.Values)
-                                  .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
-                                  .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
-                                  .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
-                                  .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
+            return _namedArguments
+                       .Concat(_positionalArguments.Values)
+                       .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
+                       .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
+                       .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
+                       .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
         }
 
         /// <summary>
@@ -377,7 +384,7 @@ namespace NClap.Parser
             // Validate and register the long name.
             //
 
-            if (_namedArgumentMap.ContainsKey(argument.LongName))
+            if (_namedArgumentsByName.ContainsKey(argument.LongName))
             {
                 throw new InvalidArgumentSetException(argument, string.Format(
                     CultureInfo.CurrentCulture,
@@ -385,21 +392,42 @@ namespace NClap.Parser
                     argument.LongName));
             }
 
-            _namedArgumentMap.Add(argument.LongName, argument);
+            _namedArgumentsByName.Add(argument.LongName, argument);
 
             //
             // Validate and register the short name.
             //
 
-            if (argument.ExplicitShortName && !string.IsNullOrEmpty(argument.ShortName))
+            if (!string.IsNullOrEmpty(argument.ShortName))
             {
-                if (_namedArgumentMap.ContainsKey(argument.ShortName))
+                if (_namedArgumentsByName.TryGetValue(argument.ShortName, out Argument conflictingArg))
                 {
-                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
-                        Strings.DuplicateArgumentShortName,
-                        argument.ShortName));
+                    Debug.Assert(conflictingArg != null);
+                    if (argument.ExplicitShortName)
+                    {
+                        if (conflictingArg.ExplicitShortName)
+                        {
+                            throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
+                                Strings.DuplicateArgumentShortName,
+                                argument.ShortName));
+                        }
+                        else
+                        {
+                            // TODO: Decide whether this works for dynamically
+                            // imported args.
+                            _namedArgumentsByName.Remove(conflictingArg.ShortName);
+                            conflictingArg.ClearShortName();
+                        }
+                    }
+                    else
+                    {
+                        argument.ClearShortName();
+                    }
                 }
+            }
 
+            if (!string.IsNullOrEmpty(argument.ShortName))
+            {
                 if (_setAttribute.AllowMultipleShortNamesInOneToken &&
                     argument.ShortName.Length > 1)
                 {
@@ -408,19 +436,11 @@ namespace NClap.Parser
                         argument.ShortName));
                 }
 
-                _namedArgumentMap.Add(argument.ShortName, argument);
+                _namedArgumentsByName.Add(argument.ShortName, argument);
             }
 
-            // Add implicit short name if it doesn't collide with the map.
-            if (!string.IsNullOrEmpty(argument.ShortName) &&
-                !_namedArgumentMap.ContainsKey(argument.ShortName))
-            {
-                _namedArgumentMap[argument.ShortName] = argument;
-            }
-            else
-            {
-                argument.ClearShortName();
-            }
+            // Add to unique list.
+            _namedArguments.Add(argument);
         }
 
         private void ImportPositionalArgumentDefinition(Argument arg, int positionalIndexBias)
@@ -548,7 +568,7 @@ namespace NClap.Parser
 
         private void ValidateThatPositionalArgumentsDoNotOverlap()
         {
-            var namedArguments = _namedArgumentMap.Values;
+            var namedArguments = _namedArguments;
             var positionalArguments = _positionalArguments;
 
             // Validate positional arguments.
@@ -758,7 +778,7 @@ namespace NClap.Parser
                     // Try parsing it as a short name; bail immediately if we find an invalid
                     // one.
                     var possibleShortName = new string(options[index], 1);
-                    if (!_namedArgumentMap.TryGetValue(possibleShortName, out Argument arg))
+                    if (!_namedArgumentsByName.TryGetValue(possibleShortName, out Argument arg))
                     {
                         parsedArgs = null;
                         return false;
@@ -791,7 +811,7 @@ namespace NClap.Parser
             else
             {
                 // Try to look up the argument by name.
-                if (!_namedArgumentMap.TryGetValue(options, out Argument arg))
+                if (!_namedArgumentsByName.TryGetValue(options, out Argument arg))
                 {
                     parsedArgs = null;
                     return false;
@@ -842,9 +862,10 @@ namespace NClap.Parser
             var separatorIndex = namedArgumentAfterPrefix.IndexOfAny(ArgumentTerminatorsAndSeparators.ToArray());
             if (separatorIndex < 0)
             {
-                return _namedArguments.Select(namedArg => namedArg.LongName)
-                                      .OrderBy(longName => longName, StringComparer.OrdinalIgnoreCase)
-                                      .Where(candidateName => candidateName.StartsWith(namedArgumentAfterPrefix, StringComparison.OrdinalIgnoreCase));
+                return _namedArguments
+                           .Select(namedArg => namedArg.LongName)
+                           .OrderBy(longName => longName, StringComparer.OrdinalIgnoreCase)
+                           .Where(candidateName => candidateName.StartsWith(namedArgumentAfterPrefix, StringComparison.OrdinalIgnoreCase));
             }
 
             var separator = namedArgumentAfterPrefix[separatorIndex];
@@ -856,7 +877,7 @@ namespace NClap.Parser
             var name = namedArgumentAfterPrefix.Substring(0, separatorIndex);
             var value = namedArgumentAfterPrefix.Substring(separatorIndex + 1);
 
-            if (!_namedArgumentMap.TryGetValue(name, out Argument arg))
+            if (!_namedArgumentsByName.TryGetValue(name, out Argument arg))
             {
                 return emptyCompletions();
             }

@@ -80,6 +80,10 @@ namespace NClap.Parser
                 Entries = entries.ToList();
             }
 
+            public Section(string name, ColoredMultistring entry) : this(name, new[] { entry })
+            {
+            }
+
             public Section(string name, IEnumerable<ColoredString> entries) :
                 this(name, entries.Select(e => (ColoredMultistring)e))
             {

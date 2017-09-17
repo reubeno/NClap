@@ -11,10 +11,10 @@ namespace NClap.Tests.ConsoleInput
     public class ConsoleReaderEndToEndTests
     {
         [TestMethod]
-        public void BogusReader()
+        public void NoArgsGetsDefaultReader()
         {
-            Action factory = () => new ConsoleReader(null);
-            factory.ShouldThrow<ArgumentNullException>();
+            var reader = new ConsoleReader();
+            reader.Should().NotBeNull();
         }
 
         [TestMethod]

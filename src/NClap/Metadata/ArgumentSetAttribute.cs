@@ -19,6 +19,7 @@ namespace NClap.Metadata
         private char[] _argumentValueSeparators;
         private bool _allowMultipleShortNamesInOneToken;
         private bool _allowElidingSeparatorAfterShortName;
+        private ColoredMultistring _logoMultistring;
 
         /// <summary>
         /// Default constructor.
@@ -251,5 +252,39 @@ namespace NClap.Metadata
         /// </summary>
         public bool ShortNamesAreOneCharacterLong =>
             AllowMultipleShortNamesInOneToken || AllowElidingSeparatorAfterShortName;
+
+        /// <summary>
+        /// Optionally provides logo text to be displayed at the top of help
+        /// output. Expected to be a <see cref="String"/>,
+        /// <see cref="ColoredMultistring"/>, or <see cref="ColoredString"/>.
+        /// </summary>
+        public object Logo
+        {
+            get { return _logoMultistring; }
+            set
+            {
+                if (value is string s)
+                {
+                    _logoMultistring = new ColoredMultistring(new[] { new ColoredString(s) });
+                }
+                else if (value is ColoredString cs)
+                {
+                    _logoMultistring = new ColoredMultistring(new[] { cs });
+                }
+                else if (value is ColoredMultistring cms)
+                {
+                    _logoMultistring = cms;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The logo, as a correctly typed object.
+        /// </summary>
+        public ColoredMultistring LogoString => (ColoredMultistring)Logo;
     }
 }

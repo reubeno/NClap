@@ -14,7 +14,8 @@ namespace NClap.Parser
             var sections = new List<Section>();
 
             // If requested, add a "logo" for the program.
-            if (Options.HasFlag(UsageInfoOptions.IncludeLogo) && info.Logo != null)
+            if (Options.HasFlag(UsageInfoOptions.IncludeLogo) &&
+                info.Logo != null && !info.Logo.IsEmpty())
             {
                 sections.Add(new Section(null, info.Logo));
             }

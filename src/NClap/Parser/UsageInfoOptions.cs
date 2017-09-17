@@ -18,6 +18,7 @@ namespace NClap.Parser
         /// </summary>
         Default =
             CondenseOutput |
+            IncludeLogo |
             IncludeName |
             IncludeBasicSyntax |
             IncludeDescription |

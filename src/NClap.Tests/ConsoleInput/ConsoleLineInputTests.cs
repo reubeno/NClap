@@ -993,8 +993,8 @@ namespace NClap.Tests.ConsoleInput
         {
             var input = CreateInput(new SimulatedConsoleOutput());
 
-            Action replace = () => input.ReplaceCurrentTokenWithAllCompletions();
-            replace.ShouldThrow<ArgumentNullException>();
+            input.ReplaceCurrentTokenWithAllCompletions();
+            input.Contents.Should().BeEmpty();
         }
 
         [TestMethod]
