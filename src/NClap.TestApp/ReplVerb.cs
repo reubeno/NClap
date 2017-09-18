@@ -42,7 +42,7 @@ namespace NClap.TestApp
                 KeyBindingSet = keyBindingSet
             };
 
-            Loop<ReplVerbType>.Execute(parameters, options);
+            new Loop<ReplVerbType>(parameters, options).Execute();
 
             Console.WriteLine("Exited loop.");
 

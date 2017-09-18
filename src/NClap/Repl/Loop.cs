@@ -23,12 +23,19 @@ namespace NClap.Repl
         private readonly IReadOnlyList<string> _verbNames;
 
         /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public Loop() : this(null)
+        {
+        }
+
+        /// <summary>
         /// Constructor that requires an explicit implementation of
         /// <see cref="ILoopClient"/>.
         /// </summary>
         /// <param name="loopClient">The client to use.</param>
         /// <param name="options">Options for loop.</param>
-        public Loop(ILoopClient loopClient, LoopOptions options) : this(options)
+        public Loop(ILoopClient loopClient, LoopOptions options = null) : this(options)
         {
             Client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
         }
@@ -40,7 +47,7 @@ namespace NClap.Repl
         /// the loop's input and output behaviors; if not provided, default
         /// parameters are used.</param>
         /// <param name="options">Options for loop.</param>
-        public Loop(LoopInputOutputParameters parameters, LoopOptions options) : this(options)
+        public Loop(LoopInputOutputParameters parameters, LoopOptions options = null) : this(options)
         {
             var consoleInput = parameters?.ConsoleInput ?? BasicConsoleInputAndOutput.Default;
             var consoleOutput = parameters?.ConsoleOutput ?? BasicConsoleInputAndOutput.Default;
@@ -97,26 +104,6 @@ namespace NClap.Repl
         /// The character that starts a comment.
         /// </summary>
         public char? EndOfLineCommentCharacter { get; set; }
-
-        /// <summary>
-        /// Instantiate and execute a loop.
-        /// </summary>
-        /// <param name="client">The loop client.</param>
-        /// <param name="options">Optionally provides loop options.</param>
-        [SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
-        public static void Execute(ILoopClient client, LoopOptions options = null) =>
-            new Loop<TVerbType>(client, options).Execute();
-
-        /// <summary>
-        /// Instantiate and execute a loop.
-        /// </summary>
-        /// <param name="parameters">Optionally provides parameters controlling
-        /// the loop's input and output behaviors; if not provided, default
-        /// parameters are used.</param>
-        /// <param name="options">Optionally provides loop options.</param>
-        [SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
-        public static void Execute(LoopInputOutputParameters parameters, LoopOptions options = null) =>
-            new Loop<TVerbType>(parameters, options).Execute();
 
         /// <summary>
         /// Executes the loop.
