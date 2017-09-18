@@ -1,8 +1,8 @@
 ﻿using System;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 using NClap.Parser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
 
 namespace NClap.Tests.Metadata
 {
@@ -22,6 +22,13 @@ namespace NClap.Tests.Metadata
         class AlternateSeparatorArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
+            public int Value;
+        }
+
+        [ArgumentSet(AllowNamedArgumentValueAsSucceedingToken = true)]
+        class AllowArgumentValueAfterSpaceArguments
+        {
+            [NamedArgument]
             public int Value;
         }
 
@@ -85,6 +92,23 @@ namespace NClap.Tests.Metadata
             var usageInfo = CommandLineParser.GetUsageInfo(typeof(AlternateSeparatorArguments));
             usageInfo.ToString().Should().NotContain("=");
             usageInfo.ToString().Should().Contain("$");
+        }
+
+        [TestMethod]
+        public void ArgumentValueAfterSpace()
+        {
+            var args = new AllowArgumentValueAfterSpaceArguments();
+
+            CommandLineParser.Parse(new[] { "/value", "10" }, args).Should().BeTrue();
+            args.Value.Should().Be(10);
+
+            CommandLineParser.Parse(new[] { "/value=11" }, args).Should().BeTrue();
+            args.Value.Should().Be(11);
+
+            CommandLineParser.Parse(new[] { "/value=", "12" }, args).Should().BeTrue();
+            args.Value.Should().Be(12);
+
+            CommandLineParser.Parse(new[] { "/value=10", "10" }, args).Should().BeFalse();
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -54,16 +52,30 @@ namespace NClap.Parser
     /// </summary>
     internal sealed class CommandLineParserEngine
     {
+        private enum NamedArgumentType
+        {
+            ShortName,
+            LongName
+        }
+
+        private class ArgumentAndValue
+        {
+            public Argument Arg { get; set; }
+            public string Value { get; set; }
+        }
+
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
 
-        private readonly IReadOnlyDictionary<string, Argument> _namedArgumentMap;
-        private readonly IReadOnlyList<Argument> _namedArguments;
-        private readonly SortedList<int, Argument> _positionalArguments;
+        private readonly Dictionary<IMutableMemberInfo, Argument> _argumentsByMember = new Dictionary<IMutableMemberInfo, Argument>();
+        private readonly List<Argument> _namedArguments = new List<Argument>();
+        private readonly Dictionary<string, Argument> _namedArgumentsByName = new Dictionary<string, Argument>(StringComparer.OrdinalIgnoreCase);
+        private readonly SortedList<int, Argument> _positionalArguments = new SortedList<int, Argument>();
 
         private readonly CommandLineParserOptions _options;
         private readonly ArgumentSetAttribute _setAttribute;
 
-        private int _nextPositionalArgIndex;
+        private int _nextPositionalArgIndexToImport;
+        private int _nextPositionalArgIndexToParse;
 
         /// <summary>
         /// Creates a new command-line argument parser.
@@ -101,8 +113,7 @@ namespace NClap.Parser
                 _options.Reporter = err => { };
             }
 
-            // If no file-system reader was provided, use our default
-            // implementation.
+            // If no file-system reader was provided, use our default implementation.
             if (_options.FileSystemReader == null)
             {
                 _options.FileSystemReader = FileSystemReader.Create();
@@ -112,39 +123,9 @@ namespace NClap.Parser
             // isn't one, construct a default empty one.
             _setAttribute = type.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
 
-            // Scan the members of the type and construct argument descriptors
-            // for those members that should treated as arguments.
-            var allArguments = CreateArgumentDescriptors(type, _setAttribute, defaultValues, _options).ToList();
-
-            // Find the subset of arguments that are named.
-            _namedArguments = allArguments.Where(arg => arg.Attribute is NamedArgumentAttribute).ToList();
-
-            // Construct a map of the positional arguments, making sure that
-            // there aren't any duplicate position indices.
-            _positionalArguments = new SortedList<int, Argument>();
-            foreach (var arg in allArguments.Where(arg => arg.Attribute is PositionalArgumentAttribute))
-            {
-                var attrib = (PositionalArgumentAttribute)arg.Attribute;
-                if (_positionalArguments.ContainsKey(attrib.Position))
-                {
-                    throw new InvalidArgumentSetException(arg, string.Format(
-                        CultureInfo.CurrentCulture,
-                        Strings.DuplicatePositionArguments,
-                        _positionalArguments[attrib.Position].Member.MemberInfo.Name,
-                        arg.Member.MemberInfo.Name,
-                        attrib.Position));
-                }
-
-                _positionalArguments.Add(attrib.Position, arg);
-            }
-
-            // Construct a map of the named arguments; internally this helper
-            // method will validate that we don't have duplicate names.
-            _namedArgumentMap = CreateNamedArgumentMap(_namedArguments);
-            
-            // Perform some last-minute validation on arguments; otherwise,
-            // we're good to go.
-            ValidateArguments(_namedArguments, _positionalArguments);
+            // Scan the provided type for argument definitions.
+            ImportArgumentDefinitionsFromType(type, defaultValues);
+            _nextPositionalArgIndexToImport = _positionalArguments.Count;
         }
 
         /// <summary>
@@ -166,8 +147,8 @@ namespace NClap.Parser
         /// <returns>True if no parse errors were encountered.</returns>
         public bool Parse(IList<string> args, object destination)
         {
-            Contract.Requires(args != null, "args cannot be null");
-            Contract.Requires(Contract.ForAll(args, x => x != null), "elements of args cannot be null");
+            Debug.Assert(args != null);
+            Debug.Assert(args.All(x => x != null));
 
             var hasError = !ParseArgumentList(args, destination);
 
@@ -175,8 +156,7 @@ namespace NClap.Parser
             // args.
             foreach (var arg in _namedArguments.Concat(_positionalArguments.Values))
             {
-                Contract.Assume(arg != null);
-                hasError |= !arg.Finish(destination, _options.FileSystemReader);
+                hasError = !arg.TryFinalize(destination, _options.FileSystemReader) || hasError;
             }
 
             return !hasError;
@@ -194,207 +174,50 @@ namespace NClap.Parser
         /// <returns>The constructed usage information string.</returns>
         public ColoredMultistring GetUsageInfo(int maxUsageWidth, string commandName, UsageInfoOptions options)
         {
-            // Establish some defaults.
-            const int indentWidth = 4;
-            const ConsoleColor defaultHeaderFgColor = ConsoleColor.Yellow;
-            const ConsoleColor defaultParamMetadataFgColor = ConsoleColor.DarkCyan;
-
-            // Select the colors we'll use.
-            var headerFgColor = options.HasFlag(UsageInfoOptions.UseColor) ? new ConsoleColor?(defaultHeaderFgColor) : null;
-            ConsoleColor? paramSyntaxFgColor = null;
-            var paramMetadataFgColor = options.HasFlag(UsageInfoOptions.UseColor) ? new ConsoleColor?(defaultParamMetadataFgColor) : null;
-
-            // Gather info about the args.
-            var allArgsInfo = GetArgumentUsageInfo();
-            var requiredArgsInfo = allArgsInfo.Where(a => a.Required).ToList();
-            var optionalArgsInfo = allArgsInfo.Where(a => !a.Required).ToList();
-
-            var builder = new ColoredMultistringBuilder();
-            var firstSection = true;
-
-            // If requested, add a "logo" for the program.
-            if (options.HasFlag(UsageInfoOptions.IncludeLogo))
+            // Construct info for argument set.
+            var info = new ArgumentSetUsageInfo
             {
-                var logo = AssemblyUtilities.GetLogo();
-                if (logo != null)
-                {
-                    builder.Append(logo);
-                    builder.AppendLine();
-                }
-
-                firstSection = false;
-            }
-
-            // Define a reusable lambda to append header text (and make sure it's the right color).
-            Action<string> appendHeader =
-                headerName => builder.AppendLine(new ColoredString(headerName, headerFgColor));
-
-            // Define a reusable lambda to append content text (and make sure it's the right color).
-            Action<ColoredString> appendLine =
-                value => builder.AppendLine(new ColoredString(
-                    StringUtilities.Wrap(value.Content, maxUsageWidth, indent: indentWidth),
-                    value.ForegroundColor,
-                    value.BackgroundColor));
-
-            if (!firstSection)
-            {
-                builder.AppendLine();
-            }
-
-            // Append the "NAME" section: lists the program name.
-            firstSection = false;
-            appendHeader(Strings.UsageInfoNameHeader);
-            var name = commandName ?? AssemblyUtilities.GetAssemblyFileName();
-            appendLine(name);
-
-            // Append the "SYNTAX" section: describes the basic syntax.
-            builder.AppendLine();
-            appendHeader(Strings.UsageInfoSyntaxHeader);
-            var syntaxItems = new[] { name }.Concat(allArgsInfo.Select(h => h.Syntax));
-            var syntax = string.Join(" ", syntaxItems);
-            appendLine(syntax);
-
-            // If present (and if requested), display the "DESCRIPTION" for the
-            // program here.
-            if (options.HasFlag(UsageInfoOptions.IncludeDescription) &&
-                !string.IsNullOrEmpty(_setAttribute.AdditionalHelp))
-            {
-                builder.AppendLine();
-                appendHeader(Strings.UsageInfoDescriptionHeader);
-                appendLine(_setAttribute.AdditionalHelp);
-            }
-
-            // Define a private lambda to simplify parameter syntax.
-            Func<string, string> simplifyParameterSyntax = s =>
-            {
-                //
-                // We add logic here to trim out a single pair of enclosing
-                // square brackets if it's present -- it's just noisy here.
-                // The containing section already makes it sufficiently clear
-                // whether the parameter is required or optional.
-                //
-                // TODO: Make this logic more generic, and put it elsewhere.
-                //
-
-                if (s.StartsWith("[") && s.EndsWith("]"))
-                {
-                    s = s.Substring(1, s.Length - 2);
-                }
-
-                return s;
+                Name = commandName ?? AssemblyUtilities.GetAssemblyFileName(),
+                Description = _setAttribute.AdditionalHelp,
+                DefaultShortNamePrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault()
             };
 
-            // Define a private lambda that appends parameter info.
-            Action<IEnumerable<ArgumentUsageInfo>> appendParametersSection = argsInfo =>
+            // Add parameters and examples.
+            info.AddParameters(GetArgumentUsageInfo());
+            if (_setAttribute.Examples != null)
             {
-                var firstArg = true;
-                foreach (var argInfo in argsInfo)
-                {
-                    // Skip a line between all args.
-                    if (!firstArg)
-                    {
-                        builder.AppendLine();
-                    }
-
-                    // Append parameter syntax info.
-                    appendLine(new ColoredString(simplifyParameterSyntax(argInfo.Syntax), paramSyntaxFgColor));
-
-                    // If both are present (and requested to be displayed), we
-                    // combine the short name and default value onto the same
-                    // line.
-                    var parameterMetadata = new List<string>();
-
-                    // Append parameter's short name (if it has one).
-                    if (options.HasFlag(UsageInfoOptions.IncludeParameterShortNameAliases) &&
-                        !string.IsNullOrEmpty(argInfo.ShortName))
-                    {
-                        parameterMetadata.Add(string.Format(
-                            CultureInfo.CurrentCulture,
-                            "Short form: {0}{1}",
-                            _setAttribute.ShortNameArgumentPrefixes[0],
-                            argInfo.ShortName));
-                    }
-
-                    // Append the parameter's default value (if it has one, and if requested).
-                    if (options.HasFlag(UsageInfoOptions.IncludeParameterDefaultValues) &&
-                        !string.IsNullOrEmpty(argInfo.DefaultValue))
-                    {
-                        parameterMetadata.Add(string.Format(
-                            CultureInfo.CurrentCulture,
-                            "Default value: {0}",
-                            argInfo.DefaultValue));
-                    }
-
-                    // Now append the short name and/or default value, if either
-                    // were present and accounted for.
-                    if (parameterMetadata.Count > 0)
-                    {
-                        appendLine(new ColoredString(
-                            string.Join(", ", parameterMetadata),
-                            paramMetadataFgColor));
-                    }
-
-                    // Append the parameter's description (if it has one).
-                    if (!string.IsNullOrEmpty(argInfo.Description))
-                    {
-                        builder.AppendLine(StringUtilities.Wrap(
-                            argInfo.Description,
-                            maxUsageWidth,
-                            indent: indentWidth * 2));
-                    }
-
-                    firstArg = false;
-                }
-            };
-
-            // If desired (and present), append "REQUIRED PARAMETERS" section.
-            if (options.HasFlag(UsageInfoOptions.IncludeRequiredParameterDescriptions) &&
-                requiredArgsInfo.Count > 0)
-            {
-                builder.AppendLine();
-                appendHeader(Strings.UsageInfoRequiredParametersHeader);
-                appendParametersSection(requiredArgsInfo);
+                info.AddExamples(_setAttribute.Examples);
             }
 
-            // If desired (and present), append "OPTIONAL PARAMETERS" section.
-            if (options.HasFlag(UsageInfoOptions.IncludeOptionalParameterDescriptions) &&
-                optionalArgsInfo.Count > 0)
+            // Update logo, if one was provided.
+            if (_setAttribute.LogoString != null)
             {
-                builder.AppendLine();
-                appendHeader(Strings.UsageInfoOptionalParametersHeader);
-                appendParametersSection(optionalArgsInfo);
+                info.Logo = _setAttribute.LogoString;
             }
 
-            // If present, append "EXAMPLES" section.
-            if (options.HasFlag(UsageInfoOptions.IncludeExamples) &&
-                (_setAttribute.Examples != null) &&
-                (_setAttribute.Examples.Length > 0))
+            // Compose remarks, if any.
+            const string defaultHelpArgumentName = "?";
+            var namedArgPrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
+            if (_namedArgumentsByName.ContainsKey(defaultHelpArgumentName) && namedArgPrefix != null)
             {
-                builder.AppendLine();
-                appendHeader(Strings.UsageInfoExamplesHeader);
-
-                foreach (var example in _setAttribute.Examples)
-                {
-                    appendLine(example);
-                }
+                info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
             }
 
-            // If requested, display remarks
-            if (options.HasFlag(UsageInfoOptions.IncludeRemarks))
+            // Construct formatter and use it.
+            HelpFormatter formatter;
+            if (options.HasFlag(UsageInfoOptions.VerticallyExpandedOutput))
             {
-                const string defaultHelpArgumentName = "?";
-                var namedArgPrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
-
-                if (_namedArgumentMap.ContainsKey(defaultHelpArgumentName) &&
-                    (namedArgPrefix != null))
-                {
-                    builder.AppendLine();
-                    appendHeader(Strings.UsageInfoRemarksHeader);
-                    appendLine(string.Format(Strings.UsageInfoHelpAdvertisement, $"{name} {namedArgPrefix}{defaultHelpArgumentName}"));
-                }
+                formatter = new PowershellStyleHelpFormatter();
+            }
+            else
+            {
+                formatter = new CondensedHelpFormatter();
             }
 
-            return builder.ToMultistring();
+            formatter.MaxWidth = maxUsageWidth;
+            formatter.Options = options;
+
+            return formatter.Format(info);
         }
 
         /// <summary>
@@ -405,11 +228,12 @@ namespace NClap.Parser
         public IEnumerable<string> Format(object value)
         {
             // First format named arguments, then positional default arguments.
-            return _namedArguments.Concat(_positionalArguments.Values)
-                                  .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
-                                  .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
-                                  .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
-                                  .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
+            return _namedArguments
+                       .Concat(_positionalArguments.Values)
+                       .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
+                       .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
+                       .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
+                       .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
         }
 
         /// <summary>
@@ -489,7 +313,7 @@ namespace NClap.Parser
             }
 
             // It must be a positional argument?
-            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndex, out Argument positionalArg))
+            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndexToParse, out Argument positionalArg))
             {
                 return emptyCompletions();
             }
@@ -501,19 +325,141 @@ namespace NClap.Parser
                 inProgressParsedObject);
         }
 
-        /// <summary>
-        /// Code contracts object invariant for this class.
-        /// </summary>
-        [ContractInvariantMethod]
-        [SuppressMessage("Microsoft.Performance", "CA1811: Avoid uncalled private code", Justification = "Invoked by Code Contracts")]
-        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "It does use local members in debug builds")]
-        internal void ObjectInvariant()
+        private void ImportArgumentDefinitionsFromType(Type defininingType, object defaultValues = null, object fixedDestination = null, int positionalIndexBias = 0)
         {
-            Contract.Invariant(_namedArgumentMap != null);
-            Contract.Invariant(_namedArguments != null);
-            Contract.Invariant(_positionalArguments != null);
-            Contract.Invariant(_options != null);
-            Contract.Invariant(_setAttribute != null);
+            // Extract argument descriptors from the defining type.
+            var args = GetArgumentDescriptors(defininingType, _setAttribute, defaultValues, _options, fixedDestination).ToList();
+
+            // Index the descriptors.
+            foreach (var arg in args)
+            {
+                _argumentsByMember.Add(arg.Member, arg);
+            }
+
+            // Symmetrically reflect any conflicts.
+            foreach (var arg in args)
+            {
+                foreach (var conflictingMemberName in arg.Attribute.ConflictsWith)
+                {
+                    var conflictingArgs =
+                        args.Where(a => a.Member.MemberInfo.Name.Equals(conflictingMemberName, StringComparison.Ordinal))
+                            .ToList();
+
+                    if (conflictingArgs.Count != 1)
+                    {
+                        throw new InvalidArgumentSetException(arg, string.Format(
+                            CultureInfo.CurrentCulture,
+                            Strings.ConflictingMemberNotFound,
+                            conflictingMemberName,
+                            arg.Member.MemberInfo.Name));
+                    }
+
+                    // Add the conflict both ways -- if only one says it
+                    // conflicts with the other, there's still a conflict.
+                    arg.AddConflictingArgument(conflictingArgs[0]);
+                    conflictingArgs[0].AddConflictingArgument(arg);
+                }
+            }
+
+            // Add arguments.
+            foreach (var arg in args)
+            {
+                if (arg.Attribute is NamedArgumentAttribute)
+                {
+                    ImportNamedArgumentDefinition(arg);
+                }
+                else if (arg.Attribute is PositionalArgumentAttribute)
+                {
+                    ImportPositionalArgumentDefinition(arg, positionalIndexBias);
+                }
+            }
+
+            // Re-validate positional arguments.
+            ValidateThatPositionalArgumentsDoNotOverlap();
+        }
+
+        private void ImportNamedArgumentDefinition(Argument argument)
+        {
+            //
+            // Validate and register the long name.
+            //
+
+            if (_namedArgumentsByName.ContainsKey(argument.LongName))
+            {
+                throw new InvalidArgumentSetException(argument, string.Format(
+                    CultureInfo.CurrentCulture,
+                    Strings.DuplicateArgumentLongName,
+                    argument.LongName));
+            }
+
+            _namedArgumentsByName.Add(argument.LongName, argument);
+
+            //
+            // Validate and register the short name.
+            //
+
+            if (!string.IsNullOrEmpty(argument.ShortName))
+            {
+                if (_namedArgumentsByName.TryGetValue(argument.ShortName, out Argument conflictingArg))
+                {
+                    Debug.Assert(conflictingArg != null);
+                    if (argument.ExplicitShortName)
+                    {
+                        if (conflictingArg.ExplicitShortName)
+                        {
+                            throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
+                                Strings.DuplicateArgumentShortName,
+                                argument.ShortName));
+                        }
+                        else
+                        {
+                            // TODO: Decide whether this works for dynamically
+                            // imported args.
+                            _namedArgumentsByName.Remove(conflictingArg.ShortName);
+                            conflictingArg.ClearShortName();
+                        }
+                    }
+                    else
+                    {
+                        argument.ClearShortName();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(argument.ShortName))
+            {
+                if (_setAttribute.AllowMultipleShortNamesInOneToken &&
+                    argument.ShortName.Length > 1)
+                {
+                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
+                        Strings.ArgumentShortNameTooLong,
+                        argument.ShortName));
+                }
+
+                _namedArgumentsByName.Add(argument.ShortName, argument);
+            }
+
+            // Add to unique list.
+            _namedArguments.Add(argument);
+        }
+
+        private void ImportPositionalArgumentDefinition(Argument arg, int positionalIndexBias)
+        {
+            var attrib = (PositionalArgumentAttribute)arg.Attribute;
+            var position = positionalIndexBias + attrib.Position;
+
+            if (_positionalArguments.ContainsKey(position))
+            {
+                throw new InvalidArgumentSetException(arg, string.Format(
+                    CultureInfo.CurrentCulture,
+                    Strings.DuplicatePositionArguments,
+                    _positionalArguments[position].Member.MemberInfo.Name,
+                    arg.Member.MemberInfo.Name,
+                    position));
+            }
+
+            _positionalArguments.Add(position, arg);
+            _nextPositionalArgIndexToImport = position + 1;
         }
 
         private IEnumerable<char> ArgumentTerminatorsAndSeparators =>
@@ -546,84 +492,63 @@ namespace NClap.Parser
             return members;
         }
 
-        /// <summary>
-        /// Constructs argument descriptors for all members in the specified
-        /// type that should be treated as arguments.
-        /// </summary>
-        /// <param name="type">The type to process.</param>
-        /// <param name="setAttribute">The argument set metadata.</param>
-        /// <param name="defaultValues">Optionally, provides default values.</param>
-        /// <param name="options">Options for parsing.</param>
-        /// <returns></returns>
-        private static IEnumerable<Argument> CreateArgumentDescriptors(Type type, ArgumentSetAttribute setAttribute, object defaultValues, CommandLineParserOptions options)
+        private static IEnumerable<Argument> GetArgumentDescriptors(Type type, ArgumentSetAttribute setAttribute, object defaultValues, CommandLineParserOptions options, object fixedDestination)
         {
             // Find all fields and properties that have argument attributes on
             // them. For each that we find, capture information about them.
-            var argList = GetAllFieldsAndProperties(type, true)
-                          .Select(member => CreateArgumentDescriptorIfApplicable(member, defaultValues, setAttribute, options))
-                          .Where(arg => arg != null);
+            var argList = GetAllFieldsAndProperties(type, includeNonPublicMembers: true)
+                .SelectMany(member => CreateArgumentDescriptorsIfApplicable(member, defaultValues, setAttribute, options, fixedDestination));
 
             // If the argument set attribute indicates that we should also
             // include un-attributed, public, writable members as named
             // arguments, then look for them now.
             if (setAttribute.PublicMembersAreNamedArguments)
             {
-                argList = argList.Concat(GetAllFieldsAndProperties(type, false)
+                argList = argList.Concat(GetAllFieldsAndProperties(type, includeNonPublicMembers: false)
                     .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options)));
+                    .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>() == null)
+                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options, fixedDestination)));
             }
 
-            // Create a map of the arguments, based on member.
-            var args = argList.ToDictionary(arg => arg.Member, arg => arg);
-
-            // Now connect up any conflicts, now that we've created all args.
-            foreach (var arg in args.Values)
-            {
-                foreach (var conflictingMemberName in arg.Attribute.ConflictsWith)
-                {
-                    var conflictingArgs =
-                        args.Where(pair => pair.Key.MemberInfo.Name.Equals(conflictingMemberName, StringComparison.Ordinal))
-                            .ToList();
-
-                    if (conflictingArgs.Count != 1)
-                    {
-                        throw new InvalidArgumentSetException(arg, string.Format(
-                            CultureInfo.CurrentCulture,
-                            Strings.ConflictingMemberNotFound,
-                            conflictingMemberName,
-                            arg.Member.MemberInfo.Name));
-                    }
-
-                    // Add the conflict both ways -- if only one says it
-                    // conflicts with the other, there's still a conflict.
-                    arg.AddConflictingArgument(conflictingArgs[0].Value);
-                    conflictingArgs[0].Value.AddConflictingArgument(arg);
-                }
-            }
-
-            return args.Values;
+            return argList;
         }
 
-        private static Argument CreateArgumentDescriptorIfApplicable(IMutableMemberInfo member, object defaultValues,
-            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
+        private static IEnumerable<Argument> CreateArgumentDescriptorsIfApplicable(IMutableMemberInfo member, object defaultValues,
+            ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object fixedDestination)
         {
-            var attribute = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
-            if (attribute == null)
+            var descriptors = Enumerable.Empty<Argument>();
+
+            var argAttrib = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
+            if (argAttrib != null)
             {
-                return null;
+                descriptors = descriptors.Concat(new[] { CreateArgumentDescriptor(member, argAttrib, defaultValues, setAttribute, options, fixedDestination) });
             }
 
-            return CreateArgumentDescriptor(member, attribute, defaultValues, setAttribute, options);
+            var groupAttrib = member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>();
+            if (groupAttrib != null)
+            {
+                descriptors = descriptors.Concat(GetArgumentDescriptors(member.MemberType,
+                    setAttribute,
+                    /*defaultValues=*/null /*DBG:RRO*/,
+                    options,
+                    fixedDestination));
+            }
+
+            return descriptors;
         }
 
-        private static Argument CreateArgumentDescriptor(IMutableMemberInfo member, ArgumentBaseAttribute attribute, object defaultValues,
-            ArgumentSetAttribute setAttribute, CommandLineParserOptions options)
+        private static Argument CreateArgumentDescriptor(
+            IMutableMemberInfo member,
+            ArgumentBaseAttribute attribute,
+            object defaultValues,
+            ArgumentSetAttribute setAttribute,
+            CommandLineParserOptions options,
+            object fixedDestination)
         {
             if (!member.IsReadable || !member.IsWritable)
             {
                 var declaringType = member.MemberInfo.DeclaringType;
-                Contract.Assume(declaringType != null);
 
                 throw new InvalidArgumentSetException(member, string.Format(
                     CultureInfo.CurrentCulture,
@@ -633,62 +558,19 @@ namespace NClap.Parser
             }
 
             var defaultFieldValue = (defaultValues != null) ? member.GetValue(defaultValues) : null;
-            return new Argument(member, attribute, setAttribute, options, defaultFieldValue);
+            return new Argument(member,
+                attribute,
+                setAttribute,
+                options,
+                defaultFieldValue,
+                fixedDestination: fixedDestination);
         }
 
-        private static IReadOnlyDictionary<string, Argument> CreateNamedArgumentMap(IReadOnlyList<Argument> arguments)
+        private void ValidateThatPositionalArgumentsDoNotOverlap()
         {
-            var argumentMap = new Dictionary<string, Argument>(StringComparer.OrdinalIgnoreCase);
+            var namedArguments = _namedArguments;
+            var positionalArguments = _positionalArguments;
 
-            // Add explicit names to the map.
-            foreach (var argument in arguments)
-            {
-                Contract.Assume(argument != null);
-
-                if (argumentMap.ContainsKey(argument.LongName))
-                {
-                    throw new InvalidArgumentSetException(argument, string.Format(
-                        CultureInfo.CurrentCulture, 
-                        Strings.DuplicateArgumentLongName,
-                        argument.LongName));
-                }
-
-                argumentMap.Add(argument.LongName, argument);
-
-                if (!argument.ExplicitShortName || string.IsNullOrEmpty(argument.ShortName))
-                {
-                    continue;
-                }
-
-                if (argumentMap.ContainsKey(argument.ShortName))
-                {
-                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
-                        Strings.DuplicateArgumentShortName,
-                        argument.ShortName));
-                }
-
-                argumentMap.Add(argument.ShortName, argument);
-            }
-
-            // Add implicit short names that don't collide to the map.
-            foreach (var argument in arguments.Where(a => !a.ExplicitShortName))
-            {
-                if (!string.IsNullOrEmpty(argument.ShortName) &&
-                    !argumentMap.ContainsKey(argument.ShortName))
-                {
-                    argumentMap[argument.ShortName] = argument;
-                }
-                else
-                {
-                    argument.ClearShortName();
-                }
-            }
-
-            return argumentMap;
-        }
-
-        private static void ValidateArguments(IEnumerable<Argument> namedArguments, SortedList<int, Argument> positionalArguments)
-        {
             // Validate positional arguments.
             var lastIndex = -1;
             var allArgsConsumed = namedArguments.Any(a => a.TakesRestOfLine);
@@ -720,7 +602,8 @@ namespace NClap.Parser
         /// <returns>True if no error occurred; false otherwise.</returns>
         private bool ParseArgumentList(IList<string> args, object destination)
         {
-            Contract.Requires((args != null) && Contract.ForAll(args, x => x != null));
+            Debug.Assert(args != null);
+            Debug.Assert(args.All(x => x != null));
 
             var hasError = false;
 
@@ -734,54 +617,61 @@ namespace NClap.Parser
                 var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(argument);
                 var answerFilePrefix = TryGetAnswerFilePrefix(argument);
 
-                string optionArgument = null;
-                Argument arg = null;
+                IReadOnlyList<ArgumentAndValue> parsedArgs = null;
                 if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
                 {
-                    bool parsed = false;
+                    var success = false;
 
-                    if (!parsed && longNameArgumentPrefix != null)
+                    if (!success && longNameArgumentPrefix != null)
                     {
-                        parsed = TryParseNamedArgument(argument, longNameArgumentPrefix, out optionArgument, out arg);
+                        success = TryParseNamedArgument(argument, longNameArgumentPrefix, NamedArgumentType.LongName, out parsedArgs);
                     }
 
-                    if (!parsed && shortNameArgumentPrefix != null)
+                    if (!success && shortNameArgumentPrefix != null)
                     {
-                        parsed = TryParseNamedArgument(argument, shortNameArgumentPrefix, out optionArgument, out arg);
+                        success = TryParseNamedArgument(argument, shortNameArgumentPrefix, NamedArgumentType.ShortName, out parsedArgs);
                     }
 
-                    if (!parsed)
+                    if (!success)
                     {
                         ReportUnrecognizedArgument(argument);
                         hasError = true;
+                        continue;
                     }
-                    else if (arg.TakesRestOfLine)
+
+                    // If our policy allows a named argument's value to be placed
+                    // in the following token, and if we're missing a required
+                    // value, and if there's at least one more token, then try
+                    // to parse the next token as the current argument's value.
+                    if (_setAttribute.AllowNamedArgumentValueAsSucceedingToken &&
+                        parsedArgs.GetLast().Arg.RequiresOptionArgument &&
+                        !parsedArgs.GetLast().Arg.TakesRestOfLine &&
+                        string.IsNullOrEmpty(parsedArgs.GetLast().Value) &&
+                        index + 1 < args.Count)
                     {
-                        if (arg.TrySetRestOfLine(optionArgument, args.Skip(index + 1), destination))
+                        ++index;
+                        parsedArgs.GetLast().Value = args[index];
+                    }
+
+
+                    foreach (var parsedArg in parsedArgs)
+                    {
+                        if (parsedArg.Arg.TakesRestOfLine)
                         {
-                            index = args.Count; // skip the rest of the line
+                            if (parsedArg.Arg.TrySetRestOfLine(parsedArg.Value, args.Skip(index + 1), destination))
+                            {
+                                index = args.Count; // skip the rest of the line
+                            }
+                            else
+                            {
+                                hasError = true;
+                            }
                         }
                         else
                         {
-                            hasError = true;
+                            Debug.Assert(parsedArg.Value != null);
+                            hasError = !TryParseAndStore(parsedArg.Arg, parsedArg.Value, destination) || hasError;
                         }
-                    }
-                    else
-                    {
-                        // If our policy allows a named argument's value to be placed
-                        // in the following token, and if we're missing a required
-                        // value, and if there's at least one more token, then try
-                        // to parse the next token as the current argument's value.
-                        if (_setAttribute.AllowNamedArgumentValueAsSucceedingToken &&
-                            string.IsNullOrEmpty(optionArgument) &&
-                            arg.RequiresOptionArgument &&
-                            index + 1 < args.Count)
-                        {
-                            ++index;
-                            optionArgument = args[index];
-                        }
-
-                        hasError |= !arg.SetValue(optionArgument, destination);
                     }
                 }
                 else if (answerFilePrefix != null)
@@ -791,9 +681,8 @@ namespace NClap.Parser
                     if (TryLexArgumentAnswerFile(filePath, out IEnumerable<string> nestedArgs))
                     {
                         var nestedArgsArray = nestedArgs.ToArray();
-                        Contract.Assume((nestedArgs == null) || Contract.ForAll(nestedArgsArray, x => x != null));
 
-                        hasError |= !ParseArgumentList(nestedArgsArray, destination);
+                        hasError = !ParseArgumentList(nestedArgsArray, destination) || hasError;
                     }
                     else
                     {
@@ -803,7 +692,7 @@ namespace NClap.Parser
                 }
                 else
                 {
-                    if (_positionalArguments.TryGetValue(_nextPositionalArgIndex, out Argument positionalArg))
+                    if (_positionalArguments.TryGetValue(_nextPositionalArgIndexToParse, out Argument positionalArg))
                     {
                         if (positionalArg.TakesRestOfLine)
                         {
@@ -818,12 +707,13 @@ namespace NClap.Parser
                         }
                         else
                         {
-                            hasError |= !positionalArg.SetValue(argument, destination);
+                            Debug.Assert(argument != null);
+                            hasError = !TryParseAndStore(positionalArg, argument, destination) || hasError;
                         }
 
                         if (!positionalArg.AllowMultiple)
                         {
-                            ++_nextPositionalArgIndex;
+                            ++_nextPositionalArgIndexToParse;
                         }
                     }
                     else
@@ -837,83 +727,132 @@ namespace NClap.Parser
             return !hasError;
         }
 
-        private bool TryParseNamedArgument(string argument, string argumentPrefix, out string optionArgument, out Argument arg)
+        private bool TryParseNamedArgument(string argument, string argumentPrefix, NamedArgumentType namedArgType, out IReadOnlyList<ArgumentAndValue> parsedArgs)
         {
             var prefixLength = argumentPrefix.Length;
-            Contract.Assert(argument.Length >= prefixLength, "Domain knowledge");
+            Debug.Assert(argument.Length >= prefixLength);
 
             // Valid separators include all registered argument value
             // separators plus '+' and '-' for booleans.
             var separators = ArgumentTerminatorsAndSeparators.ToArray();
 
+            // Figure out where the argument name ends.
             var endIndex = argument.IndexOfAny(separators, prefixLength);
-            Contract.Assume(endIndex != 0, "Missing postcondition");
-
-            // Extract the argument's name, separate from its prefix
-            // or optional argument.
-            var option = argument.Substring(
-                prefixLength,
-                endIndex < 0 ? argument.Length - prefixLength : endIndex - prefixLength);
-
-            if (argument.Length > prefixLength + option.Length &&
-                _setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + option.Length] == sep))
+            if (endIndex < 0)
             {
-                optionArgument = argument.Substring(prefixLength + option.Length + 1);
+                endIndex = argument.Length;
+            }
+
+            // Extract the argument name(s), separate from the prefix
+            // or optional argument value.
+            var options = argument.Substring(prefixLength, endIndex - prefixLength);
+
+            // Extract the option argument (a.k.a. value), if there is one.
+            string optionArgument = null;
+            if (argument.Length > prefixLength + options.Length)
+            {
+                // If there's an argument value separator, then extract the value after the separator.
+                if (_setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + options.Length] == sep))
+                {
+                    optionArgument = argument.Substring(prefixLength + options.Length + 1);
+                }
+
+                // Otherwise, it might be a terminator; extract the rest of the string.
+                else
+                {
+                    optionArgument = argument.Substring(prefixLength + options.Length);
+                }
+            }
+
+            // Now try to figure out how many names are present.
+            if (_setAttribute.AllowMultipleShortNamesInOneToken &&
+                namedArgType == NamedArgumentType.ShortName)
+            {
+                Debug.Assert(_setAttribute.ShortNamesAreOneCharacterLong);
+
+                // Since short names are one character long, we parse them one at a
+                // time, preparing for multiple arguments in this one token.
+                var args = new List<ArgumentAndValue>();
+                for (var index = 0; index < options.Length; ++index)
+                {
+                    // Try parsing it as a short name; bail immediately if we find an invalid
+                    // one.
+                    var possibleShortName = new string(options[index], 1);
+                    if (!_namedArgumentsByName.TryGetValue(possibleShortName, out Argument arg))
+                    {
+                        parsedArgs = null;
+                        return false;
+                    }
+
+                    // If this parsed as a short name that takes a required option argument,
+                    // and we didn't see an option argument, and we allow mushing together
+                    // short names and their option arguments, then try parsing the rest of
+                    // this token as an option argument.
+                    var lastChar = index == options.Length - 1;
+                    if (arg.RequiresOptionArgument &&
+                        _setAttribute.AllowElidingSeparatorAfterShortName &&
+                        optionArgument == null &&
+                        !lastChar)
+                    {
+                        optionArgument = options.Substring(index + 1);
+                        index = options.Length - 1;
+                        lastChar = true;
+                    }
+
+                    args.Add(new ArgumentAndValue
+                    {
+                        Arg = arg,
+                        Value = lastChar ? (optionArgument ?? string.Empty) : string.Empty
+                    } );
+                }
+
+                parsedArgs = args;
             }
             else
             {
-                optionArgument = argument.Substring(prefixLength + option.Length);
+                // Try to look up the argument by name.
+                if (!_namedArgumentsByName.TryGetValue(options, out Argument arg))
+                {
+                    parsedArgs = null;
+                    return false;
+                }
+
+                parsedArgs = new[] { new ArgumentAndValue { Arg = arg, Value = optionArgument ?? string.Empty } };
             }
 
-            return _namedArgumentMap.TryGetValue(option, out arg);
+            return true;
         }
 
-        private IReadOnlyList<ArgumentUsageInfo> GetArgumentUsageInfo()
+        private IEnumerable<ArgumentUsageInfo> GetArgumentUsageInfo()
         {
-            var help = new ArgumentUsageInfo[NumberOfArgumentsToDisplay()];
-
-            var index = 0;
-
             // Enumerate positional arguments first, in position order.
-            foreach (var arg in _positionalArguments.Values.Where(a => a.Hidden == false))
+            foreach (var arg in _positionalArguments.Values.Where(a => !a.Hidden))
             {
-                Contract.Assume(arg != null);
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(arg);
+                yield return new ArgumentUsageInfo(arg);
             }
 
             // Enumerate named arguments next, in case-insensitive sort order.
-            foreach (var arg in _namedArguments.Where(a => a.Hidden == false).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
+            foreach (var arg in _namedArguments.Where(a => !a.Hidden).OrderBy(a => a.LongName, StringComparer.OrdinalIgnoreCase))
             {
-                Contract.Assume(arg != null);
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-                help[index++] = new ArgumentUsageInfo(arg);
+                yield return new ArgumentUsageInfo(arg);
             }
 
             // Add an extra item for answer files, if that is supported on this
             // argument set.
-            if ((index > 0) && (_setAttribute.AnswerFileArgumentPrefix != null))
+            if (_setAttribute.AnswerFileArgumentPrefix != null)
             {
-                Contract.Assume(index < help.Length, "Because of NumberOfParametersToDisplay()");
-
-                var pseudoArgLongName = "FilePath";
+                var pseudoArgLongName = Strings.AnswerFileArgumentName;
 
                 if (_setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
                 {
-                    pseudoArgLongName = StringUtilities.ToHyphenatedLowerCase(pseudoArgLongName);
+                    pseudoArgLongName = pseudoArgLongName.ToHyphenatedLowerCase();
                 }
 
-                help[index++] = new ArgumentUsageInfo(
-                    string.Format(CultureInfo.CurrentCulture, "[{0}<{1}>]*",
-                                  _setAttribute.AnswerFileArgumentPrefix,
-                                  pseudoArgLongName),
-                    "Read response file for more options.",
-                    false);
+                yield return new ArgumentUsageInfo(
+                    $"[{_setAttribute.AnswerFileArgumentPrefix}<{pseudoArgLongName}>]*",
+                    Strings.AnswerFileArgumentDescription,
+                    required: false);
             }
-
-            Debug.Assert(index == help.Length);
-
-            return help;
         }
 
         private IEnumerable<string> GetNamedArgumentCompletions(IReadOnlyList<string> tokens, int indexOfTokenToComplete, string namedArgumentAfterPrefix, object inProgressParsedObject)
@@ -923,9 +862,10 @@ namespace NClap.Parser
             var separatorIndex = namedArgumentAfterPrefix.IndexOfAny(ArgumentTerminatorsAndSeparators.ToArray());
             if (separatorIndex < 0)
             {
-                return _namedArguments.Select(namedArg => namedArg.LongName)
-                                      .OrderBy(longName => longName, StringComparer.OrdinalIgnoreCase)
-                                      .Where(candidateName => candidateName.StartsWith(namedArgumentAfterPrefix, StringComparison.OrdinalIgnoreCase));
+                return _namedArguments
+                           .Select(namedArg => namedArg.LongName)
+                           .OrderBy(longName => longName, StringComparer.OrdinalIgnoreCase)
+                           .Where(candidateName => candidateName.StartsWith(namedArgumentAfterPrefix, StringComparison.OrdinalIgnoreCase));
             }
 
             var separator = namedArgumentAfterPrefix[separatorIndex];
@@ -937,13 +877,35 @@ namespace NClap.Parser
             var name = namedArgumentAfterPrefix.Substring(0, separatorIndex);
             var value = namedArgumentAfterPrefix.Substring(separatorIndex + 1);
 
-            if (!_namedArgumentMap.TryGetValue(name, out Argument arg))
+            if (!_namedArgumentsByName.TryGetValue(name, out Argument arg))
             {
                 return emptyCompletions();
             }
 
             return arg.GetCompletions(tokens, indexOfTokenToComplete, value, inProgressParsedObject)
                       .Select(completion => string.Concat(name, separator.ToString(), completion));
+        }
+
+        private bool TryParseAndStore(Argument arg, string value, object dest)
+        {
+            if (!arg.TryParseAndStore(value, dest, out object parsedValue))
+            {
+                return false;
+            }
+
+            // Inspect the parsed value.
+            if (parsedValue is IArgumentProvider argProvider)
+            {
+                var definingType = argProvider.GetTypeDefiningArguments();
+                if (definingType != null)
+                {
+                    ImportArgumentDefinitionsFromType(definingType,
+                        fixedDestination: argProvider.GetDestinationObject(),
+                        positionalIndexBias: _nextPositionalArgIndexToImport);
+                }
+            }
+
+            return true;
         }
 
         private string TryGetLongNameArgumentPrefix(string arg) =>
@@ -967,22 +929,6 @@ namespace NClap.Parser
             }
 
             return _setAttribute.AnswerFileArgumentPrefix;
-        }
-
-        private int NumberOfArgumentsToDisplay()
-        {
-            var count =
-                _namedArguments.Count(a => a.Hidden == false) +
-                _positionalArguments.Count(a => a.Value.Hidden == false);
-
-            // Add one more for the answer file syntax if there are other
-            // arguments and if the answer file syntax has been enabled.
-            if ((count > 0) && (_setAttribute.AnswerFileArgumentPrefix != null))
-            {
-                ++count;
-            }
-
-            return count;
         }
 
         private bool TryLexArgumentAnswerFile(string filePath, out IEnumerable<string> arguments)
@@ -1016,8 +962,8 @@ namespace NClap.Parser
 
         private void ReportLine(string message, params object[] args)
         {
-            Contract.Requires(_options != null);
-            Contract.Requires(_options.Reporter != null);
+            Debug.Assert(_options != null);
+            Debug.Assert(_options.Reporter != null);
             _options.Reporter(string.Format(CultureInfo.CurrentCulture, message + Environment.NewLine, args));
         }
     }

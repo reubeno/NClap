@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using FluentAssertions;
-using NClap.Exceptions;
 
 namespace NClap.Tests.Parser
 {
@@ -70,7 +70,7 @@ namespace NClap.Tests.Parser
 
         class NotRegExStringArguments
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true)]
             [MustNotMatchRegex("hall(o*)", Options = RegexOptions.None)]
             public string Value { get; set; }
         }
@@ -180,8 +180,7 @@ namespace NClap.Tests.Parser
 
             foreach (var attrib in attribs)
             {
-                string reason;
-                Action tryValidateWithNullContext = () => attrib.TryValidate(null, 0, out reason);
+                Action tryValidateWithNullContext = () => attrib.TryValidate(null, 0, out string reason);
                 tryValidateWithNullContext.ShouldThrow<ArgumentNullException>("because {0} shouldn't let it", attrib.GetType().Name);
             }
         }

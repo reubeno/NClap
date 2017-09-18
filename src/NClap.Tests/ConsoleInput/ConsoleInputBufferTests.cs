@@ -183,12 +183,11 @@ namespace NClap.Tests.ConsoleInput
         [TestMethod]
         public void MovingCursorRelativeToBegin()
         {
-            int delta;
 
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            buffer.MoveCursor(SeekOrigin.Begin, -1, out delta).Should().BeFalse();
+            buffer.MoveCursor(SeekOrigin.Begin, -1, out int delta).Should().BeFalse();
             buffer.CursorIndex.Should().Be(0);
             delta.Should().Be(0);
 
@@ -212,12 +211,11 @@ namespace NClap.Tests.ConsoleInput
         [TestMethod]
         public void MovingCursorRelativeToCurrent()
         {
-            int delta;
 
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            buffer.MoveCursor(SeekOrigin.Current, -1, out delta).Should().BeFalse();
+            buffer.MoveCursor(SeekOrigin.Current, -1, out int delta).Should().BeFalse();
             buffer.CursorIndex.Should().Be(0);
             delta.Should().Be(0);
 
@@ -245,12 +243,11 @@ namespace NClap.Tests.ConsoleInput
         [TestMethod]
         public void MovingCursorRelativeToEnd()
         {
-            int delta;
 
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            buffer.MoveCursor(SeekOrigin.End, 1, out delta).Should().BeFalse();
+            buffer.MoveCursor(SeekOrigin.End, 1, out int delta).Should().BeFalse();
             buffer.CursorIndex.Should().Be(0);
             delta.Should().Be(0);
 

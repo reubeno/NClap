@@ -19,7 +19,7 @@ namespace NClap.Tests.Repl
 
         enum OnlyExitableVerb
         {
-            [Verb(Exits = true)] Exit
+            [Verb(typeof(ExitVerb))] Exit
         }
 
         enum TestVerb
@@ -29,42 +29,31 @@ namespace NClap.Tests.Repl
             NoAttribute,
             [Verb(typeof(NoConstructorVerb))] NoConstructor,
             [Verb(typeof(NonVerb))] NonVerb,
-            [Verb(Exits = true)] Exit
+            [Verb(typeof(ExitVerb))] Exit
         }
 
         class NonVerb
         {
         }
 
-        class VerbState
-        {
-            public int CallCount { get; set; }
-        }
-
-        class NoConstructorVerb : IVerb<VerbState>
+        class NoConstructorVerb : SynchronousVerb
         {
             public NoConstructorVerb(int notUsed)
             {
             }
 
-            public void Execute(VerbState state)
-            {
-                ++(state.CallCount);
-            }
+            public override VerbResult Execute() => VerbResult.Success;
         }
 
-        class DoSomethingVerb : IVerb<VerbState>
+        class DoSomethingVerb : SynchronousVerb
         {
-            public void Execute(VerbState state)
-            {
-                ++(state.CallCount);
-            }
+            public override VerbResult Execute() => VerbResult.Success;
         }
 
         [TestMethod]
         public void ConstructorThrowsOnNullClient()
         {
-            Action constructAction = () => new Loop<EmptyVerb, object>((ILoopClient)null, null, null);
+            Action constructAction = () => { var x = new Loop<EmptyVerb>((ILoopClient)null, null); };
             constructAction.ShouldThrow<ArgumentNullException>();
         }
 
@@ -74,7 +63,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns((string)null);
 
-            Action execute = () => Loop<EmptyVerb>.Execute(client);
+            Action execute = () => new Loop<EmptyVerb>(client).Execute();
             execute.ShouldNotThrow();
         }
 
@@ -84,7 +73,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("exit");
 
-            Action execute = () => Loop<OnlyExitableVerb>.Execute(client);
+            Action execute = () => new Loop<OnlyExitableVerb>(client).Execute();
             execute.ShouldNotThrow();
         }
 
@@ -95,10 +84,8 @@ namespace NClap.Tests.Repl
             client.ReadLine().Returns("DoSomething", string.Empty, "&DoSomething", (string)null);
 
             var options = new LoopOptions { EndOfLineCommentCharacter = '&' };
-            var state = new VerbState();
 
-            Loop<TestVerb>.Execute(client, options, state);
-            state.CallCount.Should().Be(1);
+            new Loop<TestVerb>(client, options).Execute();
         }
 
         [TestMethod]
@@ -107,10 +94,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("ThisNotAVerb", new string[] { null });
 
-            var state = new VerbState();
-
-            Loop<TestVerb>.Execute(client, null, state);
-            state.CallCount.Should().Be(0);
+            new Loop<TestVerb>(client, null).Execute();
 
             client.Received().OnError(Arg.Any<string>());
         }
@@ -121,10 +105,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("\"NotAVerb", new string[] { null });
 
-            var state = new VerbState();
-
-            Loop<TestVerb>.Execute(client, null, state);
-            state.CallCount.Should().Be(0);
+            new Loop<TestVerb>(client, null).Execute();
 
             client.Received().OnError(Arg.Any<string>());
         }
@@ -135,11 +116,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("NoConstructor", new string[] { null });
 
-            var state = new VerbState();
-
-            Loop<TestVerb>.Execute(client, null, state);
-            state.CallCount.Should().Be(0);
-
+            new Loop<TestVerb>(client, null).Execute();
             client.Received().OnError(Arg.Any<string>());
         }
 
@@ -149,10 +126,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("NonVerb", new string[] { null });
 
-            var state = new VerbState();
-
-            Loop<TestVerb>.Execute(client, null, state);
-            state.CallCount.Should().Be(0);
+            new Loop<TestVerb>(client, null).Execute();
 
             client.Received().OnError(Arg.Any<string>());
         }
@@ -163,10 +137,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("DoSomething DoesNotBelongHere", new string[] { null });
 
-            var state = new VerbState();
-
-            Loop<TestVerb>.Execute(client, null, state);
-            state.CallCount.Should().Be(0);
+            new Loop<TestVerb>(client, null).Execute();
 
             client.Received().OnError(Arg.Any<string>());
         }
@@ -177,11 +148,8 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("255", new string[] { null });
 
-            var state = new VerbState();
-
-            Action executor = () => Loop<TestVerb>.Execute(client, null, state);
+            Action executor = () => new Loop<TestVerb>(client, null).Execute();
             executor.ShouldThrow<NotSupportedException>();
-            state.CallCount.Should().Be(0);
         }
 
         [TestMethod]
@@ -190,16 +158,14 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("Help", "Help help", "Help exit", (string)null);
 
-            var state = new VerbState();
-
-            Loop<TestVerb>.Execute(client, null, state);
+            new Loop<TestVerb>(client, null).Execute();
         }
 
         [TestMethod]
         public void Completions()
         {
             var client = Substitute.For<ILoopClient>();
-            var loop = new Loop<TestVerb, object>(client, null, null);
+            var loop = new Loop<TestVerb>(client, null);
 
             IReadOnlyList<string> completions = loop.GenerateCompletions(new string[] { }, 1).ToList();
             completions.Should().BeEmpty();
@@ -238,7 +204,7 @@ namespace NClap.Tests.Repl
                 ConsoleOutput = output
             };
 
-            Loop<OnlyExitableVerb>.Execute(parameters, null);
+            new Loop<OnlyExitableVerb>(parameters, null).Execute();
         }
     }
 }

@@ -16,8 +16,7 @@ namespace NClap.Tests.ConsoleInput
             BasicConsoleInputAndOutput.Default.Should().BeSameAs(BasicConsoleInputAndOutput.Default);
         }
 
-        [TestMethod]
-        [Ignore] // TODO: Disabled because it relies on having a console handy.
+        [TestMethod, Ignore] // TODO: Disabled because it relies on having a console handy.
         public void BasicProperties()
         {
             var con = BasicConsoleInputAndOutput.Default;

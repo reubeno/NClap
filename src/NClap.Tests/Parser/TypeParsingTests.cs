@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
 
 namespace NClap.Tests.Parser
 {
@@ -14,7 +14,7 @@ namespace NClap.Tests.Parser
     {
         public class ArgumentsWithType<T>
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true)]
             public T Value;
         }
 
@@ -90,20 +90,16 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void UnsupportedTypesForParsing()
         {
-            ArgumentsWithType<object> objectArgs;
-            Action parseAsObject = () => Parse(new string[] { }, out objectArgs);
+            Action parseAsObject = () => Parse(new string[] { }, out ArgumentsWithType<object> objectArgs);
             parseAsObject.ShouldThrow<NotSupportedException>();
 
-            ArgumentsWithType<KeyValuePair<object, object>> pairOfObjectsArgs;
-            Action parseAsPairOfObjects = () => Parse(new string[] { }, out pairOfObjectsArgs);
+            Action parseAsPairOfObjects = () => Parse(new string[] { }, out ArgumentsWithType<KeyValuePair<object, object>> pairOfObjectsArgs);
             parseAsPairOfObjects.ShouldThrow<NotSupportedException>();
 
-            ArgumentsWithType<Queue<int>> queueOfIntsArgs;
-            Action parseAsQueueOfInts = () => Parse(new string[] { }, out queueOfIntsArgs);
+            Action parseAsQueueOfInts = () => Parse(new string[] { }, out ArgumentsWithType<Queue<int>> queueOfIntsArgs);
             parseAsQueueOfInts.ShouldThrow<NotSupportedException>();
 
-            ArgumentsWithType<IEnumerable<int>> iEnumerableOfIntsArgs;
-            Action parseAsIEnumerableOfInts = () => Parse(new string[] { }, out iEnumerableOfIntsArgs);
+            Action parseAsIEnumerableOfInts = () => Parse(new string[] { }, out ArgumentsWithType<IEnumerable<int>> iEnumerableOfIntsArgs);
             parseAsIEnumerableOfInts.ShouldThrow<NotSupportedException>();
         }
 
@@ -204,7 +200,7 @@ namespace NClap.Tests.Parser
             args.Value.Should().BeNull();
 
             CommandLineParser.Parse(new[] { @"/value=c:\temp" }, args).Should().BeTrue();
-            args.Value.ShouldBeEquivalentTo((FileSystemPath)@"c:\temp");
+            args.Value.Should().BeEquivalentTo((FileSystemPath)@"c:\temp");
         }
 
         [TestMethod]
@@ -379,7 +375,6 @@ namespace NClap.Tests.Parser
             ShouldParseAs(new[] { "/value=0" }, TestEnum.Default);
             ShouldParseAs(new[] { "/value=SomeValue" }, TestEnum.SomeValue);
             ShouldParseAs(new[] { "/value=SOMEVALUE" }, TestEnum.SomeValue);
-            ShouldParseAs(new[] { "/value=-1" }, (TestEnum)(-1));
 
             ShouldFailToParse<TestEnum>(new[] { "/value" });
             ShouldFailToParse<TestEnum>(new[] { "/value=" });
@@ -387,6 +382,7 @@ namespace NClap.Tests.Parser
             ShouldFailToParse<TestEnum>(new[] { "/value=Some Value" });
             ShouldFailToParse<TestEnum>(new[] { "/value= SomeValue " });
             ShouldFailToParse<TestEnum>(new[] { "/value=0x0" });
+            ShouldFailToParse<TestEnum>(new[] { "/value=-1" });
             ShouldFailToParse<TestEnum>(new[] { "/value=SomeDisallowedValue" });
         }
 
@@ -547,8 +543,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingInvalidCustomObjectType()
         {
-            ArgumentsWithType<InvalidCustomObjectType> args;
-            Action tryParse = () => Parse(new string[] { }, out args);
+            Action tryParse = () => Parse(new string[] { }, out ArgumentsWithType<InvalidCustomObjectType> args);
             tryParse.ShouldThrow<NotSupportedException>();
         }
 
@@ -676,31 +671,21 @@ namespace NClap.Tests.Parser
             }
         }
 
-        private static void ShouldParseAs<T>(IEnumerable<string> args, T expectedValue)
-        {
+        private static void ShouldParseAs<T>(IEnumerable<string> args, T expectedValue) =>
             ValidateParse(args, true, expectedValue);
-        }
 
-        private static void ShouldFailToParse<T>(IEnumerable<string> args)
-        {
+        private static void ShouldFailToParse<T>(IEnumerable<string> args) =>
             ValidateParse<T>(args, false);
-        }
 
-        private static void ShouldParseCollectionAs<T>(IEnumerable<string> args, Func<T, bool> valueValidator)
-        {
+        private static void ShouldParseCollectionAs<T>(IEnumerable<string> args, Func<T, bool> valueValidator) =>
             ValidateCollectionParse(args, true, valueValidator);
-        }
 
-        private static void ShouldFailToParseCollection<T>(IEnumerable<string> args)
-        {
+        private static void ShouldFailToParseCollection<T>(IEnumerable<string> args) =>
             ValidateCollectionParse<T>(args, false);
-        }
 
         private static void ValidateCollectionParse<T>(IEnumerable<string> args, bool expectedParseResult, Func<T, bool> valueValidator = null)
         {
-            ArgumentsWithCollectionType<T> parsedArgs;
-
-            Parse(args, out parsedArgs).Should().Be(expectedParseResult);
+            Parse(args, out ArgumentsWithCollectionType<T> parsedArgs).Should().Be(expectedParseResult);
             if (expectedParseResult)
             {
                 valueValidator?.Invoke(parsedArgs.Values).Should().BeTrue();
@@ -709,12 +694,10 @@ namespace NClap.Tests.Parser
 
         private static void ValidateParse<T>(IEnumerable<string> args, bool expectedParseResult, T expectedValue = default(T))
         {
-            ArgumentsWithType<T> parsedArgs;
-
             var argsList = args.ToList();
 
-            Parse(argsList, out parsedArgs).Should().Be(expectedParseResult, "because we're parsing: \"{0}\"", string.Join(" ", argsList));
-			if (expectedParseResult)
+            Parse(argsList, out ArgumentsWithType<T> parsedArgs).Should().Be(expectedParseResult, "because we're parsing: \"{0}\"", string.Join(" ", argsList));
+            if (expectedParseResult)
             {
                 parsedArgs.Value.Should().Be(expectedValue, "because we're parsing: \"{0}\"", string.Join(" ", argsList));
             }

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Metadata
 {
     /// <summary>
     /// Attribute class used to denote verbs.
     /// </summary>
+    [SuppressMessage("Performance", "CC0023:Unsealed Attribute")]
     [AttributeUsage(AttributeTargets.Field)]
-    public class VerbAttribute : Attribute
+    public class VerbAttribute : ArgumentValueAttribute
     {
         private readonly Type _implementingType;
 
@@ -26,17 +28,6 @@ namespace NClap.Metadata
         {
             _implementingType = implementingType;
         }
-
-        /// <summary>
-        /// The help text associated with this verb.
-        /// </summary>
-        public string HelpText { get; set; }
-
-        /// <summary>
-        /// True to indicate that this verb will "exit" the contained REPL;
-        /// false otherwise.
-        /// </summary>
-        public bool Exits { get; set; }
 
         /// <summary>
         /// Gets the type that "implements" this verb.

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using NClap.Exceptions;
 using NClap.Types;
-using System.Reflection;
 
 namespace NClap.Metadata
 {
     /// <summary>
-    /// Abstract base class for logic shared between ArgumentAttribute and
+    /// Abstract base class for logic shared between NamedArgumentAttribute and
     /// PositionalArgumentAttribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
@@ -16,6 +16,8 @@ namespace NClap.Metadata
     {
         private object _defaultValue;
         private string _longName;
+
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private string[] _conflictingMemberNames = Array.Empty<string>();
 
         /// <summary>
@@ -31,10 +33,7 @@ namespace NClap.Metadata
         /// <summary>
         /// The error checking to be done on the argument.
         /// </summary>
-        public ArgumentFlags Flags
-        {
-            get; internal set;
-        }
+        public ArgumentFlags Flags { get; internal set; }
 
         /// <summary>
         /// The long name of the argument; null indicates that the "default"
@@ -58,7 +57,7 @@ namespace NClap.Metadata
                 return value;
             }
 
-            set { _longName = value; }
+            set => _longName = value;
         }
 
         /// <summary>
@@ -66,11 +65,7 @@ namespace NClap.Metadata
         /// </summary>
         public object DefaultValue
         {
-            get
-            {
-                return _defaultValue;
-            }
-
+            get => _defaultValue;
             set
             {
                 ExplicitDefaultValue = true;
@@ -88,9 +83,18 @@ namespace NClap.Metadata
         public bool DynamicDefaultValue { get; set; }
 
         /// <summary>
-        /// The help text for the argument.
+        /// Deprecated; alias for <see cref="Description"/>.
         /// </summary>
-        public string HelpText { get; set; }
+        public string HelpText
+        {
+            get => Description;
+            set => Description = HelpText;
+        }
+
+        /// <summary>
+        /// The description of the argument, exposed via help/usage information.
+        /// </summary>
+        public string Description { get; set; }
 
         /// <summary>
         /// True indicates that this argument should be hidden from usage help
@@ -107,26 +111,20 @@ namespace NClap.Metadata
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] ConflictsWith
         {
-            get
-            {
-                return _conflictingMemberNames;
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _conflictingMemberNames = value;
-            }
+            get => _conflictingMemberNames;
+            set => _conflictingMemberNames = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
         /// Options for parsing numeric arguments.
         /// </summary>
         public NumberOptions NumberOptions { get; set; }
+
+        /// <summary>
+        /// True to allow "empty" arguments (e.g. empty strings); false to
+        /// consider them invalid.
+        /// </summary>
+        public bool AllowEmpty { get; set; }
 
         /// <summary>
         /// Optionally provides a type that implements IStringParser, and which

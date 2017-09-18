@@ -10,11 +10,11 @@ namespace NClap.Tests.ConsoleInput
     [TestClass]
     public class ConsoleReaderEndToEndTests
     {
-        [TestMethod]
-        public void BogusReader()
+        [TestMethod, Ignore] // TODO: Disabled because it relies on having a console handy.
+        public void NoArgsGetsDefaultReader()
         {
-            Action factory = () => new ConsoleReader(null);
-            factory.ShouldThrow<ArgumentNullException>();
+            var reader = new ConsoleReader();
+            reader.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -23,6 +23,7 @@ namespace NClap.Tests.ConsoleInput
             Process("hello".AsKeys()).Should().Be("hello");
         }
 
+#if NET461
         [TestMethod]
         public void NoOp()
         {
@@ -31,6 +32,7 @@ namespace NClap.Tests.ConsoleInput
                 ConsoleKey.RightWindows.AsInfo())
                 .Should().BeEmpty();
         }
+#endif
 
         [TestMethod]
         public void Replace()

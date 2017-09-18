@@ -1,9 +1,7 @@
 ﻿using System;
-
+using System.Reflection;
 using FluentAssertions;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using NClap.Utilities;
 
 namespace NClap.Tests.Utilities
@@ -21,7 +19,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void ConversionFails()
         {
-            var prop = new MutableFieldInfo(typeof(TestObject<Guid>).GetField("Value"));
+            var prop = new MutableFieldInfo(typeof(TestObject<Guid>).GetTypeInfo().GetField("Value"));
             var obj = new TestObject<Guid>();
             Action setter = () => prop.SetValue(obj, 3.0);
             setter.ShouldThrow<ArgumentException>();
@@ -30,7 +28,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void ConversionSucceeds()
         {
-            var prop = new MutableFieldInfo(typeof(TestObject<int>).GetField("Value"));
+            var prop = new MutableFieldInfo(typeof(TestObject<int>).GetTypeInfo().GetField("Value"));
             var obj = new TestObject<int>();
             Action setter = () => prop.SetValue(obj, 3L);
             setter.ShouldNotThrow();

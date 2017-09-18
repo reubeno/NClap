@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Types
@@ -27,5 +28,10 @@ namespace NClap.Types
         /// the type described by this interface (e.g. "&gt;Int32&lt;").
         /// </summary>
         string SyntaxSummary { get; }
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        IEnumerable<IArgumentType> DependentTypes { get; }
     }
 }

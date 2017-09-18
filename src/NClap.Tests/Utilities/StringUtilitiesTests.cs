@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using NClap.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Utilities;
 
 namespace NClap.Tests.Utilities
 {
@@ -92,7 +92,7 @@ namespace NClap.Tests.Utilities
         {
             const int wrapWidth = 10;
 
-            Action wrapNullAction = () => StringUtilities.Wrap(null, wrapWidth);
+            Action wrapNullAction = () => StringUtilities.Wrap((string)null, wrapWidth);
             wrapNullAction.ShouldThrow<ArgumentNullException>();
         }
 
@@ -109,11 +109,23 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
-        public void WrapThrowsOnWidthLessThanIndent()
+        public void WrapThrowsOnWidthLessThanOrEqualToIndent()
         {
             const string text = "Hello";
 
             Action wrapAction = () => StringUtilities.Wrap(text, 10, 20);
+            wrapAction.ShouldThrow<ArgumentOutOfRangeException>();
+
+            wrapAction = () => StringUtilities.Wrap(text, 10, 10);
+            wrapAction.ShouldThrow<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void WrapThrowsOnHangingIndentLargerThanIndent()
+        {
+            const string text = "Hello";
+
+            Action wrapAction = () => StringUtilities.Wrap(text, 80, 10, 11);
             wrapAction.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
@@ -355,16 +367,31 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void ToHyphenatedLowerCaseIsCorrect()
         {
-            StringUtilities.ToHyphenatedLowerCase(string.Empty).Should().Be(string.Empty);
-            StringUtilities.ToHyphenatedLowerCase("HelloWorld").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("helloWorld").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("hello-world").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("hello_world").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("HELLO_WORLD").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("HElLO_WORLD").Should().Be("hel-lo-world");
-            StringUtilities.ToHyphenatedLowerCase("Hello_World").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("Hello_world").Should().Be("hello-world");
-            StringUtilities.ToHyphenatedLowerCase("hello_world").Should().Be("hello-world");
+            string.Empty.ToHyphenatedLowerCase().Should().Be(string.Empty);
+            "HelloWorld".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "helloWorld".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "hello-world".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "hello_world".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "HELLO_WORLD".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "HElLO_WORLD".ToHyphenatedLowerCase().Should().Be("hel-lo-world");
+            "Hello_World".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "Hello_world".ToHyphenatedLowerCase().Should().Be("hello-world");
+            "hello_world".ToHyphenatedLowerCase().Should().Be("hello-world");
+        }
+
+        [TestMethod]
+        public void ToSnakeCaseIsCorrect()
+        {
+            string.Empty.ToSnakeCase().Should().Be(string.Empty);
+            "HelloWorld".ToSnakeCase().Should().Be("hello_world");
+            "helloWorld".ToSnakeCase().Should().Be("hello_world");
+            "hello-world".ToSnakeCase().Should().Be("hello_world");
+            "hello_world".ToSnakeCase().Should().Be("hello_world");
+            "HELLO_WORLD".ToSnakeCase().Should().Be("hello_world");
+            "HElLO_WORLD".ToSnakeCase().Should().Be("hel_lo_world");
+            "Hello_World".ToSnakeCase().Should().Be("hello_world");
+            "Hello_world".ToSnakeCase().Should().Be("hello_world");
+            "hello_world".ToSnakeCase().Should().Be("hello_world");
         }
     }
 }

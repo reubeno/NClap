@@ -63,10 +63,8 @@ namespace NClap.Utilities
             }
             catch (ArgumentException)
             {
-                object convertedValue;
-
                 // Try to convert the value?
-                if (!MemberType.TryConvertFrom(value, out convertedValue))
+                if (!MemberType.TryConvertFrom(value, out object convertedValue))
                 {
                     throw;
                 }

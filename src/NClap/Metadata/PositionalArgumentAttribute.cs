@@ -14,7 +14,7 @@ namespace NClap.Metadata
         /// Default constructor, which may be used to indicate an optional
         /// positional argument that may appear at most once.
         /// </summary>
-        public PositionalArgumentAttribute() : this(ArgumentFlags.AtMostOnce)
+        public PositionalArgumentAttribute() : this(ArgumentFlags.Optional)
         {
         }
 

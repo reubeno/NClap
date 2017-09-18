@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -59,7 +58,7 @@ namespace NClap.Utilities
         /// <returns>Assembly File name with extension.</returns>
         public static string GetAssemblyFileName()
         {
-            Contract.Requires(DefaultAssembly != null, "assembly cannot be null");
+            Debug.Assert(DefaultAssembly != null);
             return Path.GetFileName(DefaultAssembly.Location);
         }
 
@@ -71,7 +70,7 @@ namespace NClap.Utilities
         /// <returns>The formatted title string.</returns>
         internal static string GetAssemblyTitle(ICustomAttributeProvider assembly, string assemblyName)
         {
-            Contract.Requires(assembly != null, "assembly cannot be null");
+            Debug.Assert(assembly != null);
 
             var prefix = string.Empty;
             var company = GetAttribute<AssemblyCompanyAttribute>(assembly)?.Company;
@@ -97,7 +96,7 @@ namespace NClap.Utilities
 
         private static TAttribute GetAttribute<TAttribute>(ICustomAttributeProvider attributeProvider) where TAttribute : Attribute
         {
-            Contract.Requires(attributeProvider != null, "attributeProvider cannot be null");
+            Debug.Assert(attributeProvider != null);
             return attributeProvider.GetCustomAttributes(typeof(TAttribute), true)
                                     .Cast<TAttribute>()
                                     .FirstOrDefault();

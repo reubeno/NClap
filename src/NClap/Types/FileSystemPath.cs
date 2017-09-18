@@ -98,7 +98,7 @@ namespace NClap.Types
             // intention of completing to names of files in it).
             if (string.IsNullOrEmpty(pathPrefix))
             {
-                pathPrefix = @".\";
+                pathPrefix = "." + System.IO.Path.DirectorySeparatorChar;
             }
 
             try

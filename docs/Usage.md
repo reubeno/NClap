@@ -39,7 +39,7 @@
     [NamedArgument(ArgumentFlags.Required | ArgumentFlags.Multiple,
                    LongName = "ImpVal",
                    ShortName = "iv",
-                   HelpText = "This is the very important value")]
+                   Description = "This is the very important value")]
     public int ImportantValue { get; set; }
     ```
 
@@ -81,26 +81,27 @@
     ```csharp
     enum MyCommandType
     {
-        [Verb(typeof(ListCommand), HelpText = "Lists important things")]
+        [Verb(typeof(ListCommand), Description = "Lists important things")]
         ListImportantThings,
 
-        [Verb(Exits = true, HelpText = "Exits the shell")]
+        [Verb(typeof(ExitVerb), Description = "Exits the shell")]
         Exit
     }
     ```
 
     Next, define the implementations of those verbs, making sure to indicate any arguments to them, e.g.:
 
-    <!-- MdCompile: assembly=ShellExample, import=NClap.Metadata, import=NClap.Repl -->
+    <!-- MdCompile: assembly=ShellExample, import=System.Threading, import=System.Threading.Tasks, import=NClap.Metadata -->
     ```csharp
     class ListCommand : IVerb
     {
-        [PositionalArgument(ArgumentFlags.Required, Position = 0, HelpText = "Type of things to list")]
+        [PositionalArgument(ArgumentFlags.Required, Position = 0, Description = "Type of things to list")]
         public string ThingsType { get; set; }
 
-        public void Execute(object o)
+        public Task<VerbResult> ExecuteAsync(CancellationToken cancel)
         {
             // TODO: Do something here.
+            return Task.FromResult(VerbResult.Success);
         }
     }
     ```
@@ -113,8 +114,8 @@
     {
         Console.WriteLine("Entering loop...");
 
-        var options = new LoopOptions();
-        Loop<MyCommandType>.Execute(options);
+        var loop = new Loop<MyCommandType>();
+        loop.Execute();
 
         Console.WriteLine("Exited loop...");
     }

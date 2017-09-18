@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NClap.Metadata;
 
 namespace NClap.Types
 {
@@ -77,7 +78,7 @@ namespace NClap.Types
         /// <summary>
         /// Describes System.String.
         /// </summary>
-        public static IArgumentType String { get; } = SimpleArgumentType.Create(s => s);
+        public static IArgumentType String { get; } = StringArgumentType.Create();
 
         /// <summary>
         /// Describes System.Guid.
@@ -114,7 +115,8 @@ namespace NClap.Types
         /// </summary>
         public static IArgumentType FileSystemPath { get; } = SimpleArgumentType.Create(
             s => new FileSystemPath(s),
-            Types.FileSystemPath.GetCompletions);
+            Types.FileSystemPath.GetCompletions,
+            displayName: Strings.FileSystemPathDisplayName);
 
         /// <summary>
         /// Describes System.Boolean.
@@ -294,7 +296,7 @@ namespace NClap.Types
                 return true;
             }
 
-            // Specially handle KeyValuePair and Tuple types.
+            // Specially handle a few well-known generic types.
             if (type.GetTypeInfo().IsGenericType)
             {
                 var genericTy = type.GetGenericTypeDefinition();
@@ -302,6 +304,11 @@ namespace NClap.Types
                 if (genericTy == typeof(KeyValuePair<,>))
                 {
                     argType = new KeyValuePairArgumentType(type);
+                    return true;
+                }
+                else if (genericTy == typeof(VerbGroup<>))
+                {
+                    argType = new VerbGroupArgumentType(type);
                     return true;
                 }
 

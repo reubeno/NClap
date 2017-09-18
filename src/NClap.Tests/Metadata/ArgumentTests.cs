@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using NClap.Utilities;
-using NClap.Metadata;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Reflection;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Exceptions;
+using NClap.Metadata;
 using NClap.Parser;
+using NClap.Utilities;
 
 namespace NClap.Tests.Metadata
 {
@@ -14,13 +15,13 @@ namespace NClap.Tests.Metadata
     {
         public class StringArguments
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "v", DefaultValue = "def", HelpText = "Some value")]
+            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true, ShortName = "v", DefaultValue = "def", Description = "Some value")]
             public string Value;
         }
 
         public class StringArgumentsThatMustBeNonEmpty
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "")]
+            [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = false, DefaultValue = "")]
             [MustNotBeEmpty]
             public string Value;
         }
@@ -39,13 +40,13 @@ namespace NClap.Tests.Metadata
 
         public class StringArrayArguments
         {
-            [NamedArgument(ArgumentFlags.Multiple, DefaultValue = new[] { "a", "b" })]
+            [NamedArgument(ArgumentFlags.Multiple, AllowEmpty = true, DefaultValue = new[] { "a", "b" })]
             public string[] Value;
         }
 
         public class StringArrayWithEmptyDefaultArguments
         {
-            [NamedArgument(ArgumentFlags.Multiple, DefaultValue = new string[] {})]
+            [NamedArgument(ArgumentFlags.Multiple, AllowEmpty = true, DefaultValue = new string[] {})]
             public string[] Value;
         }
 
@@ -84,6 +85,36 @@ namespace NClap.Tests.Metadata
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public Tuple<int, string> Value;
+        }
+
+        public class ArgumentsWithUnsettableDefault
+        {
+            public bool underlyingValue;
+
+            [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = true)]
+            public bool Value
+            {
+                get => underlyingValue;
+                set => throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public class ArgumentsWithUnsettableCollectionDefault
+        {
+            public string[] underlyingValue;
+
+            [NamedArgument(ArgumentFlags.Multiple, DefaultValue = new string[] { })]
+            public string[] Value
+            {
+                get => underlyingValue;
+                set => throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public class DefaultedNamedArguments
+        {
+            [NamedArgument]
+            public string ValueArgument;
         }
 
         [TestMethod]
@@ -136,7 +167,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(RestOfLineStringArguments));
             arg.EffectiveDefaultValue.Should().BeNull();
-            arg.GetSyntaxHelp().Should().Be("[<Value : <String>>...]");
+            arg.GetSyntaxHelp().Should().Be("[<Value> : <String>...]");
         }
 
         [TestMethod]
@@ -182,7 +213,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(EnumArguments));
             arg.EffectiveDefaultValue.Should().Be(TestEnum.First);
-            arg.GetSyntaxHelp().Should().Be("[/Value={First | Second | Third}]");
+            arg.GetSyntaxHelp().Should().Be("[/Value=<TestEnum>]");
         }
 
         [TestMethod]
@@ -198,7 +229,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(BoolArgumentsWithTrueDefault));
             arg.EffectiveDefaultValue.Should().Be(true);
-            arg.GetSyntaxHelp().Should().Be("[/Value[={True | False}]]");
+            arg.GetSyntaxHelp().Should().Be("[/Value[=<bool>]]");
         }
 
         [TestMethod]
@@ -216,10 +247,64 @@ namespace NClap.Tests.Metadata
             arg.GetSyntaxHelp().Should().Be("[/Value=<Int32>,<String>]");
         }
 
+        [TestMethod]
+        public void ArgumentWithUnsettableDefault()
+        {
+            var arg = GetArgument(typeof(ArgumentsWithUnsettableDefault));
+            arg.DefaultValue.Should().Be(true);
+            arg.EffectiveDefaultValue.Should().Be(true);
+            arg.TryFinalize(new ArgumentsWithUnsettableDefault(), FileSystemReader.Create()).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void ArgumentWithUnsettableCollectionDefault()
+        {
+            var arg = GetArgument(typeof(ArgumentsWithUnsettableCollectionDefault));
+            arg.DefaultValue.Should().BeOfType<string[]>();
+            arg.TryFinalize(new ArgumentsWithUnsettableCollectionDefault(), FileSystemReader.Create()).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void PreservedCaseShortNames()
+        {
+            var arg = GetArgument(typeof(DefaultedNamedArguments), fieldName: "ValueArgument");
+            arg.ExplicitShortName.Should().BeFalse();
+            arg.ShortName.Should().Be("V");
+        }
+
+        [TestMethod]
+        public void LowercaseShortNames()
+        {
+            var arg = GetArgument(typeof(DefaultedNamedArguments), fieldName: "ValueArgument", setAttrib: new ArgumentSetAttribute
+            {
+                NameGenerationFlags = ArgumentNameGenerationFlags.PreferLowerCaseForShortNames
+            });
+
+            arg.ExplicitShortName.Should().BeFalse();
+            arg.ShortName.Should().Be("v");
+        }
+
+        [TestMethod]
+        public void PreservedCaseLongNames()
+        {
+            var arg = GetArgument(typeof(DefaultedNamedArguments), fieldName: "ValueArgument");
+            arg.LongName.Should().Be("ValueArgument");
+        }
+
+        [TestMethod]
+        public void LowercaseAndHyphenatedLongNames()
+        {
+            var arg = GetArgument(typeof(DefaultedNamedArguments), fieldName: "ValueArgument", setAttrib: new ArgumentSetAttribute
+            {
+                NameGenerationFlags = ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames
+            });
+            arg.LongName.Should().Be("value-argument");
+        }
+
         internal static Argument GetArgument(Type type, string fieldName = "Value", ArgumentSetAttribute setAttrib = null)
         {
-            var argField = type.GetField(fieldName);
-            var attrib = argField.GetSingleAttribute<ArgumentBaseAttribute>();
+            var argMember = type.GetMember(fieldName)[0];
+            var attrib = argMember.GetSingleAttribute<ArgumentBaseAttribute>();
             attrib.Should().NotBeNull();
 
             var options = new CommandLineParserOptions
@@ -228,7 +313,20 @@ namespace NClap.Tests.Metadata
                 Reporter = err => { }
             };
 
-            return new Argument(new MutableFieldInfo(argField), attrib, setAttrib ?? new ArgumentSetAttribute(), options);
+            IMutableMemberInfo mutableMemberInfo;
+            switch (argMember)
+            {
+            case FieldInfo fi:
+                mutableMemberInfo = new MutableFieldInfo(fi);
+                break;
+            case PropertyInfo pi:
+                mutableMemberInfo = new MutablePropertyInfo(pi);
+                break;
+            default:
+                throw new NotSupportedException();
+            }
+
+            return new Argument(mutableMemberInfo, attrib, setAttrib ?? new ArgumentSetAttribute(), options);
         }
     }
 }

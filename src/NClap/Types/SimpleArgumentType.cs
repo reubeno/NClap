@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Types
 {
@@ -27,6 +29,7 @@ namespace NClap.Types
     {
         private readonly SimpleArgumentTypeParseHandler<object> _parseHandler;
         private readonly SimpleArgumentTypeCompletionHandler _completionHandler;
+        private readonly string _displayName;
 
         /// <summary>
         /// Constructs a new object to describe the provided type.
@@ -36,22 +39,14 @@ namespace NClap.Types
         /// given type.</param>
         /// <param name="completionHandler">Delegate used to generate
         /// completions with the given type.</param>
-        private SimpleArgumentType(Type type, SimpleArgumentTypeParseHandler<object> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler)
+        /// <param name="displayName">The type's human-readable name.</param>
+        private SimpleArgumentType(Type type, SimpleArgumentTypeParseHandler<object> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler, string displayName = null)
             : base(type)
         {
             _parseHandler = parseHandler;
             _completionHandler = completionHandler;
+            _displayName = displayName;
         }
-
-        /// <summary>
-        /// Primary construction method.
-        /// </summary>
-        /// <typeparam name="T">Type to describe.</typeparam>
-        /// <param name="parseHandler">Delegate used to parse strings with the
-        /// given type.</param>
-        /// <returns>The constructed object.</returns>
-        public static SimpleArgumentType Create<T>(SimpleArgumentTypeParseHandler<T> parseHandler) =>
-            new SimpleArgumentType(typeof(T), s => parseHandler(s), null);
 
         /// <summary>
         /// Primary construction method.
@@ -61,9 +56,14 @@ namespace NClap.Types
         /// given type.</param>
         /// <param name="completionHandler">Delegate used to complete strings with
         /// the given type.</param>
+        /// <param name="displayName">The type's human-readable name.</param>
         /// <returns>The constructed object.</returns>
-        public static SimpleArgumentType Create<T>(SimpleArgumentTypeParseHandler<T> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler) =>
-            new SimpleArgumentType(typeof(T), s => parseHandler(s), completionHandler);
+        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
+        public static SimpleArgumentType Create<T>(SimpleArgumentTypeParseHandler<T> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler = null, string displayName = null)
+        {
+            Debug.Assert(parseHandler != null);
+            return new SimpleArgumentType(typeof(T), s => parseHandler(s), completionHandler, displayName);
+        }
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -90,5 +90,10 @@ namespace NClap.Types
         /// <returns>The parsed object.</returns>
         protected override object Parse(ArgumentParseContext context, string stringToParse) =>
             _parseHandler(stringToParse);
+
+        /// <summary>
+        /// The type's human-readable (display) name.
+        /// </summary>
+        public override string DisplayName => _displayName ?? base.DisplayName;
     }
 }

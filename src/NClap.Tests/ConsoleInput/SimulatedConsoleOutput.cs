@@ -37,11 +37,7 @@ namespace NClap.Tests.ConsoleInput
         /// </summary>
         public int CursorLeft
         {
-            get
-            {
-                return _cursorLeft;
-            }
-
+            get => _cursorLeft;
             set
             {
                 if (value < 0)
@@ -63,11 +59,7 @@ namespace NClap.Tests.ConsoleInput
         /// </summary>
         public int CursorTop
         {
-            get
-            {
-                return _cursorTop;
-            }
-
+            get => _cursorTop;
             set
             {
                 if (value < 0)
@@ -90,8 +82,8 @@ namespace NClap.Tests.ConsoleInput
         /// </summary>
         public int BufferWidth
         {
-            get { return _bufferWidth; }
-            set { throw new NotImplementedException(); }
+            get => _bufferWidth;
+            set => throw new NotImplementedException();
         }
 
         /// <summary>
@@ -100,8 +92,8 @@ namespace NClap.Tests.ConsoleInput
         /// </summary>
         public int BufferHeight
         {
-            get { return _bufferHeight; }
-            set { throw new NotImplementedException(); }
+            get => _bufferHeight;
+            set => throw new NotImplementedException();
         }
 
         /// <summary>

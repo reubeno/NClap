@@ -113,8 +113,7 @@ namespace NClap.Types
 
             var parsedElements = elementStrings.Select(elementString =>
             {
-                object parsedElement;
-                if (!_elementArgumentType.TryParse(context, elementString, out parsedElement))
+                if (!_elementArgumentType.TryParse(context, elementString, out object parsedElement))
                 {
                     throw new ArgumentOutOfRangeException(nameof(stringToParse));
                 }
@@ -124,6 +123,11 @@ namespace NClap.Types
 
             return ToCollection(parsedElements);
         }
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public override IEnumerable<IArgumentType> DependentTypes => new[] { _elementArgumentType };
 
         /// <summary>
         /// Enumerates the objects contained within the provided collection;

@@ -10,7 +10,7 @@ namespace NClap.Tests
     [TestClass]
     public class AssemblyTests
     {
-        public static readonly Assembly AssemblyUnderTest = typeof(CommandLineParser).Assembly;
+        public static readonly Assembly AssemblyUnderTest = typeof(CommandLineParser).GetTypeInfo().Assembly;
 
         [TestMethod]
         public void VerifyNamespace()
@@ -18,7 +18,7 @@ namespace NClap.Tests
             const string expectedNs = nameof(NClap);
             const string expectedNsWithDot = expectedNs + ".";
 
-            foreach (var type in AllTypes.From(AssemblyUnderTest).Where(t => t.IsPublic))
+            foreach (var type in AllTypes.From(AssemblyUnderTest).Where(t => t.GetTypeInfo().IsPublic))
             {
                 var ns = type.Namespace;
                 if (ns != expectedNs)

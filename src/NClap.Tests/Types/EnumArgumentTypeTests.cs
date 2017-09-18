@@ -3,8 +3,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 using NClap.Types;
-using NSubstitute;
-using System.Reflection;
 
 namespace NClap.Tests.Types
 {
@@ -24,6 +22,45 @@ namespace NClap.Tests.Types
 
             [ArgumentValue(ShortName = "s")]
             Bar
+        }
+
+        enum SampleEnum
+        {
+            [ArgumentValue(LongName = "Fo", ShortName = "f")]
+            Foo,
+
+            [ArgumentValue(ShortName = "o")]
+            Other,
+
+            [ArgumentValue(Flags = ArgumentValueFlags.Disallowed)]
+            Unusable,
+
+            [ArgumentValue(Flags = ArgumentValueFlags.Hidden)]
+            NotPublicized
+        }
+
+        [TestMethod]
+        public void EnumWithCustomLongAndShortNames()
+        {
+            var type = EnumArgumentType.Create(typeof(SampleEnum));
+
+            type.TryParse(ArgumentParseContext.Default, "Fo", out object o).Should().BeTrue();
+            o.Should().Be(SampleEnum.Foo);
+
+            type.TryParse(ArgumentParseContext.Default, "f", out o).Should().BeTrue();
+            o.Should().Be(SampleEnum.Foo);
+
+            type.TryParse(ArgumentParseContext.Default, "o", out o).Should().BeTrue();
+            o.Should().Be(SampleEnum.Other);
+
+            type.TryParse(ArgumentParseContext.Default, "Foo", out o).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void DisallowedEnumValue()
+        {
+            var type = EnumArgumentType.Create(typeof(SampleEnum));
+            type.TryParse(ArgumentParseContext.Default, "Unusable", out object o).Should().BeFalse();
         }
 
         [TestMethod]

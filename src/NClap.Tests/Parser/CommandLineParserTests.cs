@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using NClap.Exceptions;
 using NSubstitute;
 
 namespace NClap.Tests.Parser
@@ -34,7 +34,7 @@ namespace NClap.Tests.Parser
         [ArgumentSet(Examples = new[] { "SimpleArgs /mu=4" })]
         class SimpleArguments : HelpArgumentsBase
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce, HelpText = "Some boolean")]
+            [NamedArgument(ArgumentFlags.AtMostOnce, Description = "Some boolean")]
             public bool MyBool;
 
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "mu")]
@@ -158,8 +158,8 @@ namespace NClap.Tests.Parser
 
             public override string MyStringProperty
             {
-                get { return base.MyStringProperty; }
-                set { base.MyStringProperty = value; }
+                get => base.MyStringProperty;
+                set => base.MyStringProperty = value;
             }
         }
 
@@ -225,10 +225,7 @@ namespace NClap.Tests.Parser
         class UnsettablePropertyArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
-            public int Value
-            {
-                get { return 0; }
-            }
+            public int Value => 0;
         }
 
         class SamePositionArguments
@@ -244,6 +241,24 @@ namespace NClap.Tests.Parser
         {
             [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]
             public int Value1;
+        }
+
+        class PositionPlusRestOfLineArguments
+        {
+            [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
+            public int Value;
+
+            [PositionalArgument(ArgumentFlags.RestOfLine, Position = 1)]
+            public string RestOfLine;
+        }
+
+        class NamedPlusRestOfLineArguments
+        {
+            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            public int Value;
+
+            [PositionalArgument(ArgumentFlags.RestOfLine)]
+            public string RestOfLine;
         }
 
         class RestOfLinePlusPositionArguments
@@ -305,11 +320,7 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public string Value
             {
-                get
-                {
-                    return _value;
-                }
-
+                get => _value;
                 set
                 {
                     if (string.IsNullOrWhiteSpace(value))
@@ -336,8 +347,8 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public string Value
             {
-                get { return string.Empty; }
-                set { throw new TException(); }
+                get => string.Empty;
+                set => throw new TException();
             }
         }
 
@@ -346,8 +357,8 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public Guid Value
             {
-                get { return Guid.Empty; }
-                set { throw new TException(); }
+                get => Guid.Empty;
+                set => throw new TException();
             }
         }
 
@@ -471,14 +482,14 @@ namespace NClap.Tests.Parser
             var args = calls[0].GetArguments();
             args.Length.Should().Be(1);
             args.All(arg => arg is string).Should().BeTrue();
-            args.Cast<string>().Any(arg => arg.Contains("NAME")).Should().BeTrue();
+            args.Cast<string>().Any(arg => arg.Contains("Usage:")).Should().BeTrue();
         }
 
         [TestMethod]
         public void GetUsageStringWorks()
         {
             GetUsageStringWorks(new SimpleArguments());
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.UseColor);
+            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeBasicSyntax | UsageInfoOptions.UseColor);
             GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeLogo);
             GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeExamples);
             GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeParameterDescriptions | UsageInfoOptions.IncludeParameterDefaultValues);
@@ -535,7 +546,7 @@ namespace NClap.Tests.Parser
             string usageStr = cl.GetUsageInfo(width, null, options ?? UsageInfoOptions.Default);
             usageStr.Should().NotBeNullOrWhiteSpace();
 
-            string narrowUsageStr = cl.GetUsageInfo(60, null, UsageInfoOptions.None);
+            string narrowUsageStr = cl.GetUsageInfo(60, null, options ?? UsageInfoOptions.Default);
             narrowUsageStr.Should().NotBeNullOrWhiteSpace();
         }
 
@@ -635,15 +646,19 @@ namespace NClap.Tests.Parser
             var args = new RequiredArguments();
 
             var reportedBuilder = new StringBuilder();
-            NClap.Parser.ErrorReporter reporter = s => reportedBuilder.Append(s);
+
+            var options = new CommandLineParserOptions
+            {
+                Reporter = s => reportedBuilder.Append(s)
+            };
 
             // Make sure the parse fails.
-            CommandLineParser.ParseWithUsage(new List<string>(), args, reporter).Should().BeFalse();
+            CommandLineParser.ParseWithUsage(new List<string>(), args, options, UsageInfoOptions.Default).Should().BeFalse();
 
             // Make sure the reported content contains an empty line followed by
             // generic usage info.
             var reported = reportedBuilder.ToString();
-            reported.Should().Contain(Environment.NewLine + Environment.NewLine + "NAME");
+            reported.Should().Contain(Environment.NewLine + Environment.NewLine + "Usage:");
         }
 
         [TestMethod]
@@ -733,7 +748,7 @@ namespace NClap.Tests.Parser
 
             usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsPositionalArgumentString));
             usage.Should().NotBeNull();
-            usage.ToString().Should().Contain("<AllArguments : <String>>...");
+            usage.ToString().Should().Contain("<AllArguments>...");
         }
 
         [TestMethod]
@@ -750,7 +765,7 @@ namespace NClap.Tests.Parser
         public void CoerceableDefaultValueWorks()
         {
             var args = new ArgumentsWithCoerceableDefaultValue();
-            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
             args.Argument.Should().Be(1U);
         }
 
@@ -936,6 +951,26 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
+        public void PositionPlusRestOfLineArgumentsTest()
+        {
+            var args = new PositionPlusRestOfLineArguments();
+            CommandLineParser.Parse(new[] { "10", "bar", "baz" }, args).Should().BeTrue();
+
+            args.Value.Should().Be(10);
+            args.RestOfLine.Should().Be("bar baz");
+        }
+
+        [TestMethod]
+        public void NamedPlusRestOfLineArgumentsTest()
+        {
+            var args = new NamedPlusRestOfLineArguments();
+            CommandLineParser.Parse(new[] { "/Value=10", "bar", "baz" }, args).Should().BeTrue();
+
+            args.Value.Should().Be(10);
+            args.RestOfLine.Should().Be("bar baz");
+        }
+
+        [TestMethod]
         public void RestOfLinePlusPositionalArgumentThrows()
         {
             Action parse = () => CommandLineParser.Parse(new string[] { }, new RestOfLinePlusPositionArguments());
@@ -957,13 +992,6 @@ namespace NClap.Tests.Parser
             CommandLineParser.Parse(new[] { "foo", "9" }, args).Should().BeTrue();
             args.Value0.Should().Be("foo");
             args.Value1.Should().Be(9);
-        }
-
-        [TestMethod]
-        public void ObjectInvariantDoesNotThrow()
-        {
-            var cl = new CommandLineParserEngine(typeof(SimpleArguments));
-            cl.ObjectInvariant();
         }
 
         [TestMethod]
@@ -1092,7 +1120,7 @@ namespace NClap.Tests.Parser
         public void DefaultValueOfImplicitlyConvertibleType()
         {
             var args = new DefaultValueOfImplicitlyConvertibleTypeArguments();
-            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
 
             args.Value.Should().Be(10);
             args.ValueProp.Should().Be(10);
@@ -1133,7 +1161,7 @@ namespace NClap.Tests.Parser
             CommandLineParser.Parse(new[] { "/PrivateValue=7" }, args).Should().BeFalse();
 
             args = new UnannotatedArguments();
-            CommandLineParser.Parse(new string[] {}, args).Should().BeTrue();
+            CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
             args.StringValue.Should().BeNull();
             args.IntValue.Should().Be(0);
 

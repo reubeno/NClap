@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Parser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using NClap.Exceptions;
 
 namespace NClap.Tests.Metadata
 {
@@ -90,9 +91,8 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void MultipleUniqueCollection()
         {
-            MultipleUniqueArguments<string[]> parsedArgs;
 
-            Parse(new string[] { }, out parsedArgs).Should().BeTrue();
+            Parse(new string[] { }, out MultipleUniqueArguments<string[]> parsedArgs).Should().BeTrue();
             parsedArgs.Value.Length.Should().Be(0);
 
             Parse(new[] { "/value:a" }, out parsedArgs).Should().BeTrue();
@@ -111,8 +111,7 @@ namespace NClap.Tests.Metadata
             where T : new()
             where TException : Exception
         {
-            T parsedArgs;
-            Action parse = () => Parse(args, out parsedArgs);
+            Action parse = () => Parse(args, out T parsedArgs);
             parse.ShouldThrow<TException>();
         }
 
@@ -128,12 +127,11 @@ namespace NClap.Tests.Metadata
 
         private static void ValidateParse<T, TField>(IEnumerable<string> args, bool expectedParseResult, TField expectedValue = default(TField)) where T : new()
         {
-            T parsedArgs;
 
-            Parse(args, out parsedArgs).Should().Be(expectedParseResult);
+            Parse(args, out T parsedArgs).Should().Be(expectedParseResult);
             if (expectedParseResult)
             {
-                typeof(T).GetField("Value").GetValue(parsedArgs).Should().Be(expectedValue);
+                typeof(T).GetTypeInfo().GetField("Value").GetValue(parsedArgs).Should().Be(expectedValue);
             }
         }
 

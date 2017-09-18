@@ -111,7 +111,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void CompleteBoolPositionalArgument()
         {
-            CommandLineParser.GetCompletions(typeof(SimpleArgs), new string[] {}, 0).ToList()
+            CommandLineParser.GetCompletions(typeof(SimpleArgs), Array.Empty<string>(), 0).ToList()
                 .Should().ContainInOrder("False", "True");
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { string.Empty }, 0).ToList()

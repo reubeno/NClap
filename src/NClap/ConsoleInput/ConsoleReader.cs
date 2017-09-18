@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace NClap.ConsoleInput
 {
@@ -28,17 +27,12 @@ namespace NClap.ConsoleInput
         /// </param>
         /// <param name="keyBindingSet">The key bindings to use in the reader.
         /// Default bindings are used if this parameter is null.</param>
-        public ConsoleReader(IConsoleLineInput lineInput, IConsoleInput consoleInput = null, IConsoleOutput consoleOutput = null, IReadOnlyConsoleKeyBindingSet keyBindingSet = null)
+        public ConsoleReader(IConsoleLineInput lineInput = null, IConsoleInput consoleInput = null, IConsoleOutput consoleOutput = null, IReadOnlyConsoleKeyBindingSet keyBindingSet = null)
         {
-            if (lineInput == null)
-            {
-                throw new ArgumentNullException(nameof(lineInput));
-            }
-
-            LineInput = lineInput;
             ConsoleInput = consoleInput ?? BasicConsoleInputAndOutput.Default;
             ConsoleOutput = consoleOutput ?? BasicConsoleInputAndOutput.Default;
             KeyBindingSet = keyBindingSet ?? ConsoleKeyBindingSet.Default;
+            LineInput = lineInput ?? new ConsoleLineInput(ConsoleOutput, new ConsoleInputBuffer(), new ConsoleHistory(), null);
 
             _defaultCursorSize = ConsoleOutput.CursorSize;
         }
@@ -139,8 +133,7 @@ namespace NClap.ConsoleInput
 
         internal ConsoleInputOperationResult ProcessKey(ConsoleKeyInfo key)
         {
-            ConsoleInputOperation op;
-            if (!KeyBindingSet.TryGetValue(key, out op))
+            if (!KeyBindingSet.TryGetValue(key, out ConsoleInputOperation op))
             {
                 op = ConsoleInputOperation.ProcessCharacter;
             }

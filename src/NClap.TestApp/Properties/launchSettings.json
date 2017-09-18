@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "NClap.TestApp": {
+      "commandName": "Project"
+    }
+  }
+}

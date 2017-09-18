@@ -1,8 +1,8 @@
 ﻿using System;
-using NClap.Metadata;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Exceptions;
+using NClap.Metadata;
 
 namespace NClap.Tests.Metadata
 {
@@ -13,10 +13,10 @@ namespace NClap.Tests.Metadata
         public void ParameterlessConstructorDefaults()
         {
             var namedAttribute = new NamedArgumentAttribute();
-            namedAttribute.Flags.Should().Be(ArgumentFlags.AtMostOnce);
+            namedAttribute.Flags.Should().Be(ArgumentFlags.Optional);
 
             var positionalAttribute = new PositionalArgumentAttribute();
-            positionalAttribute.Flags.Should().Be(ArgumentFlags.AtMostOnce);
+            positionalAttribute.Flags.Should().Be(ArgumentFlags.Optional);
         }
 
         [TestMethod]

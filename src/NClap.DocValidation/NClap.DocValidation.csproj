@@ -39,6 +39,12 @@
     <MarkdownFile Include="..\..\README.md">
       <Reference>..\NClap\bin\$(Configuration)\net461\NClap.dll</Reference>
     </MarkdownFile>
+    <MarkdownFile Include="..\..\docs\Usage.md">
+      <Reference>..\NClap\bin\$(Configuration)\net461\NClap.dll</Reference>
+    </MarkdownFile>
+    <MarkdownFile Include="..\..\docs\Features.md">
+      <Reference>..\NClap\bin\$(Configuration)\net461\NClap.dll</Reference>
+    </MarkdownFile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MdCompile, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">

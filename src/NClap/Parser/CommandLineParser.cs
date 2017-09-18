@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.IO;
-
+using System.Linq;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Utilities;
@@ -18,8 +18,7 @@ namespace NClap.Parser
         /// <summary>
         /// Retrieves the current console's width in characters.
         /// </summary>
-        internal static Func<int> GetConsoleWidth { get; set; } =
-            () => Console.WindowWidth;
+        internal static Func<int> GetConsoleWidth { get; set; } = () => Console.WindowWidth;
 
         /// <summary>
         /// Default console width in characters.
@@ -56,7 +55,7 @@ namespace NClap.Parser
         /// <param name="reporter">The destination for parse errors.</param>
         /// <returns>True if no errors were detected.</returns>
         public static bool ParseWithUsage<T>(IList<string> arguments, T destination, ErrorReporter reporter) where T : class =>
-            ParseWithUsage(arguments, destination, new CommandLineParserOptions { Reporter = s => reporter(s) });
+            ParseWithUsage(arguments, destination, new CommandLineParserOptions { Reporter = s => reporter?.Invoke(s) });
 
         /// <summary>
         /// Parses command-line arguments into a reference-type object.
@@ -100,31 +99,18 @@ namespace NClap.Parser
                 options = new CommandLineParserOptions { Reporter = DefaultReporter };
             }
 
-            Contract.Requires(Contract.ForAll(arguments, arg => arg != null));
+            Debug.Assert(arguments.All(a => a != null));
 
             // Check if the object inherits from HelpArgumentsBase.
             var helpDestination = destination as HelpArgumentsBase;
 
-            var abridgedOptions = usageInfoOptions;
-            if (helpDestination != null)
-            {
-                abridgedOptions &= ~(UsageInfoOptions.IncludeOptionalParameterDescriptions | UsageInfoOptions.IncludeDescription);
-                abridgedOptions |= UsageInfoOptions.IncludeRemarks;
-            }
-
             // Parse!
             if (!Parse(arguments, destination, options))
             {
-                var optionsForParseError = usageInfoOptions;
-                if (!helpDestination?.Help ?? false)
-                {
-                    optionsForParseError = abridgedOptions;
-                }
-
                 // An error was encountered in arguments. Display the usage
                 // message.
                 options.Reporter?.Invoke(Environment.NewLine);
-                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, optionsForParseError));
+                options.Reporter?.Invoke(GetUsageInfo(destination.GetType(), destination, usageInfoOptions));
 
                 return false;
             }
@@ -217,9 +203,9 @@ namespace NClap.Parser
         /// <returns>True if no errors were detected.</returns>
         public static bool Parse<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class
         {
-            Contract.Requires(arguments != null);
-            Contract.Requires(Contract.ForAll(arguments, arg => arg != null));
-            Contract.Requires(destination != null, "destination cannot be null");
+            Debug.Assert(arguments != null);
+            Debug.Assert(arguments.All(arg => arg != null));
+            Debug.Assert(destination != null, "destination cannot be null");
 
             var parser = new CommandLineParserEngine(destination.GetType(), destination, options);
             return parser.Parse(arguments, destination);
@@ -279,7 +265,7 @@ namespace NClap.Parser
         /// info for.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type) =>
+        public static ColoredMultistring GetUsageInfo(Type type) => 
             GetUsageInfo(type, type.GetDefaultValue());
 
         /// <summary>
@@ -361,12 +347,18 @@ namespace NClap.Parser
             {
                 try
                 {
-                    columns = GetConsoleWidth();
+                    columns = GetConsoleWidth?.Invoke() ?? DefaultConsoleWidth;
                 }
                 catch (IOException)
                 {
                     // If can't determine the console's width, then default it.
                     columns = DefaultConsoleWidth;
+                }
+
+                // N.B. Leave room so that we don't cycle over to next line.
+                if (columns > 0)
+                {
+                    --columns;
                 }
             }
 
