@@ -10,7 +10,7 @@ namespace NClap.Tests.ConsoleInput
     [TestClass]
     public class ConsoleReaderEndToEndTests
     {
-        [TestMethod]
+        [TestMethod, Ignore] // TODO: Disabled because it relies on having a console handy.
         public void NoArgsGetsDefaultReader()
         {
             var reader = new ConsoleReader();
