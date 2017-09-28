@@ -9,7 +9,7 @@ namespace NClap.Types
     /// <summary>
     /// ICollectionArgumentType implementation that describes T[] types.
     /// </summary>
-    class ArrayArgumentType : CollectionArgumentTypeBase
+    internal class ArrayArgumentType : CollectionArgumentTypeBase
     {
         /// <summary>
         /// Constructs a new implementation of ICollectionArgumentType for

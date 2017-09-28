@@ -70,8 +70,13 @@ namespace NClap.Types
         /// <returns>An enumeration of a set of completion strings; if no such
         /// strings could be generated, or if the type doesn't support
         /// completion, then an empty enumeration is returned.</returns>
-        public IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
+        public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             // By default, return an empty enumeration of strings.
             Enumerable.Empty<string>();
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public virtual IEnumerable<IArgumentType> DependentTypes => Enumerable.Empty<IArgumentType>();
     }
 }

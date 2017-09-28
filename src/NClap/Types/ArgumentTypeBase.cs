@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using NClap.Metadata;
 using NClap.Utilities;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Types
 {
@@ -25,7 +27,14 @@ namespace NClap.Types
         /// <summary>
         /// The type's human-readable (display) name.
         /// </summary>
-        public string DisplayName => Type.Name;
+        public virtual string DisplayName
+        {
+            get
+            {
+                var customDisplayName = Type.GetTypeInfo().GetSingleAttribute<ArgumentTypeAttribute>()?.DisplayName;
+                return !string.IsNullOrEmpty(customDisplayName) ? customDisplayName : Type.Name;
+            }
+        }
 
         /// <summary>
         /// The Type object associated with values described by this interface.
@@ -48,8 +57,14 @@ namespace NClap.Types
         /// <param name="value">On success, receives the parsed value; null
         /// otherwise.</param>
         /// <returns>True on success; false otherwise.</returns>
+        [SuppressMessage("Design", "CC0004:Catch block cannot be empty")]
         public bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
         {
+            if (stringToParse == null)
+            {
+                throw new ArgumentNullException(nameof(stringToParse));
+            }
+
             try
             {
                 value = Parse(context, stringToParse);
@@ -82,9 +97,8 @@ namespace NClap.Types
                 throw new ArgumentNullException(nameof(value));
             }
 
-            object convertedValue;
             if ((value.GetType() != Type) &&
-                !Type.TryConvertFrom(value, out convertedValue))
+                !Type.TryConvertFrom(value, out object convertedValue))
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
@@ -101,9 +115,10 @@ namespace NClap.Types
         /// <param name="candidates">Candidate strings to select from.</param>
         /// <returns>An enumeration of the selected strings.</returns>
         [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "context")]
+        [SuppressMessage("Usage", "CC0057:Unused parameters")]
         protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<string> candidates) =>
-            candidates.Where(name => name.StartsWith(valueToComplete, StringComparison.OrdinalIgnoreCase))
-                      .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
+            candidates.Where(name => name.StartsWith(valueToComplete, GetStringComparison(context)))
+                      .OrderBy(name => name, GetStringComparer(context));
 
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
@@ -117,7 +132,13 @@ namespace NClap.Types
         public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             // By default, return an empty enumeration of strings.
             Enumerable.Empty<string>();
-        
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public virtual IEnumerable<IArgumentType> DependentTypes =>
+            Enumerable.Empty<IArgumentType>();
+
         /// <summary>
         /// Parses the provided string.  Throws an exception if the string
         /// cannot be parsed.
@@ -136,7 +157,13 @@ namespace NClap.Types
         /// <param name="candidates">Candidate objects whose formatted strings
         /// should be selected from.</param>
         /// <returns>An enumeration of the selected strings.</returns>
-        protected IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<object> candidates) =>
+        protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<object> candidates) =>
             SelectCompletions(context, valueToComplete, candidates.Select(candidate => candidate.ToString()));
+
+        protected static StringComparer GetStringComparer(ArgumentCompletionContext context) =>
+            context.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+
+        protected static StringComparison GetStringComparison(ArgumentCompletionContext context) =>
+            context.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
     }
 }

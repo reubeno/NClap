@@ -1,6 +1,4 @@
-﻿using NClap.Parser;
-
-namespace NClap.Metadata
+﻿namespace NClap.Metadata
 {
     /// <summary>
     /// Context for argument validation.

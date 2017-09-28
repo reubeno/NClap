@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security;
 
 namespace NClap.Types
@@ -81,6 +82,17 @@ namespace NClap.Types
         public static implicit operator string(FileSystemPath path) => path?.Path;
 
         /// <summary>
+        /// Check if the file paths are expected to be case-sensitive by default.
+        /// </summary>
+        /// <returns>True if file paths are case-sensitive by default.</returns>
+        public static bool ArePathsCaseSensitive() =>
+#if NET461
+            false;
+#else
+            !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#endif
+
+        /// <summary>
         /// Get possible completions of the provided path prefix string.
         /// </summary>
         /// <param name="context">Context for completion.</param>
@@ -98,7 +110,7 @@ namespace NClap.Types
             // intention of completing to names of files in it).
             if (string.IsNullOrEmpty(pathPrefix))
             {
-                pathPrefix = @".\";
+                pathPrefix = "." + System.IO.Path.DirectorySeparatorChar;
             }
 
             try
@@ -162,7 +174,8 @@ namespace NClap.Types
         /// </summary>
         /// <param name="other"></param>
         /// <returns>True if the paths are equivalent; false otherwise.</returns>
-        public bool Equals(FileSystemPath other) => Path.Equals(other, StringComparison.OrdinalIgnoreCase);
+        public bool Equals(FileSystemPath other) =>
+            Path.Equals(other, ArePathsCaseSensitive() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
 
         private static string GetFullPath(string path, string workingDirectory)
         {

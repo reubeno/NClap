@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Utilities
 {
@@ -172,10 +173,11 @@ namespace NClap.Utilities
         /// <param name="other">The other substring.</param>
         /// <returns>True if the substrings are equal; false otherwise.
         /// </returns>
-        public bool Equals(Substring other)
-        {
-            return Base.Equals(other.Base) && (StartingOffset == other.StartingOffset) && (Length == other.Length);
-        }
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison")]
+        public bool Equals(Substring other) =>
+            Base.Equals(other.Base) &&
+            StartingOffset == other.StartingOffset &&
+            Length == other.Length;
 
         /// <summary>
         /// Looks for the first occurrence of the specified character in the

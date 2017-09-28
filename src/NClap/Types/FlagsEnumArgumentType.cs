@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using NClap.Utilities;
 
 namespace NClap.Types
 {
@@ -8,7 +9,7 @@ namespace NClap.Types
     /// Implementation to describe enumeration types with System.FlagsAttribute
     /// attributes.
     /// </summary>
-    class FlagsEnumArgumentType : EnumArgumentType
+    internal class FlagsEnumArgumentType : EnumArgumentType
     {
         /// <summary>
         /// Primary constructor.
@@ -17,7 +18,7 @@ namespace NClap.Types
         /// </param>
         public FlagsEnumArgumentType(Type type) : base(type)
         {
-            if (type.GetTypeInfo().GetCustomAttribute<FlagsAttribute>() == null)
+            if (type.GetTypeInfo().GetSingleAttribute<FlagsAttribute>() == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }

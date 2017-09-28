@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NClap.Utilities;
 
 namespace NClap.Types
 {
     /// <summary>
     /// Implementation to describe KeyValuePair&lt;,&gt; types.
     /// </summary>
-    class KeyValuePairArgumentType : ArgumentTypeBase
+    internal class KeyValuePairArgumentType : ArgumentTypeBase
     {
         private const char KeyValueSeparatorChar = '=';
 
@@ -30,7 +31,7 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            if (type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>))
+            if (!type.GetGenericTypeDefinition().IsEffectivelySameAs(typeof(KeyValuePair<,>)))
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -115,19 +116,23 @@ namespace NClap.Types
             var keyString = stringToParse.Substring(0, separatorIndex);
             var valueString = stringToParse.Substring(separatorIndex + 1);
 
-            object key;
-            if (!_keyType.TryParse(context, keyString, out key))
+            if (!_keyType.TryParse(context, keyString, out object key))
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            object value;
-            if (!_valueType.TryParse(context, valueString, out value))
+            if (!_valueType.TryParse(context, valueString, out object value))
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
             return _constructor.Invoke(new[] { key, value });
         }
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public override IEnumerable<IArgumentType> DependentTypes =>
+            new[] { _keyType, _valueType };
     }
 }

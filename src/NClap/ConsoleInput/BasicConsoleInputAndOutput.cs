@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using NClap.Utilities;
 
@@ -30,8 +29,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int CursorSize
         {
-            get { return Console.CursorSize; }
-            set { Console.CursorSize = value; }
+            get => Console.CursorSize;
+            set => Console.CursorSize = value;
         }
 
         /// <summary>
@@ -39,8 +38,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public bool CursorVisible
         {
-            get { return Console.CursorVisible; }
-            set { Console.CursorVisible = value; }
+            get => Console.CursorVisible;
+            set => Console.CursorVisible = value;
         }
 
         /// <summary>
@@ -49,8 +48,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public bool TreatControlCAsInput
         {
-            get { return Console.TreatControlCAsInput; }
-            set { Console.TreatControlCAsInput = value; }
+            get => Console.TreatControlCAsInput;
+            set => Console.TreatControlCAsInput = value;
         }
 
         /// <summary>
@@ -58,8 +57,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int CursorLeft
         {
-            get { return Console.CursorLeft; }
-            set { Console.CursorLeft = value; }
+            get => Console.CursorLeft;
+            set => Console.CursorLeft = value;
         }
 
         /// <summary>
@@ -67,8 +66,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int CursorTop
         {
-            get { return Console.CursorTop; }
-            set { Console.CursorTop = value; }
+            get => Console.CursorTop;
+            set => Console.CursorTop = value;
         }
 
         /// <summary>
@@ -77,8 +76,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int BufferWidth
         {
-            get { return Console.BufferWidth; }
-            set { Console.BufferWidth = value; }
+            get => Console.BufferWidth;
+            set => Console.BufferWidth = value;
         }
 
         /// <summary>
@@ -87,8 +86,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int BufferHeight
         {
-            get { return Console.BufferHeight; }
-            set { Console.BufferHeight = value; }
+            get => Console.BufferHeight;
+            set => Console.BufferHeight = value;
         }
 
         /// <summary>
@@ -96,8 +95,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public ConsoleColor ForegroundColor
         {
-            get { return Console.ForegroundColor; }
-            set { Console.ForegroundColor = value; }
+            get => Console.ForegroundColor;
+            set => Console.ForegroundColor = value;
         }
 
         /// <summary>
@@ -105,8 +104,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public ConsoleColor BackgroundColor
         {
-            get { return Console.BackgroundColor; }
-            set { Console.BackgroundColor = value; }
+            get => Console.BackgroundColor;
+            set => Console.BackgroundColor = value;
         }
 
         /// <summary>

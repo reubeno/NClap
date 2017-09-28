@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26711.1
+VisualStudioVersion = 15.0.26906.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NClap", "NClap\NClap.csproj", "{C3ED7E97-9DB5-4035-A371-0D2B3DC3496D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NClap.Tests", "NClap.Tests\NClap.Tests.csproj", "{02B4A450-1F29-418F-AF1F-566CFAA3D16E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NClap.Tests", "Tests\UnitTests\NClap.Tests.csproj", "{02B4A450-1F29-418F-AF1F-566CFAA3D16E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ABAF5B46-1B4B-44A3-B4A8-48AB7BC932DC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{2DE5D9FD-182E-4429-A776-40FC8205597E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NClap.TestApp", "NClap.TestApp\NClap.TestApp.csproj", "{9CF023A5-7225-4EAA-B585-3E9DA8880609}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NClap.TestApp", "Tests\TestApp\NClap.TestApp.csproj", "{9CF023A5-7225-4EAA-B585-3E9DA8880609}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{56524B7F-84C2-4D6D-9CF6-4117B2ECB0B2}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,12 +23,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{77079178-A
 		..\docs\Features.md = ..\docs\Features.md
 		..\LICENSE.txt = ..\LICENSE.txt
 		..\README.md = ..\README.md
+		..\docs\Usage.md = ..\docs\Usage.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NClap.DocValidation", "NClap.DocValidation\NClap.DocValidation.csproj", "{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NClap.DocValidation", "Tests\DocValidation\NClap.DocValidation.csproj", "{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C3ED7E97-9DB5-4035-A371-0D2B3DC3496D} = {C3ED7E97-9DB5-4035-A371-0D2B3DC3496D}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{404EF6E0-0344-4CBE-8FB6-66B82BB53716}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NClap.Completer", "Tools\Completer\NClap.Completer.csproj", "{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +57,10 @@ Global
 		{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +70,7 @@ Global
 		{02B4A450-1F29-418F-AF1F-566CFAA3D16E} = {ABAF5B46-1B4B-44A3-B4A8-48AB7BC932DC}
 		{9CF023A5-7225-4EAA-B585-3E9DA8880609} = {ABAF5B46-1B4B-44A3-B4A8-48AB7BC932DC}
 		{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6} = {ABAF5B46-1B4B-44A3-B4A8-48AB7BC932DC}
+		{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46} = {404EF6E0-0344-4CBE-8FB6-66B82BB53716}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CF1C2B40-8979-4030-AD41-B818045740B4}

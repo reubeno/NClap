@@ -3,7 +3,7 @@
 #---------------------------------#
 
 # version format
-version: 1.6.0.{build}-{branch}
+version: 2.0.0.{build}-{branch}
 
 # branches to build
 branches:
@@ -60,14 +60,14 @@ before_build:
 build:
   parallel: true                  # enable MSBuild parallel builds
   project: src\NClap.sln          # path to Visual Studio solution or project
-  verbosity: minimal              # MSBuild verbosity level
+  commandosity: minimal              # MSBuild commandosity level
 
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
 
 test_script:
-  - ps: OpenCover.Console.exe -register:user "-target:vstest.console.exe" "-targetargs:src\NClap.Tests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
+  - ps: OpenCover.Console.exe -register:user "-target:vstest.console.exe" "-targetargs:src\Tests\UnitTests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
   - ps: codecov -f coverage_$env:CONFIGURATION.xml
 
 #---------------------------------#

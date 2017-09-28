@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AnswerFileArgumentDescription" xml:space="preserve">
+    <value>Read response file for more options.</value>
+  </data>
+  <data name="AnswerFileArgumentName" xml:space="preserve">
+    <value>FilePath</value>
+  </data>
+  <data name="ArgumentShortNameTooLong" xml:space="preserve">
+    <value>Short name is too long: {0}</value>
+  </data>
   <data name="BadArgumentValue" xml:space="preserve">
     <value>'{0}' is not a valid value for the '{1}' command line option.</value>
   </data>
@@ -177,8 +186,11 @@ Reason:
   <data name="FileDoesNotExist" xml:space="preserve">
     <value>The file does not exist.</value>
   </data>
-  <data name="ImplementingTypeNotIVerb" xml:space="preserve">
-    <value>The implementing type for this verb ('{0}') does not implement the '{1}' interface.</value>
+  <data name="FileSystemPathDisplayName" xml:space="preserve">
+    <value>FilePath</value>
+  </data>
+  <data name="ImplementingTypeNotICommand" xml:space="preserve">
+    <value>The implementing type for this command ('{0}') does not implement the '{1}' interface.</value>
   </data>
   <data name="InvalidArgumentLongName" xml:space="preserve">
     <value>An invalid argument long name was found.</value>
@@ -186,11 +198,17 @@ Reason:
   <data name="InvalidUsage" xml:space="preserve">
     <value>Invalid usage.</value>
   </data>
+  <data name="InvalidValueLongName" xml:space="preserve">
+    <value>An invalid value long name was found.</value>
+  </data>
   <data name="MemberNotSupported" xml:space="preserve">
     <value>Member '{0}' in type '{1}' cannot be associated with an argument.</value>
   </data>
   <data name="MissingRequiredNamedArgument" xml:space="preserve">
-    <value>Missing required named argument '/{0}'.</value>
+    <value>Missing required named argument '{0}{1}'.</value>
+  </data>
+  <data name="MissingRequiredOptionArgument" xml:space="preserve">
+    <value>Missing required argument to command line option: '{0}'.</value>
   </data>
   <data name="MissingRequiredPositionalArgument" xml:space="preserve">
     <value>Missing required positional argument '&lt;{0}&gt;'.</value>
@@ -209,6 +227,12 @@ Reason:
   </data>
   <data name="PathExists" xml:space="preserve">
     <value>The path exists.</value>
+  </data>
+  <data name="PossibleArgumentValues" xml:space="preserve">
+    <value>Possible argument values include: {0}.</value>
+  </data>
+  <data name="PossibleIntendedNamedArguments" xml:space="preserve">
+    <value>Did you mean one of: {0}?</value>
   </data>
   <data name="StringDoesNotMatchRegEx" xml:space="preserve">
     <value>The value does not match the regular expression '{0}'.</value>
@@ -237,38 +261,50 @@ Reason:
   <data name="UnrecognizedArgument" xml:space="preserve">
     <value>Unrecognized command line argument '{0}'.</value>
   </data>
-  <data name="UnrecognizedVerb" xml:space="preserve">
-    <value>'{0}' is not a recognized verb.</value>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>'{0}' is not a recognized command.</value>
   </data>
   <data name="UnterminatedQuotes" xml:space="preserve">
     <value>Unterminated quotes found.</value>
   </data>
+  <data name="UsageInfoDefaultValue" xml:space="preserve">
+    <value>Default:</value>
+  </data>
   <data name="UsageInfoDescriptionHeader" xml:space="preserve">
-    <value>DESCRIPTION</value>
+    <value>Description</value>
+  </data>
+  <data name="UsageInfoEnumValueHeaderFormat" xml:space="preserve">
+    <value>Valid &lt;{0}&gt; values:</value>
   </data>
   <data name="UsageInfoExamplesHeader" xml:space="preserve">
-    <value>EXAMPLES</value>
+    <value>Examples</value>
   </data>
   <data name="UsageInfoHelpAdvertisement" xml:space="preserve">
     <value>For more information, type: "{0}"</value>
   </data>
   <data name="UsageInfoNameHeader" xml:space="preserve">
-    <value>NAME</value>
+    <value>Name</value>
   </data>
   <data name="UsageInfoOptionalParametersHeader" xml:space="preserve">
-    <value>OPTIONAL PARAMETERS</value>
+    <value>Optional Parameters</value>
   </data>
   <data name="UsageInfoRemarksHeader" xml:space="preserve">
-    <value>REMARKS</value>
+    <value>Remarks</value>
   </data>
   <data name="UsageInfoRequiredParametersHeader" xml:space="preserve">
-    <value>REQUIRED PARAMETERS</value>
+    <value>Required Parameters</value>
+  </data>
+  <data name="UsageInfoShortForm" xml:space="preserve">
+    <value>Alias:</value>
   </data>
   <data name="UsageInfoSyntaxHeader" xml:space="preserve">
-    <value>SYNTAX</value>
+    <value>Syntax</value>
   </data>
-  <data name="ValidVerbsHeader" xml:space="preserve">
-    <value>Valid verbs:
+  <data name="UsageInfoUsageHeader" xml:space="preserve">
+    <value>Usage</value>
+  </data>
+  <data name="ValidCommandsHeader" xml:space="preserve">
+    <value>Valid commands:
 {0}</value>
   </data>
   <data name="ValueIsNotGreaterThan" xml:space="preserve">

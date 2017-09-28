@@ -5,7 +5,7 @@ namespace NClap.Types
     /// <summary>
     /// Implementation to describe System.Boolean.
     /// </summary>
-    class BoolArgumentType : ArgumentTypeBase
+    internal class BoolArgumentType : ArgumentTypeBase
     {
         private static readonly BoolArgumentType s_instance = new BoolArgumentType();
 
@@ -17,10 +17,9 @@ namespace NClap.Types
         }
 
         /// <summary>
-        /// A summary of the concrete syntax required to indicate a value of
-        /// the type described by this interface (e.g. "&gt;Int32&lt;").
+        /// The type's human-readable (display) name.
         /// </summary>
-        public override string SyntaxSummary => "{True | False}";
+        public override string DisplayName => "bool";
 
         /// <summary>
         /// Public factory method.
