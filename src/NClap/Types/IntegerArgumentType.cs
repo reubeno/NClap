@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -69,8 +70,12 @@ namespace NClap.Types
         /// <param name="isSigned">True if this type is signed; false if it's
         /// unsigned.</param>
         /// <returns>The constructed object.</returns>
-        public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned) =>
-            new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), isSigned);
+        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
+        public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned)
+        {
+            Debug.Assert(parseHandler != null);
+            return new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), isSigned);
+        }
 
         /// <summary>
         /// Adds two values of this type without checking for overflow.

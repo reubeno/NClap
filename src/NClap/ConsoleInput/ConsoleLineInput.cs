@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-
 using NClap.Utilities;
 
 namespace NClap.ConsoleInput
@@ -327,6 +326,11 @@ namespace NClap.ConsoleInput
         /// </summary>
         public void ReplaceCurrentTokenWithAllCompletions()
         {
+            if (CompletionHandler == null)
+            {
+                return;
+            }
+
             var completions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, CompletionHandler);
             if (completions.Empty)
             {
@@ -350,8 +354,16 @@ namespace NClap.ConsoleInput
         /// </summary>
         public void DisplayAllCompletions()
         {
+            if (CompletionHandler == null)
+            {
+                return;
+            }
+
             var completions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, CompletionHandler);
-            if (completions.Empty) return;
+            if (completions.Empty)
+            {
+                return;
+            }
 
             MoveConsoleCursorToNextLine();
             DisplayInColumns(completions.Completions);

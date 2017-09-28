@@ -14,12 +14,14 @@ namespace NClap.ConsoleInput
     public sealed class ConsoleKeyBindingSet : IReadOnlyConsoleKeyBindingSet
     {
         private static readonly IReadOnlyDictionary<ConsoleKey, ConsoleInputOperation> s_ignoredModifierKeyBindings = new Dictionary<ConsoleKey, ConsoleInputOperation>
-        {
 #if NET461
+        {
             [ConsoleKey.LeftWindows] = ConsoleInputOperation.NoOp,
             [ConsoleKey.RightWindows] = ConsoleInputOperation.NoOp,
-#endif
         };
+#else
+        ();
+#endif
 
         private static readonly IReadOnlyDictionary<char, ConsoleInputOperation> s_defaultControlCharBindings = new Dictionary<char, ConsoleInputOperation>
         {
@@ -231,14 +233,9 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Enumerates all operations bound within this binding set.
         /// </summary>
-        public IEnumerable<ConsoleInputOperation> Values
-        {
-            get
-            {
-                return KeyTables.SelectMany(tablePair => tablePair.Item2.Values).Concat(
-                    CharTables.SelectMany(tablePair => tablePair.Item2.Values));
-            }
-        }
+        public IEnumerable<ConsoleInputOperation> Values =>
+            KeyTables.SelectMany(tablePair => tablePair.Item2.Values).Concat(
+                CharTables.SelectMany(tablePair => tablePair.Item2.Values));
 
         /// <summary>
         /// Checks if the specified key is bound.

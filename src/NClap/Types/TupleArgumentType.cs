@@ -9,7 +9,7 @@ namespace NClap.Types
     /// <summary>
     /// Implementation to describe Tuple types.
     /// </summary>
-    class TupleArgumentType : ArgumentTypeBase
+    internal class TupleArgumentType : ArgumentTypeBase
     {
         private const char ItemSeparatorChar = ',';
 
@@ -116,5 +116,10 @@ namespace NClap.Types
 
             return _creatorMethod.Invoke(parsedObjects);
         }
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public override IEnumerable<IArgumentType> DependentTypes => _argTypeParameters;
     }
 }

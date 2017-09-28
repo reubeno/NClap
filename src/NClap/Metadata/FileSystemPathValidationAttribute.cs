@@ -1,5 +1,6 @@
 ﻿using System;
 using NClap.Types;
+using NClap.Utilities;
 
 namespace NClap.Metadata
 {
@@ -23,7 +24,7 @@ namespace NClap.Metadata
                 throw new ArgumentNullException(nameof(type));
             }
 
-            return (type.Type == typeof(string)) || (type.Type == typeof(FileSystemPath));
+            return (type.Type == typeof(string)) || type.Type.IsEffectivelySameAs(typeof(FileSystemPath));
         }
     }
 }

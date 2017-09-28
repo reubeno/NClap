@@ -34,14 +34,14 @@ For all of these types, NClap supports:
 
 ### Interactive shells
 
-NClap makes it easy to build an interactive shell and project actions into it as verbs, with support for:
+NClap makes it easy to build an interactive shell and project actions into it as commands, with support for:
 
-* Verbs with complex arguments (i.e. the full argument parsing support described above)
+* Commands with complex arguments (i.e. the full argument parsing support described above)
 * Type- and context-sensitive tab completion (supporting many types listed above)
 * Easy extension model for tab completion (i.e. just implement `IStringCompleter`)
 * Easily colorized output
 * Custom input/output
 * A custom partial implementation of `readline`
-* Auto-generated help verb
+* Auto-generated help command
 * Customizable keyboard bindings for input operations
 

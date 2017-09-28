@@ -8,7 +8,7 @@ namespace NClap.Exceptions
     /// <summary>
     /// Exception thrown when an invalid argument set is used.
     /// </summary>
-    public class InvalidArgumentSetException : Exception
+    public class InvalidArgumentSetException : ArgumentException
     {
         /// <summary>
         /// Constructor that takes an <see cref="Metadata.Argument"/> object.

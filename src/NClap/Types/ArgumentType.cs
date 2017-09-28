@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NClap.Metadata;
+using NClap.Utilities;
 
 namespace NClap.Types
 {
@@ -77,7 +79,7 @@ namespace NClap.Types
         /// <summary>
         /// Describes System.String.
         /// </summary>
-        public static IArgumentType String { get; } = SimpleArgumentType.Create(s => s);
+        public static IArgumentType String { get; } = StringArgumentType.Create();
 
         /// <summary>
         /// Describes System.Guid.
@@ -114,7 +116,8 @@ namespace NClap.Types
         /// </summary>
         public static IArgumentType FileSystemPath { get; } = SimpleArgumentType.Create(
             s => new FileSystemPath(s),
-            Types.FileSystemPath.GetCompletions);
+            Types.FileSystemPath.GetCompletions,
+            displayName: Strings.FileSystemPathDisplayName);
 
         /// <summary>
         /// Describes System.Boolean.
@@ -171,7 +174,7 @@ namespace NClap.Types
         /// </summary>
         public static IArgumentType Single => Float;
 
-        private static readonly Dictionary<Type, IArgumentType> s_builtInTypes = new Dictionary<Type, IArgumentType>();
+        private static readonly Dictionary<Guid, IArgumentType> s_builtInTypes = new Dictionary<Guid, IArgumentType>();
 
         /// <summary>
         /// Static constructor, responsible for internally registering all
@@ -211,7 +214,7 @@ namespace NClap.Types
 
             foreach (var type in types)
             {
-                s_builtInTypes.Add(type.Type, type);
+                s_builtInTypes.Add(type.Type.GetTypeInfo().GUID, type);
             }
         }
         
@@ -294,14 +297,19 @@ namespace NClap.Types
                 return true;
             }
 
-            // Specially handle KeyValuePair and Tuple types.
+            // Specially handle a few well-known generic types.
             if (type.GetTypeInfo().IsGenericType)
             {
                 var genericTy = type.GetGenericTypeDefinition();
                 
-                if (genericTy == typeof(KeyValuePair<,>))
+                if (genericTy.IsEffectivelySameAs(typeof(KeyValuePair<,>)))
                 {
                     argType = new KeyValuePairArgumentType(type);
+                    return true;
+                }
+                else if (genericTy.IsEffectivelySameAs(typeof(CommandGroup<>)))
+                {
+                    argType = new CommandGroupArgumentType(type);
                     return true;
                 }
 
@@ -324,6 +332,6 @@ namespace NClap.Types
         }
 
         private static bool TryGetBuiltInType(Type type, out IArgumentType argType) =>
-            s_builtInTypes.TryGetValue(type, out argType);
+            s_builtInTypes.TryGetValue(type.GetTypeInfo().GUID, out argType);
     }
 }

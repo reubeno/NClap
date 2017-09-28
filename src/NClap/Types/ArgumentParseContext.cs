@@ -1,6 +1,6 @@
-﻿using NClap.Metadata;
-using NClap.Parser;
-using System;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using NClap.Metadata;
 
 namespace NClap.Types
 {
@@ -9,6 +9,7 @@ namespace NClap.Types
     /// </summary>
     public class ArgumentParseContext
     {
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private IFileSystemReader _fileSystemReader = Parser.FileSystemReader.Create();
 
         /// <summary>
@@ -21,20 +22,8 @@ namespace NClap.Types
         /// </summary>
         public IFileSystemReader FileSystemReader
         {
-            get
-            {
-                return _fileSystemReader;
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _fileSystemReader = value;
-            }
+            get => _fileSystemReader;
+            set => _fileSystemReader = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -47,5 +36,11 @@ namespace NClap.Types
         /// Options for parsing numeric arguments.
         /// </summary>
         public NumberOptions NumberOptions { get; set; }
+
+        /// <summary>
+        /// True to allow "empty" arguments (e.g. empty strings); false to
+        /// consider them invalid.
+        /// </summary>
+        public bool AllowEmpty { get; set; }
     }
 }

@@ -37,11 +37,7 @@ namespace NClap.Metadata
         /// </summary>
         public RegexOptions Options
         {
-            get
-            {
-                return _options;
-            }
-
+            get => _options;
             set
             {
                 _options = value;

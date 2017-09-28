@@ -53,6 +53,11 @@ namespace NClap.Utilities
         }
 
         /// <summary>
+        /// Empty string.
+        /// </summary>
+        public static ColoredString Empty { get; } = new ColoredString(string.Empty);
+
+        /// <summary>
         /// The string's content.
         /// </summary>
         public string Content { get; }
@@ -68,6 +73,26 @@ namespace NClap.Utilities
         /// existing background color should be used to display the text.
         /// </summary>
         public ConsoleColor? BackgroundColor { get; }
+
+        /// <summary>
+        /// Length of the content of the string.
+        /// </summary>
+        public int Length => Content.Length;
+
+        /// <summary>
+        /// Checks if the string is empty. Note that a string with no characters
+        /// is considered empty, even if it contains color information.
+        /// </summary>
+        /// <returns>True if empty, false otherwise.</returns>
+        public bool IsEmpty() => string.IsNullOrEmpty(Content);
+
+        /// <summary>
+        /// Accesses a character in the string.
+        /// </summary>
+        /// <param name="index">Zero-based index of the character.</param>
+        /// <returns>The character at the specified index.</returns>
+        /// <returns></returns>
+        public char this[int index] => Content[index];
 
         /// <summary>
         /// Implicitly converts a ColoredString to a string by stripping
@@ -87,7 +112,8 @@ namespace NClap.Utilities
         /// Wraps an uncolored string.
         /// </summary>
         /// <param name="value">The value to wrap.</param>
-        public static ColoredString FromString(string value) => new ColoredString(value, null, null);
+        public static ColoredString FromString(string value) =>
+            new ColoredString(value, null, null);
 
         /// <summary>
         /// Compares two ColoredString objects.
@@ -96,7 +122,7 @@ namespace NClap.Utilities
         /// <param name="otherValue">The second value.</param>
         /// <returns>True if they are equal; false otherwise.</returns>
         public static bool operator ==(ColoredString value, ColoredString otherValue) =>
-            value.Equals(otherValue);
+            value.Equals(otherValue, StringComparison.Ordinal);
 
         /// <summary>
         /// Compares two ColoredString objects.
@@ -105,7 +131,7 @@ namespace NClap.Utilities
         /// <param name="otherValue">The second value.</param>
         /// <returns>True if they are not equal; false otherwise.</returns>
         public static bool operator !=(ColoredString value, ColoredString otherValue) =>
-            !value.Equals(otherValue);
+            !value.Equals(otherValue, StringComparison.Ordinal);
 
         /// <summary>
         /// The string's content.
@@ -135,8 +161,9 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="obj">The object to compare.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison")]
         public override bool Equals(object obj) =>
-            (obj is ColoredString) && Equals((ColoredString)obj);
+            obj is ColoredString && Equals((ColoredString)obj);
 
         /// <summary>
         /// Compares the specified object against this object.

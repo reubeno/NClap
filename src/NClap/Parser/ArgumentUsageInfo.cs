@@ -1,5 +1,8 @@
 ﻿using System.Linq;
+using System.Reflection;
 using NClap.Metadata;
+using NClap.Types;
+using NClap.Utilities;
 
 namespace NClap.Parser
 {
@@ -12,13 +15,17 @@ namespace NClap.Parser
         /// Constructor that forms the info from the argument's metadata.
         /// </summary>
         /// <param name="arg">Argument metadata.</param>
-        public ArgumentUsageInfo(Argument arg)
+        /// <param name="currentValue">Current value.</param>
+        public ArgumentUsageInfo(Argument arg, object currentValue = null) : this(
+            syntax: arg.GetSyntaxHelp(detailed: false),
+            detailedSyntax: arg.GetSyntaxHelp(detailed: true),
+            description: arg.Attribute.Description,
+            required: arg.IsRequired,
+            shortName: arg.ShortName,
+            defaultValue: TryGetDefaultValueString(arg, onlyReturnExplicitDefaults: true),
+            argType: arg.ArgumentType,
+            currentValue: currentValue)
         {
-            Syntax = arg.GetSyntaxHelp();
-            Description = arg.Attribute.HelpText;
-            Required = arg.IsRequired;
-            ShortName = arg.ShortName;
-            DefaultValue = TryGetDefaultValueString(arg);
         }
 
         /// <summary>
@@ -30,24 +37,38 @@ namespace NClap.Parser
         /// false if it's optional.</param>
         /// <param name="shortName">Argument's short form.</param>
         /// <param name="defaultValue">Argument's default value.</param>
+        /// <param name="detailedSyntax">Argument detailed syntax.</param>
+        /// <param name="argType">Argument type.</param>
+        /// <param name="currentValue">Current value.</param>
         public ArgumentUsageInfo(
             string syntax,
             string description,
             bool required,
             string shortName = null,
-            string defaultValue = null)
+            string defaultValue = null,
+            string detailedSyntax = null,
+            IArgumentType argType = null,
+            object currentValue = null)
         {
             Syntax = syntax;
+            DetailedSyntax = detailedSyntax ?? syntax;
             Description = description;
             Required = required;
             ShortName = shortName;
             DefaultValue = defaultValue;
+            ArgumentType = argType;
+            CurrentValue = currentValue;
         }
 
         /// <summary>
         /// Syntax information.
         /// </summary>
         public string Syntax { get; }
+
+        /// <summary>
+        /// Detailed syntax information.
+        /// </summary>
+        public string DetailedSyntax { get; }
 
         /// <summary>
         /// Help information.
@@ -72,14 +93,37 @@ namespace NClap.Parser
         public string DefaultValue { get; }
 
         /// <summary>
+        /// Type of the argument, if known; null otherwise.
+        /// </summary>
+        public IArgumentType ArgumentType { get; }
+
+        /// <summary>
+        /// Current value.
+        /// </summary>
+        public object CurrentValue { get; }
+
+        /// <summary>
+        /// Checks if the argument is a selected command.
+        /// </summary>
+        /// <returns>True if the argument is a selected command; false otherwise.
+        /// </returns>
+        public bool IsSelectedCommand() =>
+            CurrentValue != null &&
+            ArgumentType != null &&
+            (ArgumentType.Type is ICommand || ArgumentType is CommandGroupArgumentType || IsCommandEnum(CurrentValue));
+
+        /// <summary>
         /// Tries to construct a string describing the argument's default value.
         /// </summary>
         /// <param name="arg">The argument to retrieve a default value string
         /// from.</param>
+        /// <param name="onlyReturnExplicitDefaults">True to only return
+        /// a default if it was explicitly specified; false to report on
+        /// the default, even if it was defaulted itself.</param>
         /// <returns>If one should be advertised, returns the string version of
         /// the default value for this argument; otherwise, returns null.
         /// </returns>
-        private static string TryGetDefaultValueString(Argument arg)
+        private static string TryGetDefaultValueString(Argument arg, bool onlyReturnExplicitDefaults = false)
         {
             // Firstly, if the argument is required, then there's no need to
             // indicate any default value.
@@ -92,10 +136,14 @@ namespace NClap.Parser
             // argument; we may still receive back a value here even if one
             // wasn't explicitly declared, as we will have consulted with the
             // argument's type to determine its default value.
-            var defaultValue = arg.EffectiveDefaultValue;
+            if (onlyReturnExplicitDefaults && !arg.HasDefaultValue)
+            {
+                return null;
+            }
 
             // If the default value is null, then that's not useful to show the
             // user.
+            var defaultValue = arg.EffectiveDefaultValue;
             if (defaultValue == null)
             {
                 return null;
@@ -113,8 +161,8 @@ namespace NClap.Parser
 
             // Special case: if the argument type is string, then it's safe
             // to assume that its default value is an empty string.
-            var stringDefaultValue = defaultValue as string;
-            if ((stringDefaultValue != null) && string.IsNullOrEmpty(stringDefaultValue))
+            if ((defaultValue is string stringDefaultValue) &&
+                string.IsNullOrEmpty(stringDefaultValue))
             {
                 return null;
             }
@@ -128,6 +176,21 @@ namespace NClap.Parser
             }
 
             return string.Join(" ", formattedArg);
+        }
+
+        private static bool IsCommandEnum(object value)
+        {
+            var ty = value.GetType();
+
+            if (!ty.GetTypeInfo().IsEnum)
+            {
+                return false;
+            }
+
+            var fieldName = ty.GetTypeInfo().GetEnumName(value);
+            var field = ty.GetTypeInfo().GetField(fieldName);
+
+            return field.GetSingleAttribute<CommandAttribute>() != null;
         }
     }
 }

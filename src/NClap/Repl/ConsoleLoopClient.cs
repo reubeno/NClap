@@ -18,12 +18,7 @@ namespace NClap.Repl
         /// <param name="error">The text writer to receive error output.</param>
         public ConsoleLoopClient(IConsoleReader reader, TextWriter error = null)
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
-
-            Reader = reader;
+            Reader = reader ?? throw new ArgumentNullException(nameof(reader));
             _error = error;
         }
 
@@ -32,8 +27,8 @@ namespace NClap.Repl
         /// </summary>
         public string Prompt
         {
-            get { return Reader.LineInput.Prompt; }
-            set { Reader.LineInput.Prompt = value; }
+            get => Reader.LineInput.Prompt;
+            set => Reader.LineInput.Prompt = value;
         }
 
         /// <summary>

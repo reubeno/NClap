@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NClap.Completer": {
+      "commandName": "Project",
+      "commandLineArgs": "-ArgIndex:0 -assembly:C:\\Sources\\NClap\\src\\Tools\\Completer\\bin\\Debug\\net461\\nClap.Completer.exe -type:NClap.Completer.ProgramArguments"
+    }
+  }
+}

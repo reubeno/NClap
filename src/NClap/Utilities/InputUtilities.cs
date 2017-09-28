@@ -7,7 +7,7 @@ namespace NClap.Utilities
     /// Modifier flags for a console key.
     /// </summary>
     [Flags]
-    enum ConsoleModifierKeys
+    internal enum ConsoleModifierKeys
     {
         /// <summary>
         /// No modifiers present.

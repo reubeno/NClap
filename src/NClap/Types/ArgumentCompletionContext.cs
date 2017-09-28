@@ -29,5 +29,10 @@ namespace NClap.Types
         /// the one being completed.
         /// </summary>
         public object InProgressParsedObject { get; set; }
+
+        /// <summary>
+        /// True for completion to be case-sensitive; false for case-insensitive.
+        /// </summary>
+        public bool CaseSensitive { get; set; }
     }
 }

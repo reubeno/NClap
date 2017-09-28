@@ -25,7 +25,7 @@ namespace NClap.Metadata
             }
 
             return (type.Type == typeof(string)) ||
-                   (type.Type == typeof(FileSystemPath));
+                   type.Type.IsEffectivelySameAs(typeof(FileSystemPath));
         }
 
         /// <summary>

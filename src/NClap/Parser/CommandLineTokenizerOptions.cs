@@ -6,7 +6,7 @@ namespace NClap.Parser
     /// Options for tokenizing command lines.
     /// </summary>
     [Flags]
-    public enum CommandLineTokenizerOptions
+    internal enum CommandLineTokenizerOptions
     {
         /// <summary>
         /// Use default semantics.

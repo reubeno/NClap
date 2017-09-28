@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -44,7 +42,7 @@ namespace NClap.Utilities
             builder.AppendFormat("{0} version {1}", title, fileVersion.FileVersion);
             builder.AppendLine();
 
-            var copyright = GetAttribute<AssemblyCopyrightAttribute>(assembly)?.Copyright;
+            var copyright = assembly.GetSingleAttribute<AssemblyCopyrightAttribute>()?.Copyright;
             if (!string.IsNullOrEmpty(copyright))
             {
                 builder.AppendLine(copyright.Replace("©", "(C)"));
@@ -59,7 +57,7 @@ namespace NClap.Utilities
         /// <returns>Assembly File name with extension.</returns>
         public static string GetAssemblyFileName()
         {
-            Contract.Requires(DefaultAssembly != null, "assembly cannot be null");
+            Debug.Assert(DefaultAssembly != null);
             return Path.GetFileName(DefaultAssembly.Location);
         }
 
@@ -71,36 +69,28 @@ namespace NClap.Utilities
         /// <returns>The formatted title string.</returns>
         internal static string GetAssemblyTitle(ICustomAttributeProvider assembly, string assemblyName)
         {
-            Contract.Requires(assembly != null, "assembly cannot be null");
+            Debug.Assert(assembly != null);
 
             var prefix = string.Empty;
-            var company = GetAttribute<AssemblyCompanyAttribute>(assembly)?.Company;
+            var company = assembly.GetSingleAttribute<AssemblyCompanyAttribute>()?.Company;
             if (!string.IsNullOrEmpty(company))
             {
                 prefix = company + " ";
             }
 
-            var title = GetAttribute<AssemblyTitleAttribute>(assembly)?.Title;
+            var title = assembly.GetSingleAttribute<AssemblyTitleAttribute>()?.Title;
             if (!string.IsNullOrEmpty(title))
             {
                 return title.StartsWith(prefix, StringComparison.CurrentCultureIgnoreCase) ? title : prefix + title;
             }
 
-            var product = GetAttribute<AssemblyProductAttribute>(assembly)?.Product;
+            var product = assembly.GetSingleAttribute<AssemblyProductAttribute>()?.Product;
             if (!string.IsNullOrEmpty(product))
             {
                 return product.StartsWith(prefix, StringComparison.CurrentCultureIgnoreCase) ? product : prefix + product;
             }
 
             return prefix + assemblyName;
-        }
-
-        private static TAttribute GetAttribute<TAttribute>(ICustomAttributeProvider attributeProvider) where TAttribute : Attribute
-        {
-            Contract.Requires(attributeProvider != null, "attributeProvider cannot be null");
-            return attributeProvider.GetCustomAttributes(typeof(TAttribute), true)
-                                    .Cast<TAttribute>()
-                                    .FirstOrDefault();
         }
     }
 }

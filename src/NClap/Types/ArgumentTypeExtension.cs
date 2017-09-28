@@ -8,7 +8,7 @@ namespace NClap.Types
     /// Base class for extending the argument semantics of an existing
     /// implementation of the IArgumentType interface.
     /// </summary>
-    internal class ArgumentTypeExtension : IArgumentType
+    public class ArgumentTypeExtension : IArgumentType
     {
         /// <summary>
         /// Optional override of the string parser implementation of the base
@@ -33,16 +33,15 @@ namespace NClap.Types
         /// </summary>
         /// <param name="type">The primitive object type to find a corresponding
         /// IArgumentType implementation for (e.g. System.String).</param>
-        public ArgumentTypeExtension(Type type) : this(ArgumentType.GetType(type))
-        {
-        }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="innerType">The base IArgumentType instance to
-        /// wrap and extend.</param>
-        public ArgumentTypeExtension(IArgumentType innerType) : this(innerType, null, null, null)
+        /// <param name="parser">Optionally provides an override implementation
+        /// of the base argument type's string parser implementation.</param>
+        /// <param name="formatter">Optionally provides an override
+        /// implementation of the base argument type's object formatter
+        /// implementation.</param>
+        /// <param name="completer">Optionally provides an override
+        /// implementation of the base argument type's string completer
+        /// implementation.</param>
+        public ArgumentTypeExtension(Type type, IStringParser parser = null, IObjectFormatter formatter = null, IStringCompleter completer = null) : this(ArgumentType.GetType(type), parser, formatter, completer)
         {
         }
 
@@ -59,7 +58,7 @@ namespace NClap.Types
         /// <param name="completer">Optionally provides an override
         /// implementation of the base argument type's string completer
         /// implementation.</param>
-        public ArgumentTypeExtension(IArgumentType innerType, IStringParser parser, IObjectFormatter formatter, IStringCompleter completer)
+        public ArgumentTypeExtension(IArgumentType innerType, IStringParser parser = null, IObjectFormatter formatter = null, IStringCompleter completer = null)
         {
             InnerType = innerType;
             Parser = parser;
@@ -121,5 +120,10 @@ namespace NClap.Types
         /// completion, then an empty enumeration is returned.</returns>
         public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             (Completer ?? InnerType).GetCompletions(context, valueToComplete);
+
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public virtual IEnumerable<IArgumentType> DependentTypes => InnerType.DependentTypes;
     }
 }

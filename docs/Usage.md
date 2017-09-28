@@ -39,7 +39,7 @@
     [NamedArgument(ArgumentFlags.Required | ArgumentFlags.Multiple,
                    LongName = "ImpVal",
                    ShortName = "iv",
-                   HelpText = "This is the very important value")]
+                   Description = "This is the very important value")]
     public int ImportantValue { get; set; }
     ```
 
@@ -50,7 +50,7 @@
 2. Next, parse them!  You'll need to construct or otherwise acquire an instance of the target type that
    your arguments will be parsed into, and then call one of the static parser methods, e.g.:
 
-    <!-- MdCompile: assembly=ParseExample, import=NClap.Parser -->
+    <!-- MdCompile: assembly=ParseExample, import=NClap -->
     ```csharp
     using NClap;
     
@@ -75,32 +75,33 @@
 
 ### Building an interactive shell
 
-1. First, define the commands, or verbs, that you want exposed into the shell, e.g.:
+1. First, define the commands, or commands, that you want exposed into the shell, e.g.:
 
     <!-- MdCompile: assembly=ShellExample, import=NClap.Repl, import=NClap.Metadata -->
     ```csharp
     enum MyCommandType
     {
-        [Verb(typeof(ListCommand), HelpText = "Lists important things")]
+        [Command(typeof(ListCommand), Description = "Lists important things")]
         ListImportantThings,
 
-        [Verb(Exits = true, HelpText = "Exits the shell")]
+        [Command(typeof(ExitCommand), Description = "Exits the shell")]
         Exit
     }
     ```
 
-    Next, define the implementations of those verbs, making sure to indicate any arguments to them, e.g.:
+    Next, define the implementations of those commands, making sure to indicate any arguments to them, e.g.:
 
-    <!-- MdCompile: assembly=ShellExample, import=NClap.Metadata, import=NClap.Repl -->
+    <!-- MdCompile: assembly=ShellExample, import=System.Threading, import=System.Threading.Tasks, import=NClap.Metadata -->
     ```csharp
-    class ListCommand : IVerb
+    class ListCommand : Command
     {
-        [PositionalArgument(ArgumentFlags.Required, Position = 0, HelpText = "Type of things to list")]
+        [PositionalArgument(ArgumentFlags.Required, Position = 0, Description = "Type of things to list")]
         public string ThingsType { get; set; }
 
-        public void Execute(object o)
+        public override Task<CommandResult> ExecuteAsync(CancellationToken cancel)
         {
             // TODO: Do something here.
+            return Task.FromResult(CommandResult.Success);
         }
     }
     ```
@@ -113,12 +114,12 @@
     {
         Console.WriteLine("Entering loop...");
 
-        var options = new LoopOptions();
-        Loop<MyCommandType>.Execute(options);
+        var loop = new Loop<MyCommandType>();
+        loop.Execute();
 
         Console.WriteLine("Exited loop...");
     }
     ```
 
-    As with command-line argument parsing, there are many ways to further customize verbs or the
+    As with command-line argument parsing, there are many ways to further customize commands or the
     shell itself.

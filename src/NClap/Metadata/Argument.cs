@@ -2,36 +2,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using NClap.Exceptions;
-using NClap.Parser;
 using NClap.Types;
 using NClap.Utilities;
 
 namespace NClap.Metadata
 {
     /// <summary>
-    /// A delegate used in error reporting.
-    /// </summary>
-    /// <param name="message">Message to report.</param>
-    public delegate void ErrorReporter(string message);
-    
-    /// <summary>
     /// Describes a field in a .NET class that is bound to a command-line
     /// parameter.
     /// </summary>
     internal class Argument
     {
+        // Constants
+        private readonly static ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
+
         // Parameters
         private readonly IReadOnlyList<ArgumentValidationAttribute> _validationAttributes;
         private readonly ArgumentSetAttribute _setAttribute;
         private readonly bool _isPositional;
         private readonly ColoredErrorReporter _reporter;
-        private readonly IArgumentType _argType;
         private readonly IArgumentType _valueType;
         private readonly ICollectionArgumentType _collectionArgType;
 
@@ -49,20 +43,30 @@ namespace NClap.Metadata
         /// <param name="setAttribute">Attribute on the containing argument set.</param>
         /// <param name="options">Provides parser options.</param>
         /// <param name="defaultFieldValue">Default value for the field.</param>
-        public Argument(IMutableMemberInfo member, ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object defaultFieldValue = null)
+        /// <param name="parentMember">Parent member under which this field sits.</param>
+        /// <param name="fixedDestination">Optionally provides fixed parse destination object.</param>
+        public Argument(IMutableMemberInfo member,
+            ArgumentBaseAttribute attribute,
+            ArgumentSetAttribute setAttribute,
+            CommandLineParserOptions options,
+            object defaultFieldValue = null,
+            IMutableMemberInfo parentMember = null,
+            object fixedDestination = null)
         {
-            Contract.Requires(attribute != null, "attribute cannot be null");
-            Contract.Requires(member != null, "field cannot be null");
+            Debug.Assert(attribute != null);
+            Debug.Assert(member != null);
 
             Member = member;
+            ParentMember = parentMember;
             Attribute = attribute;
             _setAttribute = setAttribute;
+            FixedDestination = fixedDestination;
             _isPositional = attribute is PositionalArgumentAttribute;
             _reporter = options?.Reporter ?? (s => { });
-            _argType = Attribute.GetArgumentType(member.MemberType);
-            _collectionArgType = AsCollectionType(_argType);
+            ArgumentType = Attribute.GetArgumentType(member.MemberType);
+            _collectionArgType = AsCollectionType(ArgumentType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
-            _validationAttributes = GetValidationAttributes(_argType, Member);
+            _validationAttributes = GetValidationAttributes(ArgumentType, Member);
             _argumentParseContext = CreateParseContext(attribute, options);
 
             LongName = GetLongName(attribute, setAttribute, member.MemberInfo);
@@ -71,8 +75,7 @@ namespace NClap.Metadata
             DefaultValue = GetDefaultValue(attribute, member, defaultFieldValue);
 
             var nullableBase = Nullable.GetUnderlyingType(member.MemberType);
-            Contract.Assume(nullableBase == null || !IsCollection, "Collection types shouldn't be derived from Nullable<T>");
-
+            
             if (_collectionArgType != null)
             {
                 _collectionValues = new ArrayList();
@@ -88,10 +91,10 @@ namespace NClap.Metadata
             }
             else
             {
-                _valueType = _argType;
+                _valueType = ArgumentType;
             }
 
-            Contract.Assert(_valueType != null);
+            Debug.Assert(_valueType != null);
 
             if (Unique && !IsCollection)
             {
@@ -99,13 +102,6 @@ namespace NClap.Metadata
             }
 
             Debug.Assert(!string.IsNullOrEmpty(LongName));
-            Contract.Assume(!_isPositional || !ExplicitShortName);
-            Contract.Assume(!(TakesRestOfLine && AllowMultiple), "Arguments may be RestOfLine or AllowMultiple but not both");
-            Contract.Assume(
-                !IsCollection || AllowMultiple || TakesRestOfLine,
-                "Collection arguments must have allow multiple or take rest of line");
-            Contract.Assume(!Unique || IsCollection, "Unique only applicable to collection arguments");
-            Contract.Assume(!(IsRequired && HasDefaultValue && DefaultValue != null), "Required arguments cannot have default value");
         }
 
         /// <summary>
@@ -146,7 +142,7 @@ namespace NClap.Metadata
                 var defaultValue = HasDefaultValue ? DefaultValue : null;
                 if ((defaultValue == null) && !IsCollection)
                 {
-                    defaultValue = _argType.Type.GetDefaultValue();
+                    defaultValue = ArgumentType.Type.GetDefaultValue();
                 }
 
                 return defaultValue;
@@ -171,7 +167,9 @@ namespace NClap.Metadata
         /// on the command line; false indicates that it may only be specified
         /// once.
         /// </summary>
-        public bool AllowMultiple => Attribute.Flags.HasFlag(ArgumentFlags.Multiple);
+        public bool AllowMultiple =>
+            Attribute.Flags.HasFlag(ArgumentFlags.Multiple) ||
+            (Attribute.Flags.HasFlag(ArgumentFlags.Optional) && IsCollection);
 
         /// <summary>
         /// True indicates that each instance of this argument must be unique;
@@ -209,6 +207,22 @@ namespace NClap.Metadata
         /// The object member bound to this argument.
         /// </summary>
         public IMutableMemberInfo Member { get; }
+
+        /// <summary>
+        /// The object member under which this member sits, or null to indicate
+        /// that this member is at top-level under provided objects.
+        /// </summary>
+        public IMutableMemberInfo ParentMember { get; }
+
+        /// <summary>
+        /// Type of the argument.
+        /// </summary>
+        public IArgumentType ArgumentType { get; }
+
+        /// <summary>
+        /// Optionally indicates the destination object to which this is fixed.
+        /// </summary>
+        public object FixedDestination { get; }
 
         /// <summary>
         /// Registers an Argument that conflicts with the one described by this
@@ -251,22 +265,23 @@ namespace NClap.Metadata
             }
             else if (suppressArgNames)
             {
-                yield return _argType.Format(value);
+                yield return ArgumentType.Format(value);
             }
             else
             {
-                yield return Format(_argType, value);
+                yield return Format(ArgumentType, value);
             }
         }
 
         /// <summary>
         /// Generates syntax help information for this argument.
         /// </summary>
+        /// <param name="detailed">true to return detailed information,
+        /// including full argument type information; false to return abridged
+        /// information.</param>
         /// <returns>The help content in string form.</returns>
-        public string GetSyntaxHelp()
+        public string GetSyntaxHelp(bool detailed = true)
         {
-            Contract.Ensures(Contract.Result<string>() != null);
-
             var builder = new StringBuilder();
 
             if (!IsRequired)
@@ -278,9 +293,13 @@ namespace NClap.Metadata
             {
                 builder.Append("<");
                 builder.Append(LongName);
-                builder.Append(" : ");
-                builder.Append(_argType.SyntaxSummary);
                 builder.Append(">");
+
+                if (detailed)
+                {
+                    builder.Append(" : ");
+                    builder.Append(ArgumentType.SyntaxSummary);
+                }
 
                 if (TakesRestOfLine)
                 {
@@ -308,7 +327,7 @@ namespace NClap.Metadata
                 // We special-case bool arguments (switches) whose default value
                 // is false; in such cases, we can get away with a shorter
                 // syntax help that just indicates how to flip the switch on.
-                else if ((_argType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
+                else if ((ArgumentType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
                 {
                 }
 
@@ -323,7 +342,7 @@ namespace NClap.Metadata
                     }
 
                     builder.Append(_setAttribute.ArgumentValueSeparators[0]);
-                    builder.Append(_argType.SyntaxSummary);
+                    builder.Append(ArgumentType.SyntaxSummary);
 
                     if (supportsEmptyStrings)
                     {
@@ -349,15 +368,17 @@ namespace NClap.Metadata
         /// Finalizes parsing of the argument, reporting any errors from policy
         /// violations (e.g. missing required arguments).
         /// </summary>
-        /// <typeparam name="T">Type of the field associated with the argument.
-        /// </typeparam>
-        /// <param name="destination">The destination object being filled in.
-        /// </param>
+        /// <param name="destination">The destination object being filled in.</param>
         /// <param name="fileSystemReader">File system reader to use.</param>
-        /// <returns>False indicates that finalization completed successfully;
-        /// true indicates that a failure occurred.</returns>
-        public bool Finish<T>(T destination, IFileSystemReader fileSystemReader)
+        /// <returns>True indicates that finalization completed successfully;
+        /// false indicates that a failure occurred.</returns>
+        public bool TryFinalize(object destination, IFileSystemReader fileSystemReader)
         {
+            if (FixedDestination != null)
+            {
+                destination = FixedDestination;
+            }
+
             if (!SeenValue && HasDefaultValue)
             {
                 if (!TryValidateValue(DefaultValue, new ArgumentValidationContext(fileSystemReader)))
@@ -365,12 +386,9 @@ namespace NClap.Metadata
                     return false;
                 }
 
-                if (destination != null)
+                if (destination != null && !TrySetValue(destination, DefaultValue))
                 {
-                    if (!TrySetValue(destination, DefaultValue))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -378,8 +396,7 @@ namespace NClap.Metadata
             // but the rest of the line was empty, longer array contains rest of the line.
             if (IsCollection && (SeenValue || !TakesRestOfLine) && (destination != null))
             {
-                object collection;
-                if (!TryCreateCollection(_collectionArgType, _collectionValues, out collection))
+                if (!TryCreateCollection(_collectionArgType, _collectionValues, out object collection))
                 {
                     return false;
                 }
@@ -405,23 +422,42 @@ namespace NClap.Metadata
         /// </summary>
         /// <param name="containingValue">The containing object.</param>
         /// <returns>The value associated with this argument's field.</returns>
-        public object GetValue(object containingValue) => Member.GetValue(containingValue);
+        public object GetValue(object containingValue)
+        {
+            if (FixedDestination != null)
+            {
+                containingValue = FixedDestination;
+            }
+
+            var parentValue = (ParentMember != null) ?
+                ParentMember.GetValue(containingValue) :
+                containingValue;
+
+            return Member.GetValue(parentValue);
+        }
 
         /// <summary>
         /// Parses the provided value string using this object's value type,
         /// and stores the parsed value in the provided destination.
         /// </summary>
-        /// <typeparam name="T">Type of the expected parsed value.</typeparam>
         /// <param name="value">The string to parse.</param>
-        /// <param name="destination">The destination for the parsed value.
+        /// <param name="destination">The destination for the parsed value.</param>
+        /// <param name="parsedValue">On success, receives the parsed value.
         /// </param>
         /// <returns>True on success; false otherwise.</returns>
-        public bool SetValue<T>(string value, T destination)
+        public bool TryParseAndStore(string value, object destination, out object parsedValue)
         {
+            if (FixedDestination != null)
+            {
+                destination = FixedDestination;
+            }
+
             // Check for disallowed duplicate arguments.
             if (SeenValue && !AllowMultiple)
             {
                 ReportDuplicateArgumentValue(value);
+
+                parsedValue = null;
                 return false;
             }
 
@@ -429,6 +465,8 @@ namespace NClap.Metadata
             foreach (var arg in _conflictingArgs.Where(arg => arg.SeenValue))
             {
                 ReportConflictingArgument(value, arg);
+
+                parsedValue = null;
                 return false;
             }
 
@@ -439,11 +477,13 @@ namespace NClap.Metadata
             // Parse the string version of the value.
             if (!ParseValue(value, out object newValue))
             {
+                parsedValue = null;
                 return false;
             }
 
             if (!TryValidateValue(newValue, new ArgumentValidationContext(_argumentParseContext.FileSystemReader)))
             {
+                parsedValue = null;
                 return false;
             }
 
@@ -453,6 +493,8 @@ namespace NClap.Metadata
                 if (Unique && _collectionValues.Contains(newValue))
                 {
                     ReportDuplicateArgumentValue(value);
+
+                    parsedValue = null;
                     return false;
                 }
 
@@ -463,10 +505,12 @@ namespace NClap.Metadata
             {
                 if (!TrySetValue(destination, newValue, value))
                 {
+                    parsedValue = null;
                     return false;
                 }
             }
 
+            parsedValue = newValue;
             return true;
         }
 
@@ -480,22 +524,26 @@ namespace NClap.Metadata
         /// <param name="destination">Object being filled in.</param>
         public bool TrySetRestOfLine<T>(string first, IEnumerable<string> restOfLine, T destination)
         {
-            Contract.Requires(restOfLine != null, "rest cannot be null");
-            return TrySetRestOfLine(new[] { first }.Concat(restOfLine), destination);
+            Debug.Assert(restOfLine != null);
+            return TrySetRestOfLine(new[] { first }.Concat(restOfLine), FixedDestination ?? destination);
         }
 
         /// <summary>
         /// Fills out this argument with the remainder of the provided command
         /// line.
         /// </summary>
-        /// <typeparam name="T">Type of the object being filled in.</typeparam>
         /// <param name="restOfLine">Remainder of the command-line tokens.</param>
         /// <param name="destination">Object being filled in.</param>
-        public bool TrySetRestOfLine<T>(IEnumerable<string> restOfLine, T destination)
+        public bool TrySetRestOfLine(IEnumerable<string> restOfLine, object destination)
         {
-            Contract.Requires(restOfLine != null, "restOfLine cannot be null");
+            Debug.Assert(restOfLine != null);
+            Debug.Assert(!SeenValue);
 
-            Contract.Assume(SeenValue == false, "it shouldn't be possible for a rest of line argument to be seen more than once");
+            if (FixedDestination != null)
+            {
+                destination = FixedDestination;
+            }
+
             SeenValue = true;
 
             if (IsCollection)
@@ -546,10 +594,11 @@ namespace NClap.Metadata
                 ParseContext = _argumentParseContext,
                 Tokens = tokens,
                 TokenIndex = indexOfTokenToComplete,
-                InProgressParsedObject = inProgressParsedObject
+                InProgressParsedObject = inProgressParsedObject,
+                CaseSensitive = _setAttribute.CaseSensitive
             };
 
-            return _argType.GetCompletions(context, valueToComplete);
+            return ArgumentType.GetCompletions(context, valueToComplete);
         }
 
         /// <summary>
@@ -558,15 +607,14 @@ namespace NClap.Metadata
         /// <returns>true if it's required, false if it's optional.</returns>
         public bool RequiresOptionArgument => !IsEmptyStringValid();
 
-        private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, CommandLineParserOptions options)
-        {
-            return new ArgumentParseContext
+        private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, CommandLineParserOptions options) =>
+            new ArgumentParseContext
             {
                 NumberOptions = attribute.NumberOptions,
+                AllowEmpty = attribute.AllowEmpty,
                 FileSystemReader = options.FileSystemReader,
                 ParserContext = options.Context
             };
-        }
 
         private static IReadOnlyList<ArgumentValidationAttribute> GetValidationAttributes(IArgumentType argType, IMutableMemberInfo memberInfo)
         {
@@ -575,7 +623,7 @@ namespace NClap.Metadata
             var collectionArgType = AsCollectionType(argType);
             var argTypeToCheck = (collectionArgType != null) ? collectionArgType.ElementType : argType;
 
-            var attributes = member.GetCustomAttributes<ArgumentValidationAttribute>().ToList();
+            var attributes = member.GetAttributes<ArgumentValidationAttribute>().ToList();
             foreach (var attrib in attributes.Where(attrib => !attrib.AcceptsType(argTypeToCheck)))
             {
                 throw new InvalidArgumentSetException(memberInfo, string.Format(
@@ -590,8 +638,7 @@ namespace NClap.Metadata
 
         private static ICollectionArgumentType AsCollectionType(IArgumentType type)
         {
-            var extension = type as ArgumentTypeExtension;
-            if (extension != null)
+            if (type is ArgumentTypeExtension extension)
             {
                 type = extension.InnerType;
             }
@@ -610,7 +657,7 @@ namespace NClap.Metadata
 
             if (setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
             {
-                longName = StringUtilities.ToHyphenatedLowerCase(longName);
+                longName = longName.ToHyphenatedLowerCase();
             }
 
             return longName;
@@ -630,8 +677,7 @@ namespace NClap.Metadata
             }
 
             var longName = GetLongName(attribute, setAttribute, member);
-            Contract.Assume(longName.Length >= 1, "Probably this should be a postcondition for LongName");
-
+            
             var shortName = longName.Substring(0, 1);
 
             if (setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.PreferLowerCaseForShortNames))
@@ -655,7 +701,15 @@ namespace NClap.Metadata
             }
             else
             {
-                value = member.MemberType.GetDefaultValue();
+                try
+                {
+                    // N.B. This will fail if it's a reflection-only type.
+                    value = member.MemberType.GetDefaultValue();
+                }
+                catch (InvalidOperationException)
+                {
+                    value = null;
+                }
             }
 
             // Validate the value's type.
@@ -685,22 +739,16 @@ namespace NClap.Metadata
         private static string CreateCommandLine(IEnumerable<string> arguments) =>
             string.Join(" ", arguments.Select(StringUtilities.QuoteIfNeeded));
 
-        private static bool IsObjectPresent<T>(T value)
-        {
-            if (typeof(T).GetTypeInfo().IsValueType)
-            {
-                return true;
-            }
-
-            return (object)value != null;
-        }
+        private static bool IsObjectPresent<T>(T value) =>
+            typeof(T).GetTypeInfo().IsValueType ||
+            (object)value != null;
 
         private bool IsEmptyStringValid() =>
-            _argType.TryParse(_argumentParseContext, string.Empty, out object parsedEmptyString) &&
-                   TryValidateValue(
-                       parsedEmptyString,
-                       new ArgumentValidationContext(_argumentParseContext.FileSystemReader),
-                       reportInvalidValue: false);
+            ArgumentType.TryParse(_argumentParseContext, string.Empty, out object parsedEmptyString) &&
+            TryValidateValue(
+                parsedEmptyString,
+                new ArgumentValidationContext(_argumentParseContext.FileSystemReader),
+                reportInvalidValue: false);
 
         private string Format(IObjectFormatter type, object value)
         {
@@ -711,10 +759,8 @@ namespace NClap.Metadata
                 return formattedValue;
             }
 
-            return string.Format(
-                CultureInfo.CurrentCulture,
-                "{0}{1}{2}{3}",
-                _setAttribute.NamedArgumentPrefixes.FirstOrDefault(),
+            return string.Concat(
+                _setAttribute.NamedArgumentPrefixes.FirstOrDefault() ?? string.Empty,
                 LongName,
                 _setAttribute.ArgumentValueSeparators.FirstOrDefault(),
                 formattedValue);
@@ -747,7 +793,16 @@ namespace NClap.Metadata
 
             try
             {
-                Member.SetValue(containingObject, value);
+                if (FixedDestination != null)
+                {
+                    containingObject = FixedDestination;
+                }
+
+                var parentObject = (ParentMember != null) ?
+                    ParentMember.GetValue(containingObject) :
+                    containingObject;
+
+                Member.SetValue(parentObject, value);
                 return true;
             }
             catch (ArgumentException ex)
@@ -786,8 +841,20 @@ namespace NClap.Metadata
             return false;
         }
 
-        private void ReportMissingRequiredArgument() =>
-            ReportLine(_isPositional ? Strings.MissingRequiredPositionalArgument : Strings.MissingRequiredNamedArgument, LongName);
+        private void ReportMissingRequiredArgument()
+        {
+            if (_isPositional)
+            {
+                ReportLine(Strings.MissingRequiredPositionalArgument, LongName);
+            }
+            else
+            {
+                ReportLine(
+                    Strings.MissingRequiredNamedArgument,
+                    _setAttribute.NamedArgumentPrefixes.FirstOrDefault() ?? string.Empty,
+                    LongName);
+            }
+        }
 
         private void ReportDuplicateArgumentValue(string value) =>
             ReportLine(Strings.DuplicateArgument, LongName, value);
@@ -798,16 +865,41 @@ namespace NClap.Metadata
         private void ReportBadArgumentValue(string value, ArgumentException exception) =>
             ReportBadArgumentValue(value, exception.Message);
 
-        private void ReportBadArgumentValue(string value, string message) =>
-            ReportLine(Strings.BadArgumentValueWithReason, value, LongName, message);
+        private void ReportBadArgumentValue(string value, string message = null)
+        {
+            if (message != null)
+            {
+                ReportLine(Strings.BadArgumentValueWithReason, value, LongName, message);
+            }
+            else
+            {
+                ReportLine(Strings.BadArgumentValue, value, LongName);
+            }
 
-        private void ReportBadArgumentValue(string value) =>
-            ReportLine(Strings.BadArgumentValue, value, LongName);
+            var values = _valueType.GetCompletions(new ArgumentCompletionContext { ParseContext = _argumentParseContext }, string.Empty)
+                .ToList();
+
+            if (values.Count > 0)
+            {
+                ReportLine(
+                    "  " + Strings.PossibleArgumentValues,
+                    string.Join(", ", values.Select(a => "'" + a + "'")));
+            }
+        }
 
         private void ReportLine(string message, params object[] args)
         {
-            Contract.Requires(_reporter != null);
-            _reporter(string.Format(CultureInfo.CurrentCulture, message + Environment.NewLine, args));
+            Debug.Assert(_reporter != null);
+            _reporter(new ColoredMultistring(
+                new[]
+                {
+                    new ColoredString(
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            message + Environment.NewLine,
+                            args),
+                        ErrorForegroundColor)
+                }));
         }
     }
 }
