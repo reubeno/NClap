@@ -195,10 +195,10 @@ namespace NClap.Parser
         /// <param name="args">The arguments to parse.</param>
         /// <param name="destination">The destination of the parsed arguments.</param>
         /// <returns>True if no parse errors were encountered.</returns>
-        public bool Parse(IList<string> args, object destination) =>
+        public bool Parse(IEnumerable<string> args, object destination) =>
             ParseArgumentList(args, destination).IsReady;
 
-        private TokenParseResult ParseArgumentList(IList<string> args, object destination)
+        private TokenParseResult ParseArgumentList(IEnumerable<string> args, object destination)
         {
             Debug.Assert(args != null);
             Debug.Assert(args.All(x => x != null));
@@ -712,12 +712,14 @@ namespace NClap.Parser
         /// <param name="args">String arguments to parse.</param>
         /// <param name="destination">Output arguments object.</param>
         /// <returns>Parse result.</returns>
-        private TokenParseResult ParseTokens(IList<string> args, object destination)
+        private TokenParseResult ParseTokens(IEnumerable<string> args, object destination)
         {
             var result = TokenParseResult.Ready;
-            for (var index = 0; index < args.Count; )
+            IReadOnlyList<string> argsList = args.ToList();
+
+            for (var index = 0; index < argsList.Count; )
             {
-                var currentResult = TryParseNextToken(args, index, destination, out int argsConsumed);
+                var currentResult = TryParseNextToken(argsList, index, destination, out int argsConsumed);
                 if (currentResult != TokenParseResult.Ready)
                 {
                     result = currentResult;
@@ -729,7 +731,7 @@ namespace NClap.Parser
             return result;
         }
 
-        private TokenParseResult TryParseNextToken(IList<string> args, int index, object destination, out int argsConsumed)
+        private TokenParseResult TryParseNextToken(IReadOnlyList<string> args, int index, object destination, out int argsConsumed)
         {
             // Default to assuming we consume 1 arg.  Will override below as needed.
             argsConsumed = 1;
@@ -756,7 +758,7 @@ namespace NClap.Parser
             return TryParseNextPositionalArgument(args, index, destination, out argsConsumed);
         }
 
-        private TokenParseResult TryParseNextNamedArgument(IList<string> args, int index, string longNameArgumentPrefix, string shortNameArgumentPrefix, object destination, out int argsConsumed)
+        private TokenParseResult TryParseNextNamedArgument(IReadOnlyList<string> args, int index, string longNameArgumentPrefix, string shortNameArgumentPrefix, object destination, out int argsConsumed)
         {
             argsConsumed = 1;
 
@@ -841,7 +843,7 @@ namespace NClap.Parser
             return ParseTokens(nestedArgsArray, destination);
         }
 
-        private TokenParseResult TryParseNextPositionalArgument(IList<string> args, int index, object destination, out int argsConsumed)
+        private TokenParseResult TryParseNextPositionalArgument(IReadOnlyList<string> args, int index, object destination, out int argsConsumed)
         {
             var argument = args[index];
 

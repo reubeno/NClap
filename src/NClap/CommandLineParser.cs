@@ -53,7 +53,7 @@ namespace NClap
         /// <param name="arguments">The actual arguments.</param>
         /// <param name="destination">The resulting parsed arguments.</param>
         /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IList<string> arguments, T destination) where T : class =>
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination) where T : class =>
             ParseWithUsage(arguments, destination, (CommandLineParserOptions)null);
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace NClap
         /// <param name="destination">The resulting parsed arguments.</param>
         /// <param name="reporter">The destination for parse errors.</param>
         /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IList<string> arguments, T destination, ErrorReporter reporter) where T : class =>
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination, ErrorReporter reporter) where T : class =>
             ParseWithUsage(arguments, destination, new CommandLineParserOptions { Reporter = s => reporter?.Invoke(s.ToString()) });
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace NClap
         /// <param name="options">Optionally provides additional options
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class =>
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options) where T : class =>
             ParseWithUsage(arguments, destination, options, UsageInfoOptions.Default);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace NClap
         /// <param name="usageInfoOptions">Options for how to display usage
         /// information, in case it's presented.</param>
         /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IList<string> arguments, T destination, CommandLineParserOptions options, UsageInfoOptions usageInfoOptions) where T : class
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options, UsageInfoOptions usageInfoOptions) where T : class
         {
             if (arguments == null)
             {
@@ -151,7 +151,7 @@ namespace NClap
         /// <param name="destination">The resulting parsed arguments.</param>
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool ParseWithUsage<T>(IList<string> arguments, ref T destination) where T : struct =>
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, ref T destination) where T : struct =>
             ParseWithUsage(arguments, ref destination, new CommandLineParserOptions { Reporter = DefaultReporter });
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace NClap
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool ParseWithUsage<T>(IList<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct =>
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct =>
             ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.Default);
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace NClap
         /// information, in case it's presented.</param>
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool ParseWithUsage<T>(IList<string> arguments, ref T destination, CommandLineParserOptions options, UsageInfoOptions usageInfoOptions) where T : struct
+        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, ref T destination, CommandLineParserOptions options, UsageInfoOptions usageInfoOptions) where T : struct
         {
             var boxedDestination = (object)destination;
             if (!ParseWithUsage(arguments, boxedDestination, options, usageInfoOptions))
@@ -202,7 +202,7 @@ namespace NClap
         /// <param name="arguments">The actual arguments.</param>
         /// <param name="destination">The resulting parsed arguments.</param>
         /// <returns>True if no errors were detected.</returns>
-        public static bool Parse<T>(IList<string> arguments, T destination) where T : class =>
+        public static bool Parse<T>(IEnumerable<string> arguments, T destination) where T : class =>
             Parse(arguments, destination, new CommandLineParserOptions { Reporter = s => Console.Error.WriteLine(s) });
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace NClap
         /// <param name="options">Optionally provides additional options
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
-        public static bool Parse<T>(IList<string> arguments, T destination, CommandLineParserOptions options) where T : class
+        public static bool Parse<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options) where T : class
         {
             Debug.Assert(arguments != null);
             Debug.Assert(arguments.All(arg => arg != null));
@@ -235,7 +235,7 @@ namespace NClap
         /// <param name="destination">The resulting parsed arguments.</param>
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool Parse<T>(IList<string> arguments, ref T destination) where T : struct =>
+        public static bool Parse<T>(IEnumerable<string> arguments, ref T destination) where T : struct =>
             Parse(arguments, ref destination, null);
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace NClap
         /// controlling how parsing proceeds.</param>
         /// <returns>True if no errors were detected.</returns>
         [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool Parse<T>(IList<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct
+        public static bool Parse<T>(IEnumerable<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct
         {
             var boxedDestination = (object)destination;
             if (!Parse(arguments, boxedDestination, options))
