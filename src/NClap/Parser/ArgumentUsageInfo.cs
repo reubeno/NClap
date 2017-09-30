@@ -9,7 +9,7 @@ namespace NClap.Parser
     /// <summary>
     /// Describes help information for a command-line argument.
     /// </summary>
-    internal struct ArgumentUsageInfo
+    internal class ArgumentUsageInfo
     {
         /// <summary>
         /// Constructor that forms the info from the argument's metadata.
@@ -113,6 +113,70 @@ namespace NClap.Parser
             (ArgumentType.Type is ICommand || ArgumentType is CommandGroupArgumentType || IsCommandEnum(CurrentValue));
 
         /// <summary>
+        /// Tries to find the argument's default value.
+        /// </summary>
+        /// <param name="arg">The argument to retrieve a default value from.</param>
+        /// <param name="onlyReturnExplicitDefaults">True to only return
+        /// a default if it was explicitly specified; false to report on
+        /// the default, even if it was defaulted itself.</param>
+        /// <param name="value">On success, receives the default value
+        /// for this argument; otherwise, receives null.</param>
+        /// <returns>True on success, false otherwise.</returns>
+        public static bool TryGetDefaultValue(Argument arg, bool onlyReturnExplicitDefaults, out object value)
+        {
+            // Firstly, if the argument is required, then there's no need to
+            // indicate any default value.
+            if (arg.IsRequired)
+            {
+                value = null;
+                return false;
+            }
+
+            // Next, go check for the actual *effective* default value for the
+            // argument; we may still receive back a value here even if one
+            // wasn't explicitly declared, as we will have consulted with the
+            // argument's type to determine its default value.
+            if (onlyReturnExplicitDefaults && !arg.HasDefaultValue)
+            {
+                value = null;
+                return false;
+            }
+
+            // If the default value is null, then that's not useful to show the
+            // user.
+            var defaultValue = arg.EffectiveDefaultValue;
+            if (defaultValue == null)
+            {
+                value = null;
+                return false;
+            }
+
+            // Special case: if the argument type is bool, then the argument
+            // will be like a switch, and that's typically assumed to be false
+            // if not present.  So if the default value is indeed 'false', then
+            // don't bother displaying it; but if it's 'true', then it's
+            // important to indicate that.
+            if ((defaultValue is bool) && !((bool)defaultValue))
+            {
+                value = null;
+                return false;
+            }
+
+            // Special case: if the argument type is string, then it's safe
+            // to assume that its default value is an empty string.
+            if ((defaultValue is string stringDefaultValue) &&
+                string.IsNullOrEmpty(stringDefaultValue))
+            {
+                value = null;
+                return false;
+            }
+
+            // Okay, we have the value.
+            value = defaultValue;
+            return true;
+        }
+
+        /// <summary>
         /// Tries to construct a string describing the argument's default value.
         /// </summary>
         /// <param name="arg">The argument to retrieve a default value string
@@ -123,52 +187,15 @@ namespace NClap.Parser
         /// <returns>If one should be advertised, returns the string version of
         /// the default value for this argument; otherwise, returns null.
         /// </returns>
-        private static string TryGetDefaultValueString(Argument arg, bool onlyReturnExplicitDefaults = false)
+        public static string TryGetDefaultValueString(Argument arg, bool onlyReturnExplicitDefaults = false)
         {
-            // Firstly, if the argument is required, then there's no need to
-            // indicate any default value.
-            if (arg.IsRequired)
+            // Try to get the default value.
+            if (!TryGetDefaultValue(arg, onlyReturnExplicitDefaults, out object defaultValue))
             {
                 return null;
             }
 
-            // Next, go check for the actual *effective* default value for the
-            // argument; we may still receive back a value here even if one
-            // wasn't explicitly declared, as we will have consulted with the
-            // argument's type to determine its default value.
-            if (onlyReturnExplicitDefaults && !arg.HasDefaultValue)
-            {
-                return null;
-            }
-
-            // If the default value is null, then that's not useful to show the
-            // user.
-            var defaultValue = arg.EffectiveDefaultValue;
-            if (defaultValue == null)
-            {
-                return null;
-            }
-
-            // Special case: if the argument type is bool, then the argument
-            // will be like a switch, and that's typically assumed to be false
-            // if not present.  So if the default value is indeed 'false', then
-            // don't bother displaying it; but if it's 'true', then it's
-            // important to indicate that.
-            if ((defaultValue is bool) && !((bool)defaultValue))
-            {
-                return null;
-            }
-
-            // Special case: if the argument type is string, then it's safe
-            // to assume that its default value is an empty string.
-            if ((defaultValue is string stringDefaultValue) &&
-                string.IsNullOrEmpty(stringDefaultValue))
-            {
-                return null;
-            }
-
-            // At this point, it's probably important to display the default
-            // value.
+            // Now turn the value into a string.
             var formattedArg = arg.Format(defaultValue, suppressArgNames: true).ToList();
             if (formattedArg.Count == 0)
             {
@@ -178,7 +205,7 @@ namespace NClap.Parser
             return string.Join(" ", formattedArg);
         }
 
-        private static bool IsCommandEnum(object value)
+        public static bool IsCommandEnum(object value)
         {
             var ty = value.GetType();
 
