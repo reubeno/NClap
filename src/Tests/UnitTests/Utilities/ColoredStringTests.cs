@@ -30,6 +30,13 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
+        public void ConstructorThrowsOnNullString()
+        {
+            Action a = () => { var x = new ColoredString(null); };
+            a.ShouldThrow<ArgumentNullException>();
+        }
+
+        [TestMethod]
         public void ImplicitConstructionWorks()
         {
             ColoredString s = "text";
@@ -95,6 +102,19 @@ namespace NClap.Tests.Utilities
         {
             var s = new ColoredString("text");
             s.Equals(3).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void EmptyShouldHaveZeroLength()
+        {
+            ColoredString.Empty.Length.Should().Be(0);
+        }
+
+        [TestMethod]
+        public void EmptyShouldHaveNoColor()
+        {
+            ColoredString.Empty.ForegroundColor.Should().BeNull();
+            ColoredString.Empty.BackgroundColor.Should().BeNull();
         }
     }
 }

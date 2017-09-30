@@ -19,13 +19,17 @@ namespace NClap.Metadata
         /// </summary>
         public CommandGroup()
         {
+            if (!typeof(TCommandType).GetTypeInfo().IsEnum)
+            {
+                throw new NotSupportedException();
+            }
         }
 
         /// <summary>
         /// Basic constructor.
         /// </summary>
         /// <param name="selection">The selected command type.</param>
-        public CommandGroup(TCommandType selection)
+        public CommandGroup(TCommandType selection) : this()
         {
             Selection = selection;
         }

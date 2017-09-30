@@ -461,24 +461,33 @@ namespace NClap
 
             if (!columns.HasValue)
             {
-                try
-                {
-                    columns = GetConsoleWidth?.Invoke() ?? DefaultConsoleWidth;
-                }
-                catch (IOException)
-                {
-                    // If can't determine the console's width, then default it.
-                    columns = DefaultConsoleWidth;
-                }
-
-                // N.B. Leave room so that we don't cycle over to next line.
-                if (columns > 0)
-                {
-                    --columns;
-                }
+                columns = GetCurrentConsoleWidth();
             }
 
             return engine.GetUsageInfo(columns.Value, commandName, options, destination);
+        }
+
+        private static int GetCurrentConsoleWidth()
+        {
+            int columns;
+
+            try
+            {
+                columns = GetConsoleWidth?.Invoke() ?? DefaultConsoleWidth;
+            }
+            catch (IOException)
+            {
+                // If can't determine the console's width, then default it.
+                columns = DefaultConsoleWidth;
+            }
+
+            // N.B. Leave room so that we don't cycle over to next line.
+            if (columns > 0)
+            {
+                --columns;
+            }
+
+            return columns;
         }
     }
 }

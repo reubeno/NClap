@@ -1,14 +1,19 @@
 ﻿using System;
-using NClap.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Reflection;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Types;
+using NClap.Utilities;
 
 namespace NClap.Tests.Utilities
 {
     [TestClass]
     public class ReflectionUtilitiesTests
     {
+        public const int TestField = 12;
+
+        public int TestProperty { get; set; }
+
         class MyValue
         {
             public static implicit operator MyValue(int x)
@@ -87,6 +92,38 @@ namespace NClap.Tests.Utilities
 
             typeof(FileSystemPath).TryConvertFrom("MyPath", out obj).Should().BeTrue();
             obj.Should().BeOfType(typeof(FileSystemPath)).And.Be(new FileSystemPath("MyPath"));
+        }
+
+        [TestMethod]
+        public void ToMutableMemberWorksOnFields()
+        {
+            var field = this.GetType().GetTypeInfo().GetField(nameof(TestField));
+            field.Should().NotBeNull();
+
+            var mutableInfo = field.ToMutableMemberInfo();
+
+            mutableInfo.Should().NotBeNull();
+            mutableInfo.Should().BeOfType<MutableFieldInfo>();
+        }
+
+        [TestMethod]
+        public void ToMutableMemberWorksOnProperties()
+        {
+            var prop = this.GetType().GetTypeInfo().GetProperty(nameof(TestProperty));
+            prop.Should().NotBeNull();
+
+            var mutableInfo = prop.ToMutableMemberInfo();
+
+            mutableInfo.Should().NotBeNull();
+            mutableInfo.Should().BeOfType<MutablePropertyInfo>();
+        }
+
+        [TestMethod]
+        public void ToMutableMemberThrowsOnMethods()
+        {
+            var method = this.GetType().GetTypeInfo().GetMethod(nameof(ToMutableMemberThrowsOnMethods));
+            Action a = () => method.ToMutableMemberInfo();
+            a.ShouldThrow<ArgumentOutOfRangeException>();
         }
     }
 }

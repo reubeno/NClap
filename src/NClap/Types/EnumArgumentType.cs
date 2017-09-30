@@ -116,11 +116,6 @@ namespace NClap.Types
                 }
             }
 
-            if (value.Disallowed)
-            {
-                throw new ArgumentOutOfRangeException(nameof(stringToParse));
-            }
-
             return value.Value;
         }
 

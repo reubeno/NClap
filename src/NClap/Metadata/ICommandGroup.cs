@@ -3,7 +3,7 @@
     /// <summary>
     /// Interface for interacting with any command group.
     /// </summary>
-    public interface ICommandGroup
+    public interface ICommandGroup : ICommand
     {
         /// <summary>
         /// True if the group has a selection, false if no selection was yet

@@ -21,13 +21,13 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            if (!type.GetGenericTypeDefinition().IsEffectivelySameAs(typeof(CommandGroup<>)))
+            var typeParams = type.GetTypeInfo().GetGenericArguments();
+            if (typeParams.Length != 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            var typeParams = type.GetTypeInfo().GetGenericArguments();
-            if (typeParams.Length != 1)
+            if (!type.GetGenericTypeDefinition().IsEffectivelySameAs(typeof(CommandGroup<>)))
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -49,8 +49,16 @@ namespace NClap.Types
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             _commandArgType.GetCompletions(context, valueToComplete);
 
-        public override string Format(object value) =>
-            _commandArgType.Format(((ICommandGroup)value).Selection);
+        public override string Format(object value)
+        {
+            var group = (ICommandGroup)value;
+            if (!group.HasSelection)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            return _commandArgType.Format(group.Selection);
+        }
 
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Utilities;
@@ -35,5 +36,28 @@ namespace NClap.Tests.Utilities
 
             builder.ToString().Should().Be("Hello, world" + Environment.NewLine);
         }
+
+        [TestMethod]
+        public void AppendingMultipleMultistrings()
+        {
+            var builder = new ColoredMultistringBuilder();
+            builder.Append("Foo");
+            builder.Append(CreateCMS(", bar", ", baz!"));
+
+            builder.ToString().Should().Be("Foo, bar, baz!");
+        }
+
+        [TestMethod]
+        public void AppendingMultipleMultistringsWithLines()
+        {
+            var builder = new ColoredMultistringBuilder();
+            builder.AppendLine("Foo");
+            builder.AppendLine(CreateCMS(", bar", ", baz!"));
+
+            builder.ToString().Should().Be("Foo" + Environment.NewLine + ", bar, baz!" + Environment.NewLine);
+        }
+
+        private static ColoredMultistring CreateCMS(params string[] values) =>
+            new ColoredMultistring(values.Select(s => new ColoredString(s)));
     }
 }
