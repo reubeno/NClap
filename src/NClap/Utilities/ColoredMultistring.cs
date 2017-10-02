@@ -279,6 +279,11 @@ namespace NClap.Utilities
         // TODO: Make this less painfully slow.
         public int LastIndexOfAny(char[] chars, int startIndex, int count)
         {
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
             var length = Length;
 
             if (startIndex > length - 1)

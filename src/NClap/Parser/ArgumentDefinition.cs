@@ -7,16 +7,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using NClap.Exceptions;
+using NClap.Metadata;
 using NClap.Types;
 using NClap.Utilities;
 
-namespace NClap.Metadata
+namespace NClap.Parser
 {
     /// <summary>
-    /// Describes a field in a .NET class that is bound to a command-line
-    /// parameter.
+    /// Describes a command-line argument.
     /// </summary>
-    internal class Argument
+    internal class ArgumentDefinition
     {
         // Constants
         private readonly static ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
@@ -29,7 +29,7 @@ namespace NClap.Metadata
         private readonly IArgumentType _valueType;
         private readonly ICollectionArgumentType _collectionArgType;
 
-        private readonly HashSet<Argument> _conflictingArgs = new HashSet<Argument>();
+        private readonly HashSet<ArgumentDefinition> _conflictingArgs = new HashSet<ArgumentDefinition>();
         private readonly ArgumentParseContext _argumentParseContext;
 
         // State
@@ -45,7 +45,7 @@ namespace NClap.Metadata
         /// <param name="defaultFieldValue">Default value for the field.</param>
         /// <param name="parentMember">Parent member under which this field sits.</param>
         /// <param name="fixedDestination">Optionally provides fixed parse destination object.</param>
-        public Argument(IMutableMemberInfo member,
+        public ArgumentDefinition(IMutableMemberInfo member,
             ArgumentBaseAttribute attribute,
             ArgumentSetAttribute setAttribute,
             CommandLineParserOptions options,
@@ -67,7 +67,7 @@ namespace NClap.Metadata
             _collectionArgType = AsCollectionType(ArgumentType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
             _validationAttributes = GetValidationAttributes(ArgumentType, Member);
-            _argumentParseContext = CreateParseContext(attribute, options);
+            _argumentParseContext = CreateParseContext(attribute, _setAttribute, options);
 
             LongName = GetLongName(attribute, setAttribute, member.MemberInfo);
             ExplicitShortName = HasExplicitShortName(attribute);
@@ -193,10 +193,7 @@ namespace NClap.Metadata
         /// State variable indicating whether this argument has been seen in
         /// the currently-being-parsed command line.
         /// </summary>
-        public bool SeenValue
-        {
-            get; private set;
-        }
+        public bool SeenValue { get; private set; }
 
         /// <summary>
         /// The argument's static metadata.
@@ -225,12 +222,18 @@ namespace NClap.Metadata
         public object FixedDestination { get; }
 
         /// <summary>
+        /// String summary of object.
+        /// </summary>
+        /// <returns>String.    </returns>
+        public override string ToString() => GetSyntaxSummary(detailed: true);
+
+        /// <summary>
         /// Registers an Argument that conflicts with the one described by this
         /// object.  If the specified argument has already previously been
         /// registered, then this operation is a no-op.
         /// </summary>
         /// <param name="arg">The conflicting argument.</param>
-        public void AddConflictingArgument(Argument arg)
+        public void AddConflictingArgument(ArgumentDefinition arg)
         {
             if (arg == this)
             {
@@ -280,7 +283,7 @@ namespace NClap.Metadata
         /// including full argument type information; false to return abridged
         /// information.</param>
         /// <returns>The help content in string form.</returns>
-        public string GetSyntaxHelp(bool detailed = true)
+        public string GetSyntaxSummary(bool detailed = true)
         {
             var builder = new StringBuilder();
 
@@ -607,13 +610,14 @@ namespace NClap.Metadata
         /// <returns>true if it's required, false if it's optional.</returns>
         public bool RequiresOptionArgument => !IsEmptyStringValid();
 
-        private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, CommandLineParserOptions options) =>
+        private static ArgumentParseContext CreateParseContext(ArgumentBaseAttribute attribute, ArgumentSetAttribute setAttribute, CommandLineParserOptions options) =>
             new ArgumentParseContext
             {
                 NumberOptions = attribute.NumberOptions,
                 AllowEmpty = attribute.AllowEmpty,
                 FileSystemReader = options.FileSystemReader,
-                ParserContext = options.Context
+                ParserContext = options.Context,
+                CaseSensitive = setAttribute.CaseSensitive
             };
 
         private static IReadOnlyList<ArgumentValidationAttribute> GetValidationAttributes(IArgumentType argType, IMutableMemberInfo memberInfo)
@@ -859,7 +863,7 @@ namespace NClap.Metadata
         private void ReportDuplicateArgumentValue(string value) =>
             ReportLine(Strings.DuplicateArgument, LongName, value);
 
-        private void ReportConflictingArgument(string value, Argument conflictingArg) =>
+        private void ReportConflictingArgument(string value, ArgumentDefinition conflictingArg) =>
             ReportLine(Strings.ConflictingArgument, LongName, value, conflictingArg.LongName);
 
         private void ReportBadArgumentValue(string value, ArgumentException exception) =>

@@ -42,5 +42,10 @@ namespace NClap.Types
         /// consider them invalid.
         /// </summary>
         public bool AllowEmpty { get; set; }
+
+        /// <summary>
+        /// True for parsing to be case sensitive; false to be case insensitive.
+        /// </summary>
+        public bool CaseSensitive { get; set; }
     }
 }

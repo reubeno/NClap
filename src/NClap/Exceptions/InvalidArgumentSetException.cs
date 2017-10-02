@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NClap.Metadata;
+using NClap.Parser;
 using NClap.Utilities;
 
 namespace NClap.Exceptions
@@ -11,12 +11,12 @@ namespace NClap.Exceptions
     public class InvalidArgumentSetException : ArgumentException
     {
         /// <summary>
-        /// Constructor that takes an <see cref="Metadata.Argument"/> object.
+        /// Constructor that takes an <see cref="ArgumentDefinition"/> object.
         /// </summary>
         /// <param name="arg">Info about the problematic argument.</param>
         /// <param name="message">The message string.</param>
         /// <param name="innerException">The inner exception.</param>
-        internal InvalidArgumentSetException(Argument arg, string message = null, Exception innerException = null) : this(arg.Member, message, innerException)
+        internal InvalidArgumentSetException(ArgumentDefinition arg, string message = null, Exception innerException = null) : this(arg.Member, message, innerException)
         {
             Argument = arg;
         }
@@ -100,7 +100,7 @@ namespace NClap.Exceptions
         /// <summary>
         /// If present, indicates the problematic argument.
         /// </summary>
-        internal Argument Argument { get; }
+        internal ArgumentDefinition Argument { get; }
 
         /// <summary>
         /// If present, indicates the problematic member of the argument set.

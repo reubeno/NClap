@@ -88,7 +88,7 @@ namespace NClap.Metadata
         public string HelpText
         {
             get => Description;
-            set => Description = HelpText;
+            set => Description = value;
         }
 
         /// <summary>
@@ -163,17 +163,19 @@ namespace NClap.Metadata
         internal IArgumentType GetArgumentType(Type type)
         {
             var argType = ArgumentType.GetType(type);
-
             if ((Parser == null) && (Formatter == null) && (Completer == null))
             {
                 return argType;
             }
 
-            var parser = (IStringParser)(Parser?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
-            var formatter = (IObjectFormatter)(Formatter?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
-            var completer = (IStringCompleter)(Completer?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
+            var parser = InvokeParameterlessConstructorIfPresent<IStringParser>(Parser);
+            var formatter = InvokeParameterlessConstructorIfPresent<IObjectFormatter>(Formatter);
+            var completer = InvokeParameterlessConstructorIfPresent<IStringCompleter>(Completer);
 
             return new ArgumentTypeExtension(argType, parser, formatter, completer);
         }
+
+        private static T InvokeParameterlessConstructorIfPresent<T>(Type type) =>
+            (T)(type?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
     }
 }

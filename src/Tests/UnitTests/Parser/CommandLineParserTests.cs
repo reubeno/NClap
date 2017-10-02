@@ -63,7 +63,7 @@ namespace NClap.Tests.Parser
 
             public string SomeOtherField;
 
-            public static SimpleArguments Parse(IList<string> tokens)
+            public static SimpleArguments Parse(IEnumerable<string> tokens)
             {
                 var args = new SimpleArguments();
                 CommandLineParser.Parse(tokens, args).Should().BeTrue();
@@ -243,22 +243,22 @@ namespace NClap.Tests.Parser
             public int Value1;
         }
 
-        class PositionPlusRestOfLineArguments
+        class PositionPlusRestOfLineArguments<T>
         {
             [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
             public int Value;
 
             [PositionalArgument(ArgumentFlags.RestOfLine, Position = 1)]
-            public string RestOfLine;
+            public T RestOfLine;
         }
 
-        class NamedPlusRestOfLineArguments
+        class NamedPlusRestOfLineArguments<T>
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value;
 
             [PositionalArgument(ArgumentFlags.RestOfLine)]
-            public string RestOfLine;
+            public T RestOfLine;
         }
 
         class RestOfLinePlusPositionArguments
@@ -545,7 +545,7 @@ namespace NClap.Tests.Parser
 
         private static void GetUsageStringWorks<T>(T args, int width = 80, UsageInfoOptions? options = null)
         {
-            var cl = new CommandLineParserEngine(args);
+            var cl = new CommandLineParserEngine(typeof(T), args, null);
 
             var usageStr = cl.GetUsageInfo(width, null, options ?? UsageInfoOptions.Default).ToString();
             usageStr.Should().NotBeNullOrWhiteSpace();
@@ -955,9 +955,9 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
-        public void PositionPlusRestOfLineArgumentsTest()
+        public void PositionPlusRestOfLineAsStringArgumentsTest()
         {
-            var args = new PositionPlusRestOfLineArguments();
+            var args = new PositionPlusRestOfLineArguments<string>();
             CommandLineParser.Parse(new[] { "10", "bar", "baz" }, args).Should().BeTrue();
 
             args.Value.Should().Be(10);
@@ -965,13 +965,33 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
-        public void NamedPlusRestOfLineArgumentsTest()
+        public void PositionPlusRestOfLineAsStringArrayArgumentsTest()
         {
-            var args = new NamedPlusRestOfLineArguments();
+            var args = new PositionPlusRestOfLineArguments<string[]>();
+            CommandLineParser.Parse(new[] { "10", "bar", "baz" }, args).Should().BeTrue();
+
+            args.Value.Should().Be(10);
+            args.RestOfLine.Should().ContainInOrder("bar", "baz");
+        }
+
+        [TestMethod]
+        public void NamedPlusRestOfLineAsStringArgumentsTest()
+        {
+            var args = new NamedPlusRestOfLineArguments<string>();
             CommandLineParser.Parse(new[] { "/Value=10", "bar", "baz" }, args).Should().BeTrue();
 
             args.Value.Should().Be(10);
             args.RestOfLine.Should().Be("bar baz");
+        }
+
+        [TestMethod]
+        public void NamedPlusRestOfLineAsStringArrayArgumentsTest()
+        {
+            var args = new NamedPlusRestOfLineArguments<string[]>();
+            CommandLineParser.Parse(new[] { "/Value=10", "bar", "baz" }, args).Should().BeTrue();
+
+            args.Value.Should().Be(10);
+            args.RestOfLine.Should().ContainInOrder("bar", "baz");
         }
 
         [TestMethod]
@@ -1157,14 +1177,30 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
-        public void UnannotatedArgs()
+        public void NonWritableUnannotatedMembersDoNotBecomeArguments()
         {
             var args = new UnannotatedArguments();
             CommandLineParser.Parse(new[] { "/NonWritableValue=7" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/ProtectedValue=7" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/PrivateValue=7" }, args).Should().BeFalse();
+        }
 
-            args = new UnannotatedArguments();
+        [TestMethod]
+        public void ProtectedUnannotatedMembersDoNotBecomeArguments()
+        {
+            var args = new UnannotatedArguments();
+            CommandLineParser.Parse(new[] { "/ProtectedValue=7" }, args).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void PrivateUnannotatedMembersDoNotBecomeArguments()
+        {
+            var args = new UnannotatedArguments();
+            CommandLineParser.Parse(new[] { "/PrivateValue=7" }, args).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void PublicUnannotatedMembersBecomeArguments()
+        {
+            var args = new UnannotatedArguments();
             CommandLineParser.Parse(Array.Empty<string>(), args).Should().BeTrue();
             args.StringValue.Should().BeNull();
             args.IntValue.Should().Be(0);

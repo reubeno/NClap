@@ -1,5 +1,4 @@
 ﻿using System;
-
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Types;

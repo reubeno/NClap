@@ -18,10 +18,8 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
-        public void SimpleTextLine()
-        {
+        public void SimpleTextLine() => 
             Process("hello".AsKeys()).Should().Be("hello");
-        }
 
 #if NET461
         [TestMethod]
@@ -35,15 +33,12 @@ namespace NClap.Tests.ConsoleInput
 #endif
 
         [TestMethod]
-        public void Replace()
-        {
-            Process(
-                "hello".AsKeys(),
-                ConsoleKey.Home.AsInfo(),
-                ConsoleKey.Insert.AsInfo(),
-                "nope".AsKeys())
-                .Should().Be("nopeo");
-        }
+        public void Replace() => Process(
+            "hello".AsKeys(),
+            ConsoleKey.Home.AsInfo(),
+            ConsoleKey.Insert.AsInfo(),
+            "nope".AsKeys())
+            .Should().Be("nopeo");
         
         [TestMethod]
         public void EndOfInput()
@@ -97,67 +92,47 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
-        public void ClearScreen()
-        {
-            Process(
-                "hi".AsKeys(),
-                ConsoleKey.L.WithCtrl(),
-                ConsoleKey.Enter.AsInfo())
-                .Should().Be("hi");
-        }
+        public void ClearScreen() => Process(
+            "hi".AsKeys(),
+            ConsoleKey.L.WithCtrl(),
+            ConsoleKey.Enter.AsInfo())
+            .Should().Be("hi");
 
         [TestMethod]
-        public void DeleteWord()
-        {
-            Process(
-                "hello world".AsKeys(),
+        public void DeleteWord() =>
+            Process("hello world".AsKeys(),
                 ConsoleKey.Home.AsInfo(),
                 ConsoleKey.Delete.WithCtrl())
                 .Should().Be(" world");
-        }
 
         [TestMethod]
-        public void DeleteBackWord()
-        {
-            Process(
-                "hello world".AsKeys(),
-                ConsoleKey.W.WithCtrl())
-                .Should().Be("hello ");
-        }
+        public void DeleteBackWord() => Process(
+            "hello world".AsKeys(),
+            ConsoleKey.W.WithCtrl())
+            .Should().Be("hello ");
 
         [TestMethod]
-        public void InsertTab()
-        {
+        public void InsertTab() =>
             Process(ConsoleKey.Tab.WithAlt()).Should().Be("\t");
-        }
 
         [TestMethod]
-        public void Abort()
-        {
-            Process(
-                "hello world".AsKeys(),
-                ConsoleKey.G.WithCtrl())
-                .Should().BeEmpty();
-        }
+        public void Abort() => Process(
+            "hello world".AsKeys(),
+            ConsoleKey.G.WithCtrl())
+            .Should().BeEmpty();
 
         [TestMethod]
-        public void DeleteLastWord()
-        {
-            Process(
-                "hi".AsKeys(),
-                ConsoleKey.Backspace.WithCtrl())
-                .Should().BeEmpty();
-        }
+        public void DeleteLastWord() => Process(
+            "hi".AsKeys(),
+            ConsoleKey.Backspace.WithCtrl())
+            .Should().BeEmpty();
 
         [TestMethod]
-        public void Upcase()
-        {
-            Process(
-                "hello".AsKeys(),
-                ConsoleKey.Home.AsInfo(),
-                ConsoleKey.U.WithAlt())
-                .Should().Be("HELLO");
-        }
+        public void Upcase() => Process(
+            "hello".AsKeys(),
+            ConsoleKey.Home.AsInfo(),
+            ConsoleKey.U.WithAlt())
+            .Should().Be("HELLO");
 
         [TestMethod]
         public void Completion()
@@ -193,77 +168,57 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
-        public void AnUnimplementedCtrlAltOp()
-        {
-            Process(
-                "hello".AsKeys(),
-                ConsoleKey.Home.AsInfo(),
-                ConsoleKey.Y.WithCtrl().WithAlt())
-                .Should().Be("hello");
-        }
+        public void AnUnimplementedCtrlAltOp() => Process(
+            "hello".AsKeys(),
+            ConsoleKey.Home.AsInfo(),
+            ConsoleKey.Y.WithCtrl().WithAlt())
+            .Should().Be("hello");
 
         [TestMethod]
-        public void LotsOfMovement()
-        {
-            Process(
-                "hello".AsKeys(),
-                ConsoleKey.A.WithCtrl(),
-                ConsoleKey.Delete.AsInfo(),
-                "abc ".AsKeys(),
-                ConsoleKey.E.WithCtrl(),
-                ConsoleKey.Backspace.AsInfo(),
-                ConsoleKey.LeftArrow.WithCtrl(),
-                "foo".AsKeys(),
-                ConsoleKey.C.WithAlt(),
-                ConsoleKey.RightArrow.WithCtrl(),
-                "ZZZ".AsKeys(),
-                ConsoleKey.LeftArrow.AsInfo(),
-                ConsoleKey.LeftArrow.AsInfo(),
-                ConsoleKey.L.WithAlt())
-                .Should().Be("abc fooEllZzz");
-        }
+        public void LotsOfMovement() => Process(
+            "hello".AsKeys(),
+            ConsoleKey.A.WithCtrl(),
+            ConsoleKey.Delete.AsInfo(),
+            "abc ".AsKeys(),
+            ConsoleKey.E.WithCtrl(),
+            ConsoleKey.Backspace.AsInfo(),
+            ConsoleKey.LeftArrow.WithCtrl(),
+            "foo".AsKeys(),
+            ConsoleKey.C.WithAlt(),
+            ConsoleKey.RightArrow.WithCtrl(),
+            "ZZZ".AsKeys(),
+            ConsoleKey.LeftArrow.AsInfo(),
+            ConsoleKey.LeftArrow.AsInfo(),
+            ConsoleKey.L.WithAlt())
+            .Should().Be("abc fooEllZzz");
 
         [TestMethod]
-        public void InsertComment()
-        {
-            Process(
-                " hello world".AsKeys(),
-                ConsoleKey.D3.WithAlt().WithShift(),
-                " there".AsKeys())
-                .Should().Be(" hello world there");
-        }
+        public void InsertComment() => Process(
+            " hello world".AsKeys(),
+            ConsoleKey.D3.WithAlt().WithShift(),
+            " there".AsKeys())
+            .Should().Be(" hello world there");
 
         [TestMethod]
-        public void CutAndPaste()
-        {
-            Process(
-                "hello world".AsKeys(),
-                ConsoleKey.LeftArrow.WithCtrl(),
-                ConsoleKey.K.WithCtrl(),
-                ConsoleKey.Home.AsInfo(),
-                ConsoleKey.Y.WithCtrl())
-                .Should().Be("worldhello ");
-        }
+        public void CutAndPaste() => Process(
+            "hello world".AsKeys(),
+            ConsoleKey.LeftArrow.WithCtrl(),
+            ConsoleKey.K.WithCtrl(),
+            ConsoleKey.Home.AsInfo(),
+            ConsoleKey.Y.WithCtrl())
+            .Should().Be("worldhello ");
 
-        private static string Process(params ConsoleKeyInfo[] keyInfo)
-        {
-            return Process(keyInfo, completionHandler: null);
-        }
+        private static string Process(params ConsoleKeyInfo[] keyInfo) =>
+            Process(keyInfo, completionHandler: null);
 
-        private static string Process(params IEnumerable<ConsoleKeyInfo>[] keyInfo)
-        {
-            return Process(keyInfo.SelectMany(x => x), completionHandler: null);
-        }
+        private static string Process(params IEnumerable<ConsoleKeyInfo>[] keyInfo) =>
+            Process(keyInfo.SelectMany(x => x), completionHandler: null);
 
-        private static string Process(ConsoleCompletionHandler completionHandler, params IEnumerable<ConsoleKeyInfo>[] keyInfo)
-        {
-            return Process(keyInfo.SelectMany(x => x), completionHandler: completionHandler);
-        }
+        private static string Process(ConsoleCompletionHandler completionHandler, params IEnumerable<ConsoleKeyInfo>[] keyInfo) =>
+            Process(keyInfo.SelectMany(x => x), completionHandler: completionHandler);
 
-        private static string Process(IEnumerable<ConsoleKeyInfo> keyInfo, ConsoleCompletionHandler completionHandler = null)
-        {
-            return CreateReader(keyInfo.Concat(ConsoleKey.Enter), completionHandler).ReadLine();
-        }
+        private static string Process(IEnumerable<ConsoleKeyInfo> keyInfo, ConsoleCompletionHandler completionHandler = null) =>
+            CreateReader(keyInfo.Concat(ConsoleKey.Enter), completionHandler).ReadLine();
 
         private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream, ConsoleCompletionHandler completionHandler = null)
         {
