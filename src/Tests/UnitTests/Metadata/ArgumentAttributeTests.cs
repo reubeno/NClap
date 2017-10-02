@@ -1,14 +1,22 @@
 ﻿using System;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Exceptions;
 using NClap.Metadata;
+using NClap.Utilities;
 
 namespace NClap.Tests.Metadata
 {
     [TestClass]
     public class ArgumentAttributeTests
     {
+        public class SimpleTestClass
+        {
+            [NamedArgument(HelpText = "My value")]
+            public int Value { get; set; }
+        }
+
         [TestMethod]
         public void ParameterlessConstructorDefaults()
         {
@@ -52,6 +60,17 @@ namespace NClap.Tests.Metadata
 
             Action setNull = () => attribute.ConflictsWith = null;
             setNull.ShouldThrow<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void CompatibilityDescriptionPropertyWorks()
+        {
+            var property = typeof(SimpleTestClass).GetTypeInfo().GetProperty(nameof(SimpleTestClass.Value));
+            var attribute = property.GetSingleAttribute<NamedArgumentAttribute>();
+
+            attribute.Should().NotBeNull();
+            attribute.Description.Should().NotBeNullOrEmpty();
+            attribute.Description.Should().Be(attribute.HelpText);
         }
     }
 }

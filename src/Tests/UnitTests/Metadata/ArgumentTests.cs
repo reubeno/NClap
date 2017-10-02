@@ -125,7 +125,7 @@ namespace NClap.Tests.Metadata
                 NamedArgumentPrefixes = new string[] { },
             });
 
-            Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxHelp();
+            Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxSummary();
             getSyntaxHelpWithBogusSeparators.ShouldThrow<NotSupportedException>();
         }
 
@@ -137,7 +137,7 @@ namespace NClap.Tests.Metadata
                 ArgumentValueSeparators = new char[] { }
             });
 
-            Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxHelp();
+            Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxSummary();
             getSyntaxHelpWithBogusSeparators.ShouldThrow<NotSupportedException>();
         }
 
@@ -147,7 +147,7 @@ namespace NClap.Tests.Metadata
             var arg = GetArgument(typeof(StringArguments));
             arg.EffectiveDefaultValue.Should().Be("def");
             arg.DefaultValue.Should().Be("def");
-            arg.GetSyntaxHelp().Should().Be("[/Value[=<String>]]");
+            arg.GetSyntaxSummary().Should().Be("[/Value[=<String>]]");
         }
 
         [TestMethod]
@@ -156,7 +156,7 @@ namespace NClap.Tests.Metadata
             var arg = GetArgument(typeof(StringArgumentsThatMustBeNonEmpty));
             arg.EffectiveDefaultValue.Should().Be("");
             arg.DefaultValue.Should().Be("");
-            arg.GetSyntaxHelp().Should().Be("[/Value=<String>]");
+            arg.GetSyntaxSummary().Should().Be("[/Value=<String>]");
            
             var usageInfo = new ArgumentUsageInfo(arg);
             usageInfo.DefaultValue.Should().BeNull();
@@ -167,7 +167,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(RestOfLineStringArguments));
             arg.EffectiveDefaultValue.Should().BeNull();
-            arg.GetSyntaxHelp().Should().Be("[<Value> : <String>...]");
+            arg.GetSyntaxSummary().Should().Be("[<Value> : <String>...]");
         }
 
         [TestMethod]
@@ -175,7 +175,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(KeyValuePairArguments));
             arg.EffectiveDefaultValue.Should().Be(new KeyValuePair<int, int>(0, 0));
-            arg.GetSyntaxHelp().Should().Be("/Value=<Int32>=<Int32>");
+            arg.GetSyntaxSummary().Should().Be("/Value=<Int32>=<Int32>");
         }
 
         [TestMethod]
@@ -187,7 +187,7 @@ namespace NClap.Tests.Metadata
             value.Should().BeOfType(typeof(string[]));
             ((string[])value).Should().ContainInOrder("a", "b");
 
-            arg.GetSyntaxHelp().Should().Be("[/Value[=<String>]]*");
+            arg.GetSyntaxSummary().Should().Be("[/Value[=<String>]]*");
 
             var usage = new ArgumentUsageInfo(arg);
             usage.DefaultValue.Should().Be("a b");
@@ -202,7 +202,7 @@ namespace NClap.Tests.Metadata
             value.Should().BeOfType(typeof(string[]));
             ((string[])value).Should().BeEmpty();
 
-            arg.GetSyntaxHelp().Should().Be("[/Value[=<String>]]*");
+            arg.GetSyntaxSummary().Should().Be("[/Value[=<String>]]*");
 
             var usage = new ArgumentUsageInfo(arg);
             usage.DefaultValue.Should().BeNull();
@@ -213,7 +213,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(EnumArguments));
             arg.EffectiveDefaultValue.Should().Be(TestEnum.First);
-            arg.GetSyntaxHelp().Should().Be("[/Value=<TestEnum>]");
+            arg.GetSyntaxSummary().Should().Be("[/Value=<TestEnum>]");
         }
 
         [TestMethod]
@@ -221,7 +221,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(BoolArguments));
             arg.EffectiveDefaultValue.Should().Be(false);
-            arg.GetSyntaxHelp().Should().Be("[/Value]");
+            arg.GetSyntaxSummary().Should().Be("[/Value]");
         }
 
         [TestMethod]
@@ -229,7 +229,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(BoolArgumentsWithTrueDefault));
             arg.EffectiveDefaultValue.Should().Be(true);
-            arg.GetSyntaxHelp().Should().Be("[/Value[=<bool>]]");
+            arg.GetSyntaxSummary().Should().Be("[/Value[=<bool>]]");
         }
 
         [TestMethod]
@@ -244,7 +244,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(TupleOfIntAndStringArguments));
             arg.EffectiveDefaultValue.Should().BeNull();
-            arg.GetSyntaxHelp().Should().Be("[/Value=<Int32>,<String>]");
+            arg.GetSyntaxSummary().Should().Be("[/Value=<Int32>,<String>]");
         }
 
         [TestMethod]
@@ -301,7 +301,7 @@ namespace NClap.Tests.Metadata
             arg.LongName.Should().Be("value-argument");
         }
 
-        internal static Argument GetArgument(Type type, string fieldName = "Value", ArgumentSetAttribute setAttrib = null)
+        internal static ArgumentDefinition GetArgument(Type type, string fieldName = "Value", ArgumentSetAttribute setAttrib = null)
         {
             var argMember = type.GetMember(fieldName)[0];
             var attrib = argMember.GetSingleAttribute<ArgumentBaseAttribute>();
@@ -326,7 +326,7 @@ namespace NClap.Tests.Metadata
                 throw new NotSupportedException();
             }
 
-            return new Argument(mutableMemberInfo, attrib, setAttrib ?? new ArgumentSetAttribute(), options);
+            return new ArgumentDefinition(mutableMemberInfo, attrib, setAttrib ?? new ArgumentSetAttribute(), options);
         }
     }
 }

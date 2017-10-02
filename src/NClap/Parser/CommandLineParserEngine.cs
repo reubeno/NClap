@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Types;
 using NClap.Utilities;
@@ -48,7 +46,7 @@ namespace NClap.Parser
 
         private class ArgumentAndValue
         {
-            public Argument Arg { get; set; }
+            public ArgumentDefinition Arg { get; set; }
             public string Value { get; set; }
         }
 
@@ -87,7 +85,7 @@ namespace NClap.Parser
                 new TokenParseResult(TokenParseResultState.FailedFinalizing);
             public static TokenParseResult InvalidAnswerFile { get; } =
                 new TokenParseResult(TokenParseResultState.InvalidAnswerFile);
-            public static TokenParseResult RequiresOptionArgument(Argument arg)
+            public static TokenParseResult RequiresOptionArgument(ArgumentDefinition arg)
             {
                 if (arg == null) throw new ArgumentNullException(nameof(arg));
                 return new TokenParseResult(TokenParseResultState.RequiresOptionArgument)
@@ -97,7 +95,7 @@ namespace NClap.Parser
             }
 
             public TokenParseResultState State { get; }
-            public Argument Argument { get; private set; }
+            public ArgumentDefinition Argument { get; private set; }
             public NamedArgumentType? NamedArgType { get; private set; }
             public string NamedArg { get; private set; }
             public bool IsReady => State == TokenParseResultState.Ready;
@@ -110,35 +108,14 @@ namespace NClap.Parser
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
         private readonly static ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
 
-        // Argument metadata and parse state.
-        private readonly Dictionary<IMutableMemberInfo, Argument> _argumentsByMember = new Dictionary<IMutableMemberInfo, Argument>();
-        private readonly List<Argument> _namedArguments = new List<Argument>();
-        private readonly Dictionary<string, Argument> _namedArgumentsByName;
-        private readonly SortedList<int, Argument> _positionalArguments = new SortedList<int, Argument>();
-
         // Options.
         private readonly CommandLineParserOptions _options;
-        private readonly ArgumentSetAttribute _setAttribute;
+
+        // Argument definitions.
+        private readonly ArgumentSetDefinition _argumentSet;
 
         // Mutable parse state.
-        private int _nextPositionalArgIndexToImport;
         private int _nextPositionalArgIndexToParse;
-
-        /// <summary>
-        /// Creates a new command-line argument parser.
-        /// </summary>
-        /// <param name="type">Type of the parsed arguments.</param>
-        public CommandLineParserEngine(Type type) : this(type, null, null)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new command-line argument parser.
-        /// </summary>
-        /// <param name="defaultValues">Optionally provides an object with default values.</param>
-        public CommandLineParserEngine(object defaultValues) : this(defaultValues.GetType(), defaultValues, null)
-        {
-        }
 
         /// <summary>
         /// Creates a new command-line argument parser.
@@ -148,7 +125,7 @@ namespace NClap.Parser
         /// default values.</param>
         /// <param name="options">Optionally provides additional options
         /// controlling how parsing proceeds.</param>
-        public CommandLineParserEngine(Type type, object defaultValues, CommandLineParserOptions options)
+        public CommandLineParserEngine(Type type, object defaultValues = null, CommandLineParserOptions options = null)
         {
             // Save off the options provided; if none were provided, construct
             // some defaults.
@@ -166,16 +143,8 @@ namespace NClap.Parser
                 _options.FileSystemReader = FileSystemReader.Create();
             }
 
-            // Look for the optional ArgumentSetAttribute on the type; if there
-            // isn't one, construct a default empty one.
-            _setAttribute = type.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
-
-            // Set up private fields dependent on the ArgumentSetAttribute.
-            _namedArgumentsByName = new Dictionary<string, Argument>(StringComparerToUse);
-
-            // Scan the provided type for argument definitions.
-            ImportArgumentDefinitionsFromType(type, defaultValues);
-            _nextPositionalArgIndexToImport = _positionalArguments.Count;
+            // Define the argument set.
+            _argumentSet = new ArgumentSetDefinition(type, defaultValues, _options);
         }
 
         /// <summary>
@@ -211,7 +180,7 @@ namespace NClap.Parser
             }
 
             // Finalize all arguments: named args first, then positional default args.
-            foreach (var arg in _namedArguments.Concat(_positionalArguments.Values))
+            foreach (var arg in _argumentSet.NamedArguments.Concat(_argumentSet.PositionalArguments))
             {
                 if (!arg.TryFinalize(destination, _options.FileSystemReader))
                 {
@@ -239,27 +208,27 @@ namespace NClap.Parser
             var info = new ArgumentSetUsageInfo
             {
                 Name = commandName ?? AssemblyUtilities.GetAssemblyFileName(),
-                Description = _setAttribute.AdditionalHelp,
-                DefaultShortNamePrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault()
+                Description = _argumentSet.Attribute.AdditionalHelp,
+                DefaultShortNamePrefix = _argumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
             };
 
             // Add parameters and examples.
             info.AddParameters(GetArgumentUsageInfo(destination));
-            if (_setAttribute.Examples != null)
+            if (_argumentSet.Attribute.Examples != null)
             {
-                info.AddExamples(_setAttribute.Examples);
+                info.AddExamples(_argumentSet.Attribute.Examples);
             }
 
             // Update logo, if one was provided.
-            if (_setAttribute.LogoString != null)
+            if (_argumentSet.Attribute.LogoString != null)
             {
-                info.Logo = _setAttribute.LogoString;
+                info.Logo = _argumentSet.Attribute.LogoString;
             }
 
             // Compose remarks, if any.
             const string defaultHelpArgumentName = "?";
-            var namedArgPrefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
-            if (_namedArgumentsByName.ContainsKey(defaultHelpArgumentName) && namedArgPrefix != null)
+            var namedArgPrefix = _argumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
+            if (_argumentSet.TryGetNamedArgument(defaultHelpArgumentName, out ArgumentDefinition ignored) && namedArgPrefix != null)
             {
                 info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
             }
@@ -289,8 +258,8 @@ namespace NClap.Parser
         public IEnumerable<string> Format(object value)
         {
             // First format named arguments, then positional default arguments.
-            return _namedArguments
-                .Concat(_positionalArguments.Values)
+            return _argumentSet.NamedArguments
+                .Concat(_argumentSet.PositionalArguments)
                 .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
                 .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
                 .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
@@ -345,7 +314,7 @@ namespace NClap.Parser
             // See if we're expecting this token to be an option argument; if
             // so, then we can generate completions based on that.
             if (parseResult.State == TokenParseResultState.RequiresOptionArgument &&
-                _setAttribute.AllowNamedArgumentValueAsSucceedingToken)
+                _argumentSet.Attribute.AllowNamedArgumentValueAsSucceedingToken)
             {
                 return parseResult.Argument.GetCompletions(
                     tokenList,
@@ -380,7 +349,8 @@ namespace NClap.Parser
                 var parseContext = new ArgumentParseContext
                 {
                     FileSystemReader = _options.FileSystemReader,
-                    ParserContext = _options.Context
+                    ParserContext = _options.Context,
+                    CaseSensitive = _argumentSet.Attribute.CaseSensitive
                 };
 
                 var completionContext = new ArgumentCompletionContext
@@ -389,7 +359,7 @@ namespace NClap.Parser
                     TokenIndex = indexOfTokenToComplete,
                     Tokens = tokenList,
                     InProgressParsedObject = inProgressParsedObject,
-                    CaseSensitive = _setAttribute.CaseSensitive
+                    CaseSensitive = _argumentSet.Attribute.CaseSensitive
                 };
 
                 return ArgumentType.FileSystemPath.GetCompletions(completionContext, filePath)
@@ -398,7 +368,7 @@ namespace NClap.Parser
 
             // At this point, assume it must be a positional argument. If it's not, then there's not much
             // that we can do.
-            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndexToParse, out Argument positionalArg))
+            if (!_argumentSet.TryGetPositionalArgument(_nextPositionalArgIndexToParse, out ArgumentDefinition positionalArg))
             {
                 return emptyCompletions();
             }
@@ -410,269 +380,10 @@ namespace NClap.Parser
                 inProgressParsedObject);
         }
 
-        private void ImportArgumentDefinitionsFromType(Type defininingType, object defaultValues = null, object fixedDestination = null, int positionalIndexBias = 0)
-        {
-            // Extract argument descriptors from the defining type.
-            var args = GetArgumentDescriptors(defininingType, _setAttribute, defaultValues, _options, fixedDestination).ToList();
-
-            // Index the descriptors.
-            foreach (var arg in args)
-            {
-                _argumentsByMember.Add(arg.Member, arg);
-            }
-
-            // Symmetrically reflect any conflicts.
-            foreach (var arg in args)
-            {
-                foreach (var conflictingMemberName in arg.Attribute.ConflictsWith)
-                {
-                    var conflictingArgs =
-                        args.Where(a => a.Member.MemberInfo.Name.Equals(conflictingMemberName, StringComparison.Ordinal))
-                            .ToList();
-
-                    if (conflictingArgs.Count != 1)
-                    {
-                        throw new InvalidArgumentSetException(arg, string.Format(
-                            CultureInfo.CurrentCulture,
-                            Strings.ConflictingMemberNotFound,
-                            conflictingMemberName,
-                            arg.Member.MemberInfo.Name));
-                    }
-
-                    // Add the conflict both ways -- if only one says it
-                    // conflicts with the other, there's still a conflict.
-                    arg.AddConflictingArgument(conflictingArgs[0]);
-                    conflictingArgs[0].AddConflictingArgument(arg);
-                }
-            }
-
-            // Add arguments.
-            foreach (var arg in args)
-            {
-                if (arg.Attribute is NamedArgumentAttribute)
-                {
-                    ImportNamedArgumentDefinition(arg);
-                }
-                else if (arg.Attribute is PositionalArgumentAttribute)
-                {
-                    ImportPositionalArgumentDefinition(arg, positionalIndexBias);
-                }
-            }
-
-            // Re-validate positional arguments.
-            ValidateThatPositionalArgumentsDoNotOverlap();
-        }
-
-        private void ImportNamedArgumentDefinition(Argument argument)
-        {
-            //
-            // Validate and register the long name.
-            //
-
-            if (_namedArgumentsByName.ContainsKey(argument.LongName))
-            {
-                throw new InvalidArgumentSetException(argument, string.Format(
-                    CultureInfo.CurrentCulture,
-                    Strings.DuplicateArgumentLongName,
-                    argument.LongName));
-            }
-
-            _namedArgumentsByName.Add(argument.LongName, argument);
-
-            //
-            // Validate and register the short name.
-            //
-
-            if (!string.IsNullOrEmpty(argument.ShortName))
-            {
-                if (_namedArgumentsByName.TryGetValue(argument.ShortName, out Argument conflictingArg))
-                {
-                    Debug.Assert(conflictingArg != null);
-                    if (argument.ExplicitShortName)
-                    {
-                        if (conflictingArg.ExplicitShortName)
-                        {
-                            throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
-                                Strings.DuplicateArgumentShortName,
-                                argument.ShortName));
-                        }
-                        else
-                        {
-                            // TODO: Decide whether this works for dynamically
-                            // imported args.
-                            _namedArgumentsByName.Remove(conflictingArg.ShortName);
-                            conflictingArg.ClearShortName();
-                        }
-                    }
-                    else
-                    {
-                        argument.ClearShortName();
-                    }
-                }
-            }
-
-            if (!string.IsNullOrEmpty(argument.ShortName))
-            {
-                if (_setAttribute.AllowMultipleShortNamesInOneToken &&
-                    argument.ShortName.Length > 1)
-                {
-                    throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
-                        Strings.ArgumentShortNameTooLong,
-                        argument.ShortName));
-                }
-
-                _namedArgumentsByName.Add(argument.ShortName, argument);
-            }
-
-            // Add to unique list.
-            _namedArguments.Add(argument);
-        }
-
-        private void ImportPositionalArgumentDefinition(Argument arg, int positionalIndexBias)
-        {
-            var attrib = (PositionalArgumentAttribute)arg.Attribute;
-            var position = positionalIndexBias + attrib.Position;
-
-            if (_positionalArguments.ContainsKey(position))
-            {
-                throw new InvalidArgumentSetException(arg, string.Format(
-                    CultureInfo.CurrentCulture,
-                    Strings.DuplicatePositionArguments,
-                    _positionalArguments[position].Member.MemberInfo.Name,
-                    arg.Member.MemberInfo.Name,
-                    position));
-            }
-
-            _positionalArguments.Add(position, arg);
-            _nextPositionalArgIndexToImport = position + 1;
-        }
-
         private IEnumerable<char> ArgumentTerminatorsAndSeparators =>
-            ArgumentNameTerminators.Concat(_setAttribute.ArgumentValueSeparators);
+            ArgumentNameTerminators.Concat(_argumentSet.Attribute.ArgumentValueSeparators);
 
         private static IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
-
-        private static IEnumerable<IMutableMemberInfo> GetAllFieldsAndProperties(Type type, bool includeNonPublicMembers)
-        {
-            // Generate a list of the fields and properties declared on
-            // 'argumentSpecification', and on all types in its inheritance
-            // hierarchy.
-            var members = new List<IMutableMemberInfo>();
-            for (var currentType = type; currentType != null; currentType = currentType.GetTypeInfo().BaseType)
-            {
-                var bindingFlags =
-                    BindingFlags.Instance |
-                    BindingFlags.Static |
-                    BindingFlags.Public |
-                    BindingFlags.DeclaredOnly;
-
-                if (includeNonPublicMembers)
-                {
-                    bindingFlags |= BindingFlags.NonPublic;
-                }
-
-                members.AddRange(currentType.GetFieldsAndProperties(bindingFlags));
-            }
-
-            return members;
-        }
-
-        private static IEnumerable<Argument> GetArgumentDescriptors(Type type, ArgumentSetAttribute setAttribute, object defaultValues, CommandLineParserOptions options, object fixedDestination)
-        {
-            // Find all fields and properties that have argument attributes on
-            // them. For each that we find, capture information about them.
-            var argList = GetAllFieldsAndProperties(type, includeNonPublicMembers: true)
-                .SelectMany(member => CreateArgumentDescriptorsIfApplicable(member, defaultValues, setAttribute, options, fixedDestination));
-
-            // If the argument set attribute indicates that we should also
-            // include un-attributed, public, writable members as named
-            // arguments, then look for them now.
-            if (setAttribute.PublicMembersAreNamedArguments)
-            {
-                argList = argList.Concat(GetAllFieldsAndProperties(type, includeNonPublicMembers: false)
-                    .Where(member => member.IsWritable)
-                    .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>() == null)
-                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, setAttribute, options, fixedDestination)));
-            }
-
-            return argList;
-        }
-
-        private static IEnumerable<Argument> CreateArgumentDescriptorsIfApplicable(IMutableMemberInfo member, object defaultValues,
-            ArgumentSetAttribute setAttribute, CommandLineParserOptions options, object fixedDestination)
-        {
-            var descriptors = Enumerable.Empty<Argument>();
-
-            var argAttrib = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
-            if (argAttrib != null)
-            {
-                descriptors = descriptors.Concat(new[] { CreateArgumentDescriptor(member, argAttrib, defaultValues, setAttribute, options, fixedDestination) });
-            }
-
-            var groupAttrib = member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>();
-            if (groupAttrib != null)
-            {
-                // TODO: investigate defaultValues
-                descriptors = descriptors.Concat(GetArgumentDescriptors(member.MemberType,
-                    setAttribute,
-                    /*defaultValues=*/null,
-                    options,
-                    fixedDestination));
-            }
-
-            return descriptors;
-        }
-
-        private static Argument CreateArgumentDescriptor(
-            IMutableMemberInfo member,
-            ArgumentBaseAttribute attribute,
-            object defaultValues,
-            ArgumentSetAttribute setAttribute,
-            CommandLineParserOptions options,
-            object fixedDestination)
-        {
-            if (!member.IsReadable || !member.IsWritable)
-            {
-                var declaringType = member.MemberInfo.DeclaringType;
-
-                throw new InvalidArgumentSetException(member, string.Format(
-                    CultureInfo.CurrentCulture,
-                    Strings.MemberNotSupported,
-                    member.MemberInfo.Name,
-                    declaringType?.Name));
-            }
-
-            var defaultFieldValue = (defaultValues != null) ? member.GetValue(defaultValues) : null;
-            return new Argument(member,
-                attribute,
-                setAttribute,
-                options,
-                defaultFieldValue,
-                fixedDestination: fixedDestination);
-        }
-
-        private void ValidateThatPositionalArgumentsDoNotOverlap()
-        {
-            var namedArguments = _namedArguments;
-            var positionalArguments = _positionalArguments;
-
-            // Validate positional arguments.
-            var lastIndex = -1;
-            var allArgsConsumed = namedArguments.Any(a => a.TakesRestOfLine);
-            foreach (var argument in positionalArguments)
-            {
-                if (allArgsConsumed || (argument.Key != lastIndex + 1))
-                {
-                    throw new InvalidArgumentSetException(
-                        argument.Value,
-                        Strings.NonConsecutivePositionalParameters);
-                }
-
-                lastIndex = argument.Key;
-                allArgsConsumed = argument.Value.TakesRestOfLine || argument.Value.AllowMultiple;
-            }
-        }
 
         private void ReportUnreadableFile(string filePath) =>
             ReportLine(Strings.UnreadableFile, filePath);
@@ -780,7 +491,7 @@ namespace NClap.Parser
             // value, and if there's at least one more token, then try
             // to parse the next token as the current argument's value.
             if (result.State == TokenParseResultState.RequiresOptionArgument &&
-                _setAttribute.AllowNamedArgumentValueAsSucceedingToken &&
+                _argumentSet.Attribute.AllowNamedArgumentValueAsSucceedingToken &&
                 index + 1 < args.Count)
             {
                 var lastParsedArg = parsedArgs.GetLast();
@@ -849,7 +560,7 @@ namespace NClap.Parser
 
             argsConsumed = 1;
 
-            if (!_positionalArguments.TryGetValue(_nextPositionalArgIndexToParse, out Argument positionalArg))
+            if (!_argumentSet.TryGetPositionalArgument(_nextPositionalArgIndexToParse, out ArgumentDefinition positionalArg))
             {
                 var result = TokenParseResult.UnknownPositionalArgument;
                 ReportUnrecognizedArgument(result, argument);
@@ -886,7 +597,7 @@ namespace NClap.Parser
             Debug.Assert(argument.Length >= prefixLength);
 
             // Figure out where the argument name ends.
-            var endIndex = argument.IndexOfAny(_setAttribute.ArgumentValueSeparators, prefixLength);
+            var endIndex = argument.IndexOfAny(_argumentSet.Attribute.ArgumentValueSeparators, prefixLength);
 
             // Special case: check for '+' and '-' for booleans.
             if (endIndex < 0 && argument.Length >= 2)
@@ -913,7 +624,7 @@ namespace NClap.Parser
             if (argument.Length > prefixLength + options.Length)
             {
                 // If there's an argument value separator, then extract the value after the separator.
-                if (_setAttribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + options.Length] == sep))
+                if (_argumentSet.Attribute.ArgumentValueSeparators.Any(sep => argument[prefixLength + options.Length] == sep))
                 {
                     optionArgument = argument.Substring(prefixLength + options.Length + 1);
                 }
@@ -927,9 +638,9 @@ namespace NClap.Parser
 
             // Now try to figure out how many names are present.
             if (namedArgType == NamedArgumentType.ShortName &&
-                (_setAttribute.AllowMultipleShortNamesInOneToken || _setAttribute.AllowElidingSeparatorAfterShortName))
+                (_argumentSet.Attribute.AllowMultipleShortNamesInOneToken || _argumentSet.Attribute.AllowElidingSeparatorAfterShortName))
             {
-                Debug.Assert(_setAttribute.ShortNamesAreOneCharacterLong);
+                Debug.Assert(_argumentSet.Attribute.ShortNamesAreOneCharacterLong);
 
                 // Since short names are one character long, we parse them one at a
                 // time, preparing for multiple arguments in this one token.
@@ -939,7 +650,7 @@ namespace NClap.Parser
                     // Try parsing it as a short name; bail immediately if we find an invalid
                     // one.
                     var possibleShortName = new string(options[index], 1);
-                    if (!_namedArgumentsByName.TryGetValue(possibleShortName, out Argument arg))
+                    if (!_argumentSet.TryGetNamedArgument(possibleShortName, out ArgumentDefinition arg))
                     {
                         parsedArgs = null;
                         return TokenParseResult.UnknownNamedArgument(namedArgType, possibleShortName);
@@ -951,7 +662,7 @@ namespace NClap.Parser
                     // this token as an option argument.
                     var lastChar = index == options.Length - 1;
                     if (arg.RequiresOptionArgument &&
-                        _setAttribute.AllowElidingSeparatorAfterShortName &&
+                        _argumentSet.Attribute.AllowElidingSeparatorAfterShortName &&
                         optionArgument == null &&
                         !lastChar)
                     {
@@ -960,7 +671,7 @@ namespace NClap.Parser
                         lastChar = true;
                     }
 
-                    if (!_setAttribute.AllowMultipleShortNamesInOneToken &&
+                    if (!_argumentSet.Attribute.AllowMultipleShortNamesInOneToken &&
                         args.Count > 0)
                     {
                         parsedArgs = null;
@@ -979,7 +690,7 @@ namespace NClap.Parser
             else
             {
                 // Try to look up the argument by name.
-                if (!_namedArgumentsByName.TryGetValue(options, out Argument arg))
+                if (!_argumentSet.TryGetNamedArgument(options, out ArgumentDefinition arg))
                 {
                     parsedArgs = null;
                     return TokenParseResult.UnknownNamedArgument(namedArgType, options);
@@ -1009,15 +720,16 @@ namespace NClap.Parser
         private IEnumerable<ArgumentUsageInfo> GetArgumentUsageInfo(object destination)
         {
             // Enumerate positional arguments first, in position order.
-            foreach (var arg in _positionalArguments.Values.Where(a => !a.Hidden))
+            foreach (var arg in _argumentSet.PositionalArguments.Where(a => !a.Hidden))
             {
                 var currentValue = (destination != null) ? arg.GetValue(destination) : null;
                 yield return new ArgumentUsageInfo(arg, currentValue);
             }
 
             // Enumerate named arguments next, in case-insensitive sort order.
-            foreach (var arg in _namedArguments.Where(a => !a.Hidden)
-                                               .OrderBy(a => a.LongName, StringComparerToUse))
+            foreach (var arg in _argumentSet.NamedArguments
+                                    .Where(a => !a.Hidden)
+                                    .OrderBy(a => a.LongName, StringComparerToUse))
             {
                 var currentValue = (destination != null) ? arg.GetValue(destination) : null;
                 yield return new ArgumentUsageInfo(arg, currentValue);
@@ -1025,17 +737,17 @@ namespace NClap.Parser
 
             // Add an extra item for answer files, if that is supported on this
             // argument set.
-            if (_setAttribute.AnswerFileArgumentPrefix != null)
+            if (_argumentSet.Attribute.AnswerFileArgumentPrefix != null)
             {
                 var pseudoArgLongName = Strings.AnswerFileArgumentName;
 
-                if (_setAttribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+                if (_argumentSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
                 {
                     pseudoArgLongName = pseudoArgLongName.ToHyphenatedLowerCase();
                 }
 
                 yield return new ArgumentUsageInfo(
-                    $"[{_setAttribute.AnswerFileArgumentPrefix}<{pseudoArgLongName}>]*",
+                    $"[{_argumentSet.Attribute.AnswerFileArgumentPrefix}<{pseudoArgLongName}>]*",
                     Strings.AnswerFileArgumentDescription,
                     required: false);
             }
@@ -1048,14 +760,14 @@ namespace NClap.Parser
             var separatorIndex = namedArgumentAfterPrefix.IndexOfAny(ArgumentTerminatorsAndSeparators.ToArray());
             if (separatorIndex < 0)
             {
-                return _namedArguments
+                return _argumentSet.NamedArguments
                            .Select(namedArg => namedArg.LongName)
                            .OrderBy(longName => longName, StringComparerToUse)
                            .Where(candidateName => candidateName.StartsWith(namedArgumentAfterPrefix, StringComparisonToUse));
             }
 
             var separator = namedArgumentAfterPrefix[separatorIndex];
-            if (!_setAttribute.ArgumentValueSeparators.Contains(separator))
+            if (!_argumentSet.Attribute.ArgumentValueSeparators.Contains(separator))
             {
                 return emptyCompletions();
             }
@@ -1063,7 +775,7 @@ namespace NClap.Parser
             var name = namedArgumentAfterPrefix.Substring(0, separatorIndex);
             var value = namedArgumentAfterPrefix.Substring(separatorIndex + 1);
 
-            if (!_namedArgumentsByName.TryGetValue(name, out Argument arg))
+            if (!_argumentSet.TryGetNamedArgument(name, out ArgumentDefinition arg))
             {
                 return emptyCompletions();
             }
@@ -1072,7 +784,7 @@ namespace NClap.Parser
                       .Select(completion => string.Concat(name, separator.ToString(), completion));
         }
 
-        private bool TryParseAndStore(Argument arg, string value, object dest)
+        private bool TryParseAndStore(ArgumentDefinition arg, string value, object dest)
         {
             if (!arg.TryParseAndStore(value, dest, out object parsedValue))
             {
@@ -1091,9 +803,8 @@ namespace NClap.Parser
                 var definingType = argProvider.GetTypeDefiningArguments();
                 if (definingType != null)
                 {
-                    ImportArgumentDefinitionsFromType(definingType,
-                        fixedDestination: argProvider.GetDestinationObject(),
-                        positionalIndexBias: _nextPositionalArgIndexToImport);
+                    _argumentSet.AddArgumentsFromTypeWithAttributes(definingType,
+                        fixedDestination: argProvider.GetDestinationObject());
                 }
             }
 
@@ -1101,26 +812,26 @@ namespace NClap.Parser
         }
 
         private string TryGetLongNameArgumentPrefix(string arg) =>
-            _setAttribute.NamedArgumentPrefixes.FirstOrDefault(
+            _argumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault(
                 prefix => arg.StartsWith(prefix, StringComparisonToUse));
 
         private string TryGetShortNameArgumentPrefix(string arg) =>
-            _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault(
+            _argumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault(
                 prefix => arg.StartsWith(prefix, StringComparisonToUse));
 
         private string TryGetAnswerFilePrefix(string arg)
         {
-            if (_setAttribute.AnswerFileArgumentPrefix == null)
+            if (_argumentSet.Attribute.AnswerFileArgumentPrefix == null)
             {
                 return null;
             }
 
-            if (!arg.StartsWith(_setAttribute.AnswerFileArgumentPrefix, StringComparisonToUse))
+            if (!arg.StartsWith(_argumentSet.Attribute.AnswerFileArgumentPrefix, StringComparisonToUse))
             {
                 return null;
             }
 
-            return _setAttribute.AnswerFileArgumentPrefix;
+            return _argumentSet.Attribute.AnswerFileArgumentPrefix;
         }
 
         private bool TryLexArgumentAnswerFile(string filePath, out IEnumerable<string> arguments)
@@ -1170,7 +881,7 @@ namespace NClap.Parser
 
         private IEnumerable<string> GetSimilarNamedArguments(NamedArgumentType? type, string name)
         {
-            IEnumerable<string> candidates = _namedArgumentsByName.Keys;
+            var candidates = _argumentSet.ArgumentNames;
             var prefix = string.Empty;
 
             if (type.HasValue)
@@ -1178,16 +889,10 @@ namespace NClap.Parser
                 switch (type.Value)
                 {
                     case NamedArgumentType.LongName:
-                        prefix = _setAttribute.NamedArgumentPrefixes.FirstOrDefault();
-                        // candidates = _namedArgumentsByName
-                        //     .Where(pair => !string.IsNullOrEmpty(pair.Value.LongName))
-                        //     .Select(pair => pair.Value.LongName);
+                        prefix = _argumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault();
                         break;
                     case NamedArgumentType.ShortName:
-                        prefix = _setAttribute.ShortNameArgumentPrefixes.FirstOrDefault();
-                        // candidates = _namedArgumentsByName
-                        //     .Where(pair => !string.IsNullOrEmpty(pair.Value.ShortName))
-                        //     .Select(pair => pair.Value.ShortName);
+                        prefix = _argumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
                         break;
                 }
             }
@@ -1212,9 +917,9 @@ namespace NClap.Parser
         }
 
         private StringComparer StringComparerToUse =>
-            _setAttribute.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+            _argumentSet.Attribute.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
         private StringComparison StringComparisonToUse =>
-            _setAttribute.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            _argumentSet.Attribute.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
     }
 }

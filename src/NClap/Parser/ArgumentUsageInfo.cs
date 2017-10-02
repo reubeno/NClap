@@ -16,9 +16,9 @@ namespace NClap.Parser
         /// </summary>
         /// <param name="arg">Argument metadata.</param>
         /// <param name="currentValue">Current value.</param>
-        public ArgumentUsageInfo(Argument arg, object currentValue = null) : this(
-            syntax: arg.GetSyntaxHelp(detailed: false),
-            detailedSyntax: arg.GetSyntaxHelp(detailed: true),
+        public ArgumentUsageInfo(ArgumentDefinition arg, object currentValue = null) : this(
+            syntax: arg.GetSyntaxSummary(detailed: false),
+            detailedSyntax: arg.GetSyntaxSummary(detailed: true),
             description: arg.Attribute.Description,
             required: arg.IsRequired,
             shortName: arg.ShortName,
@@ -122,7 +122,7 @@ namespace NClap.Parser
         /// <param name="value">On success, receives the default value
         /// for this argument; otherwise, receives null.</param>
         /// <returns>True on success, false otherwise.</returns>
-        public static bool TryGetDefaultValue(Argument arg, bool onlyReturnExplicitDefaults, out object value)
+        public static bool TryGetDefaultValue(ArgumentDefinition arg, bool onlyReturnExplicitDefaults, out object value)
         {
             // Firstly, if the argument is required, then there's no need to
             // indicate any default value.
@@ -187,7 +187,7 @@ namespace NClap.Parser
         /// <returns>If one should be advertised, returns the string version of
         /// the default value for this argument; otherwise, returns null.
         /// </returns>
-        public static string TryGetDefaultValueString(Argument arg, bool onlyReturnExplicitDefaults = false)
+        public static string TryGetDefaultValueString(ArgumentDefinition arg, bool onlyReturnExplicitDefaults = false)
         {
             // Try to get the default value.
             if (!TryGetDefaultValue(arg, onlyReturnExplicitDefaults, out object defaultValue))

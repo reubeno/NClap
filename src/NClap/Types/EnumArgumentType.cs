@@ -12,7 +12,8 @@ namespace NClap.Types
     /// </summary>
     internal class EnumArgumentType : ArgumentTypeBase, IEnumArgumentType
     {
-        private readonly IReadOnlyDictionary<string, EnumArgumentValue> _valuesByName;
+        private readonly IReadOnlyDictionary<string, EnumArgumentValue> _valuesByCaseSensitiveName;
+        private readonly IReadOnlyDictionary<string, EnumArgumentValue> _valuesByCaseInsensitiveName;
         private readonly IReadOnlyDictionary<object, EnumArgumentValue> _valuesByValue;
         private readonly IReadOnlyList<EnumArgumentValue> _values;
 
@@ -56,7 +57,8 @@ namespace NClap.Types
             }
 
             _values = GetAllValues(type).ToList();
-            _valuesByName = ConstructValueNameMap(_values);
+            _valuesByCaseSensitiveName = ConstructValueNameMap(_values, true);
+            _valuesByCaseInsensitiveName = ConstructValueNameMap(_values, false);
             _valuesByValue = _values.ToDictionary(v => v.Value, v => v);
         }
 
@@ -97,8 +99,11 @@ namespace NClap.Types
         {
             object parsedObject;
 
+            // Select the appropriate map, based on context.
+            var map = context.CaseSensitive ? _valuesByCaseSensitiveName : _valuesByCaseInsensitiveName;
+
             // First try looking up the string in our name map.
-            if (!_valuesByName.TryGetValue(stringToParse, out EnumArgumentValue value))
+            if (!map.TryGetValue(stringToParse, out EnumArgumentValue value))
             {
                 // Otherwise, only let through literal integers.
                 if (!int.TryParse(stringToParse, NumberStyles.AllowLeadingSign, null, out int parsedInt))
@@ -132,11 +137,13 @@ namespace NClap.Types
         /// Constructs a map from the provided enum values, useful for parsing.
         /// </summary>
         /// <param name="values">The values in question.</param>
+        /// <param name="caseSensitive">True for the map to be built with case
+        /// sensitivity; false for case insensitivity.</param>
         /// <returns>The constructed map.</returns>
-        private static IReadOnlyDictionary<string, EnumArgumentValue> ConstructValueNameMap(IEnumerable<EnumArgumentValue> values)
+        private static IReadOnlyDictionary<string, EnumArgumentValue> ConstructValueNameMap(IEnumerable<EnumArgumentValue> values, bool caseSensitive)
         {
-            // TODO CASE: need to dynamically choose case sensitivity or not.
-            var valueNameMap = new Dictionary<string, EnumArgumentValue>(StringComparer.OrdinalIgnoreCase);
+            var valueNameMap = new Dictionary<string, EnumArgumentValue>(
+                caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
 
             // Process each value allowed on the given type, adding all synonyms
             // that indicate them.

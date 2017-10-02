@@ -34,10 +34,9 @@ namespace NClap.Metadata
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string LongName
         {
-            get
+            get => _longName;
+            set
             {
-                var value = _longName;
-
                 if ((value != null) && (value.Length == 0))
                 {
                     throw new InvalidArgumentSetException(string.Format(
@@ -45,10 +44,8 @@ namespace NClap.Metadata
                         Strings.InvalidValueLongName));
                 }
 
-                return value;
+                _longName = value;
             }
-
-            set => _longName = value;
         }
 
         /// <summary>
@@ -57,7 +54,7 @@ namespace NClap.Metadata
         public string HelpText
         {
             get => Description;
-            set => Description = HelpText;
+            set => Description = value;
         }
 
         /// <summary>

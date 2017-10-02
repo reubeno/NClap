@@ -69,6 +69,22 @@ namespace NClap.Tests.Metadata
             public int SomeValue { get; set; }
         }
 
+        enum TestEnum
+        {
+            SomeValue,
+            SomeOtherValue
+        }
+
+        [ArgumentSet(CaseSensitive = true, ShortNameArgumentPrefixes = new[] { "x" })]
+        class CaseSensitiveArguments
+        {
+            [NamedArgument(ShortName = "sF")]
+            public int SomeValue { get; set; }
+
+            [NamedArgument]
+            public TestEnum SomeEnum { get; set; }
+        }
+
 #pragma warning restore 0649
 
         [TestMethod]
@@ -343,6 +359,26 @@ namespace NClap.Tests.Metadata
 
             Action a = () => { attrib.Logo = 3; };
             a.ShouldThrow<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void CaseSensitivityFlagWorks()
+        {
+            var args = new CaseSensitiveArguments();
+
+            CommandLineParser.Parse(new[] { "/somevalue=7" }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "xSF=8" }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "XsF=9" }, args).Should().BeFalse();
+            CommandLineParser.Parse(new[] { "/SomeEnum=somevalue" }, args).Should().BeFalse();
+
+            CommandLineParser.Parse(new[] { "/SomeValue=10" }, args).Should().BeTrue();
+            args.SomeValue.Should().Be(10);
+
+            CommandLineParser.Parse(new[] { "xsF=11" }, args).Should().BeTrue();
+            args.SomeValue.Should().Be(11);
+
+            CommandLineParser.Parse(new[] { "/SomeEnum=SomeValue" }, args).Should().BeTrue();
+            args.SomeEnum.Should().Be(TestEnum.SomeValue);
         }
     }
 }

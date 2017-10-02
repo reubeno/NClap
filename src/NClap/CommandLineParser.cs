@@ -438,17 +438,9 @@ namespace NClap
         /// Tokenizes the provided input text line, observing quotes.
         /// </summary>
         /// <param name="line">Input line to parse.</param>
-        /// <returns>Enumeration of tokens.</returns>
-        internal static IEnumerable<Token> Tokenize(string line) =>
-            Tokenize(line, CommandLineTokenizerOptions.None);
-
-        /// <summary>
-        /// Tokenizes the provided input text line, observing quotes.
-        /// </summary>
-        /// <param name="line">Input line to parse.</param>
         /// <param name="options">Options for tokenizing.</param>
         /// <returns>Enumeration of tokens.</returns>
-        internal static IEnumerable<Token> Tokenize(string line, CommandLineTokenizerOptions options) =>
+        internal static IEnumerable<Token> Tokenize(string line, CommandLineTokenizerOptions options = CommandLineTokenizerOptions.None) =>
             CommandLineParserEngine.Tokenize(line, options);
 
         private static ColoredMultistring GetUsageInfo(

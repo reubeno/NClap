@@ -545,7 +545,7 @@ namespace NClap.Tests.Parser
 
         private static void GetUsageStringWorks<T>(T args, int width = 80, UsageInfoOptions? options = null)
         {
-            var cl = new CommandLineParserEngine(args);
+            var cl = new CommandLineParserEngine(typeof(T), args, null);
 
             var usageStr = cl.GetUsageInfo(width, null, options ?? UsageInfoOptions.Default).ToString();
             usageStr.Should().NotBeNullOrWhiteSpace();
