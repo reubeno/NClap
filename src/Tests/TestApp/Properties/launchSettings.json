@@ -2,7 +2,7 @@
   "profiles": {
     "NClap.TestApp": {
       "commandName": "Project",
-      "commandLineArgs": "repl -loglevle"
+      "commandLineArgs": "repl"
     }
   }
 }
