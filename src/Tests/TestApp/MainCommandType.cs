@@ -11,6 +11,9 @@ namespace NClap.TestApp
         [Command(typeof(CliHelp), Description = "Displays toplevel help")]
         CliHelp,
 
+        [Command(typeof(CompleteCommand), Description = "Useful only for completing")]
+        Complete,
+
         [Command(typeof(ReadLineCommand), ShortName = "readl", Description = "Reads a line of input")]
         ReadLine,
 
