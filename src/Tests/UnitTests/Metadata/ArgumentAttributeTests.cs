@@ -11,6 +11,7 @@ namespace NClap.Tests.Metadata
     [TestClass]
     public class ArgumentAttributeTests
     {
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class SimpleTestClass
         {
             [NamedArgument(HelpText = "My value")]

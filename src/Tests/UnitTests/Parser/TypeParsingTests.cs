@@ -12,12 +12,14 @@ namespace NClap.Tests.Parser
     [TestClass]
     public class TypeParsingTests
     {
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class ArgumentsWithType<T>
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true)]
             public T Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class ArgumentsWithCollectionType<T>
         {
             [NamedArgument(ArgumentFlags.Multiple, LongName = "Value")]

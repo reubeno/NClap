@@ -23,6 +23,11 @@ namespace NClap.Types
         /// path with respect to, if it's relative.</param>
         public FileSystemPath(string path, bool expandEnvironmentVariables, string rootPathForRelativePaths)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentOutOfRangeException(nameof(path));
+            }
+
             var pathToUse = expandEnvironmentVariables ? Environment.ExpandEnvironmentVariables(path) : path;
 
             Path = (rootPathForRelativePaths != null) ? GetFullPath(pathToUse, rootPathForRelativePaths) : pathToUse;

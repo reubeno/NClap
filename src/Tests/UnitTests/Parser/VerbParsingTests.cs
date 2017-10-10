@@ -39,6 +39,7 @@ namespace NClap.Tests.Parser
             public IReadOnlyDictionary<TCommandType, object> CommandArguments { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class SimpleArguments
         {
             [NamedArgument]
