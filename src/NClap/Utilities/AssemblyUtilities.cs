@@ -71,26 +71,36 @@ namespace NClap.Utilities
         {
             Debug.Assert(assembly != null);
 
-            var prefix = string.Empty;
-            var company = assembly.GetSingleAttribute<AssemblyCompanyAttribute>()?.Company;
-            if (!string.IsNullOrEmpty(company))
-            {
-                prefix = company + " ";
-            }
+            var company = assembly.GetSingleAttribute<AssemblyCompanyAttribute>()?.Company.Trim();
+            var title = assembly.GetSingleAttribute<AssemblyTitleAttribute>()?.Title.Trim();
+            var product = assembly.GetSingleAttribute<AssemblyProductAttribute>()?.Product.Trim();
 
-            var title = assembly.GetSingleAttribute<AssemblyTitleAttribute>()?.Title;
             if (!string.IsNullOrEmpty(title))
             {
-                return title.StartsWith(prefix, StringComparison.CurrentCultureIgnoreCase) ? title : prefix + title;
+                if (!string.IsNullOrEmpty(company) && !title.Contains(company))
+                {
+                    title = $"{company} {title}";
+                }
+
+                return title;
             }
 
-            var product = assembly.GetSingleAttribute<AssemblyProductAttribute>()?.Product;
             if (!string.IsNullOrEmpty(product))
             {
-                return product.StartsWith(prefix, StringComparison.CurrentCultureIgnoreCase) ? product : prefix + product;
+                if (!string.IsNullOrEmpty(company) && !product.Contains(company))
+                {
+                    product = $"{company} {product}";
+                }
+
+                return product;
             }
 
-            return prefix + assemblyName;
+            if (!string.IsNullOrEmpty(company) && !assemblyName.Contains(company))
+            {
+                assemblyName = $"{company} {assemblyName}";
+            }
+
+            return assemblyName;
         }
     }
 }
