@@ -152,7 +152,7 @@ namespace NClap.Utilities
                 case ConsoleKey.OemMinus:
                     return modifiers.HasFlag(ConsoleModifiers.Shift) ? new[] { '_' } : new[] { '-' };
                 case ConsoleKey.OemPlus:
-                    return modifiers.HasFlag(ConsoleModifiers.Shift) ? new[] { '=' } : new[] { '+' };
+                    return modifiers.HasFlag(ConsoleModifiers.Shift) ? new[] { '+' } : new[] { '=' };
                 case ConsoleKey.Oem1:
                     return modifiers.HasFlag(ConsoleModifiers.Shift) ? new[] { ':' } : new[] { ';' };
                 case ConsoleKey.Oem2:
