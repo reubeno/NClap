@@ -11,10 +11,13 @@ namespace NClap.Tests.Types
     [TestClass]
     public class FileSystemPathTests
     {
+        private static string sampleRootPath =
+            Path.DirectorySeparatorChar == '/' ? "/root/sample" : @"h:\sample";
+
         [TestMethod]
         public void ImplicitConversionOfAbsolutePath()
         {
-            const string originalPath = @"r:\some\path";
+            var originalPath = sampleRootPath;
 
             FileSystemPath path = originalPath;
             path.OriginalPath.Should().Be(originalPath);
@@ -24,7 +27,7 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void ImplicitConversionOfRelativePath()
         {
-            const string originalPath = @"relative\path";
+            var originalPath = Path.Combine("relative", "path");
 
             FileSystemPath path = originalPath;
             path.OriginalPath.Should().Be(originalPath);
@@ -34,17 +37,19 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void ImplicitConversionBackToString()
         {
-            var path = new FileSystemPath(@"relative\path", false, @"c:\");
+            var path = new FileSystemPath(
+                Path.Combine("relative", "path"),
+                false,
+                sampleRootPath);
 
             string pathString = path;
-            pathString.Should().Be(@"c:\relative\path");
+            pathString.Should().Be(Path.Combine(sampleRootPath, "relative", "path"));
         }
 
         [TestMethod]
         public void ExplicitConversion()
         {
-            const string originalPath = @"c:\path";
-
+            var originalPath = sampleRootPath;
             var path = (FileSystemPath)originalPath;
             path.OriginalPath.Should().Be(originalPath);
             path.Path.Should().Be(originalPath);
@@ -53,7 +58,7 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void AsUsage()
         {
-            const string originalPath = @"c:\path";
+            var originalPath = sampleRootPath;
             var opaqueOriginalPath = (object)originalPath;
 
             var path = opaqueOriginalPath as FileSystemPath;
@@ -63,8 +68,8 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void AbsolutePathWithResolution()
         {
-            const string originalPath = @"c:\absolute\path";
-            const string rootPath = @"c:\foo";
+            var originalPath = Path.Combine(sampleRootPath, "somedir");
+            var rootPath = sampleRootPath;
 
             var path = new FileSystemPath(originalPath, false /* expand? */, rootPath);
             path.OriginalPath.Should().Be(originalPath);
@@ -74,8 +79,8 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void RelativePathWithResolution()
         {
-            const string originalPath = @"relative\path";
-            const string rootPath = @"c:\foo";
+            var originalPath = Path.Combine("relative", "path");
+            var rootPath = sampleRootPath;
 
             var path = new FileSystemPath(originalPath, false /* expand? */, rootPath);
             path.OriginalPath.Should().Be(originalPath);
@@ -85,6 +90,12 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void DriveRelativePathWithResolution()
         {
+            // This doesn't apply in all cases.
+            if (Path.DirectorySeparatorChar == '/')
+            {
+                return;
+            }
+
             const string originalPath = @"\relative\path";
             const string rootPath = @"c:\foo";
 
@@ -96,7 +107,7 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void GetCompletionsWithInvalidContext()
         {
-            Action getCompletions = () => FileSystemPath.GetCompletions(null, @"h:\foo");
+            Action getCompletions = () => FileSystemPath.GetCompletions(null, sampleRootPath);
             getCompletions.ShouldThrow<ArgumentNullException>();
         }
 

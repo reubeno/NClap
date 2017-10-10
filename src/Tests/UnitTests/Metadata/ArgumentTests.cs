@@ -13,12 +13,14 @@ namespace NClap.Tests.Metadata
     [TestClass]
     public class ArgumentTests
     {
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class StringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true, ShortName = "v", DefaultValue = "def", Description = "Some value")]
             public string Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class StringArgumentsThatMustBeNonEmpty
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = false, DefaultValue = "")]
@@ -26,24 +28,28 @@ namespace NClap.Tests.Metadata
             public string Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class RestOfLineStringArguments
         {
             [PositionalArgument(ArgumentFlags.RestOfLine)]
             public string Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class KeyValuePairArguments
         {
             [NamedArgument(ArgumentFlags.Required, ShortName = "w")]
             public KeyValuePair<int, int> Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class StringArrayArguments
         {
             [NamedArgument(ArgumentFlags.Multiple, AllowEmpty = true, DefaultValue = new[] { "a", "b" })]
             public string[] Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class StringArrayWithEmptyDefaultArguments
         {
             [NamedArgument(ArgumentFlags.Multiple, AllowEmpty = true, DefaultValue = new string[] {})]
@@ -57,36 +63,42 @@ namespace NClap.Tests.Metadata
             Third
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class EnumArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public TestEnum Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class BoolArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public bool Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class BoolArgumentsWithTrueDefault
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = true)]
             public bool Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class EmptyLongNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, LongName = "")]
             public string Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class TupleOfIntAndStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public Tuple<int, string> Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class ArgumentsWithUnsettableDefault
         {
             public bool underlyingValue;
@@ -99,6 +111,7 @@ namespace NClap.Tests.Metadata
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class ArgumentsWithUnsettableCollectionDefault
         {
             public string[] underlyingValue;
@@ -111,6 +124,7 @@ namespace NClap.Tests.Metadata
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class DefaultedNamedArguments
         {
             [NamedArgument]
@@ -326,7 +340,11 @@ namespace NClap.Tests.Metadata
                 throw new NotSupportedException();
             }
 
-            return new ArgumentDefinition(mutableMemberInfo, attrib, setAttrib ?? new ArgumentSetAttribute(), options);
+            return new ArgumentDefinition(
+                mutableMemberInfo,
+                attrib,
+                setAttrib ?? new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine },
+                options);
         }
     }
 }

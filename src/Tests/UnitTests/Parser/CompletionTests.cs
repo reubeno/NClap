@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,6 +11,7 @@ namespace NClap.Tests.Parser
     [TestClass]
     public class CompletionTests
     {
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         private class SimpleArgs
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "d")]
@@ -25,7 +27,7 @@ namespace NClap.Tests.Parser
             public bool PositionalFlag { get; set; }
         }
 
-        [ArgumentSet(AnswerFileArgumentPrefix = null)]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AnswerFileArgumentPrefix = null)]
         private class ArgsWithNoAnswerFile
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -43,12 +45,15 @@ namespace NClap.Tests.Parser
         public void CompleteAnswerFilePath()
         {
             var reader = Substitute.For<IFileSystemReader>();
-            reader.EnumerateFileSystemEntries(Arg.Any<string>(), Arg.Any<string>()).Returns(new[] { ".\\FooBar", ".\\Foo.txt" });
+            reader.EnumerateFileSystemEntries(Arg.Any<string>(), Arg.Any<string>()).Returns(new[]
+            {
+                Path.Combine(".", "FooBar"), Path.Combine(".", "Foo.txt")
+            });
 
             var options = new CommandLineParserOptions { FileSystemReader = reader };
-            var completions = CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "@.\\Foo" }, 0, options).ToList();
+            var completions = CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "@" + Path.Combine(".", "Foo") }, 0, options).ToList();
 
-            completions.Should().ContainInOrder("@.\\FooBar", "@.\\Foo.txt");
+            completions.Should().ContainInOrder("@" + Path.Combine(".", "FooBar"), "@" + Path.Combine(".", "Foo.txt"));
             reader.Received().EnumerateFileSystemEntries(".", "Foo*");
         }
 
@@ -56,10 +61,13 @@ namespace NClap.Tests.Parser
         public void CompleteAnswerFilePathButNoPrefixAvailable()
         {
             var reader = Substitute.For<IFileSystemReader>();
-            reader.EnumerateFileSystemEntries(Arg.Any<string>(), Arg.Any<string>()).Returns(new[] { ".\\FooBar", ".\\Foo.txt" });
+            reader.EnumerateFileSystemEntries(Arg.Any<string>(), Arg.Any<string>()).Returns(new[]
+            {
+                Path.Combine(".", "FooBar"), Path.Combine(".", "Foo.txt")
+            });
 
             var options = new CommandLineParserOptions { FileSystemReader = reader };
-            var completions = CommandLineParser.GetCompletions(typeof(ArgsWithNoAnswerFile), new[] { "@.\\Foo" }, 0, options).ToList();
+            var completions = CommandLineParser.GetCompletions(typeof(ArgsWithNoAnswerFile), new[] { Path.Combine(".", "Foo") }, 0, options).ToList();
             completions.Should().BeEmpty();
         }
 

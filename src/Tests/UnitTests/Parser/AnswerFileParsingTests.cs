@@ -14,6 +14,7 @@ namespace NClap.Tests.Parser
     {
     #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class Arguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -23,7 +24,7 @@ namespace NClap.Tests.Parser
             public string StringValue;
         }
         
-        [ArgumentSet(AnswerFileArgumentPrefix = "#!")]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AnswerFileArgumentPrefix = "#!")]
         class AlternateSyntaxArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]

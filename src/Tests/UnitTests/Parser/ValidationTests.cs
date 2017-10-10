@@ -14,6 +14,7 @@ namespace NClap.Tests.Parser
     [TestClass]
     public class ValidationTests
     {
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class IncorrectlyUsedMustNotBeEmptyAttributeArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -21,6 +22,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class InvalidDefaultValueArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "")]
@@ -28,6 +30,7 @@ namespace NClap.Tests.Parser
             public string Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NonEmptyStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -39,6 +42,7 @@ namespace NClap.Tests.Parser
             public FileSystemPath Path { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NotValueIntArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -46,6 +50,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class MultiNotValueIntArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -53,6 +58,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NotValueStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -60,6 +66,7 @@ namespace NClap.Tests.Parser
             public string Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class RegExStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -67,6 +74,7 @@ namespace NClap.Tests.Parser
             public string Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NotRegExStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, AllowEmpty = true)]
@@ -74,6 +82,7 @@ namespace NClap.Tests.Parser
             public string Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class CaseInsensitiveRegExStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -81,6 +90,7 @@ namespace NClap.Tests.Parser
             public string Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class GreaterThanArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -88,6 +98,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class GreaterThanOrEqualToArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -95,6 +106,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class LessThanArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -102,6 +114,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class LessThanOrEqualToArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -109,6 +122,7 @@ namespace NClap.Tests.Parser
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class FileExistsStringArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -116,6 +130,7 @@ namespace NClap.Tests.Parser
             public string Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class FileExistsArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -123,6 +138,7 @@ namespace NClap.Tests.Parser
             public FileSystemPath Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class DirectoryExistsArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -130,6 +146,7 @@ namespace NClap.Tests.Parser
             public FileSystemPath Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ExistsArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -137,6 +154,7 @@ namespace NClap.Tests.Parser
             public FileSystemPath Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NotExistsArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]

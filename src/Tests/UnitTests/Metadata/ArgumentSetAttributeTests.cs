@@ -12,21 +12,28 @@ namespace NClap.Tests.Metadata
     {
     #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
-        [ArgumentSet(NamedArgumentPrefixes = new[] { "--" }, ShortNameArgumentPrefixes = new[] { ";" })]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            NamedArgumentPrefixes = new[] { "--" },
+            ShortNameArgumentPrefixes = new[] { ";" })]
         class AlternatePrefixArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value;
         }
 
-        [ArgumentSet(ArgumentValueSeparators = new[] { '$' })]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            ArgumentValueSeparators = new[] { '$' })]
         class AlternateSeparatorArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value;
         }
 
-        [ArgumentSet(AllowNamedArgumentValueAsSucceedingToken = true)]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            AllowNamedArgumentValueAsSucceedingToken = true)]
         class AllowArgumentValueAfterSpaceArguments
         {
             [NamedArgument]
@@ -37,6 +44,7 @@ namespace NClap.Tests.Metadata
         }
 
         [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
             NamedArgumentPrefixes = new[] { "--" },
             ShortNameArgumentPrefixes = new[] { "/" },
             AllowMultipleShortNamesInOneToken = true)]
@@ -53,6 +61,7 @@ namespace NClap.Tests.Metadata
         }
 
         [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
             NamedArgumentPrefixes = new[] { "--" },
             ShortNameArgumentPrefixes = new[] { "/" },
             AllowElidingSeparatorAfterShortName = true)]
@@ -62,7 +71,9 @@ namespace NClap.Tests.Metadata
             public int Value { get; set; }
         }
 
-        [ArgumentSet(NameGenerationFlags = ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames)]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            NameGenerationFlags = ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames)]
         class HyphenatedLongNamesArguments
         {
             [NamedArgument]
@@ -75,7 +86,10 @@ namespace NClap.Tests.Metadata
             SomeOtherValue
         }
 
-        [ArgumentSet(CaseSensitive = true, ShortNameArgumentPrefixes = new[] { "x" })]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            CaseSensitive = true,
+            ShortNameArgumentPrefixes = new[] { "x" })]
         class CaseSensitiveArguments
         {
             [NamedArgument(ShortName = "sF")]
@@ -304,7 +318,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void CertainOptionsAreUnsupportedIfNamedArgPrefixesOverlap()
         {
-            var attrib = new ArgumentSetAttribute();
+            var attrib = new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine };
             attrib.NamedArgumentPrefixes.Overlaps(attrib.ShortNameArgumentPrefixes).Should().BeTrue();
 
             Action a = () => attrib.AllowMultipleShortNamesInOneToken = true;

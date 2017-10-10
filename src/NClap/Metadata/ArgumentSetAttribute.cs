@@ -151,23 +151,23 @@ namespace NClap.Metadata
                     break;
 
                 case ArgumentSetStyle.WindowsCommandLine:
-                    NamedArgumentPrefixes = new[] { "/", "-" };
-                    ShortNameArgumentPrefixes = new[] { "/", "-" };
-                    ArgumentValueSeparators = new[] { '=', ':' };
                     AllowNamedArgumentValueAsSucceedingToken = false;
                     AllowMultipleShortNamesInOneToken = false;
                     AllowElidingSeparatorAfterShortName = false;
                     NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
+                    NamedArgumentPrefixes = new[] { "/", "-" };
+                    ShortNameArgumentPrefixes = new[] { "/", "-" };
+                    ArgumentValueSeparators = new[] { '=', ':' };
                     break;
 
                 case ArgumentSetStyle.PowerShell:
-                    NamedArgumentPrefixes = new[] { "-" };
-                    ShortNameArgumentPrefixes = new[] { "-" };
-                    ArgumentValueSeparators = new[] { ':' };
                     AllowNamedArgumentValueAsSucceedingToken = true;
                     AllowMultipleShortNamesInOneToken = false;
                     AllowElidingSeparatorAfterShortName = false;
                     NameGenerationFlags = ArgumentNameGenerationFlags.UseOriginalCodeSymbol;
+                    NamedArgumentPrefixes = new[] { "-" };
+                    ShortNameArgumentPrefixes = new[] { "-" };
+                    ArgumentValueSeparators = new[] { ':' };
                     break;
 
                 case ArgumentSetStyle.GetOpt:

@@ -27,11 +27,12 @@ namespace NClap.Tests.Parser
 
     #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NoArguments
         {
         }
 
-        [ArgumentSet(Examples = new[] { "SimpleArgs /mu=4" })]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, Examples = new[] { "SimpleArgs /mu=4" })]
         class SimpleArguments : HelpArgumentsBase
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, Description = "Some boolean")]
@@ -71,72 +72,84 @@ namespace NClap.Tests.Parser
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class RequiredArguments : HelpArgumentsBase
         {
             [NamedArgument(ArgumentFlags.Required)]
             public string RequiredArgument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class RequiredPositionalArguments
         {
             [PositionalArgument(ArgumentFlags.Required)]
             public string RequiredArgument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class AllArgumentsAsArgumentString
         {
             [NamedArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
             public string AllArguments;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class AllArgumentsAsPositionalArgumentString
         {
             [PositionalArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
             public string AllArguments;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class AllArgumentsAsArray
         {
             [PositionalArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
             public string[] AllArguments;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ArgumentsWithDefaultValue
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = 10)]
             public int Argument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ArgumentsWithCoerceableDefaultValue
         {
             [NamedArgument(DefaultValue = 1)]
             public uint Argument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ArgumentsWithDynamicDefaultValue
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = 10, DynamicDefaultValue = true)]
             public int Argument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class MultiplePositionalArguments
         {
             [PositionalArgument(ArgumentFlags.Multiple)]
             public string[] Args;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ReadOnlyFieldArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public readonly int Argument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ConstFieldArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public const int Argument = 7;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PrivateFieldArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, LongName = "argument")]
@@ -145,12 +158,14 @@ namespace NClap.Tests.Parser
             public int PrivateArgument => _argument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class StaticFieldArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public static int Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class DerivedArguments : SimpleArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, LongName = "DerivedMyString")]
@@ -163,17 +178,20 @@ namespace NClap.Tests.Parser
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         struct ValueTypeArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NoAttributedArguments
         {
             public int Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class OverriddenShortNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -183,12 +201,14 @@ namespace NClap.Tests.Parser
             public int OtherArgument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class EmptyShortNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "")]
             public int Argument;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class DuplicateLongNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, LongName = "Foo")]
@@ -198,6 +218,7 @@ namespace NClap.Tests.Parser
             public string Arg2;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NoAvailableShortNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -207,6 +228,7 @@ namespace NClap.Tests.Parser
             public int Foo;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class DuplicateShortNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "a")]
@@ -216,18 +238,21 @@ namespace NClap.Tests.Parser
             public int Argument2;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PropertyArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class UnsettablePropertyArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value => 0;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class SamePositionArguments
         {
             [PositionalArgument(ArgumentFlags.AtMostOnce)]
@@ -237,12 +262,14 @@ namespace NClap.Tests.Parser
             public int Value2;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NoZeroPositionArguments
         {
             [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 1)]
             public int Value1;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PositionPlusRestOfLineArguments<T>
         {
             [PositionalArgument(ArgumentFlags.AtMostOnce, Position = 0)]
@@ -252,6 +279,7 @@ namespace NClap.Tests.Parser
             public T RestOfLine;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NamedPlusRestOfLineArguments<T>
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -261,6 +289,7 @@ namespace NClap.Tests.Parser
             public T RestOfLine;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class RestOfLinePlusPositionArguments
         {
             [NamedArgument(ArgumentFlags.RestOfLine)]
@@ -270,6 +299,7 @@ namespace NClap.Tests.Parser
             public int Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class MultiplePositionalArgumentsPlusPositionArguments
         {
             [PositionalArgument(ArgumentFlags.Multiple)]
@@ -279,6 +309,7 @@ namespace NClap.Tests.Parser
             public int Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PositionalArguments
         {
             [PositionalArgument(ArgumentFlags.Required, Position = 1)]
@@ -288,31 +319,35 @@ namespace NClap.Tests.Parser
             public string Value0;
         }
 
-        [ArgumentSet(AdditionalHelp = "More help content.")]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AdditionalHelp = "More help content.")]
         class AdditionalHelpArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public int Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ListArguments
         {
             [NamedArgument(ArgumentFlags.Multiple, LongName = "Value")]
             public List<string> Values;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class IListArguments
         {
             [NamedArgument(ArgumentFlags.Multiple, LongName = "Value")]
             public IList<string> Values;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ListPropertyArguments
         {
             [NamedArgument(ArgumentFlags.Multiple, LongName = "Value")]
             public List<string> Values { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class CustomPropertyArguments
         {
             private string _value;
@@ -333,6 +368,7 @@ namespace NClap.Tests.Parser
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PropertyWithoutGetArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -342,6 +378,7 @@ namespace NClap.Tests.Parser
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ThrowingStringPropertyArguments<TException> where TException : Exception, new()
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -352,6 +389,7 @@ namespace NClap.Tests.Parser
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ThrowingGuidPropertyArguments<TException> where TException : Exception, new()
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -362,12 +400,14 @@ namespace NClap.Tests.Parser
             }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class UnknownConflictingArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ConflictsWith = new[] {"Foo"})]
             public string Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class SelfConflictingArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ConflictsWith = new[] { nameof(Value) })]
@@ -377,6 +417,7 @@ namespace NClap.Tests.Parser
             public string OtherValue;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ConflictingArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ConflictsWith = new[] { nameof(OtherValue) })]
@@ -386,6 +427,7 @@ namespace NClap.Tests.Parser
             public string OtherValue;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PartlySpecifiedConflictingArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ConflictsWith = new[] { nameof(OtherValue) })]
@@ -395,18 +437,21 @@ namespace NClap.Tests.Parser
             public string OtherValue;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class FieldDefaultValueOfWrongTypeArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "foo")]
             public long Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class PropertyDefaultValueOfWrongTypeArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = "foo")]
             public long Value { get; set; }
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class DefaultValueOfImplicitlyConvertibleTypeArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, DefaultValue = 10)]
@@ -422,6 +467,7 @@ namespace NClap.Tests.Parser
             public FileSystemPath PathProp;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class ZeroLengthLongNameArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, LongName = "")]
@@ -436,13 +482,14 @@ namespace NClap.Tests.Parser
             FlagTwo = 0x2
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class FlagEnumArguments
         {
             [NamedArgument(ArgumentFlags.Multiple)]
             public MyFlagsEnum Value;
         }
 
-        [ArgumentSet(PublicMembersAreNamedArguments = true)]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, PublicMembersAreNamedArguments = true)]
         class UnannotatedArguments
         {
             public string StringValue { get; set; }

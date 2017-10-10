@@ -10,6 +10,8 @@ namespace NClap.ConsoleInput
     /// </summary>
     internal sealed class BasicConsoleInputAndOutput : IConsoleInput, IConsoleOutput
     {
+        private bool _cursorLastKnownToBeVisible = true;
+
         /// <summary>
         /// Dummy constructor, present to prevent outside callers from
         /// constructing an instance of this class.
@@ -26,20 +28,58 @@ namespace NClap.ConsoleInput
 
         /// <summary>
         /// The size of the cursor, expressed as an integral percentage.
+        /// Note that this property is not faithfully or completely implemented
+        /// on all platforms.
         /// </summary>
         public int CursorSize
         {
             get => Console.CursorSize;
-            set => Console.CursorSize = value;
+            set
+            {
+                try
+                {
+                    Console.CursorSize = value;
+                }
+
+                // Setting the cursor size is not supported on all platforms,
+                // so we swallow the request.  This isn't awesome, but covers
+                // up for holes in the platform.
+#pragma warning disable CC0004 // Catch block cannot be empty
+                catch (PlatformNotSupportedException)
+                {
+                }
+#pragma warning restore CC0004 // Catch block cannot be empty
+            }
         }
 
         /// <summary>
-        /// True if the cursor is visible; false otherwise.
+        /// True if the cursor is visible; false otherwise. Note that this
+        /// property is not faithfully or completely implemented on all
+        /// platforms.
         /// </summary>
         public bool CursorVisible
         {
-            get => Console.CursorVisible;
-            set => Console.CursorVisible = value;
+            get
+            {
+                try
+                {
+                    return Console.CursorVisible;
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    // The underlying platform might not tell us if the cursor
+                    // is visible, even though it supports setting the visibility.
+                    // In such case, we make a possibly-incorrect guess and
+                    // report what we last knew.
+                    return _cursorLastKnownToBeVisible;
+                }
+            }
+
+            set
+            {
+                Console.CursorVisible = value;
+                _cursorLastKnownToBeVisible = value;
+            }
         }
 
         /// <summary>

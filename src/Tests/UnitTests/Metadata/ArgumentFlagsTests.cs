@@ -13,30 +13,35 @@ namespace NClap.Tests.Metadata
     [TestClass]
     public class ArgumentFlagsTests
     {
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class RequiredArguments<T>
         {
             [NamedArgument(ArgumentFlags.Required)]
             public T Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class AtMostOnceArguments<T>
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public T Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class AtLeastOnceArguments<T>
         {
             [NamedArgument(ArgumentFlags.AtLeastOnce)]
             public T Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class MultipleArguments<T>
         {
             [NamedArgument(ArgumentFlags.Multiple)]
             public T Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class MultipleUniqueArguments<T>
         {
             [NamedArgument(ArgumentFlags.MultipleUnique)]

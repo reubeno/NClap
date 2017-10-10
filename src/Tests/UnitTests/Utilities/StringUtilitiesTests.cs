@@ -35,7 +35,7 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
             builder.AppendWrappedLine("hello", 80);
-            builder.ToString().Should().Be("hello\r\n");
+            builder.ToString().Should().Be("hello" + Environment.NewLine);
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
             builder.AppendWrappedLine("hello", 3);
-            builder.ToString().Should().Be("hel\r\nlo\r\n");
+            builder.ToString().Should().Be("hel" + Environment.NewLine + "lo" + Environment.NewLine);
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace NClap.Tests.Utilities
             var builder = new StringBuilder();
             builder.Append("PREFIX");
             builder.AppendWrappedLine("hello", 3);
-            builder.ToString().Should().Be("PREFIXhel\r\nlo\r\n");
+            builder.ToString().Should().Be("PREFIXhel" + Environment.NewLine + "lo" + Environment.NewLine);
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
             builder.AppendWrappedLine("hello", 3, 2);
-            builder.ToString().Should().Be("  h\r\n  e\r\n  l\r\n  l\r\n  o\r\n");
+            builder.ToString().Should().Be("  h" + Environment.NewLine + "  e" + Environment.NewLine + "  l" + Environment.NewLine + "  l" + Environment.NewLine + "  o" + Environment.NewLine);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
             builder.AppendWrappedLine("hello\n", 80);
-            builder.ToString().Should().Be("hello\r\n\r\n");
+            builder.ToString().Should().Be("hello" + Environment.NewLine + Environment.NewLine);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
             builder.AppendWrappedLine("hello\n\n\n", 80);
-            builder.ToString().Should().Be("hello\r\n\r\n\r\n\r\n");
+            builder.ToString().Should().Be("hello" + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine);
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
             builder.AppendWrappedLine("hello\nworld", 80, 4);
-            builder.ToString().Should().Be("    hello\r\n    world\r\n");
+            builder.ToString().Should().Be("    hello" + Environment.NewLine + "    world" + Environment.NewLine);
         }
 
         [TestMethod]
@@ -217,7 +217,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void WrapWithEmptyLines()
         {
-            StringUtilities.Wrap("1234\r\n\r\n", 10, 4).Should().Be(
+            StringUtilities.Wrap("1234" + Environment.NewLine + Environment.NewLine, 10, 4).Should().Be(
                 "    1234" + Environment.NewLine +
                 "    "     + Environment.NewLine +
                 "    ");
