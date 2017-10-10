@@ -14,6 +14,9 @@ namespace NClap.TestApp
         [Command(typeof(CompleteCommand), Description = "Useful only for completing")]
         Complete,
 
+        [Command(typeof(LogoCommand), Description = "Display 'logo'")]
+        Logo,
+
         [Command(typeof(ReadLineCommand), ShortName = "readl", Description = "Reads a line of input")]
         ReadLine,
 
