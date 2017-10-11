@@ -1,5 +1,7 @@
 # .NET Command Line Argument Parser (NClap)
 
+[![Join the chat at https://gitter.im/NClap/Lobby](https://badges.gitter.im/NClap/Lobby.svg)](https://gitter.im/NClap/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build status](https://ci.appveyor.com/api/projects/status/ay9tjpxor3n4gv1i/branch/master?svg=true)](https://ci.appveyor.com/project/reubeno/nclap/branch/master)
 [![NuGet package](https://img.shields.io/nuget/vpre/NClap.svg)](https://www.nuget.org/packages/NClap)
 [![GitHub license](https://img.shields.io/github/license/reubeno/NClap.svg)](https://reubeno.github.io/NClap/LICENSE.txt)
