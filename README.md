@@ -5,14 +5,9 @@
 [![GitHub license](https://img.shields.io/github/license/reubeno/NClap.svg)](https://reubeno.github.io/NClap/LICENSE.txt)
 [![Code Coverage](https://codecov.io/gh/reubeno/NClap/branch/master/graph/badge.svg)](https://codecov.io/gh/reubeno/NClap) [![Join the chat at https://gitter.im/NClap/Lobby](https://badges.gitter.im/NClap/Lobby.svg)](https://gitter.im/NClap/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Welcome! NClap is a .NET library for parsing command-line arguments and building interactive
+NClap is a .NET library for parsing command-line arguments and building interactive
 command shells. It's driven by a declarative attribute syntax, and easy to extend.
-It's sort of like a lightweight serializer for command-line arguments.
-
-It's also very much under active development, and we welcome contributions! We're still writing
-up some notes and tips about contributing to the project, how to run our unit tests, etc. But in the
-meantime, don't be shy! Please go right ahead and file issues, drop us a line, submit pull requests,
-etc.
+It's like a lightweight serializer for command-line arguments.
 
 ## Getting NClap
 
