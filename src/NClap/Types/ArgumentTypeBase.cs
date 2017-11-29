@@ -114,8 +114,6 @@ namespace NClap.Types
         /// <param name="valueToComplete">String to complete.</param>
         /// <param name="candidates">Candidate strings to select from.</param>
         /// <returns>An enumeration of the selected strings.</returns>
-        [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "context")]
-        [SuppressMessage("Usage", "CC0057:Unused parameters")]
         protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<string> candidates) =>
             candidates.Where(name => name.StartsWith(valueToComplete, GetStringComparison(context)))
                       .OrderBy(name => name, GetStringComparer(context));

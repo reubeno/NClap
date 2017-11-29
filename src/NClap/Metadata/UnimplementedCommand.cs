@@ -11,9 +11,6 @@ namespace NClap.Metadata
         /// Throws an exception.
         /// </summary>
         /// <returns>Does not return.</returns>
-        public override CommandResult Execute()
-        {
-            throw new NotImplementedException("Executed unimplemented command.");
-        }
+        public override CommandResult Execute() => throw new NotImplementedException("Executed unimplemented command.");
     }
 }

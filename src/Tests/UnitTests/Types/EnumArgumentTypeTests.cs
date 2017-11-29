@@ -67,14 +67,14 @@ namespace NClap.Tests.Types
         public void EnumWithCaseInsensitivelyEqualMemberNames()
         {
             Action typeFactory = () => EnumArgumentType.Create(typeof(CaselessSameMemberNames));
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
+            typeFactory.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void ConflictingAttributesOnMembers()
         {
             Action typeFactory = () => EnumArgumentType.Create(typeof(ConflictingAttributes));
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
+            typeFactory.Should().Throw<ArgumentOutOfRangeException>();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
 
@@ -52,8 +53,8 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void SimpleCommandUsage()
         {
-            var args = new SimpleArguments();
-            CommandLineParser.Parse(new[] { "/GlobalOption", "OtherThing" }, args);
+            CommandLineParser.TryParse(new[] { "/GlobalOption", "OtherThing" }, out SimpleArguments args)
+                .Should().BeTrue();
         }
     }
 }

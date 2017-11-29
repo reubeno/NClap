@@ -74,13 +74,8 @@ namespace NClap.Utilities
         /// <param name="hangingIndent">The number of characters to
         /// unindent the first line.</param>
         /// <returns>The wrapped text.</returns>
-        public static ColoredString Wrap(this ColoredString text, int width, int indent = 0, int hangingIndent = 0)
-        {
-            var wrapped = Wrap(text.Content, width, indent, hangingIndent);
-            Debug.Assert(wrapped != null);
-
-            return new ColoredString(wrapped, text.ForegroundColor, text.BackgroundColor);
-        }
+        public static ColoredString Wrap(this ColoredString text, int width, int indent = 0, int hangingIndent = 0) =>
+            text.Transform(content => Wrap(content, width, indent, hangingIndent));
 
         /// <summary>
         /// Wrap the provided text at the given width, indenting it with the
@@ -121,7 +116,7 @@ namespace NClap.Utilities
                 throw new ArgumentOutOfRangeException(nameof(width));
             }
 
-            var builder = text.CreateBuilder();
+            var builder = text.CreateNewBuilder();
 
             char[] whiteSpaceChars = { ' ', '\t', '\n' };
 

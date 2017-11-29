@@ -100,8 +100,7 @@ namespace NClap.Tests.ConsoleInput
             buffer.Insert("abcd");
             buffer.MoveCursor(SeekOrigin.End, 0);
 
-            Action replacementAction = () => buffer.Replace('x');
-            replacementAction.ShouldThrow<Exception>();
+            buffer.Invoking(b => b.Replace('x')).Should().Throw<Exception>();
         }
 
         [TestMethod]
@@ -110,8 +109,7 @@ namespace NClap.Tests.ConsoleInput
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            Action replacement = () => buffer.Replace(null);
-            replacement.ShouldThrow<ArgumentNullException>();
+            buffer.Invoking(b => b.Replace(null)).Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -120,8 +118,7 @@ namespace NClap.Tests.ConsoleInput
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            Action replacement = () => buffer.Replace("xyzzy");
-            replacement.ShouldThrow<ArgumentOutOfRangeException>();
+            buffer.Invoking(b => b.Replace("xyzzy")).Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -164,10 +161,10 @@ namespace NClap.Tests.ConsoleInput
             buffer[3].Should().Be('d');
 
             Action action1 = () => { var x = buffer[-1]; };
-            action1.ShouldThrow<IndexOutOfRangeException>();
+            action1.Should().Throw<IndexOutOfRangeException>();
 
             Action action2 = () => { var x = buffer[4]; };
-            action2.ShouldThrow<IndexOutOfRangeException>();
+            action2.Should().Throw<IndexOutOfRangeException>();
         }
 
         [TestMethod]
@@ -176,8 +173,8 @@ namespace NClap.Tests.ConsoleInput
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            Action movement = () => buffer.MoveCursor((SeekOrigin)0x10, 1);
-            movement.ShouldThrow<ArgumentOutOfRangeException>();
+            buffer.Invoking(b => b.MoveCursor((SeekOrigin)0x10, 1))
+                  .Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -279,7 +276,7 @@ namespace NClap.Tests.ConsoleInput
             buffer.Read(2).Should().ContainInOrder('a', 'b');
             buffer.Read(3).Should().ContainInOrder('a', 'b', 'c');
             buffer.Read(4).Should().ContainInOrder('a', 'b', 'c', 'd');
-            ((Action)(() => buffer.Read(5))).ShouldThrow<ArgumentException>();
+            buffer.Invoking(b => b.Read(5)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
@@ -291,8 +288,8 @@ namespace NClap.Tests.ConsoleInput
             buffer.ReadAt(0, 2).Should().ContainInOrder('a', 'b');
             buffer.ReadAt(2, 2).Should().ContainInOrder('c', 'd');
 
-            ((Action)(() => buffer.ReadAt(2, 4))).ShouldThrow<ArgumentException>();
-            ((Action)(() => buffer.ReadAt(3, 2))).ShouldThrow<ArgumentException>();
+            buffer.Invoking(b => b.ReadAt(2, 4)).Should().Throw<ArgumentException>();
+            buffer.Invoking(b => b.ReadAt(3, 2)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
@@ -316,9 +313,9 @@ namespace NClap.Tests.ConsoleInput
             outBuffer[0].Should().Be('x');
             outBuffer[1].Should().Be('a');
 
-            ((Action)(() => buffer.ReadAt(0, null, 0, 2))).ShouldThrow<ArgumentNullException>();
-            ((Action)(() => buffer.ReadAt(2, outBuffer, 0, 4))).ShouldThrow<ArgumentException>();
-            ((Action)(() => buffer.ReadAt(2, outBuffer, 3, 2))).ShouldThrow<ArgumentException>();
+            buffer.Invoking(b => b.ReadAt(0, null, 0, 2)).Should().Throw<ArgumentNullException>();
+            buffer.Invoking(b => b.ReadAt(2, outBuffer, 0, 4)).Should().Throw<ArgumentException>();
+            buffer.Invoking(b => b.ReadAt(2, outBuffer, 3, 2)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]

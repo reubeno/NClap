@@ -3,93 +3,97 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using NClap.ConsoleInput;
 using NClap.Metadata;
+using NClap.Parser;
 
 namespace NClap.Repl
 {
     /// <summary>
     /// An interactive REPL loop.
     /// </summary>
-    /// <typeparam name="TCommandType">Enum type that defines possible commands.
-    /// </typeparam>
     [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords")]
-    public class Loop<TCommandType> where TCommandType : struct
+    public class Loop
     {
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        public Loop() : this((LoopInputOutputParameters)null)
+        private class TokenCompleter : ITokenCompleter
         {
+            private readonly Loop _loop;
+
+            public TokenCompleter(Loop loop) { _loop = loop; }
+
+            public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int tokenIndex) => 
+                _loop.GetCompletions(tokens, tokenIndex);
         }
+
+        private readonly Type _commandType;
+        private readonly ArgumentSetDefinition _argSet;
+        private Func<object> _objectFactory;
+        private readonly ILoopClient _client;
 
         /// <summary>
         /// Constructor that requires an explicit implementation of
         /// <see cref="ILoopClient"/>.
         /// </summary>
+        /// <param name="commandType">Type that defines syntax for commands.</param>
         /// <param name="loopClient">The client to use.</param>
-        /// <param name="options">Options for loop.</param>
-        public Loop(ILoopClient loopClient, LoopOptions options = null) : this(options)
+        /// <param name="argSetAttribute">Optionally provides attribute info
+        /// for the argument set that will be dynamically created for this loop.</param>
+        public Loop(Type commandType, ILoopClient loopClient, ArgumentSetAttribute argSetAttribute = null)
         {
-            Client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
+            if (commandType == null)
+            {
+                throw new ArgumentNullException(nameof(commandType));
+            }
+
+            _client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
+            _client.TokenCompleter = new TokenCompleter(this);
+
+            _commandType = ConstructCommandType(commandType, out _objectFactory);
+            _argSet = ReflectionBasedParser.CreateArgumentSet(_commandType, attribute: argSetAttribute);
         }
 
         /// <summary>
         /// Constructor that creates a loop with a default client.
         /// </summary>
+        /// <param name="commandType">Type that defines syntax for commands.</param>
         /// <param name="parameters">Optionally provides parameters controlling
         /// the loop's input and output behaviors; if not provided, default
         /// parameters are used.</param>
-        /// <param name="options">Options for loop.</param>
-        public Loop(LoopInputOutputParameters parameters, LoopOptions options = null) : this(options)
+        /// <param name="argSetAttribute">Optionally provides attribute info
+        /// for the argument set that will be dynamically created for this loop.</param>
+        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null) :
+            this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute)
         {
-            var consoleInput = parameters?.ConsoleInput ?? BasicConsoleInputAndOutput.Default;
-            var consoleOutput = parameters?.ConsoleOutput ?? BasicConsoleInputAndOutput.Default;
-            var keyBindingSet = parameters?.KeyBindingSet ?? ConsoleKeyBindingSet.Default;
+        }
 
-            var lineInput = parameters?.LineInput ?? new ConsoleLineInput(
+        /// <summary>
+        /// Utility for constructing loop clients.
+        /// </summary>
+        /// <param name="parameters">I/O parameters for loop.</param>
+        /// <returns>A constructed loop client.</returns>
+        public static ILoopClient CreateClient(LoopInputOutputParameters parameters)
+        {
+            var consoleInput = parameters.ConsoleInput ?? BasicConsoleInputAndOutput.Default;
+            var consoleOutput = parameters.ConsoleOutput ?? BasicConsoleInputAndOutput.Default;
+            var keyBindingSet = parameters.KeyBindingSet ?? ConsoleKeyBindingSet.Default;
+
+            var lineInput = parameters.LineInput ?? new ConsoleLineInput(
                 consoleOutput,
                 new ConsoleInputBuffer(),
-                new ConsoleHistory(),
-                GenerateCompletions);
+                new ConsoleHistory());
 
-            lineInput.Prompt = parameters?.Prompt ?? Strings.DefaultPrompt;
+            lineInput.Prompt = parameters.Prompt ?? Strings.DefaultPrompt;
 
-            ConsoleReader = new ConsoleReader(lineInput, consoleInput, consoleOutput, keyBindingSet);
+            var consoleReader = new ConsoleReader(lineInput, consoleInput, consoleOutput, keyBindingSet);
 
-            var consoleClient = new ConsoleLoopClient(
-                ConsoleReader,
-                parameters?.ErrorWriter ?? Console.Error);
+            var consoleClient = new ConsoleLoopClient(consoleReader);
 
-            consoleClient.Reader.CommentCharacter = options?.EndOfLineCommentCharacter;
+            consoleClient.Reader.CommentCharacter = parameters.EndOfLineCommentCharacter;
 
-            Client = consoleClient;
+            return consoleClient;
         }
-
-        /// <summary>
-        /// Shared private constructor used internally by all public
-        /// constructors.
-        /// </summary>
-        /// <param name="options">Options for loop.</param>
-        private Loop(LoopOptions options)
-        {
-            EndOfLineCommentCharacter = options?.EndOfLineCommentCharacter;
-        }
-
-        /// <summary>
-        /// The client associated with this loop.
-        /// </summary>
-        public ILoopClient Client { get; }
-
-        /// <summary>
-        /// The console reader used by this loop, or null if none is present.
-        /// </summary>
-        public IConsoleReader ConsoleReader { get; }
-
-        /// <summary>
-        /// The character that starts a comment.
-        /// </summary>
-        public char? EndOfLineCommentCharacter { get; set; }
 
         /// <summary>
         /// Executes the loop.
@@ -107,7 +111,7 @@ namespace NClap.Repl
         /// <returns>The result of executing.</returns>
         public CommandResult ExecuteOnce()
         {
-            Client.DisplayPrompt();
+            _client.DisplayPrompt();
 
             var args = ReadInput();
             if (args == null)
@@ -121,17 +125,24 @@ namespace NClap.Repl
 
             var options = new CommandLineParserOptions
             {
-                Reporter = error => Client.OnError(error.ToString().TrimEnd())
+                Reporter = error => _client.OnError(error.ToString().TrimEnd()),
+                DisplayUsageInfoOnError = false
             };
 
-            var commandGroup = new CommandGroup<TCommandType>();
-            if (!CommandLineParser.Parse(args, commandGroup, options))
+            var parsedArgs = ConstructObject();
+            var parseResult = CommandLineParser.TryParse(
+                _argSet,
+                args,
+                options,
+                parsedArgs);
+
+            if (!parseResult)
             {
-                Client.OnError(Strings.InvalidUsage);
+                _client.OnError(Strings.InvalidUsage);
                 return CommandResult.UsageError;
             }
 
-            return commandGroup.Execute();
+            return parsedArgs.ExecuteAsync(CancellationToken.None).Result;
         }
 
         /// <summary>
@@ -143,17 +154,17 @@ namespace NClap.Repl
         /// from the input line to be completed.</param>
         /// <returns>An enumeration of the possible completions for the
         /// indicated token.</returns>
-        internal static IEnumerable<string> GenerateCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete) =>
+        internal IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete) =>
             CommandLineParser.GetCompletions(
-                typeof(CommandGroup<TCommandType>),
+                _commandType,
                 tokens,
                 indexOfTokenToComplete,
-                null,
-                () => new CommandGroup<TCommandType>());
+                null, // CommandLineParserOptions
+                _objectFactory);
 
         private string[] ReadInput()
         {
-            var line = Client.ReadLine();
+            var line = _client.ReadLine();
 
             // Return null if we're at the end of the input stream.
             if (line == null)
@@ -171,7 +182,7 @@ namespace NClap.Repl
             }
             catch (ArgumentException ex)
             {
-                Client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.ExceptionWasThrownParsingInputLine, ex));
+                _client.OnError(string.Format(CultureInfo.CurrentCulture, Strings.ExceptionWasThrownParsingInputLine, ex));
                 return Array.Empty<string>();
             }
         }
@@ -183,12 +194,12 @@ namespace NClap.Repl
         /// <returns>The preprocessed result.</returns>
         private string Preprocess(string input)
         {
-            if (!EndOfLineCommentCharacter.HasValue)
+            if (!_client.EndOfLineCommentCharacter.HasValue)
             {
                 return input;
             }
 
-            var commentStartIndex = input.IndexOf(EndOfLineCommentCharacter.Value);
+            var commentStartIndex = input.IndexOf(_client.EndOfLineCommentCharacter.Value);
             if (commentStartIndex >= 0)
             {
                 input = input.Substring(0, commentStartIndex);
@@ -196,5 +207,40 @@ namespace NClap.Repl
 
             return input;
         }
+
+        private static Type ConstructCommandType(Type inputType, out Func<object> factory)
+        {
+            Type loopType;
+
+            // See if it implements ICommand; if so, use it as is.
+            if (typeof(ICommand).GetTypeInfo().IsAssignableFrom(inputType.GetTypeInfo()))
+            {
+                loopType = inputType;
+            }
+
+            // See if it is an enum; if so, use it as the inner type for a command group.
+            if (inputType.GetTypeInfo().IsEnum)
+            {
+                loopType = typeof(CommandGroup<>).MakeGenericType(new[] { inputType });
+            }
+
+            // Otherwise, we can't do anything with it.
+            else
+            {
+                throw new NotSupportedException($"Type not supported as command for loop: {inputType.FullName}");
+            }
+
+            // Now make sure there's a parameterless constructor.
+            var constructor = loopType.GetTypeInfo().GetConstructor(Array.Empty<Type>());
+            if (constructor == null)
+            {
+                throw new NotSupportedException($"Type missing parameterless constructor, not usable for loop: {loopType.FullName}");
+            }
+
+            factory = () => constructor.Invoke(Array.Empty<object>());
+            return loopType;
+        }
+
+        private ICommand ConstructObject() => (ICommand)_objectFactory.Invoke();
     }
 }

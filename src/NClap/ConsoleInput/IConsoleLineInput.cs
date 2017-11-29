@@ -41,6 +41,11 @@ namespace NClap.ConsoleInput
         bool AtEnd { get; }
 
         /// <summary>
+        /// The object's token completion handler; may be null.
+        /// </summary>
+        ITokenCompleter TokenCompleter { get; set; }
+
+        /// <summary>
         /// Move the cursor backward by the specified number of characters.
         /// </summary>
         /// <param name="count">Number of characters to move backward.</param>

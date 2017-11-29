@@ -6,8 +6,7 @@ namespace NClap.TestApp
     {
         private static int Main(string[] args)
         {
-            var programArgs = new ProgramArguments();
-            if (!CommandLineParser.ParseWithUsage(args, programArgs))
+            if (!CommandLineParser.TryParse(args, out ProgramArguments programArgs))
             {
                 return -1;
             }

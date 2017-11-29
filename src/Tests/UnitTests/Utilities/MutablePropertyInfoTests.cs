@@ -29,7 +29,7 @@ namespace NClap.Tests.Utilities
             var prop = new MutablePropertyInfo(typeof(TestObject<Guid>).GetTypeInfo().GetProperty("Value"));
             var obj = new TestObject<Guid>();
             Action setter = () => prop.SetValue(obj, 3.0);
-            setter.ShouldThrow<ArgumentException>();
+            setter.Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace NClap.Tests.Utilities
             var prop = new MutablePropertyInfo(typeof(TestObject<int>).GetTypeInfo().GetProperty("Value"));
             var obj = new TestObject<int>();
             Action setter = () => prop.SetValue(obj, 3L);
-            setter.ShouldNotThrow();
+            setter.Should().NotThrow();
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace NClap.Tests.Utilities
             var prop = new MutablePropertyInfo(typeof(TestThrowingObject<int>).GetTypeInfo().GetProperty("Value"));
             var obj = new TestThrowingObject<int>();
             Action setter = () => prop.SetValue(obj, 3L);
-            setter.ShouldThrow<ArgumentException>();
+            setter.Should().Throw<ArgumentException>();
         }
     }
 }

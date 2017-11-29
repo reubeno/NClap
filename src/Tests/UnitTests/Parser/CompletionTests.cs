@@ -11,7 +11,9 @@ namespace NClap.Tests.Parser
     [TestClass]
     public class CompletionTests
     {
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            AnswerFileArgumentPrefix = "@")]
         private class SimpleArgs
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, ShortName = "d")]
@@ -38,7 +40,7 @@ namespace NClap.Tests.Parser
         public void CompleteBogusIndex()
         {
             Action a = () => CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/" }, 2).ToList();
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]

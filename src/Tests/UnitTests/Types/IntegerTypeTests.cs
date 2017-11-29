@@ -22,7 +22,7 @@ namespace NClap.Tests.Types
             AddWithOverflowCheck(3, 5).Should().Be(8);
 
             Action add = () => AddWithOverflowCheck(0xFFFFFFFF, 1U);
-            add.ShouldThrow<OverflowException>();
+            add.Should().Throw<OverflowException>();
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace NClap.Tests.Types
             SubtractWithOverflowCheck(3, 5).Should().Be(-2);
 
             Action subtract = () => SubtractWithOverflowCheck(3U, 5U);
-            subtract.ShouldThrow<OverflowException>();
+            subtract.Should().Throw<OverflowException>();
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace NClap.Tests.Types
             MultiplyWithOverflowCheck(3, 5).Should().Be(15);
 
             Action multiply = () => MultiplyWithOverflowCheck(0xFFFFFFFF, 2U);
-            multiply.ShouldThrow<OverflowException>();
+            multiply.Should().Throw<OverflowException>();
         }
 
         [TestMethod]

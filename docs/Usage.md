@@ -114,7 +114,7 @@
     {
         Console.WriteLine("Entering loop...");
 
-        var loop = new Loop<MyCommandType>();
+        var loop = new Loop(typeof(MyCommandType));
         loop.Execute();
 
         Console.WriteLine("Exited loop...");

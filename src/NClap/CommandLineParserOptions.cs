@@ -8,9 +8,19 @@ namespace NClap
     public class CommandLineParserOptions
     {
         /// <summary>
+        /// True to display usage info on error; false otherwise.
+        /// </summary>
+        public bool DisplayUsageInfoOnError { get; set; } = true;
+
+        /// <summary>
+        /// Specifies which options to use when display usage.
+        /// </summary>
+        public UsageInfoOptions UsageInfoOptions { get; set; } = UsageInfoOptions.Default;
+
+        /// <summary>
         /// Function to invoke when reporting errors.
         /// </summary>
-        public ColoredErrorReporter Reporter { get; set; }
+        public ErrorReporter Reporter { get; set; }
 
         /// <summary>
         /// File system reader to use.
@@ -29,6 +39,8 @@ namespace NClap
         /// <returns>The duplicate.</returns>
         public CommandLineParserOptions Clone() => new CommandLineParserOptions
         {
+            DisplayUsageInfoOnError = DisplayUsageInfoOnError,
+            UsageInfoOptions = UsageInfoOptions,
             Reporter = Reporter,
             FileSystemReader = FileSystemReader,
             Context = Context

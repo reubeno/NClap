@@ -1,4 +1,6 @@
-﻿namespace NClap.Repl
+﻿using NClap.ConsoleInput;
+
+namespace NClap.Repl
 {
     /// <summary>
     /// Interface provided by REPL view.
@@ -10,6 +12,16 @@
         /// </summary>
         string Prompt { get; set; }
 
+        /// <summary>
+        /// The character that starts a comment.
+        /// </summary>
+        char? EndOfLineCommentCharacter { get; }
+
+        /// <summary>
+        /// Optionally provides a token completer that the loop client may choose to use.
+        /// </summary>
+        ITokenCompleter TokenCompleter { get; set; }
+        
         /// <summary>
         /// Displays the loop prompt.
         /// </summary>

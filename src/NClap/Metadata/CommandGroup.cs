@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,8 +11,9 @@ namespace NClap.Metadata
     /// <summary>
     /// Represents a group of commands, i.e. a command with sub-commands.
     /// </summary>
-    public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup where TCommandType : struct
+    public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IHelpArguments where TCommandType : struct
     {
+        private object _parentObject;
         private TCommandType? _selectedCommandType;
 
         /// <summary>
@@ -29,8 +31,11 @@ namespace NClap.Metadata
         /// Basic constructor.
         /// </summary>
         /// <param name="selection">The selected command type.</param>
-        public CommandGroup(TCommandType selection) : this()
+        /// <param name="parentObject">Optionally provides a reference to the
+        /// object containing this command group.</param>
+        public CommandGroup(TCommandType selection, object parentObject) : this()
         {
+            _parentObject = parentObject;
             Selection = selection;
         }
 
@@ -66,6 +71,13 @@ namespace NClap.Metadata
         /// selection has yet been made.
         /// </summary>
         public ICommand InstantiatedCommand { get; private set; }
+
+        /// <summary>
+        /// Indicates if help information is desired.
+        /// </summary>
+        // TODO: Figure out how to uncomment the following line.
+        // [NamedArgument(ArgumentFlags.Optional, Description = "Display usage information for command")]
+        public bool Help { get; set; }
 
         /// <summary>
         /// Retrieve info for the object type that defines the arguments to be
@@ -121,32 +133,25 @@ namespace NClap.Metadata
                 throw new InvalidCommandException(commandTypeType, selectionField, $"No implementing type found for command '{commandAttrib.LongName ?? selectionName}' in type '{commandTypeType.FullName}'");
             }
 
-            // Look for a constructor that takes the selected command. If we don't find that, then
-            // instead look for a parameterless constructor.
-            ConstructorInfo constructor;
-            object[] constructorArgs;
-            if ((constructor = implementingType.GetTypeInfo().GetConstructor(new[] { commandTypeType })) != null)
+            var constructorArgs = new List<object> { selection };
+            if (_parentObject != null)
             {
-                constructorArgs = new object[] { selection };
-            }
-            else if ((constructor = implementingType.GetTypeInfo().GetConstructor(Array.Empty<Type>())) != null)
-            {
-                constructorArgs = Array.Empty<object>();
-            }
-            else
-            {
-                throw new InvalidCommandException(commandTypeType, selectionField, $"Command implementation type '{implementingType.FullName}' does not contain compatible constructor");
+                constructorArgs.Add(_parentObject);
             }
 
-            var command = constructor.Invoke(constructorArgs) as ICommand;
-            if (command == null)
+            Func<ICommand> constructorFunc;
+
+            try
             {
-                throw new InvalidCommandException(commandTypeType, selectionField, $"Failed to instantiate command");
+                constructorFunc = implementingType.GetConstructor<ICommand>(constructorArgs,
+                    /*considerParameterlessConstructor=*/true);
+            }
+            catch (NotSupportedException ex)
+            {
+                throw new InvalidCommandException("No valid command constructor could be found.", ex);
             }
 
-            command.Parent = this;
-
-            return command;
+            return constructorFunc();
         }
     }
 }

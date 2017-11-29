@@ -63,38 +63,38 @@ namespace NClap.Tests.Utilities
         public void InvalidString()
         {
             Action a = () => new Substring(null, 0);
-            a.ShouldThrow<ArgumentNullException>();
+            a.Should().Throw<ArgumentNullException>();
 
             Action a2 = () => new Substring(null, 0, 0);
-            a2.ShouldThrow<ArgumentNullException>();
+            a2.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
         public void NegativeStartingOffset()
         {
             Action a = () => new Substring("Hello", -1);
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void StartingOffsetAfterEndOfString()
         {
             Action a = () => new Substring("Hello", 10, 0);
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void LengthPastEndOfString()
         {
             Action a = () => new Substring("Hello", 0, 6);
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void NegativeLength()
         {
             Action a = () => new Substring("Hello", 2, -1);
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ namespace NClap.Tests.Utilities
         {
             var s = new Substring("Hello", 1);
             Action a = () => new Substring(s, 1, -1);
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -122,7 +122,7 @@ namespace NClap.Tests.Utilities
         {
             var s = new Substring("Hello", 1);
             Action a = () => new Substring(s, -1, 1);
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -142,7 +142,7 @@ namespace NClap.Tests.Utilities
         {
             var s = new Substring("Hello", 0);
             Action contains = () => s.Contains(null);
-            contains.ShouldThrow<ArgumentNullException>();
+            contains.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

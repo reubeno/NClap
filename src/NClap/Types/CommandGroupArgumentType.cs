@@ -67,13 +67,13 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { _commandTypeType });
+            var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { _commandTypeType, typeof(object) });
             if (commandGroupConstructor == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            var group = commandGroupConstructor.Invoke(new[] { selection });
+            var group = commandGroupConstructor.Invoke(new[] { selection, context.ContainingObject });
             if (group == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));

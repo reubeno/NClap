@@ -14,11 +14,11 @@ namespace NClap.Tests.Utilities
         public void AppendWrappedWithBogusArgs()
         {
             Action nullBuilder = () => StringUtilities.AppendWrapped(null, "hello", 10);
-            nullBuilder.ShouldThrow<ArgumentNullException>();
+            nullBuilder.Should().Throw<ArgumentNullException>();
 
             var builder = new StringBuilder();
             Action nullText = () => builder.AppendWrapped(null, 10);
-            nullText.ShouldThrow<ArgumentNullException>();
+            nullText.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -26,8 +26,8 @@ namespace NClap.Tests.Utilities
         {
             var builder = new StringBuilder();
 
-            Action append = () => builder.AppendWrappedLine("text", 0);
-            append.ShouldThrow<ArgumentOutOfRangeException>();
+            builder.Invoking(b => b.AppendWrappedLine("text", 0))
+                   .Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -93,10 +93,10 @@ namespace NClap.Tests.Utilities
             const int wrapWidth = 10;
 
             Action wrapNullAction = () => StringUtilities.Wrap((string)null, wrapWidth);
-            wrapNullAction.ShouldThrow<ArgumentNullException>();
+            wrapNullAction.Should().Throw<ArgumentNullException>();
 
             wrapNullAction = () => StringUtilities.Wrap((IString)null, wrapWidth);
-            wrapNullAction.ShouldThrow<ArgumentNullException>();
+            wrapNullAction.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -105,10 +105,10 @@ namespace NClap.Tests.Utilities
             const string text = "Hello";
 
             Action wrapZeroAction = () => StringUtilities.Wrap(text, 0);
-            wrapZeroAction.ShouldThrow<ArgumentOutOfRangeException>();
+            wrapZeroAction.Should().Throw<ArgumentOutOfRangeException>();
 
             Action wrapNegativeAction = () => StringUtilities.Wrap(text, -1);
-            wrapNegativeAction.ShouldThrow<ArgumentOutOfRangeException>();
+            wrapNegativeAction.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -117,10 +117,10 @@ namespace NClap.Tests.Utilities
             const string text = "Hello";
 
             Action wrapAction = () => StringUtilities.Wrap(text, 10, 20);
-            wrapAction.ShouldThrow<ArgumentOutOfRangeException>();
+            wrapAction.Should().Throw<ArgumentOutOfRangeException>();
 
             wrapAction = () => StringUtilities.Wrap(text, 10, 10);
-            wrapAction.ShouldThrow<ArgumentOutOfRangeException>();
+            wrapAction.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -129,7 +129,7 @@ namespace NClap.Tests.Utilities
             const string text = "Hello";
 
             Action wrapAction = () => StringUtilities.Wrap(text, 80, 10, 11);
-            wrapAction.ShouldThrow<ArgumentOutOfRangeException>();
+            wrapAction.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -296,7 +296,7 @@ namespace NClap.Tests.Utilities
         public void TokenizingUnterminatedQuotesStrictly()
         {
             Action tokenizeAction = () => StringUtilities.Tokenize("\"a").ToArray();
-            tokenizeAction.ShouldThrow<ArgumentException>();
+            tokenizeAction.Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
@@ -315,10 +315,10 @@ namespace NClap.Tests.Utilities
         public void TerminatingQuotesInMiddleOfTokenWithNoPartialInput()
         {
             Action tokenizeAction = () => StringUtilities.Tokenize("\"ab\"cd\"").ToArray();
-            tokenizeAction.ShouldThrow<ArgumentException>();
+            tokenizeAction.Should().Throw<ArgumentException>();
 
             Action tokenizeAction2 = () => StringUtilities.Tokenize("\"ab\"cd").ToArray();
-            tokenizeAction2.ShouldThrow<ArgumentException>();
+            tokenizeAction2.Should().Throw<ArgumentException>();
         }
 
         [TestMethod]

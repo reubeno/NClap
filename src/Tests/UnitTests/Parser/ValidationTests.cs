@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -166,8 +167,8 @@ namespace NClap.Tests.Parser
         public void IncorrectUseOfEmptyAttribute()
         {
             var args = new IncorrectlyUsedMustNotBeEmptyAttributeArguments();
-            Action parse = () => CommandLineParser.Parse(new[] { "/value=5" }, args);
-            parse.ShouldThrow<InvalidArgumentSetException>();
+            Action parse = () => TryParse(new[] { "/value=5" }, args);
+            parse.Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -182,7 +183,7 @@ namespace NClap.Tests.Parser
             foreach (var attrib in attribs)
             {
                 Action acceptTypeWithNull = () => attrib.AcceptsType(null);
-                acceptTypeWithNull.ShouldThrow<ArgumentNullException>();
+                acceptTypeWithNull.Should().Throw<ArgumentNullException>();
             }
         }
 
@@ -198,7 +199,7 @@ namespace NClap.Tests.Parser
             foreach (var attrib in attribs)
             {
                 Action tryValidateWithNullContext = () => attrib.TryValidate(null, 0, out string reason);
-                tryValidateWithNullContext.ShouldThrow<ArgumentNullException>("because {0} shouldn't let it", attrib.GetType().Name);
+                tryValidateWithNullContext.Should().Throw<ArgumentNullException>("because {0} shouldn't let it", attrib.GetType().Name);
             }
         }
 
@@ -223,22 +224,22 @@ namespace NClap.Tests.Parser
         public void InvalidDefaultValue()
         {
             var args = new InvalidDefaultValueArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=a" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeFalse();
+            TryParse(new[] { "/value=" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=a" }, args).Should().BeTrue();
         }
 
         [TestMethod]
         public void NonEmptyAttribute()
         {
             var args = new NonEmptyStringArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=a" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value= " }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/path=" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/path=a" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/path= " }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=a" }, args).Should().BeTrue();
+            TryParse(new[] { "/value= " }, args).Should().BeTrue();
+            TryParse(new[] { "/path=" }, args).Should().BeFalse();
+            TryParse(new[] { "/path=a" }, args).Should().BeTrue();
+            TryParse(new[] { "/path= " }, args).Should().BeTrue();
         }
 
         [TestMethod]
@@ -253,68 +254,68 @@ namespace NClap.Tests.Parser
         public void NotValueInt()
         {
             var args = new NotValueIntArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=0" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=7" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=0" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=7" }, args).Should().BeTrue();
         }
 
         [TestMethod]
         public void MultiNotValueInt()
         {
             var args = new MultiNotValueIntArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=0" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=7" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeFalse();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=0" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=7" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=10" }, args).Should().BeFalse();
         }
 
         [TestMethod]
         public void NotValueString()
         {
             var args = new NotValueStringArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=abc" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=Hello" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=Hello " }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=H ello " }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=HELLO" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=abc" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=Hello" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=Hello " }, args).Should().BeTrue();
+            TryParse(new[] { "/value=H ello " }, args).Should().BeTrue();
+            TryParse(new[] { "/value=HELLO" }, args).Should().BeTrue();
         }
 
         [TestMethod]
         public void MatchesRegEx()
         {
             var args = new RegExStringArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=hallo" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=halloo" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=hallooo" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=HALLO" }, args).Should().BeFalse();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=hallo" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=halloo" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=hallooo" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=HALLO" }, args).Should().BeFalse();
         }
 
         [TestMethod]
         public void DoesNotMatchRegEx()
         {
             var args = new NotRegExStringArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=hallo" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=halloo" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=hallooo" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=HALLO" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=hallo" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=halloo" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=hallooo" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=HALLO" }, args).Should().BeTrue();
         }
 
         [TestMethod]
         public void CaseInsensitivelyMatchesRegEx()
         {
             var args = new CaseInsensitiveRegExStringArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=hallo" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=halloo" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=hallooo" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=HALLO" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=HALLOoOo" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=hallo" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=halloo" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=hallooo" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=HALLO" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=HALLOoOo" }, args).Should().BeTrue();
         }
 
         [TestMethod]
@@ -333,132 +334,135 @@ namespace NClap.Tests.Parser
         public void GreaterThan()
         {
             var args = new GreaterThanArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=0" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=11" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=0" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=10" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=11" }, args).Should().BeTrue();
         }
 
         [TestMethod]
         public void GreaterThanOrEqualTo()
         {
             var args = new GreaterThanOrEqualToArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=0" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=11" }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=0" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=10" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=11" }, args).Should().BeTrue();
         }
 
         [TestMethod]
         public void LessThan()
         {
             var args = new LessThanArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=0" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/value=11" }, args).Should().BeFalse();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=0" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=10" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=11" }, args).Should().BeFalse();
         }
 
         [TestMethod]
         public void LessThanOrEqualTo()
         {
             var args = new LessThanOrEqualToArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=0" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeTrue();
-            CommandLineParser.Parse(new[] { "/value=11" }, args).Should().BeFalse();
+            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(new[] { "/value=0" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=10" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=11" }, args).Should().BeFalse();
         }
 
         [TestMethod]
         public void FileStringExistence()
         {
             var args = new FileExistsStringArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
             reader.FileExists(@"h:\temp").Returns(true);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
 
             reader.FileExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
         }
 
         [TestMethod]
         public void FileExistence()
         {
             var args = new FileExistsArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
             reader.FileExists(@"h:\temp").Returns(true);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
 
             reader.FileExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
         }
 
         [TestMethod]
         public void DirectoryExistence()
         {
             var args = new DirectoryExistsArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
             reader.DirectoryExists(@"h:\temp").Returns(true);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
 
             reader.DirectoryExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
         }
 
         [TestMethod]
         public void AnyExistence()
         {
             var args = new ExistsArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
             reader.FileExists(@"h:\temp").Returns(false);
             reader.DirectoryExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
 
             reader.FileExists(@"h:\temp").Returns(true);
             reader.DirectoryExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
 
             reader.FileExists(@"h:\temp").Returns(false);
             reader.DirectoryExists(@"h:\temp").Returns(true);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
         }
 
         [TestMethod]
         public void MustNotExist()
         {
             var args = new NotExistsArguments();
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
             reader.FileExists(@"h:\temp").Returns(false);
             reader.DirectoryExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeTrue();
 
             reader.FileExists(@"h:\temp").Returns(true);
             reader.DirectoryExists(@"h:\temp").Returns(false);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
 
             reader.FileExists(@"h:\temp").Returns(false);
             reader.DirectoryExists(@"h:\temp").Returns(true);
-            CommandLineParser.Parse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
+            TryParse(new[] { @"/value=h:\temp" }, args, options).Should().BeFalse();
         }
+
+        private static bool TryParse<T>(IEnumerable<string> args, T dest, CommandLineParserOptions options = null) where T : class =>
+            CommandLineParser.TryParse(args, dest, options ?? new CommandLineParserOptions { DisplayUsageInfoOnError = false });
     }
 }

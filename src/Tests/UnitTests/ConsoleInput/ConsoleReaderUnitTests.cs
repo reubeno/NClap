@@ -62,8 +62,8 @@ namespace NClap.Tests.ConsoleInput
         {
             var reader = CreateReader();
 
-            Action processAction = () => reader.Process((ConsoleInputOperation)0xFFFF, new ConsoleKeyInfo());
-            processAction.ShouldThrow<ArgumentOutOfRangeException>();
+            reader.Invoking(r => r.Process((ConsoleInputOperation)0xFFFF, new ConsoleKeyInfo()))
+                  .Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace NClap.Tests.ConsoleInput
             Received.InOrder(() => expectedCalls(reader.LineInput));
         }
 
-        private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream = null, ConsoleCompletionHandler completionHandler = null)
+        private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream = null)
         {
             var consoleOutput = new SimulatedConsoleOutput();
             var consoleInput = new SimulatedConsoleInput(keyStream ?? Enumerable.Empty<ConsoleKeyInfo>());

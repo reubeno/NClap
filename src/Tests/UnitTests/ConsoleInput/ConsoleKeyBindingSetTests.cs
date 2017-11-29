@@ -42,7 +42,7 @@ namespace NClap.Tests.ConsoleInput
 
             var nonExistentKeyInfo = new ConsoleKeyInfo('d', ConsoleKey.D, false, false, false);
             Action lookupAction = () => { var x = bindings[nonExistentKeyInfo]; };
-            lookupAction.ShouldThrow<KeyNotFoundException>();
+            lookupAction.Should().Throw<KeyNotFoundException>();
 
             var pairs = bindings.ToList();
             pairs.Should().HaveCount(1);

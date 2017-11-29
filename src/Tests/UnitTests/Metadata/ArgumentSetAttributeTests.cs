@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -107,10 +108,10 @@ namespace NClap.Tests.Metadata
             var attribs = new ArgumentSetAttribute();
 
             Action setPrefixes = () => attribs.NamedArgumentPrefixes = null;
-            setPrefixes.ShouldThrow<ArgumentNullException>();
+            setPrefixes.Should().Throw<ArgumentNullException>();
 
             setPrefixes = () => attribs.ShortNameArgumentPrefixes = null;
-            setPrefixes.ShouldThrow<ArgumentNullException>();
+            setPrefixes.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -118,7 +119,7 @@ namespace NClap.Tests.Metadata
         {
             var attribs = new ArgumentSetAttribute();
             Action setSeparators = () => attribs.ArgumentValueSeparators = null;
-            setSeparators.ShouldThrow<ArgumentNullException>();
+            setSeparators.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -126,19 +127,19 @@ namespace NClap.Tests.Metadata
         {
             var args = new AlternatePrefixArguments();
 
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
             args.Value.Should().Be(0);
 
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=10" }, args).Should().BeFalse();
             args.Value.Should().Be(0);
 
-            CommandLineParser.Parse(new[] { "-value=10" }, args).Should().BeFalse();
+            TryParse(new[] { "-value=10" }, args).Should().BeFalse();
             args.Value.Should().Be(0);
 
-            CommandLineParser.Parse(new[] { "--value=10" }, args).Should().BeTrue();
+            TryParse(new[] { "--value=10" }, args).Should().BeTrue();
             args.Value.Should().Be(10);
 
-            CommandLineParser.Parse(new[] { ";v=10" }, args).Should().BeTrue();
+            TryParse(new[] { ";v=10" }, args).Should().BeTrue();
             args.Value.Should().Be(10);
 
             var usageInfo = CommandLineParser.GetUsageInfo(typeof(AlternatePrefixArguments));
@@ -151,13 +152,13 @@ namespace NClap.Tests.Metadata
         {
             var args = new AlternateSeparatorArguments();
 
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            TryParse(new string[] { }, args).Should().BeTrue();
             args.Value.Should().Be(0);
 
-            CommandLineParser.Parse(new[] { "/value=10" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=10" }, args).Should().BeFalse();
             args.Value.Should().Be(0);
 
-            CommandLineParser.Parse(new[] { "/value$10" }, args).Should().BeTrue();
+            TryParse(new[] { "/value$10" }, args).Should().BeTrue();
             args.Value.Should().Be(10);
 
             var usageInfo = CommandLineParser.GetUsageInfo(typeof(AlternateSeparatorArguments));
@@ -170,21 +171,21 @@ namespace NClap.Tests.Metadata
         {
             var args = new AllowArgumentValueAfterSpaceArguments();
 
-            CommandLineParser.Parse(new[] { "/value", "10" }, args).Should().BeTrue();
+            TryParse(new[] { "/value", "10" }, args).Should().BeTrue();
             args.Value.Should().Be(10);
 
-            CommandLineParser.Parse(new[] { "/value=11" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=11" }, args).Should().BeTrue();
             args.Value.Should().Be(11);
 
-            CommandLineParser.Parse(new[] { "/value=", "12" }, args).Should().BeTrue();
+            TryParse(new[] { "/value=", "12" }, args).Should().BeTrue();
             args.Value.Should().Be(12);
 
-            CommandLineParser.Parse(new[] { "/flag", "/value=10" }, args).Should().BeTrue();
+            TryParse(new[] { "/flag", "/value=10" }, args).Should().BeTrue();
             args.Value.Should().Be(10);
             args.Flag.Should().BeTrue();
 
-            CommandLineParser.Parse(new[] { "/value=10", "10" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/flag", "false" }, args).Should().BeFalse();
+            TryParse(new[] { "/value=10", "10" }, args).Should().BeFalse();
+            TryParse(new[] { "/flag", "false" }, args).Should().BeFalse();
         }
 
         [TestMethod]
@@ -192,21 +193,21 @@ namespace NClap.Tests.Metadata
         {
             var args = new AllowMultipleShortNamesInOneTokenArguments();
 
-            CommandLineParser.Parse(new[] { "/x", "/y", "/z=10" }, args).Should().BeTrue();
+            TryParse(new[] { "/x", "/y", "/z=10" }, args).Should().BeTrue();
             args.Value1.Should().BeTrue();
             args.Value2.Should().BeTrue();
             args.Value3.Should().Be(10);
 
-            CommandLineParser.Parse(new[] { "/xyz=10" }, args).Should().BeTrue();
+            TryParse(new[] { "/xyz=10" }, args).Should().BeTrue();
             args.Value1.Should().BeTrue();
             args.Value2.Should().BeTrue();
             args.Value3.Should().Be(10);
 
-            CommandLineParser.Parse(new[] { "/xy" }, args).Should().BeTrue();
+            TryParse(new[] { "/xy" }, args).Should().BeTrue();
             args.Value1.Should().BeTrue();
             args.Value2.Should().BeTrue();
 
-            CommandLineParser.Parse(new[] { "/xz" }, args).Should().BeFalse();
+            TryParse(new[] { "/xz" }, args).Should().BeFalse();
         }
 
         [TestMethod]
@@ -214,13 +215,13 @@ namespace NClap.Tests.Metadata
         {
             var args = new AllowElidingSeparatorAfterShortNameArguments();
 
-            CommandLineParser.Parse(new[] { "/v=7" }, args).Should().BeTrue();
+            TryParse(new[] { "/v=7" }, args).Should().BeTrue();
             args.Value.Should().Be(7);
 
-            CommandLineParser.Parse(new[] { "/v8" }, args).Should().BeTrue();
+            TryParse(new[] { "/v8" }, args).Should().BeTrue();
             args.Value.Should().Be(8);
 
-            CommandLineParser.Parse(new[] { "-v" }, args).Should().BeFalse();
+            TryParse(new[] { "-v" }, args).Should().BeFalse();
         }
 
         [TestMethod]
@@ -228,13 +229,13 @@ namespace NClap.Tests.Metadata
         {
             var args = new HyphenatedLongNamesArguments();
 
-            CommandLineParser.Parse(new[] { "/some-value=11" }, args).Should().BeTrue();
+            TryParse(new[] { "/some-value=11" }, args).Should().BeTrue();
             args.SomeValue.Should().Be(11);
 
             CommandLineParser.Format(args).ToList().Should().BeEquivalentTo("/some-value=11");
 
-            CommandLineParser.Parse(new[] { "/SomeValue" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/somevalue" }, args).Should().BeFalse();
+            TryParse(new[] { "/SomeValue" }, args).Should().BeFalse();
+            TryParse(new[] { "/somevalue" }, args).Should().BeFalse();
         }
 
         [TestMethod]
@@ -250,7 +251,7 @@ namespace NClap.Tests.Metadata
             attrib.NamedArgumentPrefixes = new[] { "-", "/" };
 
             Action a = () => attrib.ShortNameArgumentPrefixes = new[] { ":", "-" };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -266,7 +267,7 @@ namespace NClap.Tests.Metadata
             attrib.ShortNameArgumentPrefixes = new[] { "-", "/" };
 
             Action a = () => attrib.NamedArgumentPrefixes = new[] { ":", "-" };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -279,22 +280,19 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void CanSelectGetOptStyleWithoutThrowingException()
         {
-            var attrib = new ArgumentSetAttribute();
-            attrib.Style = ArgumentSetStyle.GetOpt;
+            var attrib = new ArgumentSetAttribute { Style = ArgumentSetStyle.GetOpt };
         }
 
         [TestMethod]
         public void CanSelectPowerShellStyleWithoutThrowingException()
         {
-            var attrib = new ArgumentSetAttribute();
-            attrib.Style = ArgumentSetStyle.PowerShell;
+            var attrib = new ArgumentSetAttribute { Style = ArgumentSetStyle.PowerShell };
         }
 
         [TestMethod]
         public void CanSelectWindowsCommandLineStyleWithoutThrowingException()
         {
-            var attrib = new ArgumentSetAttribute();
-            attrib.Style = ArgumentSetStyle.WindowsCommandLine;
+            var attrib = new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine };
         }
 
         [TestMethod]
@@ -303,7 +301,7 @@ namespace NClap.Tests.Metadata
             var attrib = new ArgumentSetAttribute();
 
             Action a = () => attrib.Style = (ArgumentSetStyle)0xFF;
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -312,7 +310,7 @@ namespace NClap.Tests.Metadata
             var attrib = new ArgumentSetAttribute();
 
             Action a = () => { var x = attrib.Style; };
-            a.ShouldThrow<NotSupportedException>();
+            a.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -322,10 +320,10 @@ namespace NClap.Tests.Metadata
             attrib.NamedArgumentPrefixes.Overlaps(attrib.ShortNameArgumentPrefixes).Should().BeTrue();
 
             Action a = () => attrib.AllowMultipleShortNamesInOneToken = true;
-            a.ShouldThrow<NotSupportedException>();
+            a.Should().Throw<NotSupportedException>();
 
             a = () => attrib.AllowElidingSeparatorAfterShortName = true;
-            a.ShouldThrow<NotSupportedException>();
+            a.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -372,7 +370,7 @@ namespace NClap.Tests.Metadata
             var attrib = new ArgumentSetAttribute();
 
             Action a = () => { attrib.Logo = 3; };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -380,19 +378,22 @@ namespace NClap.Tests.Metadata
         {
             var args = new CaseSensitiveArguments();
 
-            CommandLineParser.Parse(new[] { "/somevalue=7" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "xSF=8" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "XsF=9" }, args).Should().BeFalse();
-            CommandLineParser.Parse(new[] { "/SomeEnum=somevalue" }, args).Should().BeFalse();
+            TryParse(new[] { "/somevalue=7" }, args).Should().BeFalse();
+            TryParse(new[] { "xSF=8" }, args).Should().BeFalse();
+            TryParse(new[] { "XsF=9" }, args).Should().BeFalse();
+            TryParse(new[] { "/SomeEnum=somevalue" }, args).Should().BeFalse();
 
-            CommandLineParser.Parse(new[] { "/SomeValue=10" }, args).Should().BeTrue();
+            TryParse(new[] { "/SomeValue=10" }, args).Should().BeTrue();
             args.SomeValue.Should().Be(10);
 
-            CommandLineParser.Parse(new[] { "xsF=11" }, args).Should().BeTrue();
+            TryParse(new[] { "xsF=11" }, args).Should().BeTrue();
             args.SomeValue.Should().Be(11);
 
-            CommandLineParser.Parse(new[] { "/SomeEnum=SomeValue" }, args).Should().BeTrue();
+            TryParse(new[] { "/SomeEnum=SomeValue" }, args).Should().BeTrue();
             args.SomeEnum.Should().Be(TestEnum.SomeValue);
         }
+
+        private static bool TryParse<T>(IEnumerable<string> args, T dest) where T : class =>
+            CommandLineParser.TryParse(args, dest, new CommandLineParserOptions { DisplayUsageInfoOnError = false });
     }
 }

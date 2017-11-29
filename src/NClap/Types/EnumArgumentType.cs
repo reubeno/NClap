@@ -74,6 +74,27 @@ namespace NClap.Types
         }
 
         /// <summary>
+        /// Converts a value into a readable string form.  The value must be of
+        /// the type described by this interface.
+        /// </summary>
+        /// <param name="value">The value to format into a string.</param>
+        /// <returns>The formatted string.</returns>
+        public override string Format(object value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (_valuesByValue.TryGetValue(value, out EnumArgumentValue enumValue))
+            {
+                return enumValue.DisplayName;
+            }
+
+            return value.ToString();
+        }
+
+        /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
         /// contain the provided string as a strict prefix.
         /// </summary>

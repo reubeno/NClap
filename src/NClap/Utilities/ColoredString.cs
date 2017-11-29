@@ -42,12 +42,7 @@ namespace NClap.Utilities
         /// to display the text.</param>
         public ColoredString(string content, ConsoleColor? foregroundColor, ConsoleColor? backgroundColor)
         {
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-
-            Content = content;
+            Content = content ?? throw new ArgumentNullException(nameof(content));
             ForegroundColor = foregroundColor;
             BackgroundColor = backgroundColor;
         }
@@ -134,6 +129,16 @@ namespace NClap.Utilities
             !value.Equals(otherValue, StringComparison.Ordinal);
 
         /// <summary>
+        /// Checks if this string has the same color as the provided string.
+        /// </summary>
+        /// <param name="value">The string to compare against.</param>
+        /// <returns>True if the two strings have the same color; false otherwise.
+        /// Does not otherwise compare contents.</returns>
+        public bool IsSameColorAs(ColoredString value) =>
+            value.ForegroundColor == ForegroundColor &&
+            value.BackgroundColor == BackgroundColor;
+
+        /// <summary>
         /// The string's content.
         /// </summary>
         /// <returns>The uncolored string.</returns>
@@ -178,9 +183,19 @@ namespace NClap.Utilities
         /// <param name="value">The object to compare.</param>
         /// <param name="comparisonType">Type of comparison to perform.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
-        public bool Equals(ColoredString value, StringComparison comparisonType) =>
-            Content.Equals(value.Content, comparisonType) &&
-            (ForegroundColor == value.ForegroundColor) &&
-            (BackgroundColor == value.BackgroundColor);
+        public bool Equals(ColoredString value, StringComparison comparisonType)
+        {
+            if ((Content == null) != (value.Content == null))
+            {
+                return false;
+            }
+
+            if (Content != null && !Content.Equals(value.Content, comparisonType))
+            {
+                return false;
+            }
+
+            return IsSameColorAs(value);
+        }
     }
 }

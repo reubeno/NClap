@@ -10,7 +10,7 @@ namespace NClap.Tests.ConsoleInput
     [TestClass]
     public class ConsoleReaderEndToEndTests
     {
-        [TestMethod, Ignore] // TODO: Disabled because it relies on having a console handy.
+        [TestMethod]
         public void NoArgsGetsDefaultReader()
         {
             var reader = new ConsoleReader();
@@ -138,30 +138,30 @@ namespace NClap.Tests.ConsoleInput
         public void Completion()
         {
             var completions = new[] {  "Hello there", "Hello, world!" };
-            ConsoleCompletionHandler completionHandler = (tokens, index) => completions;
+            var tokenCompleter = new TestTokenCompleter(completions);
 
             Process(
-                completionHandler,
+                tokenCompleter,
                 "hello".AsKeys(),
                 ConsoleKey.Home.AsInfo(),
                 ConsoleKey.Tab.WithShift())
                 .Should().Be("\"Hello, world!\"");
 
             Process(
-                completionHandler,
+                tokenCompleter,
                 "hello".AsKeys(),
                 ConsoleKey.Home.AsInfo(),
                 ConsoleKey.Tab.AsInfo())
                 .Should().Be("\"Hello there\"");
 
             Process(
-                completionHandler,
+                tokenCompleter,
                 "hello".AsKeys(),
                 ConsoleKey.Oem2.WithAlt().WithShift())
                 .Should().Be("hello");
 
             Process(
-                completionHandler,
+                tokenCompleter,
                 "hello".AsKeys(),
                 ConsoleKey.D8.WithAlt().WithShift())
                 .Should().Be("\"Hello there\" \"Hello, world!\" ");
@@ -209,22 +209,25 @@ namespace NClap.Tests.ConsoleInput
             .Should().Be("worldhello ");
 
         private static string Process(params ConsoleKeyInfo[] keyInfo) =>
-            Process(keyInfo, completionHandler: null);
+            Process(keyInfo, tokenCompleter: null);
 
         private static string Process(params IEnumerable<ConsoleKeyInfo>[] keyInfo) =>
-            Process(keyInfo.SelectMany(x => x), completionHandler: null);
+            Process(keyInfo.SelectMany(x => x), tokenCompleter: null);
 
-        private static string Process(ConsoleCompletionHandler completionHandler, params IEnumerable<ConsoleKeyInfo>[] keyInfo) =>
-            Process(keyInfo.SelectMany(x => x), completionHandler: completionHandler);
+        private static string Process(ITokenCompleter tokenCompleter, params IEnumerable<ConsoleKeyInfo>[] keyInfo) =>
+            Process(keyInfo.SelectMany(x => x), tokenCompleter: tokenCompleter);
 
-        private static string Process(IEnumerable<ConsoleKeyInfo> keyInfo, ConsoleCompletionHandler completionHandler = null) =>
-            CreateReader(keyInfo.Concat(ConsoleKey.Enter), completionHandler).ReadLine();
+        private static string Process(IEnumerable<ConsoleKeyInfo> keyInfo, ITokenCompleter tokenCompleter = null) =>
+            CreateReader(keyInfo.Concat(ConsoleKey.Enter), tokenCompleter).ReadLine();
 
-        private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream, ConsoleCompletionHandler completionHandler = null)
+        private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream, ITokenCompleter tokenCompleter = null)
         {
             var consoleOutput = new SimulatedConsoleOutput();
             var consoleInput = new SimulatedConsoleInput(keyStream);
-            var input = new ConsoleLineInput(consoleOutput, new ConsoleInputBuffer(), new ConsoleHistory(), completionHandler);
+
+            var input = new ConsoleLineInput(consoleOutput, new ConsoleInputBuffer(), new ConsoleHistory());
+            input.TokenCompleter = tokenCompleter;
+
             return new ConsoleReader(input, consoleInput, consoleOutput, null);
         }
     }

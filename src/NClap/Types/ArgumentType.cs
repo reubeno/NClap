@@ -180,7 +180,6 @@ namespace NClap.Types
         /// Static constructor, responsible for internally registering all
         /// known, built-in types.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.ReadabilityRules", "SA1121:UseBuiltInTypeAlias", Justification = "StyleCop is confused")]
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "It's best to register the types separate from their construction")]
         static ArgumentType()
         {

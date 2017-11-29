@@ -19,13 +19,13 @@ namespace NClap.Tests.Utilities
             e.Started.Should().BeFalse();
 
             Action currentItem = () => { var x = e.CurrentItem; };
-            currentItem.ShouldThrow<IndexOutOfRangeException>();
+            currentItem.Should().Throw<IndexOutOfRangeException>();
 
             e.MoveNext();
-            currentItem.ShouldThrow<IndexOutOfRangeException>();
+            currentItem.Should().Throw<IndexOutOfRangeException>();
 
             e.MovePrevious();
-            currentItem.ShouldThrow<IndexOutOfRangeException>();
+            currentItem.Should().Throw<IndexOutOfRangeException>();
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace NClap.Tests.Utilities
             e.Started.Should().BeFalse();
 
             Action currentItem = () => { var x = e.CurrentItem; };
-            currentItem.ShouldThrow<IndexOutOfRangeException>();
+            currentItem.Should().Throw<IndexOutOfRangeException>();
 
             e.MoveNext();
             e.CurrentItem.Should().Be(2);
@@ -62,7 +62,7 @@ namespace NClap.Tests.Utilities
             e.Started.Should().BeFalse();
 
             Action currentItem = () => { var x = e.CurrentItem; };
-            currentItem.ShouldThrow<IndexOutOfRangeException>();
+            currentItem.Should().Throw<IndexOutOfRangeException>();
 
             e.MovePrevious();
             e.CurrentItem.Should().Be(2);

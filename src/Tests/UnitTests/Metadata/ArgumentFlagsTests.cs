@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Exceptions;
 using NClap.Metadata;
-using NClap.Parser;
 
 namespace NClap.Tests.Metadata
 {
@@ -113,26 +111,25 @@ namespace NClap.Tests.Metadata
         }
 
         private static void ShouldThrow<T, TException>(IEnumerable<string> args) 
-            where T : new()
+            where T : class, new()
             where TException : Exception
         {
             Action parse = () => Parse(args, out T parsedArgs);
-            parse.ShouldThrow<TException>();
+            parse.Should().Throw<TException>();
         }
 
-        private static void ShouldFailToParse<T>(IEnumerable<string> args) where T : new()
+        private static void ShouldFailToParse<T>(IEnumerable<string> args) where T : class, new()
         {
             ValidateParse<T, object>(args, false);
         }
 
-        private static void ShouldParseAs<T, TField>(IEnumerable<string> args, TField expectedValue) where T : new()
+        private static void ShouldParseAs<T, TField>(IEnumerable<string> args, TField expectedValue) where T : class, new()
         {
             ValidateParse<T, TField>(args, true, expectedValue);
         }
 
-        private static void ValidateParse<T, TField>(IEnumerable<string> args, bool expectedParseResult, TField expectedValue = default(TField)) where T : new()
+        private static void ValidateParse<T, TField>(IEnumerable<string> args, bool expectedParseResult, TField expectedValue = default(TField)) where T : class, new()
         {
-
             Parse(args, out T parsedArgs).Should().Be(expectedParseResult);
             if (expectedParseResult)
             {
@@ -140,18 +137,7 @@ namespace NClap.Tests.Metadata
             }
         }
 
-        private static bool Parse<T>(IEnumerable<string> args, out T parsedArgs) where T : new()
-        {
-            parsedArgs = new T();
-
-            var parser = new CommandLineParserEngine(typeof(T));
-            if (parser.Parse(args.ToList(), parsedArgs))
-            {
-                return true;
-            }
-
-            parsedArgs = default(T);
-            return false;
-        }
+        private static bool Parse<T>(IEnumerable<string> args, out T parsedArgs) where T : class, new() =>
+            CommandLineParser.TryParse(args, new CommandLineParserOptions { DisplayUsageInfoOnError = false }, out parsedArgs);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Types;
@@ -15,11 +14,8 @@ namespace NClap.Tests.Types
             var type = (TupleArgumentType)ArgumentType.GetType(typeof(Tuple<bool, bool>));
             var c = new ArgumentCompletionContext { ParseContext = ArgumentParseContext.Default };
 
-            Action badContext = () => type.GetCompletions(null, "Tr");
-            badContext.ShouldThrow<ArgumentNullException>();
-
-            Action badValue = () => type.GetCompletions(c, null);
-            badValue.ShouldThrow<ArgumentNullException>();
+            type.Invoking(t => t.GetCompletions(null, "Tr")).Should().Throw<ArgumentNullException>();
+            type.Invoking(t => t.GetCompletions(c, null)).Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

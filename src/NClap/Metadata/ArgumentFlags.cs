@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Metadata
 {
     /// <summary>
     /// Used to control parsing of command line arguments.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue", Justification = "Zero means something that needs to be described")]
     [Flags]
     public enum ArgumentFlags
     {

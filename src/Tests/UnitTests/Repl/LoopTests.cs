@@ -52,8 +52,8 @@ namespace NClap.Tests.Repl
         [TestMethod]
         public void ConstructorThrowsOnNullClient()
         {
-            Action constructAction = () => { var x = new Loop<EmptyCommand>((ILoopClient)null, null); };
-            constructAction.ShouldThrow<ArgumentNullException>();
+            Action constructAction = () => { var x = new Loop(typeof(EmptyCommand), (ILoopClient)null); };
+            constructAction.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -62,8 +62,8 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns((string)null);
 
-            Action execute = () => new Loop<EmptyCommand>(client).Execute();
-            execute.ShouldNotThrow();
+            Action execute = () => new Loop(typeof(EmptyCommand), client).Execute();
+            execute.Should().NotThrow();
         }
 
         [TestMethod]
@@ -72,8 +72,8 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("exit");
 
-            Action execute = () => new Loop<OnlyExitableCommand>(client).Execute();
-            execute.ShouldNotThrow();
+            Action execute = () => new Loop(typeof(OnlyExitableCommand), client).Execute();
+            execute.Should().NotThrow();
         }
 
         [TestMethod]
@@ -81,10 +81,10 @@ namespace NClap.Tests.Repl
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("DoSomething", string.Empty, "&DoSomething", (string)null);
+            client.EndOfLineCommentCharacter.Returns('&');
 
-            var options = new LoopOptions { EndOfLineCommentCharacter = '&' };
-
-            new Loop<TestCommand>(client, options).Execute();
+            var loop = new Loop(typeof(TestCommand), client);
+            loop.Execute();
         }
 
         [TestMethod]
@@ -93,8 +93,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("ThisNotACommand", new string[] { null });
 
-            new Loop<TestCommand>(client, null).Execute();
-
+            new Loop(typeof(TestCommand), client).Execute();
             client.Received().OnError(Arg.Any<string>());
         }
 
@@ -104,8 +103,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("\"NotACommand", new string[] { null });
 
-            new Loop<TestCommand>(client, null).Execute();
-
+            new Loop(typeof(TestCommand), client).Execute();
             client.Received().OnError(Arg.Any<string>());
         }
 
@@ -115,7 +113,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("NoConstructor", new string[] { null });
 
-            new Loop<TestCommand>(client, null).Execute();
+            new Loop(typeof(TestCommand), client).Execute();
             client.Received().OnError(Arg.Any<string>());
         }
 
@@ -125,8 +123,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("NonCommand", new string[] { null });
 
-            new Loop<TestCommand>(client, null).Execute();
-
+            new Loop(typeof(TestCommand), client).Execute();
             client.Received().OnError(Arg.Any<string>());
         }
 
@@ -136,8 +133,7 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("DoSomething DoesNotBelongHere", new string[] { null });
 
-            new Loop<TestCommand>(client, null).Execute();
-
+            new Loop(typeof(TestCommand), client).Execute();
             client.Received().OnError(Arg.Any<string>());
         }
 
@@ -147,7 +143,8 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("255", new string[] { null });
 
-            new Loop<TestCommand>(client, null).ExecuteOnce().Should().Be(CommandResult.UsageError);
+            new Loop(typeof(TestCommand), client).ExecuteOnce()
+                .Should().Be(CommandResult.UsageError);
         }
 
         [TestMethod]
@@ -156,55 +153,55 @@ namespace NClap.Tests.Repl
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("Help", "Help help", "Help exit", (string)null);
 
-            new Loop<TestCommand>(client, null).Execute();
+            new Loop(typeof(TestCommand), client).Execute();
         }
 
         [TestMethod]
         public void InvalidTokenCannotBeCompleted()
         {
-            Action action = () => Loop<TestCommand>.GenerateCompletions(new string[] { }, 1).ToList();
-            action.ShouldThrow<ArgumentOutOfRangeException>();
+            Action action = () => new Loop(typeof(TestCommand)).GetCompletions(new string[] { }, 1).ToList();
+            action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void CommandsCanBeCompleted()
         {
-            var completions = Loop<TestCommand>.GenerateCompletions(new string[] { }, 0).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(new string[] { }, 0).ToList();
             completions.Should().ContainInOrder("DoSomething", "Exit", "NoConstructor", "NonCommand");
         }
 
         [TestMethod]
         public void CommandPrefixCanBeCompleted()
         {
-            var completions = Loop<TestCommand>.GenerateCompletions(new[] { "N" }, 0).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "N" }, 0).ToList();
             completions.Should().ContainInOrder("NoConstructor", "NonCommand");
         }
 
         [TestMethod]
         public void ParameterlessCommandHasNoArgCompletions()
         {
-            var completions = Loop<TestCommand>.GenerateCompletions(new[] { "DoSomething" }, 1).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "DoSomething" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
         public void BogusCommandGetsNoCompletions()
         {
-            var completions = Loop<TestCommand>.GenerateCompletions(new[] { "BogusCommand" }, 1).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "BogusCommand" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
         public void AttributeLessEnumValueCannotBeCompleted()
         {
-            var completions = Loop<TestCommand>.GenerateCompletions(new[] { "NoAttribute" }, 1).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "NoAttribute" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
         public void ExitCommandGetsNoArgCompletion()
         {
-            var completions = Loop<TestCommand>.GenerateCompletions(new[] { "Exit" }, 1).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "Exit" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
@@ -223,7 +220,7 @@ namespace NClap.Tests.Repl
                 ConsoleOutput = output
             };
 
-            new Loop<OnlyExitableCommand>(parameters, null).Execute();
+            new Loop(typeof(OnlyExitableCommand), parameters).Execute();
         }
     }
 }

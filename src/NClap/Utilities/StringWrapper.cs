@@ -116,11 +116,25 @@ namespace NClap.Utilities
         /// Construct a builder that can generate a string of this type.
         /// </summary>
         /// <returns>A new builder.</returns>
-        public IStringBuilder CreateBuilder() => new StringBuilderWrapper();
+        public IStringBuilder CreateNewBuilder() => CreateBuilder();
+
+        /// <summary>
+        /// Construct a builder that can generate a string of this type.
+        /// </summary>
+        /// <returns>A new builder.</returns>
+        public static IStringBuilder CreateBuilder() => new StringBuilderWrapper();
 
         private class StringBuilderWrapper : IStringBuilder
         {
             private readonly StringBuilder _builder = new StringBuilder();
+
+            public char this[int index]
+            {
+                get => _builder[index];
+                set => _builder[index] = value;
+            }
+
+            public int Length => _builder.Length;
 
             public void Append(IString s) => _builder.Append(s);
 
@@ -128,7 +142,30 @@ namespace NClap.Utilities
 
             public void Append(char c, int count) => _builder.Append(c, count);
 
+            public void Clear() => _builder.Length = 0;
+
+            public void CopyTo(int startingIndex, char[] buffer, int outputOffset, int count) =>
+                _builder.CopyTo(startingIndex, buffer, outputOffset, count);
+
             public IString Generate() => (StringWrapper)_builder.ToString();
+
+            public void Insert(int index, char c) => _builder.Insert(index, c);
+
+            public void Insert(int index, string s) => _builder.Insert(index, s);
+
+            public void Remove(int index, int count) => _builder.Remove(index, count);
+
+            public void Truncate(int newLength)
+            {
+                if (newLength > _builder.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(newLength));
+                }
+
+                _builder.Length = newLength;
+            }
+
+            public override string ToString() => _builder.ToString();
         }
     }
 }

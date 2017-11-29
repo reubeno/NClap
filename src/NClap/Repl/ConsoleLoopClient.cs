@@ -1,6 +1,6 @@
 ﻿using System;
-using System.IO;
 using NClap.ConsoleInput;
+using NClap.Utilities;
 
 namespace NClap.Repl
 {
@@ -9,17 +9,17 @@ namespace NClap.Repl
     /// </summary>
     internal class ConsoleLoopClient : ILoopClient
     {
-        private readonly TextWriter _error;
+        private readonly IConsoleOutput _output;
+        private readonly ConsoleColor? _warningForegroundColor = ConsoleColor.Yellow;
 
         /// <summary>
         /// Primary constructor.
         /// </summary>
         /// <param name="reader">Console reader to use.</param>
-        /// <param name="error">The text writer to receive error output.</param>
-        public ConsoleLoopClient(IConsoleReader reader, TextWriter error = null)
+        public ConsoleLoopClient(IConsoleReader reader)
         {
             Reader = reader ?? throw new ArgumentNullException(nameof(reader));
-            _error = error;
+            _output = Reader.ConsoleOutput;
         }
 
         /// <summary>
@@ -29,6 +29,20 @@ namespace NClap.Repl
         {
             get => Reader.LineInput.Prompt;
             set => Reader.LineInput.Prompt = value;
+        }
+
+        /// <summary>
+        /// The character that starts a comment.
+        /// </summary>
+        public char? EndOfLineCommentCharacter { get; set; }
+
+        /// <summary>
+        /// Optionally provides a token completer that may be used.
+        /// </summary>
+        public ITokenCompleter TokenCompleter
+        {
+            get => Reader.LineInput.TokenCompleter;
+            set => Reader.LineInput.TokenCompleter = value;
         }
 
         /// <summary>
@@ -47,7 +61,8 @@ namespace NClap.Repl
         /// </summary>
         /// <param name="message">The message if one is available, or null if
         /// there is no more input.</param>
-        public void OnError(string message) => _error?.WriteLine(message);
+        public void OnError(string message) =>
+            _output?.Write(new ColoredString(message + Environment.NewLine, _warningForegroundColor));
 
         /// <summary>
         /// Displays the input prompt.

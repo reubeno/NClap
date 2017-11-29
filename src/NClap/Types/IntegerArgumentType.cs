@@ -73,7 +73,7 @@ namespace NClap.Types
         [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
         public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned)
         {
-            Debug.Assert(parseHandler != null);
+            if (parseHandler == null) throw new ArgumentNullException(nameof(parseHandler));
             return new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), isSigned);
         }
 

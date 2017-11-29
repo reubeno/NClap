@@ -22,10 +22,10 @@ namespace NClap.Tests.Types
             var c = new ArgumentCompletionContext { ParseContext = ArgumentParseContext.Default };
 
             Action badContext = () => type.GetCompletions(null, "Tr");
-            badContext.ShouldThrow<ArgumentNullException>();
+            badContext.Should().Throw<ArgumentNullException>();
 
             Action badValue = () => type.GetCompletions(c, null);
-            badValue.ShouldThrow<ArgumentNullException>();
+            badValue.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

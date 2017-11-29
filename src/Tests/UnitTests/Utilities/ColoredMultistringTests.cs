@@ -21,7 +21,7 @@ namespace NClap.Tests.Utilities
         public void FromStringThrowsOnNull()
         {
             Action action = () => ColoredMultistring.FromString(null);
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -48,10 +48,10 @@ namespace NClap.Tests.Utilities
             var s = CreateCMS("xy", "zzy");
 
             Action badAccess = () => { var x = s[-1]; };
-            badAccess.ShouldThrow<IndexOutOfRangeException>();
+            badAccess.Should().Throw<IndexOutOfRangeException>();
 
             badAccess = () => { var x = s[5]; };
-            badAccess.ShouldThrow<IndexOutOfRangeException>();
+            badAccess.Should().Throw<IndexOutOfRangeException>();
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace NClap.Tests.Utilities
         {
             var s = CreateCMS("xyz");
             Action action = () => { var x = s.Substring(1, 4); };
-            action.ShouldThrow<IndexOutOfRangeException>();
+            action.Should().Throw<IndexOutOfRangeException>();
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace NClap.Tests.Utilities
         {
             var s = CreateCMS("xyz");
             Action action = () => s.LastIndexOfAny(new[] { 'x' }, -1, 1);
-            action.ShouldThrow<ArgumentOutOfRangeException>();
+            action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@ namespace NClap.Tests.Utilities
         {
             var s = CreateCMS("xyz");
             Action action = () => s.LastIndexOfAny(new[] { 'x' }, 10, 2);
-            action.ShouldThrow<ArgumentOutOfRangeException>();
+            action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -136,7 +136,7 @@ namespace NClap.Tests.Utilities
         {
             var s = CreateCMS("xyz");
             Action action = () => s.LastIndexOfAny(new[] { 'x' }, 1, -1);
-            action.ShouldThrow<ArgumentOutOfRangeException>();
+            action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace NClap.ConsoleInput
 {
-    delegate IEnumerable<string> ConsoleCompletionHandler(IEnumerable<string> tokens, int tokenIndex);
-
     /// <summary>
     /// Encapsulates logic for an advanced console reader.
     /// </summary>
@@ -32,7 +29,7 @@ namespace NClap.ConsoleInput
             ConsoleInput = consoleInput ?? BasicConsoleInputAndOutput.Default;
             ConsoleOutput = consoleOutput ?? BasicConsoleInputAndOutput.Default;
             KeyBindingSet = keyBindingSet ?? ConsoleKeyBindingSet.Default;
-            LineInput = lineInput ?? new ConsoleLineInput(ConsoleOutput, new ConsoleInputBuffer(), new ConsoleHistory(), null);
+            LineInput = lineInput ?? new ConsoleLineInput(ConsoleOutput, new ConsoleInputBuffer(), new ConsoleHistory());
 
             _defaultCursorSize = ConsoleOutput.CursorSize;
         }

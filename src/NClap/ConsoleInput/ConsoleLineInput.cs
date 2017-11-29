@@ -23,14 +23,11 @@ namespace NClap.ConsoleInput
         /// console.</param>
         /// <param name="buffer">Console input buffer to use.</param>
         /// <param name="history">Console history object to use.</param>
-        /// <param name="completionHandler">Optionally provides completion
-        /// handler.</param>
-        public ConsoleLineInput(IConsoleOutput consoleOutput, IConsoleInputBuffer buffer, IConsoleHistory history, ConsoleCompletionHandler completionHandler)
+        public ConsoleLineInput(IConsoleOutput consoleOutput, IConsoleInputBuffer buffer, IConsoleHistory history)
         {
             ConsoleOutput = consoleOutput;
             Buffer = buffer;
             History = history;
-            CompletionHandler = completionHandler;
         }
 
         /// <summary>
@@ -39,9 +36,9 @@ namespace NClap.ConsoleInput
         public IConsoleOutput ConsoleOutput { get; }
 
         /// <summary>
-        /// The object's completion handler.
+        /// The object's token completion handler.
         /// </summary>
-        public ConsoleCompletionHandler CompletionHandler { get; }
+        public ITokenCompleter TokenCompleter { get; set; }
 
         /// <summary>
         /// The object's history.
@@ -326,12 +323,12 @@ namespace NClap.ConsoleInput
         /// </summary>
         public void ReplaceCurrentTokenWithAllCompletions()
         {
-            if (CompletionHandler == null)
+            if (TokenCompleter == null)
             {
                 return;
             }
 
-            var completions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, CompletionHandler);
+            var completions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, TokenCompleter);
             if (completions.Empty)
             {
                 return;
@@ -354,12 +351,12 @@ namespace NClap.ConsoleInput
         /// </summary>
         public void DisplayAllCompletions()
         {
-            if (CompletionHandler == null)
+            if (TokenCompleter == null)
             {
                 return;
             }
 
-            var completions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, CompletionHandler);
+            var completions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, TokenCompleter);
             if (completions.Empty)
             {
                 return;
@@ -422,7 +419,7 @@ namespace NClap.ConsoleInput
 
         private void ReplaceCurrentTokenWithCompletion(bool reverseOrder, bool lastOperationWasCompletion)
         {
-            if (CompletionHandler == null)
+            if (TokenCompleter == null)
             {
                 return;
             }
@@ -430,7 +427,7 @@ namespace NClap.ConsoleInput
             // If we can't pull a completion from the cache, then generate new ones.
             if (!lastOperationWasCompletion || (_lastCompletions == null))
             {
-                _lastCompletions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, CompletionHandler);
+                _lastCompletions = TokenCompletionSet.Create(Buffer.Contents, Buffer.CursorIndex, TokenCompleter);
                 _completionEnumerator = CircularEnumerator.Create(_lastCompletions.Completions);
             }
 

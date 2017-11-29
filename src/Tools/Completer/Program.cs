@@ -9,15 +9,12 @@ namespace NClap.Completer
 
         public static int Main(string[] args)
         {
-            var parsedArgs = new ProgramArguments();
-            if (CommandLineParser.ParseWithUsage(args, parsedArgs))
-            {
-                return new Program(parsedArgs).Execute();
-            }
-            else
+            if (!CommandLineParser.TryParse(args, out ProgramArguments parsedArgs))
             {
                 return 1;
             }
+
+            return new Program(parsedArgs).Execute();
         }
 
         private Program(ProgramArguments args)

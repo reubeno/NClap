@@ -14,8 +14,8 @@ namespace NClap.Tests.Metadata
         {
             var attrib = new MustNotBeEmptyAttribute();
 
-            Action a = () => attrib.TryValidate(CreateContext(), new StringValidationAttributeTests(), out string reason);
-            a.ShouldThrow<InvalidCastException>();
+            attrib.Invoking(a => a.TryValidate(CreateContext(), new StringValidationAttributeTests(), out string reason))
+                  .Should().Throw<InvalidCastException>();
         }
 
         [TestMethod]
