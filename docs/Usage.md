@@ -58,8 +58,8 @@
     {
         private static void Main(string[] args)
         {
-            var programArgs = new MyProgramArguments();
-            if (!CommandLineParser.ParseWithUsage(args, programArgs))
+			MyProgramArguments programArgs;
+            if (!CommandLineParser.TryParse(args, out programArgs))
             {
                 return;
             }

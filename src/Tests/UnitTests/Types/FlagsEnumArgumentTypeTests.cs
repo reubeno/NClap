@@ -58,8 +58,7 @@ namespace NClap.Tests.Types
             type.Format(MyFlags.SomeFlag | MyFlags.SomeOtherFlag).Should().Be("SomeFlag|SomeOtherFlag");
             type.Format(MyFlags.All).Should().Be("All");
 
-            Action formatAction = () => type.Format(0xFF);
-            formatAction.Should().Throw<ArgumentOutOfRangeException>();
+            type.Format(0xFF).Should().Be("255");
         }
 
         [TestMethod]
