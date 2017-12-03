@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
+using System.Collections.Generic;
 using NClap.ConsoleInput;
+using NClap.Parser;
 using NClap.Utilities;
 
 namespace NClap.Metadata
@@ -17,7 +14,8 @@ namespace NClap.Metadata
         /// <summary>
         /// The default options to use for generate usage info.
         /// </summary>
-        public static UsageInfoOptions DefaultUsageInfoOptions { get; set; } = UsageInfoOptions.Default;
+        public static UsageInfoOptions DefaultUsageInfoOptions { get; set; } =
+            UsageInfoOptions.Default & ~UsageInfoOptions.IncludeLogo;
 
         /// <summary>
         /// The output handler function for this class.
@@ -32,12 +30,8 @@ namespace NClap.Metadata
     internal class HelpCommand<TCommandType> : SynchronousCommand
         where TCommandType : struct
     {
-        /// <summary>
-        /// Optionally specifies the command to retrieve detailed help information
-        /// for.
-        /// </summary>
-        [PositionalArgument(ArgumentFlags.AtMostOnce, Description = "Command to get detailed help information for.")]
-        public TCommandType? Command { get; set; }
+        [PositionalArgument(ArgumentFlags.RestOfLine, Position = 0)]
+        public string[] Arguments { get; set; }
 
         /// <summary>
         /// Options for displaying help.
@@ -52,9 +46,9 @@ namespace NClap.Metadata
         {
             var outputHandler = HelpCommand.OutputHandler ?? BasicConsoleInputAndOutput.Default.Write;
 
-            if (Command.HasValue)
+            if (Arguments != null && Arguments.Length > 0)
             {
-                DisplayCommandHelp(outputHandler, Command.Value);
+                DisplayCommandHelp(outputHandler, Arguments);
             }
             else
             {
@@ -64,64 +58,39 @@ namespace NClap.Metadata
             return CommandResult.Success;
         }
 
-        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
         private static void DisplayGeneralHelp(Action<ColoredMultistring> outputHandler)
         {
-            Debug.Assert(outputHandler != null);
+            if (outputHandler == null) return;
 
-            // TODO CASE: need to dynamically choose case sensitivity or not.
-            var commandNames = typeof(TCommandType).GetTypeInfo().GetEnumValues()
-                .Cast<TCommandType>()
-                .OrderBy(type => type.ToString(), StringComparer.CurrentCultureIgnoreCase);
+            var info = CommandLineParser.GetUsageInfo(
+                typeof(CommandGroup<TCommandType>),
+                null, // defaultValues
+                null, // columns
+                string.Empty, // commandName
+                HelpCommand.DefaultUsageInfoOptions);
 
-            var commandNameMaxLen = commandNames.Max(name => name.ToString().Length);
-
-            var commandSummary = string.Concat(commandNames.Select(commandType =>
-            {
-                var desc = GetDescription(commandType);
-
-                var formatString = "  {0,-" + commandNameMaxLen.ToString(CultureInfo.InvariantCulture) + "}{1}\n";
-                return string.Format(
-                    CultureInfo.CurrentCulture,
-                    formatString,
-                    commandType,
-                    desc != null ? " - " + desc : string.Empty);
-            }));
-
-            outputHandler(ColoredMultistring.FromString(string.Format(
-                CultureInfo.CurrentCulture,
-                Strings.ValidCommandsHeader,
-                commandSummary)));
+            outputHandler(info);
         }
 
-        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
-        private static void DisplayCommandHelp(Action<ColoredMultistring> outputHandler, TCommandType command)
+        private static void DisplayCommandHelp(Action<ColoredMultistring> outputHandler, IEnumerable<string> tokens)
         {
-            Debug.Assert(outputHandler != null);
+            if (outputHandler == null) return;
 
-            var attrib = GetCommandAttribute(command);
-            var implementingType = attrib.GetImplementingType(typeof(TCommandType));
-            if (implementingType == null)
-            {
-                outputHandler(ColoredMultistring.FromString(Strings.NoHelpAvailable + Environment.NewLine));
-                return;
-            }
+            var group = new CommandGroup<TCommandType>();
+            var parser = new ArgumentSetParser(
+                ReflectionBasedParser.CreateArgumentSet(group.GetType()),
+                new CommandLineParserOptions());
 
-            var usageInfo = CommandLineParser.GetUsageInfo(implementingType, null, null, command.ToString(), HelpCommand.DefaultUsageInfoOptions);
+            parser.ParseTokens(tokens, group);
 
-            outputHandler(usageInfo);
+            var info = CommandLineParser.GetUsageInfo(
+                parser.ArgumentSet,
+                null, // columns
+                string.Empty, // commandName
+                HelpCommand.DefaultUsageInfoOptions,
+                group);
+
+            outputHandler(info);
         }
-
-        private static string GetDescription<T>(T value) where T : struct
-        {
-            var attrib = GetCommandAttribute(value);
-            var desc = attrib?.Description;
-            return !string.IsNullOrEmpty(desc) ? desc : null;
-        }
-
-        private static CommandAttribute GetCommandAttribute<T>(T value) =>
-            typeof(T).GetTypeInfo()
-                     .GetField(value.ToString())
-                     .GetSingleAttribute<CommandAttribute>(inherit: false);
     }
 }

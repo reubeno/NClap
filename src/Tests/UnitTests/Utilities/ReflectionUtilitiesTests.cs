@@ -123,7 +123,7 @@ namespace NClap.Tests.Utilities
         {
             var method = this.GetType().GetTypeInfo().GetMethod(nameof(ToMutableMemberThrowsOnMethods));
             Action a = () => method.ToMutableMemberInfo();
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
     }
 }

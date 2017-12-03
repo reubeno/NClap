@@ -33,12 +33,15 @@ namespace NClap.Parser
             // Append basic usage info.
             if (Options.HasFlag(UsageInfoOptions.IncludeBasicSyntax))
             {
-                var basicSyntax = new ColoredString[]
+                var basicSyntax = new List<ColoredString>();
+
+                if (!string.IsNullOrEmpty(info.Name))
                 {
-                    new ColoredString(info.Name, NameForegroundColor),
-                    " ",
-                    info.GetBasicSyntax(includeOptionalParameters: true)
-                };
+                    basicSyntax.Add(new ColoredString(info.Name, NameForegroundColor));
+                    basicSyntax.Add(" ");
+                }
+
+                basicSyntax.Add(info.GetBasicSyntax(includeOptionalParameters: true));
 
                 sections.Add(new Section(Strings.UsageInfoUsageHeader + ":", new[] { new ColoredMultistring(basicSyntax) })
                 {

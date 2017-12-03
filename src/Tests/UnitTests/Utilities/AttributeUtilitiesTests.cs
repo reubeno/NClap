@@ -65,7 +65,7 @@ namespace NClap.Tests.Utilities
                     .ReturnsForAnyArgs(call => { throw new InvalidOperationException(); });
 
             Action a = () => AttributeUtilities.GetAttributes<NamedArgumentAttribute>(provider).ToList();
-            a.ShouldThrow<InvalidOperationException>();
+            a.Should().Throw<InvalidOperationException>();
         }
     }
 }

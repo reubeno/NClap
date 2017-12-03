@@ -67,6 +67,6 @@ namespace NClap.Utilities
         /// Construct a builder that can generate a string of this type.
         /// </summary>
         /// <returns>A new builder.</returns>
-        IStringBuilder CreateBuilder();
+        IStringBuilder CreateNewBuilder();
     }
 }

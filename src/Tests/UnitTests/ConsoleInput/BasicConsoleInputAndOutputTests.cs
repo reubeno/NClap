@@ -27,10 +27,10 @@ namespace NClap.Tests.ConsoleInput
             con.BufferWidth.Should().BeGreaterOrEqualTo(0);
             con.BufferHeight.Should().BeGreaterOrEqualTo(0);
 
-            con.Invoking(c => { var x = c.CursorVisible; }).ShouldNotThrow();
-            con.Invoking(c => { var x = c.TreatControlCAsInput; }).ShouldNotThrow();
-            con.Invoking(c => { var x = c.ForegroundColor; }).ShouldNotThrow();
-            con.Invoking(c => { var x = c.BackgroundColor; }).ShouldNotThrow();
+            con.Invoking(c => { var x = c.CursorVisible; }).Should().NotThrow();
+            con.Invoking(c => { var x = c.TreatControlCAsInput; }).Should().NotThrow();
+            con.Invoking(c => { var x = c.ForegroundColor; }).Should().NotThrow();
+            con.Invoking(c => { var x = c.BackgroundColor; }).Should().NotThrow();
         }
 
         [TestMethod]

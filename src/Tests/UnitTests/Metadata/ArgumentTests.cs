@@ -140,7 +140,7 @@ namespace NClap.Tests.Metadata
             });
 
             Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxSummary();
-            getSyntaxHelpWithBogusSeparators.ShouldThrow<NotSupportedException>();
+            getSyntaxHelpWithBogusSeparators.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace NClap.Tests.Metadata
             });
 
             Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxSummary();
-            getSyntaxHelpWithBogusSeparators.ShouldThrow<NotSupportedException>();
+            getSyntaxHelpWithBogusSeparators.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -250,7 +250,7 @@ namespace NClap.Tests.Metadata
         public void EmptyLongNameArgument()
         {
             Action getArg = () => GetArgument(typeof(EmptyLongNameArguments));
-            getArg.ShouldThrow<InvalidArgumentSetException>();
+            getArg.Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -267,7 +267,10 @@ namespace NClap.Tests.Metadata
             var arg = GetArgument(typeof(ArgumentsWithUnsettableDefault));
             arg.DefaultValue.Should().Be(true);
             arg.EffectiveDefaultValue.Should().Be(true);
-            arg.TryFinalize(new ArgumentsWithUnsettableDefault(), FileSystemReader.Create()).Should().BeFalse();
+
+            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(ArgumentsWithUnsettableDefault));
+            var state = new ArgumentParser(argSet, arg, new CommandLineParserOptions(), new ArgumentsWithUnsettableDefault());
+            state.TryFinalize(FileSystemReader.Create()).Should().BeFalse();
         }
 
         [TestMethod]
@@ -275,7 +278,10 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(ArgumentsWithUnsettableCollectionDefault));
             arg.DefaultValue.Should().BeOfType<string[]>();
-            arg.TryFinalize(new ArgumentsWithUnsettableCollectionDefault(), FileSystemReader.Create()).Should().BeFalse();
+
+            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(ArgumentsWithUnsettableCollectionDefault));
+            var state = new ArgumentParser(argSet, arg, new CommandLineParserOptions(), new ArgumentsWithUnsettableCollectionDefault());
+            state.TryFinalize(FileSystemReader.Create()).Should().BeFalse();
         }
 
         [TestMethod]
@@ -340,11 +346,16 @@ namespace NClap.Tests.Metadata
                 throw new NotSupportedException();
             }
 
+            var argSet = new ArgumentSetDefinition(
+                setAttrib ?? new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine });
+
+
+            ReflectionBasedParser.AddToArgumentSet(argSet, type);
+
             return new ArgumentDefinition(
                 mutableMemberInfo,
                 attrib,
-                setAttrib ?? new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine },
-                options);
+                argSet);
         }
     }
 }

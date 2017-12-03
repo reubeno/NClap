@@ -12,7 +12,7 @@ namespace NClap.Tests.Utilities
         public void BogusString()
         {
             Action factory = () => new ColoredString(null, null, null);
-            factory.ShouldThrow<ArgumentNullException>();
+            factory.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace NClap.Tests.Utilities
         public void ConstructorThrowsOnNullString()
         {
             Action a = () => { var x = new ColoredString(null); };
-            a.ShouldThrow<ArgumentNullException>();
+            a.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

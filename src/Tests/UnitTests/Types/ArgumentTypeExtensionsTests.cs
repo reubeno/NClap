@@ -39,9 +39,7 @@ namespace NClap.Tests.Types
         [TestMethod]
         public void CustomParser()
         {
-            var args = new TestArguments();
-
-            CommandLineParser.Parse(new[] { "|foo|" }, args).Should().BeTrue();
+            CommandLineParser.TryParse(new[] { "|foo|" }, out TestArguments args).Should().BeTrue();
             args.Value.Should().Be("foo");
         }
 

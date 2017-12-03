@@ -60,28 +60,28 @@ namespace NClap.Tests.Types
         public void ConstructorThrowsOnNonGenericType()
         {
             Action a = () => { var x = new CommandGroupArgumentType(typeof(int)); };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void ConstructorThrowsOnDifferentArityGenericType()
         {
             Action a = () => { var x = new CommandGroupArgumentType(typeof(Tuple<int, int>)); };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void ConstructorThrowsOnNonCommandGroupType()
         {
             Action a = () => { var x = new CommandGroupArgumentType(typeof(List<int>)); };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void ConstructorThrowsWhenInnerTypeIsNotEnum()
         {
             Action a = () => { var x = new CommandGroupArgumentType(typeof(CommandGroup<Guid>)); };
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace NClap.Tests.Types
         {
             var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
             Action a = () => argType.Format(3);
-            a.ShouldThrow<InvalidCastException>();
+            a.Should().Throw<InvalidCastException>();
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace NClap.Tests.Types
             var group = new CommandGroup<SimpleCommandType>();
             Action a = () => argType.Format(group);
 
-            a.ShouldThrow<ArgumentOutOfRangeException>();
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -147,7 +147,6 @@ namespace NClap.Tests.Types
                 .BeOfType<CommandGroup<SimpleCommandType>>()
                 .Which;
 
-            group.Parent.Should().BeNull();
             group.HasSelection.Should().BeTrue();
             group.Selection.Should().Be(SimpleCommandType.Foo);
             group.Execute().Should().Be(CommandResult.Success);
@@ -166,7 +165,6 @@ namespace NClap.Tests.Types
                 .BeOfType<CommandGroup<SimpleCommandType>>()
                 .Which;
 
-            group.Parent.Should().BeNull();
             group.HasSelection.Should().BeTrue();
             group.Selection.Should().Be(SimpleCommandType.Nested);
 
@@ -175,8 +173,7 @@ namespace NClap.Tests.Types
                 .And.BeAssignableTo<ICommandGroup>()
                 .Which;
 
-            nestedGroup.Parent.Should().BeSameAs(group);
-            nestedGroup.HasSelection.Should().BeFalse();
+           nestedGroup.HasSelection.Should().BeFalse();
             nestedGroup.ExecuteAsync(CancellationToken.None).Result.Should().Be(CommandResult.UsageError);
         }
     }

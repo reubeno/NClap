@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using NClap.Metadata;
+﻿using NClap.Metadata;
 
 namespace NClap.Types
 {
@@ -9,7 +7,6 @@ namespace NClap.Types
     /// </summary>
     public class ArgumentParseContext
     {
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private IFileSystemReader _fileSystemReader = Parser.FileSystemReader.Create();
 
         /// <summary>
@@ -23,11 +20,14 @@ namespace NClap.Types
         public IFileSystemReader FileSystemReader
         {
             get => _fileSystemReader;
-            set => _fileSystemReader = value ?? throw new ArgumentNullException(nameof(value));
+            set
+            {
+                _fileSystemReader = value ?? Parser.FileSystemReader.Create();
+            }
         }
 
         /// <summary>
-        /// Caller-selected context objext provided in CommandLineParserOptions
+        /// Caller-selected context objext provided in <see cref="CommandLineParserOptions"/>
         /// object.
         /// </summary>
         public object ParserContext { get; set; }
@@ -47,5 +47,11 @@ namespace NClap.Types
         /// True for parsing to be case sensitive; false to be case insensitive.
         /// </summary>
         public bool CaseSensitive { get; set; }
+
+        /// <summary>
+        /// Optionally provides a reference to the object containing the one to
+        /// be parsed.
+        /// </summary>
+        public object ContainingObject { get; set; }
     }
 }

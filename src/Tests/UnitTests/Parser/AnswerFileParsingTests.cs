@@ -14,7 +14,9 @@ namespace NClap.Tests.Parser
     {
     #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            AnswerFileArgumentPrefix = "@")]
         class Arguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -24,7 +26,9 @@ namespace NClap.Tests.Parser
             public string StringValue;
         }
         
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AnswerFileArgumentPrefix = "#!")]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            AnswerFileArgumentPrefix = "#!")]
         class AlternateSyntaxArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -39,7 +43,7 @@ namespace NClap.Tests.Parser
             var reader = CreateReaderThatThrows(new FileNotFoundException());
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
-            CommandLineParser.Parse(
+            TryParse(
                 new[] { "@foo" },
                 new Arguments(),
                 options).Should().BeFalse();
@@ -54,7 +58,7 @@ namespace NClap.Tests.Parser
             var reader = CreateReaderThatReturns(Enumerable.Empty<string>());
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
-            CommandLineParser.Parse(
+            TryParse(
                 new[] { "@foo" },
                 args,
                 options).Should().BeTrue();
@@ -71,7 +75,7 @@ namespace NClap.Tests.Parser
             var reader = CreateReaderThatReturns(new[] { "/intvalue:17", "/stringvalue:a b" });
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
-            CommandLineParser.Parse(
+            TryParse(
                 new[] { "@foo" },
                 args,
                 options).Should().BeTrue();
@@ -88,10 +92,10 @@ namespace NClap.Tests.Parser
             var reader = CreateReaderThatReturns(new[] { "/value:abc" });
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
-            CommandLineParser.Parse(new[] { "@foo" }, args, options).Should().BeFalse();
+            TryParse(new[] { "@foo" }, args, options).Should().BeFalse();
             reader.DidNotReceive().GetLines("foo");
 
-            CommandLineParser.Parse(new[] { "#!foo" }, args, options).Should().BeTrue();
+            TryParse(new[] { "#!foo" }, args, options).Should().BeTrue();
             reader.Received().GetLines("foo");
             args.Value.Should().Be("abc");
         }
@@ -103,7 +107,7 @@ namespace NClap.Tests.Parser
             var reader = CreateReaderThatReturns(new[] { "# /intvalue:17", " #asd" });
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
-            CommandLineParser.Parse(
+            TryParse(
                 new[] { "@foo" },
                 args,
                 options).Should().BeTrue();
@@ -120,7 +124,7 @@ namespace NClap.Tests.Parser
             var reader = CreateReaderThatReturns(new[] { string.Empty });
             var options = new CommandLineParserOptions { FileSystemReader = reader };
 
-            CommandLineParser.Parse(
+            TryParse(
                 new[] { "@foo" },
                 args,
                 options).Should().BeTrue();
@@ -145,5 +149,8 @@ namespace NClap.Tests.Parser
 
             return reader;
         }
+
+        private static bool TryParse<T>(IEnumerable<string> args, T dest, CommandLineParserOptions options = null) where T : class =>
+            CommandLineParser.TryParse(args, dest, options ?? new CommandLineParserOptions { DisplayUsageInfoOnError = false });
     }
 }

@@ -7,6 +7,7 @@ using NClap.ConsoleInput;
 
 namespace NClap.Tests.ConsoleInput
 {
+
     [TestClass]
     public class TokenCompletionSetTests
     {
@@ -16,9 +17,9 @@ namespace NClap.Tests.ConsoleInput
             const string text = "a b";
 
             var completions = new[] { "abc", "aZx" };
-            ConsoleCompletionHandler completionHandler = (tokens, index) => completions;
+            ITokenCompleter tokenCompleter = new TestTokenCompleter((tokens, index) => completions);
 
-            var set = TokenCompletionSet.Create(text, 0, completionHandler);
+            var set = TokenCompletionSet.Create(text, 0, tokenCompleter);
 
             set.InputText.Should().Be(text);
             set.Completions.Should().HaveCount(2);
@@ -33,8 +34,8 @@ namespace NClap.Tests.ConsoleInput
         {
             const string text = "\"s\"x\"";
 
-            ConsoleCompletionHandler completionHandler = (tokens, index) => Enumerable.Empty<string>();
-            var set = TokenCompletionSet.Create(text, 0, completionHandler);
+            ITokenCompleter tokenCompleter = new TestTokenCompleter((tokens, index) => Enumerable.Empty<string>());
+            var set = TokenCompletionSet.Create(text, 0, tokenCompleter);
 
             set.InputText.Should().Be(text);
             set.Completions.Should().HaveCount(0);
@@ -195,13 +196,13 @@ namespace NClap.Tests.ConsoleInput
             completionCalls[0].Item2.Should().Be(1);
         }
 
-        private static ConsoleCompletionHandler GetHandler(ICollection<Tuple<string[], int>> callList)
+        private static ITokenCompleter GetHandler(ICollection<Tuple<string[], int>> callList)
         {
-            return (tokens, index) =>
+            return new TestTokenCompleter((tokens, index) =>
             {
                 callList.Add(Tuple.Create(tokens.ToArray(), index));
                 return Enumerable.Empty<string>();
-            };
+            });
         }
     }
 }

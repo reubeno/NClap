@@ -21,7 +21,7 @@ namespace NClap.Tests.Utilities
         public void GetLogoThrowsOnInvalidArgument()
         {
             Action getLogo = () => AssemblyUtilities.GetLogo(null);
-            getLogo.ShouldThrow<ArgumentNullException>();
+            getLogo.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

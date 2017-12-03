@@ -18,11 +18,6 @@ namespace NClap.TestApp
         {
             Console.WriteLine("Entering loop.");
 
-            var options = new LoopOptions
-            {
-                EndOfLineCommentCharacter = '#'
-            };
-
             var keyBindingSet = ConsoleKeyBindingSet.CreateDefaultSet();
             keyBindingSet.Bind('c', ConsoleModifiers.Control, ConsoleInputOperation.Abort);
 
@@ -31,10 +26,11 @@ namespace NClap.TestApp
             var parameters = new LoopInputOutputParameters
             {
                 Prompt = new ColoredString($"Loop{new string('>', _count)} ", ConsoleColor.Cyan),
-                KeyBindingSet = keyBindingSet
+                KeyBindingSet = keyBindingSet,
+                EndOfLineCommentCharacter = '#'
             };
 
-            new Loop<MainCommandType>(parameters, options).Execute();
+            new Loop(typeof(MainCommandType), parameters).Execute();
 
             --_count;
 

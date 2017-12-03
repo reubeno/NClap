@@ -4,7 +4,7 @@
     /// Base class to be used with the command-line parser to ensure that /?
     /// will display help usage information.
     /// </summary>
-    public class HelpArgumentsBase
+    public class HelpArgumentsBase : IHelpArguments
     {
         /// <summary>
         /// True if the user wants to receive usage help information; false

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.InteropServices;
 using NClap.Utilities;
 
@@ -10,6 +11,7 @@ namespace NClap.ConsoleInput
     /// </summary>
     internal sealed class BasicConsoleInputAndOutput : IConsoleInput, IConsoleOutput
     {
+        private const int _defaultCursorSize = 100;
         private bool _cursorLastKnownToBeVisible = true;
 
         /// <summary>
@@ -33,7 +35,18 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int CursorSize
         {
-            get => Console.CursorSize;
+            get
+            {
+                try
+                {
+                    return Console.CursorSize;
+                }
+                catch (Exception ex) when (IsExceptionAcceptable(ex))
+                {
+                    return _defaultCursorSize;
+                }
+            }
+
             set
             {
                 try
@@ -45,7 +58,7 @@ namespace NClap.ConsoleInput
                 // so we swallow the request.  This isn't awesome, but covers
                 // up for holes in the platform.
 #pragma warning disable CC0004 // Catch block cannot be empty
-                catch (PlatformNotSupportedException)
+                catch (Exception ex) when (IsExceptionAcceptable(ex))
                 {
                 }
 #pragma warning restore CC0004 // Catch block cannot be empty
@@ -65,7 +78,7 @@ namespace NClap.ConsoleInput
                 {
                     return Console.CursorVisible;
                 }
-                catch (PlatformNotSupportedException)
+                catch (Exception ex) when (IsExceptionAcceptable(ex))
                 {
                     // The underlying platform might not tell us if the cursor
                     // is visible, even though it supports setting the visibility.
@@ -331,6 +344,9 @@ namespace NClap.ConsoleInput
                     return NativeMethods.CharAttributes.None;
             }
         }
+
+        private static bool IsExceptionAcceptable(Exception ex) =>
+            ex is PlatformNotSupportedException || ex is IOException;
 
         /// <summary>
         /// Wrapper for native methods.

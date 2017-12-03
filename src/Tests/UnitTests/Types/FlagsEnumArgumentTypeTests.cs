@@ -30,21 +30,21 @@ namespace NClap.Tests.Types
         public void NonEnum()
         {
             Action typeFactory = () => new FlagsEnumArgumentType(typeof(int));
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
+            typeFactory.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void NonFlags()
         {
             Action typeFactory = () => new FlagsEnumArgumentType(typeof(PlainEnum));
-            typeFactory.ShouldThrow<ArgumentOutOfRangeException>();
+            typeFactory.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void Flags()
         {
             Action typeFactory = () => new FlagsEnumArgumentType(typeof(MyFlags));
-            typeFactory.ShouldNotThrow();
+            typeFactory.Should().NotThrow();
         }
 
         [TestMethod]
@@ -58,8 +58,7 @@ namespace NClap.Tests.Types
             type.Format(MyFlags.SomeFlag | MyFlags.SomeOtherFlag).Should().Be("SomeFlag|SomeOtherFlag");
             type.Format(MyFlags.All).Should().Be("All");
 
-            Action formatAction = () => type.Format(0xFF);
-            formatAction.ShouldThrow<ArgumentOutOfRangeException>();
+            type.Format(0xFF).Should().Be("255");
         }
 
         [TestMethod]

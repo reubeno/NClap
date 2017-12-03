@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using NClap.Utilities;
 
 namespace NClap.ConsoleInput
 {
@@ -9,7 +9,7 @@ namespace NClap.ConsoleInput
     /// </summary>
     internal class ConsoleInputBuffer : IConsoleInputBuffer
     {
-        private readonly StringBuilder _buffer = new StringBuilder();
+        private readonly IStringBuilder _buffer = StringWrapper.CreateBuilder();
 
         /// <summary>
         /// The current string contents of the entire buffer.
@@ -43,10 +43,7 @@ namespace NClap.ConsoleInput
         /// Retrieves the contents of the buffer.
         /// </summary>
         /// <returns>The contents as a string.</returns>
-        public override string ToString()
-        {
-            return Contents;
-        }
+        public override string ToString() => Contents;
 
         /// <summary>
         /// Move the cursor.
@@ -57,11 +54,8 @@ namespace NClap.ConsoleInput
         /// relative to the specified origin.</param>
         /// <returns>True on success; false if the movement could not be made.
         /// </returns>
-        public bool MoveCursor(SeekOrigin origin, int offsetFromOrigin)
-        {
-            int offsetFromPreviousPosition;
-            return MoveCursor(origin, offsetFromOrigin, out offsetFromPreviousPosition);
-        }
+        public bool MoveCursor(SeekOrigin origin, int offsetFromOrigin) =>
+            MoveCursor(origin, offsetFromOrigin, out int offsetFromPreviousPosition);
 
         /// <summary>
         /// Move the cursor.
@@ -114,10 +108,7 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="count">The number of characters to read.</param>
         /// <returns>The read characters.</returns>
-        public char[] Read(int count)
-        {
-            return ReadAt(CursorIndex, count);
-        }
+        public char[] Read(int count) => ReadAt(CursorIndex, count);
 
         /// <summary>
         /// Read the specified number of characters from the buffer, starting
@@ -165,51 +156,39 @@ namespace NClap.ConsoleInput
 
             _buffer.CopyTo(sourceIndex, buffer, destinationIndex, count);
         }
-
+        
         /// <summary>
         /// Clears the entire buffer.
         /// </summary>
         public void Clear()
         {
-            _buffer.Length = 0;
+            _buffer.Clear();
             CursorIndex = 0;
         }
 
         /// <summary>
         /// Remove all characters under or after the cursor.
         /// </summary>
-        public void Truncate()
-        {
-            _buffer.Length = CursorIndex;
-        }
+        public void Truncate() => _buffer.Truncate(CursorIndex);
 
         /// <summary>
         /// Inserts a character at the cursor without moving the cursor.
         /// </summary>
         /// <param name="value">Character to insert.</param>
-        public void Insert(char value)
-        {
-            _buffer.Insert(CursorIndex, value);
-        }
+        public void Insert(char value) => _buffer.Insert(CursorIndex, value);
 
         /// <summary>
         /// Inserts a string at the cursor without moving the cursor.
         /// </summary>
         /// <param name="value">String to insert.</param>
-        public void Insert(string value)
-        {
-            _buffer.Insert(CursorIndex, value);
-        }
+        public void Insert(string value) => _buffer.Insert(CursorIndex, value);
 
         /// <summary>
         /// Replaces the character under the cursor with the specified
         /// character.
         /// </summary>
         /// <param name="value">Replacement character.</param>
-        public void Replace(char value)
-        {
-            _buffer[CursorIndex] = value;
-        }
+        public void Replace(char value) => _buffer[CursorIndex] = value;
 
         /// <summary>
         /// Replaces characters starting at the one under the cursor with the
@@ -241,10 +220,7 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <returns>True on success; false if the cursor was at the end of the
         /// buffer.</returns>
-        public bool Remove()
-        {
-            return Remove(1);
-        }
+        public bool Remove() => Remove(1);
 
         /// <summary>
         /// Removes the specified number of characters from the buffer, starting

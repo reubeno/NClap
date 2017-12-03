@@ -11,7 +11,6 @@ namespace NClap.Metadata
     /// (i.e. classes including fields and/or properties with
     /// ArgumentAttributes).
     /// </summary>
-    [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class ArgumentSetAttribute : Attribute
     {
@@ -32,12 +31,12 @@ namespace NClap.Metadata
             var useForwardSlashAsPrefix = !Path.DirectorySeparatorChar.Equals('/');
 
             // Initialize properties with basic defaults.
-            AnswerFileArgumentPrefix = "@";
+            AnswerFileArgumentPrefix = null;
 
             // Initialize style, with a guess as to the default.
             if (useForwardSlashAsPrefix)
             {
-                Style = ArgumentSetStyle.WindowsCommandLine;
+                Style = ArgumentSetStyle.PowerShell;
             }
             else
             {
@@ -133,7 +132,12 @@ namespace NClap.Metadata
         public char[] ArgumentValueSeparators
         {
             get => _argumentValueSeparators;
-            set => _argumentValueSeparators = value ?? throw new ArgumentNullException(nameof(value));
+
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                _argumentValueSeparators = value;
+            }
         }
 
         /// <summary>

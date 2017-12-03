@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -15,13 +14,7 @@ namespace NClap
     /// A delegate used in error reporting.
     /// </summary>
     /// <param name="message">Message to report.</param>
-    public delegate void ErrorReporter(string message);
-
-    /// <summary>
-    /// A delegate used in error reporting.
-    /// </summary>
-    /// <param name="message">Message to report.</param>
-    public delegate void ColoredErrorReporter(ColoredMultistring message);
+    public delegate void ErrorReporter(ColoredMultistring message);
 
     /// <summary>
     /// Command-line parser.
@@ -39,226 +32,128 @@ namespace NClap
         private const int DefaultConsoleWidth = 80;
 
         /// <summary>
-        /// Default <see cref="ColoredErrorReporter" /> used by this class.
+        /// Default <see cref="ErrorReporter" /> used by this class.
         /// </summary>
-        public static ColoredErrorReporter DefaultReporter { get; } = BasicConsoleInputAndOutput.Default.Write;
+        public static ErrorReporter DefaultReporter { get; } = BasicConsoleInputAndOutput.Default.Write;
 
         /// <summary>
-        /// Parses command-line arguments into a reference-type object. Displays
-        /// usage message to Console.Out if invalid arguments are encountered.
-        /// Errors are output on Console.Error. Use ArgumentAttributes to
-        /// control parsing behavior.
+        /// Tries to parse the given string arguments into a new instance of <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination) where T : class =>
-            ParseWithUsage(arguments, destination, (CommandLineParserOptions)null);
+        /// <typeparam name="T">Type of the destination object; this type should use
+        /// appropriate NClap attributes to annotate and define options.</typeparam>
+        /// <param name="arguments">The string arguments to parse.</param>
+        /// <param name="result">On success, returns the constructed result object.</param>
+        /// <returns>True on success; false otherwise.</returns>
+        public static bool TryParse<T>(IEnumerable<string> arguments, out T result) where T : class, new() =>
+            TryParse(arguments, null, out result);
 
         /// <summary>
-        /// Parses command-line arguments into a reference-type object. Displays
-        /// usage message to Console.Out if invalid arguments are encountered.
-        /// Errors are output on Console.Error. Use ArgumentAttributes to
-        /// control parsing behavior.
+        /// Tries to parse the given string arguments into a new instance of <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="reporter">The destination for parse errors.</param>
-        /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination, ErrorReporter reporter) where T : class =>
-            ParseWithUsage(arguments, destination, new CommandLineParserOptions { Reporter = s => reporter?.Invoke(s.ToString()) });
-
-        /// <summary>
-        /// Parses command-line arguments into a reference-type object.
-        /// Displays usage message if invalid arguments are encountered.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="options">Optionally provides additional options
-        /// controlling how parsing proceeds.</param>
-        /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options) where T : class =>
-            ParseWithUsage(arguments, destination, options, UsageInfoOptions.Default);
-
-        /// <summary>
-        /// Parses command-line arguments into a reference-type object.
-        /// Displays usage message if invalid arguments are encountered.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="options">Optionally provides additional options
-        /// controlling how parsing proceeds.</param>
-        /// <param name="usageInfoOptions">Options for how to display usage
-        /// information, in case it's presented.</param>
-        /// <returns>True if no errors were detected.</returns>
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options, UsageInfoOptions usageInfoOptions) where T : class
+        /// <typeparam name="T">Type of the destination object; this type should use
+        /// appropriate NClap attributes to annotate and define options.</typeparam>
+        /// <param name="arguments">The string arguments to parse.</param>
+        /// <param name="options">Options describing how to parse.</param>
+        /// <param name="result">On success, returns the constructed result object.</param>
+        /// <returns>True on success; false otherwise.</returns>
+        public static bool TryParse<T>(IEnumerable<string> arguments, CommandLineParserOptions options, out T result)
+            where T : class, new()
         {
-            if (arguments == null)
+            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
+
+            var destination = new T();
+            var argSet = ReflectionBasedParser.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+
+            if (!TryParse(argSet, arguments, options, destination))
             {
-                throw new ArgumentNullException(nameof(arguments));
+                result = null;
+                return false;
             }
 
-            if (destination == null)
-            {
-                throw new ArgumentNullException(nameof(destination));
-            }
+            result = destination;
+            return true;
+        }
 
+        /// <summary>
+        /// Tries to parse the given string arguments into the provided instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the destination object; this type should use
+        /// appropriate NClap attributes to annotate and define options.</typeparam>
+        /// <param name="arguments">The string arguments to parse.</param>
+        /// <param name="destination">The object to parse into.</param>
+        /// <param name="options">Options describing how to parse.</param>
+        /// <returns>True on success; false otherwise.</returns>
+        public static bool TryParse<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options)
+            where T : class
+        {
+            if (arguments == null) throw new ArgumentNullException(nameof(arguments));
+            if (destination == null) throw new ArgumentNullException(nameof(arguments));
+
+            var argSet = ReflectionBasedParser.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            return TryParse(argSet, arguments, options, destination);
+        }
+
+        internal static bool TryParse<T>(ArgumentSetDefinition argSet, IEnumerable<string> arguments, CommandLineParserOptions options, T destination)
+        {
             if (options == null)
             {
                 options = new CommandLineParserOptions { Reporter = DefaultReporter };
             }
 
-            Debug.Assert(arguments.All(a => a != null));
+            //
+            // Buffer output to the reporter; suppress it if we find afterwards
+            // that the user just wanted to see help information.
+            //
 
-            // Check if the object inherits from HelpArgumentsBase.
-            var helpDestination = destination as HelpArgumentsBase;
+            var reportedLines = new List<ColoredMultistring>();
+            var actualReporter = options.Reporter;
 
+            options = options.Clone();
+            options.Reporter = s => reportedLines.Add(s);
+
+            //
             // Parse!
-            var engine = new CommandLineParserEngine(destination.GetType(), destination, options);
-            if (!engine.Parse(arguments, destination))
-            {
-                // An error was encountered in arguments. Display the usage
-                // message.
-                options.Reporter?.Invoke(ColoredMultistring.FromString(Environment.NewLine));
-                options.Reporter?.Invoke(GetUsageInfo(engine, null, null, usageInfoOptions, destination));
+            //
 
+            var parser = new ArgumentSetParser(argSet, options);
+
+            var parseResult = parser.ParseArgumentList(arguments, destination).IsReady;
+
+            var parserArgSet = parser.ArgumentSet;
+
+            //
+            // See if the user requested help output; if so, then suppress any errors.
+            //
+
+            if ((destination is IHelpArguments helpArgs) && helpArgs.Help && actualReporter != null)
+            {
+                actualReporter(GetUsageInfo(parserArgSet, null, null, options.UsageInfoOptions, destination));
                 return false;
             }
 
-            // We parsed the arguments, but check if we were requested to
-            // display the usage help message anyway.
-            if ((helpDestination != null) && helpDestination.Help)
+            //
+            // Okay, now flush any reported output.
+            //
+
+            if (actualReporter != null)
             {
-                options.Reporter?.Invoke(GetUsageInfo(engine, null, null, usageInfoOptions, destination));
-                return false;
+                foreach (var line in reportedLines)
+                {
+                    actualReporter.Invoke(line);
+                }
             }
 
-            return true;
-        }
+            //
+            // If we failed to parse and if the caller requested it, then display usage information.
+            //
 
-        /// <summary>
-        /// Parses command-line arguments into a value-type object. Displays
-        /// usage message to Console.Out if invalid arguments are encountered.
-        /// Errors are output on Console.Error. Use ArgumentAttributes to
-        /// control parsing behavior.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <returns>True if no errors were detected.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, ref T destination) where T : struct =>
-            ParseWithUsage(arguments, ref destination, new CommandLineParserOptions { Reporter = DefaultReporter });
-
-        /// <summary>
-        /// Parses command-line arguments into a value-type object.
-        /// Displays usage message if invalid arguments are encountered.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="options">Optionally provides additional options
-        /// controlling how parsing proceeds.</param>
-        /// <returns>True if no errors were detected.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct =>
-            ParseWithUsage(arguments, ref destination, options, UsageInfoOptions.Default);
-
-        /// <summary>
-        /// Parses command-line arguments into a value-type object.
-        /// Displays usage message if invalid arguments are encountered.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="options">Optionally provides additional options
-        /// controlling how parsing proceeds.</param>
-        /// <param name="usageInfoOptions">Options for how to display usage
-        /// information, in case it's presented.</param>
-        /// <returns>True if no errors were detected.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool ParseWithUsage<T>(IEnumerable<string> arguments, ref T destination, CommandLineParserOptions options, UsageInfoOptions usageInfoOptions) where T : struct
-        {
-            var boxedDestination = (object)destination;
-            if (!ParseWithUsage(arguments, boxedDestination, options, usageInfoOptions))
+            if (!parseResult && options.DisplayUsageInfoOnError && actualReporter != null)
             {
-                return false;
+                actualReporter(ColoredMultistring.FromString(Environment.NewLine));
+                actualReporter(GetUsageInfo(parserArgSet, null, null, options.UsageInfoOptions, destination));
             }
 
-            destination = (T)boxedDestination;
-            return true;
-        }
-
-        /// <summary>
-        /// Parses command-line arguments into a reference-type object. Errors
-        /// are output on Console.Error. Use ArgumentAttributes to control
-        /// parsing behavior.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <returns>True if no errors were detected.</returns>
-        public static bool Parse<T>(IEnumerable<string> arguments, T destination) where T : class =>
-            Parse(arguments, destination, new CommandLineParserOptions { Reporter = s => Console.Error.WriteLine(s) });
-
-        /// <summary>
-        /// Parses command-line arguments into a reference-type object. Use
-        /// ArgumentAttributes to control parsing behavior.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="options">Optionally provides additional options
-        /// controlling how parsing proceeds.</param>
-        /// <returns>True if no errors were detected.</returns>
-        public static bool Parse<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options) where T : class
-        {
-            Debug.Assert(arguments != null);
-            Debug.Assert(arguments.All(arg => arg != null));
-            Debug.Assert(destination != null, "destination cannot be null");
-
-            var engine = new CommandLineParserEngine(destination.GetType(), destination, options);
-            return engine.Parse(arguments, destination);
-        }
-
-        /// <summary>
-        /// Parses command-line arguments into a value-type object. Errors are
-        /// output on Console.Error. Use ArgumentAttributes to control parsing
-        /// behavior.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <returns>True if no errors were detected.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool Parse<T>(IEnumerable<string> arguments, ref T destination) where T : struct =>
-            Parse(arguments, ref destination, null);
-
-        /// <summary>
-        /// Parses command-line arguments into a value-type object. Use
-        /// ArgumentAttributes to control parsing behavior.
-        /// </summary>
-        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
-        /// <param name="arguments">The actual arguments.</param>
-        /// <param name="destination">The resulting parsed arguments.</param>
-        /// <param name="options">Optionally provides additional options
-        /// controlling how parsing proceeds.</param>
-        /// <returns>True if no errors were detected.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "1#", Justification = "Required for structs")]
-        public static bool Parse<T>(IEnumerable<string> arguments, ref T destination, CommandLineParserOptions options) where T : struct
-        {
-            var boxedDestination = (object)destination;
-            if (!Parse(arguments, boxedDestination, options))
-            {
-                return false;
-            }
-
-            destination = (T)boxedDestination;
-            return true;
+            return parseResult;
         }
 
         /// <summary>
@@ -267,8 +162,15 @@ namespace NClap
         /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
         /// <param name="value">The parsed argument set.</param>
         /// <returns>The tokenized string.</returns>
-        public static IEnumerable<string> Format<T>(T value) =>
-            new CommandLineParserEngine(value.GetType()).Format(value);
+        public static IEnumerable<string> Format<T>(T value)
+        {
+            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(T));
+            return argSet.AllArguments
+                .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
+                .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
+                .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
+                .Where(formattedValue => !string.IsNullOrWhiteSpace(formattedValue));
+        }
 
         /// <summary>
         /// Returns a usage string for command line argument parsing. Use
@@ -337,8 +239,8 @@ namespace NClap
             GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.Default);
 
         /// <summary>
-        /// Returns a Usage string for command line argument parsing. Use
-        /// ArgumentAttributes to control parsing behavior.
+        /// Returns a usage string for command line argument parsing. Use
+        /// argument attributes to control parsing behavior.
         /// </summary>
         /// <param name="type">Type of the parsed arguments object.</param>
         /// <param name="defaultValues">Optionally provides an object with
@@ -355,14 +257,10 @@ namespace NClap
             object defaultValues,
             int? columns,
             string commandName,
-            UsageInfoOptions options)
-        {
-            return GetUsageInfo(
-                    new CommandLineParserEngine(type, defaultValues, null),
-                    columns,
-                    commandName,
-                    options);
-        }
+            UsageInfoOptions options) =>
+
+            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues),
+                columns, commandName, options);
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -426,12 +324,8 @@ namespace NClap
                 throw new ArgumentNullException(nameof(tokens));
             }
 
-            var engine = new CommandLineParserEngine(
-                type,
-                null /* default values */,
-                options);
-
-            return engine.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
+            var parser = new ArgumentSetParser(ReflectionBasedParser.CreateArgumentSet(type), options);
+            return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
         }
 
         /// <summary>
@@ -441,22 +335,66 @@ namespace NClap
         /// <param name="options">Options for tokenizing.</param>
         /// <returns>Enumeration of tokens.</returns>
         internal static IEnumerable<Token> Tokenize(string line, CommandLineTokenizerOptions options = CommandLineTokenizerOptions.None) =>
-            CommandLineParserEngine.Tokenize(line, options);
+            StringUtilities.Tokenize(line, options.HasFlag(CommandLineTokenizerOptions.AllowPartialInput));
 
-        private static ColoredMultistring GetUsageInfo(
-            CommandLineParserEngine engine,
+        internal static ColoredMultistring GetUsageInfo(
+            ArgumentSetDefinition argSet,
             int? columns,
             string commandName,
             UsageInfoOptions options,
             object destination = null)
         {
-
             if (!columns.HasValue)
             {
                 columns = GetCurrentConsoleWidth();
             }
 
-            return engine.GetUsageInfo(columns.Value, commandName, options, destination);
+            var maxUsageWidth = columns.Value;
+
+            // Construct info for argument set.
+            var info = new ArgumentSetUsageInfo
+            {
+                Name = commandName ?? AssemblyUtilities.GetAssemblyFileName(),
+                Description = argSet.Attribute.AdditionalHelp,
+                DefaultShortNamePrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
+            };
+
+            // Add parameters and examples.
+            info.AddParameters(GetArgumentUsageInfo(argSet, destination));
+            if (argSet.Attribute.Examples != null)
+            {
+                info.AddExamples(argSet.Attribute.Examples);
+            }
+
+            // Update logo, if one was provided.
+            if (argSet.Attribute.LogoString != null)
+            {
+                info.Logo = argSet.Attribute.LogoString;
+            }
+
+            // Compose remarks, if any.
+            const string defaultHelpArgumentName = "?";
+            var namedArgPrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
+            if (argSet.TryGetNamedArgument(defaultHelpArgumentName, out ArgumentDefinition ignored) && namedArgPrefix != null)
+            {
+                info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
+            }
+
+            // Construct formatter and use it.
+            HelpFormatter formatter;
+            if (options.HasFlag(UsageInfoOptions.VerticallyExpandedOutput))
+            {
+                formatter = new PowershellStyleHelpFormatter();
+            }
+            else
+            {
+                formatter = new CondensedHelpFormatter();
+            }
+
+            formatter.MaxWidth = maxUsageWidth;
+            formatter.Options = options;
+
+            return formatter.Format(info);
         }
 
         private static int GetCurrentConsoleWidth()
@@ -480,6 +418,44 @@ namespace NClap
             }
 
             return columns;
+        }
+
+        private static IEnumerable<ArgumentUsageInfo> GetArgumentUsageInfo(ArgumentSetDefinition argSet, object destination)
+        {
+            // Enumerate positional arguments first, in position order.
+            foreach (var arg in argSet.PositionalArguments.Where(a => !a.Hidden))
+            {
+                var currentValue = (destination != null) ? arg.GetValue(destination) : null;
+                yield return new ArgumentUsageInfo(arg, currentValue);
+            }
+
+            var stringComparer = argSet.Attribute.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+
+            // Enumerate named arguments next, in case-insensitive sort order.
+            foreach (var arg in argSet.NamedArguments
+                                    .Where(a => !a.Hidden)
+                                    .OrderBy(a => a.LongName, stringComparer))
+            {
+                var currentValue = (destination != null) ? arg.GetValue(destination) : null;
+                yield return new ArgumentUsageInfo(arg, currentValue);
+            }
+
+            // Add an extra item for answer files, if that is supported on this
+            // argument set.
+            if (argSet.Attribute.AnswerFileArgumentPrefix != null)
+            {
+                var pseudoArgLongName = Strings.AnswerFileArgumentName;
+
+                if (argSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+                {
+                    pseudoArgLongName = pseudoArgLongName.ToHyphenatedLowerCase();
+                }
+
+                yield return new ArgumentUsageInfo(
+                    $"[{argSet.Attribute.AnswerFileArgumentPrefix}<{pseudoArgLongName}>]*",
+                    Strings.AnswerFileArgumentDescription,
+                    required: false);
+            }
         }
     }
 }

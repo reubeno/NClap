@@ -1,7 +1,6 @@
 ﻿using System;
 
 using FluentAssertions;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Types;
 
@@ -11,12 +10,14 @@ namespace NClap.Tests.Types
     public class ArgumentParseContextTests
     {
         [TestMethod]
-        public void InvalidReader()
+        public void DefaultedReader()
         {
             var context = new ArgumentParseContext();
 
             Action setNull = () => context.FileSystemReader = null;
-            setNull.ShouldThrow<ArgumentNullException>();
+            setNull.Should().NotThrow<ArgumentNullException>();
+
+            context.FileSystemReader.Should().NotBeNull();
         }
     }
 }

@@ -128,7 +128,7 @@ namespace NClap.Utilities
         public IString Replace(string pattern, string replacement) =>
             // N.B. We do not consider matches across pieces.
             new ColoredMultistring(Content.Select(piece =>
-                new ColoredString(piece.Content.Replace(pattern, replacement), piece.ForegroundColor, piece.BackgroundColor)));
+                piece.Transform(content => content.Replace(pattern, replacement))));
 
         /// <summary>
         /// Split the string by the indicated separator.
@@ -208,10 +208,7 @@ namespace NClap.Utilities
                     }
                     else
                     {
-                        builder.Append(new ColoredString(
-                            piece.Content.Substring(offsetIntoPiece, charsToCopy),
-                            piece.ForegroundColor,
-                            piece.BackgroundColor));
+                        builder.Append(piece.Substring(offsetIntoPiece, charsToCopy));
                     }
 
                     lengthLeft -= charsToCopy;
@@ -255,7 +252,7 @@ namespace NClap.Utilities
                 var updatedPiece = pieces.Last();
                 pieces.RemoveAt(pieces.Count - 1);
 
-                updatedPiece = new ColoredString(updatedPiece.Content.TrimEnd(), updatedPiece.ForegroundColor, updatedPiece.BackgroundColor);
+                updatedPiece = updatedPiece.Transform(content => content.TrimEnd());
                 if (updatedPiece.Length > 0)
                 {
                     pieces.Add(updatedPiece);
@@ -315,6 +312,6 @@ namespace NClap.Utilities
         /// Construct a builder that can generate a string of this type.
         /// </summary>
         /// <returns>A new builder.</returns>
-        public IStringBuilder CreateBuilder() => new ColoredMultistringBuilder();
+        public IStringBuilder CreateNewBuilder() => new ColoredMultistringBuilder();
     }
 }

@@ -11,14 +11,19 @@ namespace NClap.Tests.ConsoleInput
     public class ConsoleHistoryTests
     {
         [TestMethod]
-        public void InvalidHistory()
+        public void TestConstructionThrowsOnNonPositiveMaxCount()
         {
-            Action create = () => { var x = new ConsoleHistory(0); };
-            create.ShouldThrow<ArgumentOutOfRangeException>();
+            const int anyNegativeCount = -1;
+
+            Action createWithZero = () => { var x = new ConsoleHistory(0); };
+            createWithZero.Should().Throw<ArgumentOutOfRangeException>();
+
+            Action createWithNegative = () => { var x = new ConsoleHistory(anyNegativeCount); };
+            createWithNegative.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
-        public void EmptyHistory()
+        public void TestEmptyHistory()
         {
             var history = new ConsoleHistory();
             history.EntryCount.Should().Be(0);
@@ -95,8 +100,8 @@ namespace NClap.Tests.ConsoleInput
             history.MoveCursor(1);
             history.CurrentEntry.Should().Be("Middle");
 
-            Action bogusMovement = () => history.MoveCursor((SeekOrigin)0x10, 0);
-            bogusMovement.ShouldThrow<ArgumentOutOfRangeException>();
+            history.Invoking(h => h.MoveCursor((SeekOrigin)0x10, 0))
+                .Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]

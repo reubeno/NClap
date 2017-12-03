@@ -50,14 +50,14 @@ namespace NClap.Tests.Metadata
         public void CannotConstructWithNonEnumCommandType()
         {
             Action a = () => { var x = new CommandGroup<NonEnumValueType>(); };
-            a.ShouldThrow<NotSupportedException>();
+            a.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
         public void CanConstructWithNonEnumCommandType()
         {
             Action a = () => { var group = new CommandGroup<CommandType>(); };
-            a.ShouldNotThrow<Exception>();
+            a.Should().NotThrow<Exception>();
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace NClap.Tests.Metadata
         {
             var group = new CommandGroup<CommandType>();
             Action a = () => { group.Selection = CommandType.NotACommandBecauseNoAttribute; };
-            a.ShouldThrow<InvalidCommandException>();
+            a.Should().Throw<InvalidCommandException>();
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@ namespace NClap.Tests.Metadata
         {
             var group = new CommandGroup<CommandType>();
             Action a = () => { group.Selection = CommandType.NotACommandBecauseNoImplementingType; };
-            a.ShouldThrow<InvalidCommandException>();
+            a.Should().Throw<InvalidCommandException>();
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@ namespace NClap.Tests.Metadata
         {
             var group = new CommandGroup<CommandType>();
             Action a = () => { group.Selection = CommandType.InvalidCommandBecauseTypeHasNoParameterlessConstructor; };
-            a.ShouldThrow<InvalidCommandException>();
+            a.Should().Throw<InvalidCommandException>();
         }
 
         [TestMethod]
@@ -89,7 +89,7 @@ namespace NClap.Tests.Metadata
         {
             var group = new CommandGroup<CommandType>();
             Action a = () => { group.Selection = CommandType.InvalidCommandBecauseTypeIsNotICommand; };
-            a.ShouldThrow<InvalidCommandException>();
+            a.Should().Throw<InvalidCommandException>();
         }
     }
 }

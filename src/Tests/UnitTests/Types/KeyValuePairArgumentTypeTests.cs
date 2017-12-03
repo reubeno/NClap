@@ -15,11 +15,11 @@ namespace NClap.Tests.Types
             var type = (KeyValuePairArgumentType)ArgumentType.GetType(typeof(KeyValuePair<bool, bool>));
             var c = new ArgumentCompletionContext { ParseContext = ArgumentParseContext.Default };
 
-            Action badContext = () => type.GetCompletions(null, "Tr");
-            badContext.ShouldThrow<ArgumentNullException>();
+            type.Invoking(t => t.GetCompletions(null, "Tr"))
+                .Should().Throw<ArgumentNullException>();
 
-            Action badValue = () => type.GetCompletions(c, null);
-            badValue.ShouldThrow<ArgumentNullException>();
+            type.Invoking(t => t.GetCompletions(c, null))
+                .Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

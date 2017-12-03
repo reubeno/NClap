@@ -1,5 +1,4 @@
-﻿using System.IO;
-using NClap.ConsoleInput;
+﻿using NClap.ConsoleInput;
 using NClap.Utilities;
 
 namespace NClap.Repl
@@ -11,11 +10,6 @@ namespace NClap.Repl
     /// </summary>
     public class LoopInputOutputParameters
     {
-        /// <summary>
-        /// Optionally provides a writer to use for error output.
-        /// </summary>
-        public TextWriter ErrorWriter { get; set; }
-
         /// <summary>
         /// Line input object to use, or null for a default one to be
         /// constructed.
@@ -40,6 +34,11 @@ namespace NClap.Repl
         /// <summary>
         /// Input prompt, or null to use the default one.
         /// </summary>
-        public ColoredString Prompt { get; set; }
+        public ColoredString? Prompt { get; set; }
+
+        /// <summary>
+        /// The character that starts a comment.
+        /// </summary>
+        public char? EndOfLineCommentCharacter { get; set; }
     }
 }

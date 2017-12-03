@@ -58,8 +58,8 @@
     {
         private static void Main(string[] args)
         {
-            var programArgs = new MyProgramArguments();
-            if (!CommandLineParser.ParseWithUsage(args, programArgs))
+			MyProgramArguments programArgs;
+            if (!CommandLineParser.TryParse(args, out programArgs))
             {
                 return;
             }
@@ -114,7 +114,7 @@
     {
         Console.WriteLine("Entering loop...");
 
-        var loop = new Loop<MyCommandType>();
+        var loop = new Loop(typeof(MyCommandType));
         loop.Execute();
 
         Console.WriteLine("Exited loop...");

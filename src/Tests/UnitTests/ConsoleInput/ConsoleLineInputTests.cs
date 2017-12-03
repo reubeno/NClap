@@ -405,8 +405,7 @@ namespace NClap.Tests.ConsoleInput
         {
             var input = CreateInput(new SimulatedConsoleOutput());
 
-            Action insertion = () => input.Insert(null);
-            insertion.ShouldThrow<ArgumentNullException>();
+            input.Invoking(i => i.Insert(null)).Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -608,8 +607,7 @@ namespace NClap.Tests.ConsoleInput
 
             var input = CreateInput(console);
 
-            Action insertion = () => input.Insert(s);
-            insertion.ShouldThrow<NotImplementedException>();
+            input.Invoking(i => i.Insert(s)).Should().Throw<NotImplementedException>();
         }
 
         [TestMethod]
@@ -638,8 +636,7 @@ namespace NClap.Tests.ConsoleInput
             var console = new SimulatedConsoleOutput();
             var input = CreateInputWithText(console, s);
 
-            Action replacement = () => input.Replace('X');
-            replacement.ShouldThrow<ArgumentOutOfRangeException>();
+            input.Invoking(i => i.Replace('X')).Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -857,7 +854,7 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
-        public void ReplaceWithPreviousCompletionWithNoCompletionHandler()
+        public void ReplaceWithPreviousCompletionWithNotokenCompleter()
         {
             const string s = "Something";
             var console = new SimulatedConsoleOutput();
@@ -876,8 +873,8 @@ namespace NClap.Tests.ConsoleInput
         {
             const string s = "Something";
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, index) => Enumerable.Empty<string>();
-            var input = CreateInputWithText(console, s, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(Enumerable.Empty<string>());
+            var input = CreateInputWithText(console, s, tokenCompleter);
 
             input.ReplaceCurrentTokenWithPreviousCompletion(false);
 
@@ -894,8 +891,8 @@ namespace NClap.Tests.ConsoleInput
             string[] completions = { "S", "Sa", "sc", "szy" };
 
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, index) => completions;
-            var input = CreateInputWithText(console, text, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(completions);
+            var input = CreateInputWithText(console, text, tokenCompleter);
 
             ValidateCompletion(input, 1, true, false, "szy");
             ValidateCompletion(input, null, true, true, "sc");
@@ -914,8 +911,8 @@ namespace NClap.Tests.ConsoleInput
             string[] completions = { "S", string.Empty, "szy" };
 
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, index) => completions;
-            var input = CreateInputWithText(console, text, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(completions);
+            var input = CreateInputWithText(console, text, tokenCompleter);
 
             ValidateCompletion(input, 1, true, false, "szy");
             ValidateCompletion(input, null, true, true, StringUtilities.QuoteIfNeeded(string.Empty));
@@ -923,7 +920,7 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
-        public void ReplaceWithNextCompletionWithNoCompletionHandler()
+        public void ReplaceWithNextCompletionWithNotokenCompleter()
         {
             const string s = "Something";
             var console = new SimulatedConsoleOutput();
@@ -942,8 +939,8 @@ namespace NClap.Tests.ConsoleInput
         {
             const string s = "Something";
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, index) => Enumerable.Empty<string>();
-            var input = CreateInputWithText(console, s, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(Enumerable.Empty<string>());
+            var input = CreateInputWithText(console, s, tokenCompleter);
 
             input.ReplaceCurrentTokenWithNextCompletion(false);
 
@@ -960,8 +957,8 @@ namespace NClap.Tests.ConsoleInput
             string[] completions = { "S", "Sa", "sc", "szy" };
 
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, index) => completions;
-            var input = CreateInputWithText(console, text, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(completions);
+            var input = CreateInputWithText(console, text, tokenCompleter);
 
             ValidateCompletion(input, 1, false, false, "S");
             ValidateCompletion(input, null, false, true, "Sa");
@@ -980,8 +977,8 @@ namespace NClap.Tests.ConsoleInput
             string[] completions = { "S", string.Empty, "szy" };
 
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, index) => completions;
-            var input = CreateInputWithText(console, text, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(completions);
+            var input = CreateInputWithText(console, text, tokenCompleter);
 
             ValidateCompletion(input, 1, false, false, "S");
             ValidateCompletion(input, null, false, true, StringUtilities.QuoteIfNeeded(string.Empty));
@@ -1001,8 +998,8 @@ namespace NClap.Tests.ConsoleInput
         public void ReplaceWithAllCompletionsButNoCompletions()
         {
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, tokenIndex) => Enumerable.Empty<string>();
-            var input = CreateInput(console, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(Enumerable.Empty<string>());
+            var input = CreateInput(console, tokenCompleter);
 
             input.ReplaceCurrentTokenWithAllCompletions();
             input.Contents.Should().BeEmpty();
@@ -1016,8 +1013,8 @@ namespace NClap.Tests.ConsoleInput
         {
             var console = new SimulatedConsoleOutput();
             var completions = new[] { "abcd", "aXYZ", "aw | i" };
-            ConsoleCompletionHandler completionHandler = (tokens, tokenIndex) => completions;
-            var input = CreateInput(console, completionHandler);
+            var tokenCompleter = new TestTokenCompleter(completions);
+            var input = CreateInput(console, tokenCompleter);
             input.Insert("a");
             input.MoveCursorToEnd();
 
@@ -1087,9 +1084,9 @@ namespace NClap.Tests.ConsoleInput
             const string prompt = "Prompt>";
 
             var completions = new[] { "Some", "somebody", "Something", "soy" };
-            ConsoleCompletionHandler completionHandler = (tokens, tokenIndex) => completions;
+            ITokenCompleter tokenCompleter = new TestTokenCompleter(completions);
 
-            var input = CreateInputWithText(console, s, completionHandler);
+            var input = CreateInputWithText(console, s, tokenCompleter);
             input.Prompt = prompt;
 
             input.MoveCursorBackward(1).Should().BeTrue();
@@ -1113,9 +1110,9 @@ namespace NClap.Tests.ConsoleInput
             const string s = "Hello world something";
             var console = new SimulatedConsoleOutput(width: 10);
 
-            ConsoleCompletionHandler completionHandler = (tokens, tokenIndex) => Enumerable.Empty<string>();
+            ITokenCompleter tokenCompleter = new TestTokenCompleter(Enumerable.Empty<string>());
 
-            var input = CreateInputWithText(console, s, completionHandler);
+            var input = CreateInputWithText(console, s, tokenCompleter);
             var previousConsoleContents = GetContents(console);
 
             input.DisplayAllCompletions();
@@ -1132,8 +1129,7 @@ namespace NClap.Tests.ConsoleInput
             var input = CreateInputWithText(console, s);
             input.MoveCursorToStart();
 
-            Action transform = () => input.TransformCurrentWord(null);
-            transform.ShouldThrow<ArgumentNullException>();
+            input.Invoking(i => i.TransformCurrentWord(null)).Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -1289,13 +1285,13 @@ namespace NClap.Tests.ConsoleInput
             var calls = new List<Tuple<List<string>, int>>();
 
             var console = new SimulatedConsoleOutput();
-            ConsoleCompletionHandler completionHandler = (tokens, tokenIndex) =>
+            ITokenCompleter tokenCompleter = new TestTokenCompleter((tokens, tokenIndex) =>
             {
                 calls.Add(Tuple.Create(tokens.ToList(), tokenIndex));
                 return Enumerable.Empty<string>();
-            };
+            });
 
-            var input = CreateInputWithText(console, text, completionHandler);
+            var input = CreateInputWithText(console, text, tokenCompleter);
             input.MoveCursorToStart();
             input.MoveCursorForward(cursorIndex).Should().BeTrue();
 
@@ -1310,25 +1306,29 @@ namespace NClap.Tests.ConsoleInput
             }
         }
 
-        private ConsoleLineInput CreateInputWithText(IConsoleOutput consoleOutput, string text, ConsoleCompletionHandler completionHandler = null)
+        private ConsoleLineInput CreateInputWithText(IConsoleOutput consoleOutput, string text, ITokenCompleter tokenCompleter = null)
         {
-            var input = CreateInput(consoleOutput, completionHandler);
+            var input = CreateInput(consoleOutput, tokenCompleter);
             input.Insert(text);
             input.MoveCursorToEnd();
 
             return input;
         }
 
-        private ConsoleLineInput CreateInput(IConsoleOutput consoleOutput = null, ConsoleCompletionHandler completionHandler = null)
+        private ConsoleLineInput CreateInput(IConsoleOutput consoleOutput = null, ITokenCompleter tokenCompleter = null)
         {
             consoleOutput = consoleOutput ?? Substitute.For<IConsoleOutput>();
             var buffer = new ConsoleInputBuffer();
             var history = new ConsoleHistory();
-            var input = new ConsoleLineInput(consoleOutput, buffer, history, completionHandler);
+            var input = new ConsoleLineInput(consoleOutput, buffer, history)
+            {
+                TokenCompleter = tokenCompleter
+            };
+
             input.ConsoleOutput.Should().BeSameAs(consoleOutput);
             input.Buffer.Should().BeSameAs(buffer);
             input.History.Should().BeSameAs(history);
-            input.CompletionHandler.Should().BeSameAs(completionHandler);
+            input.TokenCompleter.Should().BeSameAs(tokenCompleter);
             input.InsertMode.Should().BeTrue();
 
             return input;

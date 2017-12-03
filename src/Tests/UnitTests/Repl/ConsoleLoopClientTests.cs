@@ -1,10 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.ConsoleInput;
 using NClap.Repl;
+using NClap.Utilities;
 using NSubstitute;
 
 namespace NClap.Tests.Repl
@@ -19,7 +18,7 @@ namespace NClap.Tests.Repl
         public void ConstructorThrowsOnNull()
         {
             Action constructAction = () => new ConsoleLoopClient(null);
-            constructAction.ShouldThrow<ArgumentNullException>();
+            constructAction.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -46,15 +45,15 @@ namespace NClap.Tests.Repl
             const string errorText = "Hello, errors!";
 
             var reader = Substitute.For<IConsoleReader>();
+            var output = Substitute.For<IConsoleOutput>();
 
-            var sb = new StringBuilder();
-            using (var errorWriter = new StringWriter(sb))
-            {
-                var client = new ConsoleLoopClient(reader, errorWriter);
-                client.OnError(errorText);
-            }
+            reader.ConsoleOutput.Returns(output);
 
-            sb.ToString().Should().Be(errorText + Environment.NewLine);
+            var client = new ConsoleLoopClient(reader);
+            client.OnError(errorText);
+
+            output.Received().Write(
+                Arg.Is<ColoredString>(cs => cs.Content.Equals(errorText + Environment.NewLine)));
         }
 
         [TestMethod]

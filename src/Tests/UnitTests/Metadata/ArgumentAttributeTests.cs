@@ -34,10 +34,10 @@ namespace NClap.Tests.Metadata
             var attribute = new NamedArgumentAttribute(ArgumentFlags.AtMostOnce);
 
             Action setEmpty = () => attribute.LongName = string.Empty;
-            setEmpty.ShouldNotThrow();
+            setEmpty.Should().NotThrow();
 
             Action getEmpty = () => { var x = attribute.LongName; };
-            getEmpty.ShouldThrow<InvalidArgumentSetException>();
+            getEmpty.Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace NClap.Tests.Metadata
             var attribute = new NamedArgumentAttribute(ArgumentFlags.AtMostOnce);
 
             Action setNull = () => attribute.ConflictsWith = null;
-            setNull.ShouldThrow<ArgumentNullException>();
+            setNull.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]

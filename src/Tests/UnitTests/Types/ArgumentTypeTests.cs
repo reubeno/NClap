@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NClap.Types;
-using NClap.Metadata;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Metadata;
+using NClap.Types;
 
 namespace NClap.Tests.Types
 {
@@ -37,7 +37,7 @@ namespace NClap.Tests.Types
 
             foreach (var action in actions)
             {
-                action.ShouldThrow<ArgumentException>();
+                action.Should().Throw<ArgumentException>();
             }
         }
 
@@ -51,7 +51,7 @@ namespace NClap.Tests.Types
 
             foreach (var action in actions)
             {
-                action.ShouldThrow<ArgumentException>();
+                action.Should().Throw<ArgumentException>();
             }
         }
 
@@ -67,7 +67,7 @@ namespace NClap.Tests.Types
 
             foreach (var action in actions)
             {
-                action.ShouldThrow<Exception>();
+                action.Should().Throw<Exception>();
             }
         }
 
@@ -81,7 +81,7 @@ namespace NClap.Tests.Types
 
             foreach (var action in actions)
             {
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().Throw<ArgumentOutOfRangeException>();
             }
         }
 
@@ -97,7 +97,7 @@ namespace NClap.Tests.Types
 
             foreach (var action in actions)
             {
-                action.ShouldThrow<Exception>();
+                action.Should().Throw<Exception>();
             }
         }
 
@@ -114,7 +114,7 @@ namespace NClap.Tests.Types
 
             foreach (var action in actions)
             {
-                action.ShouldThrow<Exception>();
+                action.Should().Throw<Exception>();
             }
         }
 
@@ -122,10 +122,10 @@ namespace NClap.Tests.Types
         public void FormatSimpleType()
         {
             Action formatNull = () => ArgumentType.Int.Format(null);
-            formatNull.ShouldThrow<ArgumentNullException>();
+            formatNull.Should().Throw<ArgumentNullException>();
 
             Action formatNonInt = () => ArgumentType.Int.Format("a");
-            formatNonInt.ShouldThrow<ArgumentOutOfRangeException>();
+            formatNonInt.Should().Throw<ArgumentOutOfRangeException>();
 
             ArgumentType.Int.Format(-1).Should().Be("-1");
             ArgumentType.Int.Format(7).Should().Be("7");
@@ -168,7 +168,7 @@ namespace NClap.Tests.Types
             var intArrayArgType = new ArrayArgumentType(typeof(int[]));
 
             Action invocation = () => intArrayArgType.ToCollection(null);
-            invocation.ShouldThrow<ArgumentNullException>();
+            invocation.Should().Throw<ArgumentNullException>();
 
             var outCollection = intArrayArgType.ToCollection(new ArrayList(new[] { 10, -1 }));
             outCollection.Should().BeOfType<int[]>();
@@ -185,7 +185,7 @@ namespace NClap.Tests.Types
             var listOfIntArgType = new CollectionOfTArgumentType(typeof(List<int>));
 
             Action invocation = () => listOfIntArgType.ToCollection(null);
-            invocation.ShouldThrow<ArgumentNullException>();
+            invocation.Should().Throw<ArgumentNullException>();
 
             var outCollection = listOfIntArgType.ToCollection(new ArrayList(new[] { 10, -1 }));
             outCollection.Should().BeOfType<List<int>>();
@@ -380,14 +380,14 @@ namespace NClap.Tests.Types
         public void GetTypeThrowsOnNull()
         {
             Action getAction = () => ArgumentType.GetType(null);
-            getAction.ShouldThrow<ArgumentNullException>();
+            getAction.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
         public void TryGetTypeThrowsOnNull()
         {
             Action getAction = () => ArgumentType.TryGetType(null, out IArgumentType ty);
-            getAction.ShouldThrow<ArgumentNullException>();
+            getAction.Should().Throw<ArgumentNullException>();
         }
 
         private static ArgumentCompletionContext CreateContext()

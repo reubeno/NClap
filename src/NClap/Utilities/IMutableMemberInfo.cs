@@ -7,7 +7,7 @@ namespace NClap.Utilities
     /// Abstract interface for interacting with mutable members of types
     /// (e.g. fields and properties).
     /// </summary>
-    interface IMutableMemberInfo
+    public interface IMutableMemberInfo
     {
         /// <summary>
         /// Retrieve the member's base member info.

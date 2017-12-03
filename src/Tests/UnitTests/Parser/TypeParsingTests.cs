@@ -4,7 +4,6 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
-using NClap.Parser;
 using NClap.Types;
 
 namespace NClap.Tests.Parser
@@ -93,16 +92,16 @@ namespace NClap.Tests.Parser
         public void UnsupportedTypesForParsing()
         {
             Action parseAsObject = () => Parse(new string[] { }, out ArgumentsWithType<object> objectArgs);
-            parseAsObject.ShouldThrow<NotSupportedException>();
+            parseAsObject.Should().Throw<NotSupportedException>();
 
             Action parseAsPairOfObjects = () => Parse(new string[] { }, out ArgumentsWithType<KeyValuePair<object, object>> pairOfObjectsArgs);
-            parseAsPairOfObjects.ShouldThrow<NotSupportedException>();
+            parseAsPairOfObjects.Should().Throw<NotSupportedException>();
 
             Action parseAsQueueOfInts = () => Parse(new string[] { }, out ArgumentsWithType<Queue<int>> queueOfIntsArgs);
-            parseAsQueueOfInts.ShouldThrow<NotSupportedException>();
+            parseAsQueueOfInts.Should().Throw<NotSupportedException>();
 
             Action parseAsIEnumerableOfInts = () => Parse(new string[] { }, out ArgumentsWithType<IEnumerable<int>> iEnumerableOfIntsArgs);
-            parseAsIEnumerableOfInts.ShouldThrow<NotSupportedException>();
+            parseAsIEnumerableOfInts.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -196,13 +195,11 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingPath()
         {
-            var args = new ArgumentsWithType<FileSystemPath>();
-
-            CommandLineParser.Parse(new string[] { }, args).Should().BeTrue();
+            CommandLineParser.TryParse(new string[] { }, out ArgumentsWithType<FileSystemPath> args).Should().BeTrue();
             args.Value.Should().BeNull();
 
-            CommandLineParser.Parse(new[] { @"/value=c:\temp" }, args).Should().BeTrue();
-            args.Value.Should().BeEquivalentTo((FileSystemPath)@"c:\temp");
+            CommandLineParser.TryParse(new[] { @"/value=c:\temp" }, out ArgumentsWithType<FileSystemPath> args2).Should().BeTrue();
+            args2.Value.Should().BeEquivalentTo((FileSystemPath)@"c:\temp");
         }
 
         [TestMethod]
@@ -526,10 +523,10 @@ namespace NClap.Tests.Parser
             customObjectType.SyntaxSummary.Should().Be("<CustomObjectType>");
 
             Action formattingNull = () => customObjectType.Format(null);
-            formattingNull.ShouldThrow<ArgumentNullException>();
+            formattingNull.Should().Throw<ArgumentNullException>();
 
             Action formattingObjectOfWrongType = () => customObjectType.Format(7);
-            formattingObjectOfWrongType.ShouldThrow<ArgumentOutOfRangeException>();
+            formattingObjectOfWrongType.Should().Throw<ArgumentOutOfRangeException>();
 
             customObjectType.Format(CustomObjectType.Two).Should().Be("Two");
         }
@@ -546,7 +543,7 @@ namespace NClap.Tests.Parser
         public void ParsingInvalidCustomObjectType()
         {
             Action tryParse = () => Parse(new string[] { }, out ArgumentsWithType<InvalidCustomObjectType> args);
-            tryParse.ShouldThrow<NotSupportedException>();
+            tryParse.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -705,19 +702,8 @@ namespace NClap.Tests.Parser
             }
         }
 
-        private static bool Parse<T>(IEnumerable<string> args, out T parsedArgs) where T : new()
-        {
-            parsedArgs = new T();
-
-            var parser = new CommandLineParserEngine(typeof(T));
-            if (parser.Parse(args.ToList(), parsedArgs))
-            {
-                return true;
-            }
-
-            parsedArgs = default(T);
-            return false;
-        }
+        private static bool Parse<T>(IEnumerable<string> args, out T parsedArgs) where T : class, new() =>
+            CommandLineParser.TryParse<T>(args, new CommandLineParserOptions { DisplayUsageInfoOnError = false }, out parsedArgs);
 
         private static ArgumentCompletionContext CreateContext()
         {

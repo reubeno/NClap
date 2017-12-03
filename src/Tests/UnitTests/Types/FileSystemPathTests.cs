@@ -108,7 +108,7 @@ namespace NClap.Tests.Types
         public void GetCompletionsWithInvalidContext()
         {
             Action getCompletions = () => FileSystemPath.GetCompletions(null, sampleRootPath);
-            getCompletions.ShouldThrow<ArgumentNullException>();
+            getCompletions.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
@@ -165,7 +165,7 @@ namespace NClap.Tests.Types
             var context = CreateContext(reader);
 
             Action completeAction = () => FileSystemPath.GetCompletions(context, "h");
-            completeAction.ShouldThrow<NotImplementedException>();
+            completeAction.Should().Throw<NotImplementedException>();
         }
 
         [TestMethod]

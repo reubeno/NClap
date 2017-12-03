@@ -59,17 +59,17 @@ namespace NClap.ConsoleInput
         /// <param name="inputText">The input text string.</param>
         /// <param name="cursorIndex">The current cursor index into the string.
         /// </param>
-        /// <param name="completionHandler">Completion handler to invoke.
+        /// <param name="tokenCompleter">Token completion handler to invoke.
         /// </param>
         /// <returns>The generated completion set.</returns>
-        public static TokenCompletionSet Create(string inputText, int cursorIndex, ConsoleCompletionHandler completionHandler)
+        public static TokenCompletionSet Create(string inputText, int cursorIndex, ITokenCompleter tokenCompleter)
         {
-            if (completionHandler == null)
+            if (tokenCompleter == null)
             {
-                throw new ArgumentNullException(nameof(completionHandler));
+                throw new ArgumentNullException(nameof(tokenCompleter));
             }
 
-            var completions = Create(inputText, cursorIndex, completionHandler, out int tokenStartIndex, out int tokenLength);
+            var completions = Create(inputText, cursorIndex, tokenCompleter, out int tokenStartIndex, out int tokenLength);
             var originalToken = new Token(new Substring(inputText, tokenStartIndex, tokenLength));
             return new TokenCompletionSet(inputText, originalToken, completions);
         }
@@ -81,14 +81,14 @@ namespace NClap.ConsoleInput
         /// <param name="inputText">The input text string.</param>
         /// <param name="cursorIndex">The current cursor index into the string.
         /// </param>
-        /// <param name="completionHandler">Completion handler to invoke.
+        /// <param name="tokenCompleter">Token completion handler to invoke.
         /// </param>
         /// <param name="existingTokenStartIndex">Receives the start index of
         /// the current token.</param>
         /// <param name="existingTokenLength">Receives the length of the current
         /// token.</param>
         /// <returns>The generated completions.</returns>
-        private static IReadOnlyList<string> Create(string inputText, int cursorIndex, ConsoleCompletionHandler completionHandler, out int existingTokenStartIndex, out int existingTokenLength)
+        private static IReadOnlyList<string> Create(string inputText, int cursorIndex, ITokenCompleter tokenCompleter, out int existingTokenStartIndex, out int existingTokenLength)
         {
             //
             // Try to parse the line.  If we fail to parse it, then just
@@ -144,7 +144,7 @@ namespace NClap.ConsoleInput
 
             var tokenStrings = tokens.Select(token => RemoveQuotes(token.ToString())).ToArray();
 
-            var completions = completionHandler.Invoke(tokenStrings, tokenIndex).ToList();
+            var completions = tokenCompleter.GetCompletions(tokenStrings, tokenIndex).ToList();
 
             // If necessary quote!
             for (var j = 0; j < completions.Count; j++)
