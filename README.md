@@ -5,36 +5,25 @@
 [![GitHub license](https://img.shields.io/github/license/reubeno/NClap.svg)](https://reubeno.github.io/NClap/LICENSE.txt)
 [![Code Coverage](https://codecov.io/gh/reubeno/NClap/branch/master/graph/badge.svg)](https://codecov.io/gh/reubeno/NClap) [![Join the chat at https://gitter.im/NClap/Lobby](https://badges.gitter.im/NClap/Lobby.svg)](https://gitter.im/NClap/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-NClap is a .NET library for parsing command-line arguments and building interactive
-command shells. It's driven by a declarative attribute syntax, and easy to extend.
-It's like a lightweight serializer for command-line arguments.
+NClap is a .NET library for parsing command-line arguments and building interactive command shells. It's driven by a declarative attribute syntax, and easy to extend. It's like a lightweight serializer for command-line arguments.
 
 ## Getting NClap
 
-The easiest way to consume NClap is by adding its [NuGet package](https://www.nuget.org/packages/NClap) to your project.
-It is built for use with .NET 4.6.1+ and .NET Core 1.1.
+The easiest way to consume NClap is by adding its [NuGet package](https://www.nuget.org/packages/NClap) to your project. It is built for use with .NET 4.6.1+ and .NET Core 1.1+.
 
 NClap is shared under the MIT license, as described in [LICENSE.txt](https://reubeno.github.io/NClap/LICENSE.txt).
 
 ## The details
 
 * [Basic usage](docs/Usage.md)
- 
 * [Mostly complete feature list](docs/Features.md)
 
 ## Contributing
 
-We welcome contributions of all kinds, whether it be submitting pull requests or even just
-filing issues or feature requests.
+We welcome contributions of all kinds, whether it be submitting pull requests or even just filing issues or feature requests!
 
-For code contributions, we follow the standard
-[Github workflow](https://guides.github.com/introduction/flow/).
+For code contributions, we follow the standard [Github workflow](https://guides.github.com/introduction/flow/).
 
 ## Code of conduct
 
-This project has adopted the
-[Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the
-[Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any
-additional questions or comments.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com] (mailto:opencode@microsoft.com) with any additional questions or comments.

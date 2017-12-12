@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27110.0
+VisualStudioVersion = 15.0.27128.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NClap", "NClap\NClap.csproj", "{C3ED7E97-9DB5-4035-A371-0D2B3DC3496D}"
 EndProject
@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{56524B7F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{77079178-A7A6-422C-83B7-8C2449DC46BA}"
 	ProjectSection(SolutionItems) = preProject
+		..\docs\Commands.md = ..\docs\Commands.md
 		..\docs\Features.md = ..\docs\Features.md
 		..\LICENSE.txt = ..\LICENSE.txt
 		..\README.md = ..\README.md

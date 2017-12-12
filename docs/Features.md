@@ -1,6 +1,6 @@
-## NClap Features
+# NClap Features
 
-### Command-line parsing
+## Command-line parsing
 
 NClap supports parsing most commonly used .NET types out of the box:
 
@@ -32,7 +32,7 @@ For all of these types, NClap supports:
 * Arguments parsed into fields or properties
 * Arguments parsed into public, internal, or private fields or properties
 
-### Interactive shells
+## Interactive shells
 
 NClap makes it easy to build an interactive shell and project actions into it as commands, with support for:
 
@@ -44,4 +44,3 @@ NClap makes it easy to build an interactive shell and project actions into it as
 * A custom partial implementation of `readline`
 * Auto-generated help command
 * Customizable keyboard bindings for input operations
-
