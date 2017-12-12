@@ -165,6 +165,20 @@ namespace NClap
         public static IEnumerable<string> Format<T>(T value)
         {
             var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(T));
+            foreach (var arg in argSet.AllArguments.ToList())
+            {
+                if (arg.GetValue(value) is IArgumentProvider argProvider)
+                {
+                    var definingType = argProvider.GetTypeDefiningArguments();
+                    if (definingType != null)
+                    {
+                        ReflectionBasedParser.AddToArgumentSet(argSet, definingType,
+                            fixedDestination: argProvider.GetDestinationObject(),
+                            containingArgument: arg);
+                    }
+                }
+            }
+
             return argSet.AllArguments
                 .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
                 .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))

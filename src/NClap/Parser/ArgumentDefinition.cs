@@ -35,7 +35,7 @@ namespace NClap.Parser
             object defaultValue = null,
             ArgumentDefinition containingArgument = null) :
 
-            this(GetMutableMemberInfo(member), attribute, argSet, defaultValue, null)
+            this(GetMutableMemberInfo(member), attribute, argSet, defaultValue, /*fixedDestination=*/null, containingArgument)
         {
         }
 
