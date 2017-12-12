@@ -17,6 +17,7 @@ NClap is shared under the MIT license, as described in [LICENSE.txt](https://reu
 
 * [Basic usage](docs/Usage.md)
 * [Mostly complete feature list](docs/Features.md)
+* [Commands (a.k.a. verbs)](docs/Commands.md)
 
 ## Contributing
 
