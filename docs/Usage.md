@@ -68,9 +68,7 @@ class MyProgram
 }
 ```
 
-There are various overloads and variants of the parse methods (`CommandLineParser.Parse` and
-`CommandLineParser.ParseWithUsage`).  The particular variant used here will automatically
-display usage information to the console if an error occurred during argument parsing.
+There are various overloads and variants of the parse methods (`CommandLineParser.TryParse`).  The particular variant used here will automatically display usage information to the console if an error occurred during argument parsing.
 
 ## Building an interactive shell
 
