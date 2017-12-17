@@ -68,7 +68,7 @@ namespace NClap.Parser
             var args = GetArgumentDescriptors(typeToReflectOn, argSet, defaultValues, fixedDestination, containingArgument).ToList();
 
             // Define the arguments.
-            argSet.AddArguments(args);
+            argSet.Add(args);
         }
 
         private static ArgumentSetAttribute GetSetAttribute(Type typeToReflectOn) =>

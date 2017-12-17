@@ -15,7 +15,7 @@ namespace NClap.Parser
         public static ArgumentSetParseResult Ready { get; } =
             new ArgumentSetParseResult(ArgumentSetParseResultType.Ready);
 
-        public static ArgumentSetParseResult UnknownNamedArgument(NamedArgumentType? namedArgType = null, string name = null) =>
+        public static ArgumentSetParseResult UnknownNamedArgument(ArgumentNameType? namedArgType = null, string name = null) =>
             new ArgumentSetParseResult(ArgumentSetParseResultType.UnknownNamedArgument)
             {
                 NamedArgType = namedArgType,
@@ -47,7 +47,7 @@ namespace NClap.Parser
 
         public ArgumentDefinition Argument { get; private set; }
 
-        public NamedArgumentType? NamedArgType { get; private set; }
+        public ArgumentNameType? NamedArgType { get; private set; }
 
         public string NamedArg { get; private set; }
 

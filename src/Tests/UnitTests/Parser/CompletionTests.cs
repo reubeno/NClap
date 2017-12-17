@@ -11,8 +11,15 @@ namespace NClap.Tests.Parser
     [TestClass]
     public class CompletionTests
     {
+        private enum SimpleEnum
+        {
+            Nothing,
+            Something
+        }
+
         [ArgumentSet(
             Style = ArgumentSetStyle.WindowsCommandLine,
+            AllowNamedArgumentValueAsSucceedingToken = true,
             AnswerFileArgumentPrefix = "@")]
         private class SimpleArgs
         {
@@ -27,6 +34,9 @@ namespace NClap.Tests.Parser
 
             [PositionalArgument(ArgumentFlags.Required)]
             public bool PositionalFlag { get; set; }
+
+            [NamedArgument(ArgumentFlags.Optional, ShortName = "senum")]
+            public SimpleEnum SomeEnum { get; set; }
         }
 
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AnswerFileArgumentPrefix = null)]
@@ -100,7 +110,7 @@ namespace NClap.Tests.Parser
 
         [TestMethod]
         public void CanCompleteArgNameEvenIfItHasAlreadyAppeared() =>
-            CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/Bar", "/Ba" }, 1).ToList()
+            CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/Bar=foo", "/Ba" }, 1).ToList()
                 .Should().ContainInOrder("/Bar", "/Baz");
 
         [TestMethod]
@@ -154,5 +164,23 @@ namespace NClap.Tests.Parser
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeFlag=true", "FA", "/Baz" }, 1).ToList()
                 .Should().ContainInOrder("False");
         }
+
+        [TestMethod]
+        public void NamedArgumentCanGenerateCompletionsInSameOrSucceedingToken()
+        {
+            CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeEnum" }, 0).ToList()
+                .Should().ContainInOrder("/SomeEnum");
+
+            CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeEnum:" }, 0).ToList()
+                .Should().ContainInOrder("/SomeEnum:Nothing", "/SomeEnum:Something");
+
+            CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeEnum" }, 1).ToList()
+                .Should().ContainInOrder("Nothing", "Something");
+        }
+
+        [TestMethod]
+        public void CanGenerateCompletionWithShortName() =>
+            CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/sen" }, 0).ToList()
+                .Should().ContainInOrder("/senum");
     }
 }
