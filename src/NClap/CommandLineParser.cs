@@ -389,7 +389,7 @@ namespace NClap
             // Compose remarks, if any.
             const string defaultHelpArgumentName = "?";
             var namedArgPrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
-            if (argSet.TryGetNamedArgument(defaultHelpArgumentName, out ArgumentDefinition ignored) && namedArgPrefix != null)
+            if (namedArgPrefix != null && argSet.TryGetNamedArgument(ArgumentNameType.ShortName, defaultHelpArgumentName, out ArgumentDefinition ignored))
             {
                 info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
             }

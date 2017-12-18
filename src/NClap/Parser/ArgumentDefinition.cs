@@ -421,6 +421,25 @@ namespace NClap.Parser
         /// </summary>
         public void ClearShortName() => ShortName = null;
 
+        /// <summary>
+        /// Tries to retrieve the name of the given type associated with this
+        /// argument.  If no such name of that type exists, returns null.
+        /// </summary>
+        /// <param name="nameType">The type of name to retrieve.</param>
+        /// <returns>The given name, or null if no such name exists.</returns>
+        public string GetName(ArgumentNameType nameType)
+        {
+            switch (nameType)
+            {
+                case ArgumentNameType.ShortName:
+                    return ShortName;
+                case ArgumentNameType.LongName:
+                    return LongName;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(nameType));
+            }
+        }
+
         private static IReadOnlyList<ArgumentValidationAttribute> GetValidationAttributes(IArgumentType argType, IMutableMemberInfo memberInfo)
         {
             var member = memberInfo.MemberInfo;

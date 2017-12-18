@@ -18,6 +18,8 @@ namespace NClap.Parser
         private readonly Dictionary<IMutableMemberInfo, ArgumentDefinition> _argumentsByMember = new Dictionary<IMutableMemberInfo, ArgumentDefinition>();
         private readonly List<ArgumentDefinition> _namedArguments = new List<ArgumentDefinition>();
         private readonly Dictionary<string, ArgumentDefinition> _namedArgumentsByName;
+        private readonly Dictionary<string, ArgumentDefinition> _namedArgumentsByShortName;
+        private readonly Dictionary<string, ArgumentDefinition> _namedArgumentsByLongName;
         private readonly SortedList<int, ArgumentDefinition> _positionalArguments = new SortedList<int, ArgumentDefinition>();
 
         // State.
@@ -35,6 +37,8 @@ namespace NClap.Parser
 
             // Set up private fields dependent on the ArgumentSetAttribute.
             _namedArgumentsByName = new Dictionary<string, ArgumentDefinition>(StringComparerToUse);
+            _namedArgumentsByShortName = new Dictionary<string, ArgumentDefinition>(StringComparerToUse);
+            _namedArgumentsByLongName = new Dictionary<string, ArgumentDefinition>(StringComparerToUse);
         }
 
         private ArgumentSetDefinition(ArgumentSetDefinition template) : this(template.Attribute)
@@ -42,6 +46,8 @@ namespace NClap.Parser
             _argumentsByMember = template._argumentsByMember.ToDictionary(p => p.Key, p => p.Value);
             _namedArguments.AddRange(template._namedArguments);
             _namedArgumentsByName = template._namedArgumentsByName.ToDictionary(p => p.Key, p => p.Value, StringComparerToUse);
+            _namedArgumentsByShortName = template._namedArgumentsByShortName.ToDictionary(p => p.Key, p => p.Value, StringComparerToUse);
+            _namedArgumentsByLongName = template._namedArgumentsByLongName.ToDictionary(p => p.Key, p => p.Value, StringComparerToUse);
 
             foreach (var positionalArg in template._positionalArguments)
             {
@@ -72,17 +78,34 @@ namespace NClap.Parser
         public IEnumerable<ArgumentDefinition> PositionalArguments => _positionalArguments.Values;
 
         /// <summary>
-        /// Enumerates all valid long and short names of named arguments.
+        /// Enumerates all names of named arguments (of all name types).
         /// </summary>
-        public IEnumerable<string> ArgumentNames => _namedArgumentsByName.Keys;
+        /// <returns>Enumeration.</returns>
+        public IEnumerable<string> GetAllArgumentNames() => _namedArgumentsByName.Keys;
 
         /// <summary>
-        /// Try to look up a named argument by name (short name or long name).
+        /// Enumerates named arguments of the given type.
         /// </summary>
+        /// <param name="nameType">Type of name to look up.</param>
+        /// <returns>Enumeration.</returns>
+        public IEnumerable<string> GetArgumentNames(ArgumentNameType nameType)
+        {
+            var dict = GetNamedArgumentDictionary(nameType);
+            return dict.Keys;
+        }
+
+        /// <summary>
+        /// Try to look up a named argument by short or long name.
+        /// </summary>
+        /// <param name="nameType">Type of name to look up.</param>
         /// <param name="name">Name to look up.</param>
         /// <param name="arg">On success, receives the named argument.</param>
         /// <returns>True on success; false otherwise.</returns>
-        public bool TryGetNamedArgument(string name, out ArgumentDefinition arg) => _namedArgumentsByName.TryGetValue(name, out arg);
+        public bool TryGetNamedArgument(ArgumentNameType nameType, string name, out ArgumentDefinition arg)
+        {
+            var dict = GetNamedArgumentDictionary(nameType);
+            return dict.TryGetValue(name, out arg);
+        }
 
         /// <summary>
         /// Try to look up a positional argument by position.
@@ -96,13 +119,13 @@ namespace NClap.Parser
         /// Adds an argument.
         /// </summary>
         /// <param name="arg">Argument to define.</param>
-        public void AddArgument(ArgumentDefinition arg) => AddArguments(new[] { arg });
+        public void Add(ArgumentDefinition arg) => Add(new[] { arg });
 
         /// <summary>
         /// Adds arguments.
         /// </summary>
         /// <param name="args">Arguments to define.</param>
-        public void AddArguments(IEnumerable<ArgumentDefinition> args)
+        public void Add(IEnumerable<ArgumentDefinition> args)
         {
             // Index the descriptors.
             foreach (var arg in args)
@@ -174,6 +197,7 @@ namespace NClap.Parser
             }
 
             _namedArgumentsByName.Add(argument.LongName, argument);
+            _namedArgumentsByLongName.Add(argument.LongName, argument);
 
             //
             // Validate and register the short name.
@@ -196,6 +220,7 @@ namespace NClap.Parser
                         {
                             // TODO: Decide whether this works for dynamically imported args.
                             _namedArgumentsByName.Remove(conflictingArg.ShortName);
+                            _namedArgumentsByShortName.Remove(conflictingArg.ShortName);
                             conflictingArg.ClearShortName();
                         }
                     }
@@ -217,6 +242,7 @@ namespace NClap.Parser
                 }
 
                 _namedArgumentsByName.Add(argument.ShortName, argument);
+                _namedArgumentsByShortName.Add(argument.ShortName, argument);
             }
 
             // Add to unique list.
@@ -269,5 +295,18 @@ namespace NClap.Parser
         /// </summary>
         private StringComparer StringComparerToUse =>
             Attribute.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+
+        private IReadOnlyDictionary<string, ArgumentDefinition> GetNamedArgumentDictionary(ArgumentNameType nameType)
+        {
+            switch (nameType)
+            {
+                case ArgumentNameType.ShortName:
+                    return _namedArgumentsByShortName;
+                case ArgumentNameType.LongName:
+                    return _namedArgumentsByLongName;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(nameType));
+            }
+        }
     }
 }

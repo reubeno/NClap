@@ -146,22 +146,31 @@ namespace NClap.Parser
                     inProgressParsedObject);
             }
 
-            // See if the token to complete appears to be a (long-)named argument.
+            // See if the token to complete appears to be a named argument.
             var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete);
-            if (longNameArgumentPrefix != null)
-            {
-                var afterPrefix = tokenToComplete.Substring(longNameArgumentPrefix.Length);
-                return GetNamedArgumentCompletions(tokenList, indexOfTokenToComplete, afterPrefix, inProgressParsedObject)
-                           .Select(completion => longNameArgumentPrefix + completion);
-            }
-
-            // See if the token to complete appears to be a (short-)named argument.
             var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete);
-            if (shortNameArgumentPrefix != null)
+
+            if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
             {
-                var afterPrefix = tokenToComplete.Substring(shortNameArgumentPrefix.Length);
-                return GetNamedArgumentCompletions(tokenList, indexOfTokenToComplete, afterPrefix, inProgressParsedObject)
-                           .Select(completion => shortNameArgumentPrefix + completion);
+                var completions = Enumerable.Empty<string>();
+
+                if (longNameArgumentPrefix != null)
+                {
+                    var afterLongPrefix = tokenToComplete.Substring(longNameArgumentPrefix.Length);
+                    completions = completions.Concat(
+                        GetNamedArgumentCompletions(ArgumentNameType.LongName, tokenList, indexOfTokenToComplete, afterLongPrefix, inProgressParsedObject)
+                               .Select(completion => longNameArgumentPrefix + completion));
+                }
+
+                if (shortNameArgumentPrefix != null)
+                {
+                    var afterShortPrefix = tokenToComplete.Substring(shortNameArgumentPrefix.Length);
+                    completions = completions.Concat(
+                        GetNamedArgumentCompletions(ArgumentNameType.ShortName, tokenList, indexOfTokenToComplete, afterShortPrefix, inProgressParsedObject)
+                               .Select(completion => shortNameArgumentPrefix + completion));
+                }
+
+                return completions;
             }
 
             // See if the token to complete appears to be the special answer-file argument.
@@ -240,7 +249,7 @@ namespace NClap.Parser
             return parser;
         }
 
-        private IEnumerable<string> GetNamedArgumentCompletions(IReadOnlyList<string> tokens, int indexOfTokenToComplete, string namedArgumentAfterPrefix, object inProgressParsedObject)
+        private IEnumerable<string> GetNamedArgumentCompletions(ArgumentNameType nameType, IReadOnlyList<string> tokens, int indexOfTokenToComplete, string namedArgumentAfterPrefix, object inProgressParsedObject)
         {
             Func<IEnumerable<string>> emptyCompletions = Enumerable.Empty<string>;
 
@@ -248,8 +257,9 @@ namespace NClap.Parser
             if (separatorIndex < 0)
             {
                 return ArgumentSet.NamedArguments
-                           .Select(namedArg => namedArg.LongName)
-                           .OrderBy(longName => longName, StringComparerToUse)
+                           .Select(namedArg => namedArg.GetName(nameType))
+                           .Where(argName => argName != null)
+                           .OrderBy(argName => argName, StringComparerToUse)
                            .Where(candidateName => candidateName.StartsWith(namedArgumentAfterPrefix, StringComparisonToUse));
             }
 
@@ -262,7 +272,7 @@ namespace NClap.Parser
             var name = namedArgumentAfterPrefix.Substring(0, separatorIndex);
             var value = namedArgumentAfterPrefix.Substring(separatorIndex + 1);
 
-            if (!ArgumentSet.TryGetNamedArgument(name, out ArgumentDefinition arg))
+            if (!ArgumentSet.TryGetNamedArgument(nameType, name, out ArgumentDefinition arg))
             {
                 return emptyCompletions();
             }
@@ -352,11 +362,11 @@ namespace NClap.Parser
             IReadOnlyList<ArgumentAndValue> parsedArgs = null;
             if (result.IsUnknown && longNameArgumentPrefix != null)
             {
-                result = TryParseNamedArgument(argument, longNameArgumentPrefix, NamedArgumentType.LongName, out parsedArgs);
+                result = TryParseNamedArgument(argument, longNameArgumentPrefix, ArgumentNameType.LongName, out parsedArgs);
             }
             if (result.IsUnknown && shortNameArgumentPrefix != null)
             {
-                result = TryParseNamedArgument(argument, shortNameArgumentPrefix, NamedArgumentType.ShortName, out parsedArgs);
+                result = TryParseNamedArgument(argument, shortNameArgumentPrefix, ArgumentNameType.ShortName, out parsedArgs);
             }
 
             // If our policy allows a named argument's value to be placed
@@ -465,7 +475,11 @@ namespace NClap.Parser
             }
         }
 
-        private ArgumentSetParseResult TryParseNamedArgument(string argument, string argumentPrefix, NamedArgumentType namedArgType, out IReadOnlyList<ArgumentAndValue> parsedArgs)
+        private ArgumentSetParseResult TryParseNamedArgument(
+            string argument,
+            string argumentPrefix,
+            ArgumentNameType namedArgType,
+            out IReadOnlyList<ArgumentAndValue> parsedArgs)
         {
             var prefixLength = argumentPrefix.Length;
             Debug.Assert(argument.Length >= prefixLength);
@@ -511,7 +525,7 @@ namespace NClap.Parser
             }
 
             // Now try to figure out how many names are present.
-            if (namedArgType == NamedArgumentType.ShortName &&
+            if (namedArgType == ArgumentNameType.ShortName &&
                 (ArgumentSet.Attribute.AllowMultipleShortNamesInOneToken || ArgumentSet.Attribute.AllowElidingSeparatorAfterShortName))
             {
                 Debug.Assert(ArgumentSet.Attribute.ShortNamesAreOneCharacterLong);
@@ -524,7 +538,7 @@ namespace NClap.Parser
                     // Try parsing it as a short name; bail immediately if we find an invalid
                     // one.
                     var possibleShortName = new string(options[index], 1);
-                    if (!ArgumentSet.TryGetNamedArgument(possibleShortName, out ArgumentDefinition arg))
+                    if (!ArgumentSet.TryGetNamedArgument(ArgumentNameType.ShortName, possibleShortName, out ArgumentDefinition arg))
                     {
                         parsedArgs = null;
                         return ArgumentSetParseResult.UnknownNamedArgument(namedArgType, possibleShortName);
@@ -564,7 +578,7 @@ namespace NClap.Parser
             else
             {
                 // Try to look up the argument by name.
-                if (!ArgumentSet.TryGetNamedArgument(options, out ArgumentDefinition arg))
+                if (!ArgumentSet.TryGetNamedArgument(namedArgType, options, out ArgumentDefinition arg))
                 {
                     parsedArgs = null;
                     return ArgumentSetParseResult.UnknownNamedArgument(namedArgType, options);
@@ -667,19 +681,19 @@ namespace NClap.Parser
                 }));
         }
 
-        private IEnumerable<string> GetSimilarNamedArguments(NamedArgumentType? type, string name)
+        private IEnumerable<string> GetSimilarNamedArguments(ArgumentNameType? type, string name)
         {
-            var candidates = ArgumentSet.ArgumentNames;
+            var candidates = ArgumentSet.GetAllArgumentNames();
             var prefix = string.Empty;
 
             if (type.HasValue)
             {
                 switch (type.Value)
                 {
-                    case NamedArgumentType.LongName:
+                    case ArgumentNameType.LongName:
                         prefix = ArgumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault();
                         break;
-                    case NamedArgumentType.ShortName:
+                    case ArgumentNameType.ShortName:
                         prefix = ArgumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
                         break;
                 }
