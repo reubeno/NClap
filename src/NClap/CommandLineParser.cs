@@ -165,6 +165,9 @@ namespace NClap
         public static IEnumerable<string> Format<T>(T value)
         {
             var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(T));
+
+            // N.B. We intentionally convert the arguments enumeration to a list,
+            // as we're expecting to mutate it in the loop.
             foreach (var arg in argSet.AllArguments.ToList())
             {
                 if (arg.GetValue(value) is IArgumentProvider argProvider)
@@ -179,7 +182,7 @@ namespace NClap
                 }
             }
 
-            return argSet.AllArguments
+            return OrderArgumentsByContainer(argSet.AllArguments)
                 .Select(arg => new { Argument = arg, Value = arg.GetValue(value) })
                 .Where(argAndValue => (argAndValue.Value != null) && !argAndValue.Value.Equals(argAndValue.Argument.DefaultValue))
                 .SelectMany(argAndValue => argAndValue.Argument.Format(argAndValue.Value))
@@ -470,6 +473,39 @@ namespace NClap
                     Strings.AnswerFileArgumentDescription,
                     required: false);
             }
+        }
+
+        private static IEnumerable<ArgumentDefinition> OrderArgumentsByContainer(IEnumerable<ArgumentDefinition> args)
+        {
+            var unsortedGroups = args.GroupBy(arg => arg.ContainingArgument).ToList();
+            var sorted = new List<ArgumentDefinition>();
+            var current = new List<ArgumentDefinition> { null };
+
+            while (unsortedGroups.Count > 0)
+            {
+                if (current.Count == 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(args));
+                }
+
+                var last = current;
+
+                current = new List<ArgumentDefinition>();
+
+                foreach (var item in last)
+                {
+                    var next = unsortedGroups.SingleOrDefault(group => group.Key == item);
+                    if (next != null)
+                    {
+                        unsortedGroups.Remove(next);
+                        current.AddRange(next);
+                    }
+                }
+
+                sorted.AddRange(current);
+            }
+
+            return sorted;
         }
     }
 }
