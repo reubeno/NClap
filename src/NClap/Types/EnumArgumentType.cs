@@ -59,7 +59,7 @@ namespace NClap.Types
             _values = GetAllValues(type).ToList();
             _valuesByCaseSensitiveName = ConstructValueNameMap(_values, true);
             _valuesByCaseInsensitiveName = ConstructValueNameMap(_values, false);
-            _valuesByValue = _values.ToDictionary(v => v.Value, v => v);
+            _valuesByValue = ConstructValueMap(_values);
         }
 
         /// <summary>
@@ -153,6 +153,26 @@ namespace NClap.Types
 
         private static IEnumerable<EnumArgumentValue> GetAllValues(Type type) =>
             type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static).Select(f => new EnumArgumentValue(f));
+
+        private static IReadOnlyDictionary<object, EnumArgumentValue> ConstructValueMap(IEnumerable<EnumArgumentValue> values)
+        {
+            var map = new Dictionary<object, EnumArgumentValue>();
+
+            // Walk through all known values, trying to add them to the map.
+            foreach (var v in values)
+            {
+                // We do our best to add each value to the map; but if there
+                // are multiple members that share a value, then the first
+                // one will "win".  We don't bother trying to maintain a
+                // multimap.
+                if (!map.ContainsKey(v.Value))
+                {
+                    map.Add(v.Value, v);
+                }
+            }
+
+            return map;
+        }
 
         /// <summary>
         /// Constructs a map from the provided enum values, useful for parsing.

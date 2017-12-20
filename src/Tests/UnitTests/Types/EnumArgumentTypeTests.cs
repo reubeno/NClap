@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Metadata;
@@ -39,6 +40,15 @@ namespace NClap.Tests.Types
             NotPublicized
         }
 
+        enum EnumWithAliases
+        {
+            Nothing = 1,
+            None = Nothing,
+
+            Something = 2,
+            Some = Something
+        }
+
         [TestMethod]
         public void EnumWithCustomLongAndShortNames()
         {
@@ -75,6 +85,25 @@ namespace NClap.Tests.Types
         {
             Action typeFactory = () => EnumArgumentType.Create(typeof(ConflictingAttributes));
             typeFactory.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void EnumWithAliasesIsOkay()
+        {
+            var argType = EnumArgumentType.Create(typeof(EnumWithAliases));
+
+            var values = argType.GetValues().ToList();
+            values.Should().HaveCount(4);
+
+            values.Select(v => v.LongName)
+                .OrderBy(name => name)
+                .Should().ContainInOrder("None", "Nothing", "Some", "Something");
+
+            argType.TryParse(ArgumentParseContext.Default, "None", out object value1)
+                .Should().BeTrue();
+            argType.TryParse(ArgumentParseContext.Default, "Nothing", out object value2)
+                .Should().BeTrue();
+            value1.Should().Be(value2);
         }
     }
 }
