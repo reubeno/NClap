@@ -66,7 +66,7 @@ namespace NClap.Help
         /// <summary>
         /// Basic syntax options.
         /// </summary>
-        public ArgumentMetadataHelpOptions BasicSyntax { get; set; } = new ArgumentMetadataHelpOptions
+        public ArgumentMetadataHelpOptions Syntax { get; set; } = new ArgumentMetadataHelpOptions
         {
             HeaderTitle = Strings.UsageInfoUsageHeader
         };

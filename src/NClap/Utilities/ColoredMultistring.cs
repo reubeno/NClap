@@ -24,10 +24,10 @@ namespace NClap.Utilities
         /// <summary>
         /// Primary constructor.
         /// </summary>
-        /// <param name="value">Pieces of the multistring.</param>
-        public ColoredMultistring(IEnumerable<ColoredString> value)
+        /// <param name="values">Pieces of the multistring.</param>
+        public ColoredMultistring(IEnumerable<ColoredString> values)
         {
-            Content = value.ToList();
+            Content = values.ToList();
         }
 
         /// <summary>
