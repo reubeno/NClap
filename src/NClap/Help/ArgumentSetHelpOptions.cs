@@ -6,12 +6,17 @@ namespace NClap.Help
     /// <summary>
     /// Options for generating help for an argument set.
     /// </summary>
-    internal class ArgumentSetHelpOptions
+    public class ArgumentSetHelpOptions : IDeepCloneable<ArgumentSetHelpOptions>
     {
         /// <summary>
         /// Default indent width, expressed in characters.
         /// </summary>
-        public const int DefaultIndent = 4;
+        public const int DefaultBlockIndent = 4;
+
+        /// <summary>
+        /// Default hanging indent width, expressed in characters.
+        /// </summary>
+        public const int DefaultHangingIndent = 4;
 
         /// <summary>
         /// Default maximum width, expressed in characters.
@@ -19,11 +24,38 @@ namespace NClap.Help
         public const int DefaultMaxWidth = 80;
 
         /// <summary>
-        /// Optionally indicates maximum width of help, expressed in characters.
-        /// If left unspecified, the full width of the target output surface will
-        /// be used.
+        /// Default constructor.
         /// </summary>
-        public int? MaxWidth { get; set; } = null;
+        public ArgumentSetHelpOptions()
+        {
+        }
+
+        /// <summary>
+        /// Deeply cloning constructor.
+        /// </summary>
+        /// <param name="other">Template for clone.</param>
+        private ArgumentSetHelpOptions(ArgumentSetHelpOptions other)
+        {
+            MaxWidth = other.MaxWidth;
+            UseColor = other.UseColor;
+            SectionEntryBlockIndentWidth = other.SectionEntryBlockIndentWidth;
+            SectionEntryHangingIndentWidth = other.SectionEntryHangingIndentWidth;
+            BlankLinesBetweenSections = other.BlankLinesBetweenSections;
+            SectionHeaders = other.SectionHeaders.DeepClone();
+            Logo = other.Logo.DeepClone();
+            Description = other.Description.DeepClone();
+            Syntax = (ArgumentSyntaxHelpOptions)other.Syntax.DeepClone();
+            EnumValues = other.EnumValues.DeepClone();
+            Examples = other.Examples.DeepClone();
+            Remarks = other.Remarks.DeepClone();
+            Arguments = other.Arguments.DeepClone();
+            ArgumentGroupingMode = other.ArgumentGroupingMode;
+        }
+
+        /// <summary>
+        /// Indicates maximum width of help, expressed in characters.
+        /// </summary>
+        public int? MaxWidth { get; set; }
 
         /// <summary>
         /// Use multiple colors in the output.
@@ -31,9 +63,14 @@ namespace NClap.Help
         public bool UseColor { get; set; } = true;
 
         /// <summary>
-        /// Number of characters to indent all entries directly under a section.
+        /// Number of characters to block-indent all entries directly under a section.
         /// </summary>
-        public int SectionEntryIndentWidth { get; set; } = DefaultIndent;
+        public int SectionEntryBlockIndentWidth { get; set; } = DefaultBlockIndent;
+
+        /// <summary>
+        /// Number of characters to hanging-indent all entries directly under a section.
+        /// </summary>
+        public int SectionEntryHangingIndentWidth { get; set; } = DefaultHangingIndent;
 
         /// <summary>
         /// Number of lines left blank between major sections of the help information.
@@ -51,12 +88,11 @@ namespace NClap.Help
         /// <summary>
         /// Logo options.
         /// </summary>
-        public ArgumentMetadataHelpOptions Logo { get; set; } = new ArgumentMetadataHelpOptions();
-
-        /// <summary>
-        /// Name options.
-        /// </summary>
-        public ArgumentMetadataHelpOptions Name { get; set; } = new ArgumentMetadataHelpOptions();
+        public ArgumentMetadataHelpOptions Logo { get; set; } = new ArgumentMetadataHelpOptions
+        {
+            BlockIndent = 0,
+            HangingIndent = 0
+        };
 
         /// <summary>
         /// Description options.
@@ -66,9 +102,9 @@ namespace NClap.Help
         /// <summary>
         /// Basic syntax options.
         /// </summary>
-        public ArgumentMetadataHelpOptions Syntax { get; set; } = new ArgumentMetadataHelpOptions
+        public ArgumentSyntaxHelpOptions Syntax { get; set; } = new ArgumentSyntaxHelpOptions
         {
-            HeaderTitle = Strings.UsageInfoUsageHeader
+            HeaderTitle = Strings.UsageInfoUsageHeader,
         };
 
         /// <summary>
@@ -88,6 +124,15 @@ namespace NClap.Help
         };
 
         /// <summary>
+        /// Custom remarks options.
+        /// </summary>
+        public ArgumentMetadataHelpOptions Remarks { get; set; } = new ArgumentMetadataHelpOptions
+        {
+            Include = false,
+            HeaderTitle = Strings.UsageInfoRemarksHeader
+        };
+
+        /// <summary>
         /// Options for arguments.
         /// </summary>
         public ArgumentHelpOptions Arguments { get; set; } = new ArgumentHelpOptions();
@@ -96,5 +141,11 @@ namespace NClap.Help
         /// Mode for grouping arguments.
         /// </summary>
         public ArgumentGroupingMode ArgumentGroupingMode { get; set; } = ArgumentGroupingMode.RequiredVersusOptional;
+
+        /// <summary>
+        /// Creates a separate clone of this object.
+        /// </summary>
+        /// <returns>Clone.</returns>
+        public ArgumentSetHelpOptions DeepClone() => new ArgumentSetHelpOptions(this);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NClap.Help;
 using NClap.Types;
 using NClap.Utilities;
 
@@ -12,84 +13,66 @@ namespace NClap.Parser
     /// </summary>
     internal class CondensedHelpFormatter : HelpFormatter
     {
-        public ConsoleColor? NameForegroundColor { get; set; } = ConsoleColor.White;
-        public ConsoleColor? ParameterNameForegroundColor { get; set; } = ConsoleColor.White;
-
         public override ColoredMultistring Format(ArgumentSetUsageInfo info) => Format(GenerateSections(info));
 
         private IReadOnlyList<Section> GenerateSections(ArgumentSetUsageInfo info)
         {
             var sections = new List<Section>();
 
-            if (Options.HasFlag(UsageInfoOptions.IncludeLogo) &&
+            if (Options.Logo?.Include ?? false &&
                 info.Logo != null && !info.Logo.IsEmpty())
             {
-                sections.Add(new Section(null, info.Logo)
-                {
-                    BodyIndentWidth = 0
-                });
+                sections.Add(new Section(Options, Options.Logo, info.Logo));
             }
 
             // Append basic usage info.
-            if (Options.HasFlag(UsageInfoOptions.IncludeBasicSyntax))
+            if (Options.Syntax?.Include ?? false)
             {
                 var basicSyntax = new List<ColoredString>();
 
                 if (!string.IsNullOrEmpty(info.Name))
                 {
-                    basicSyntax.Add(new ColoredString(info.Name, NameForegroundColor));
+                    basicSyntax.Add(new ColoredString(info.Name, Options.Syntax?.CommandNameColor));
                     basicSyntax.Add(" ");
                 }
 
                 basicSyntax.Add(info.GetBasicSyntax(includeOptionalParameters: true));
 
-                sections.Add(new Section(Strings.UsageInfoUsageHeader + ":", new[] { new ColoredMultistring(basicSyntax) })
-                {
-                    BodyIndentWidth = Section.DefaultIndent * 3 / 2,
-                    HangingIndentWidth = Section.DefaultIndent / 2
-                });
+                sections.Add(new Section(Options, Options.Syntax, new[] { new ColoredMultistring(basicSyntax) }));
             }
 
-            if (Options.HasFlag(UsageInfoOptions.IncludeDescription) && !string.IsNullOrEmpty(info.Description))
+            if ((Options.Description?.Include ?? false) && !string.IsNullOrEmpty(info.Description))
             {
-                sections.Add(new Section(null, info.Description));
+                sections.Add(new Section(Options, Options.Description, info.Description));
             }
 
             // If needed, get help info for enum values.
             IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumented = null;
             IEnumerable<IEnumArgumentType> separatelyDocumented = null;
-            if (Options.HasFlag(UsageInfoOptions.IncludeEnumValues))
+            if (Options.EnumValues?.Include ?? false)
             {
                 GetEnumsToDocument(info, out inlineDocumented, out separatelyDocumented);
             }
 
             // If desired (and present), append "REQUIRED PARAMETERS" section.
-            if (Options.HasFlag(UsageInfoOptions.IncludeRequiredParameterDescriptions) &&
+            if ((Options.Arguments?.RequiredArguments?.Include ?? false) &&
                 info.RequiredParameters.Any())
             {
                 var entries = GetParameterEntries(info.RequiredParameters, info, inlineDocumented).ToList();
                 if (entries.Count > 0)
                 {
-                    sections.Add(new Section(Strings.UsageInfoRequiredParametersHeader + ":", entries)
-                    {
-                        BodyIndentWidth = Section.DefaultIndent * 3 / 2,
-                        HangingIndentWidth = Section.DefaultIndent / 2
-                    });
+                    sections.Add(new Section(Options, Options.Arguments.RequiredArguments, entries));
                 }
             }
 
             // If desired (and present), append "OPTIONAL PARAMETERS" section.
-            if (Options.HasFlag(UsageInfoOptions.IncludeOptionalParameterDescriptions) &&
+            if ((Options.Arguments?.OptionalArguments?.Include ?? false) &&
                 info.OptionalParameters.Any())
             {
                 var entries = GetParameterEntries(info.OptionalParameters, info, inlineDocumented).ToList();
                 if (entries.Count > 0)
                 {
-                    sections.Add(new Section(Strings.UsageInfoOptionalParametersHeader + ":", entries)
-                    {
-                        BodyIndentWidth = Section.DefaultIndent * 3 / 2,
-                        HangingIndentWidth = Section.DefaultIndent / 2
-                    });
+                    sections.Add(new Section(Options, Options.Arguments.OptionalArguments, entries));
                 }
             }
 
@@ -98,26 +81,23 @@ namespace NClap.Parser
             {
                 foreach (var enumType in separatelyDocumented)
                 {
-                    sections.Add(new Section(
-                        string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName),
-                        GetEnumValueEntries(enumType))
-                    {
-                        BodyIndentWidth = Section.DefaultIndent * 3 / 2,
-                        HangingIndentWidth = Section.DefaultIndent / 2
-                    });
+                    sections.Add(new Section(Options,
+                        Options.EnumValues,
+                        GetEnumValueEntries(enumType),
+                        name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
                 }
             }
 
             // If present, append "EXAMPLES" section.
-            if (Options.HasFlag(UsageInfoOptions.IncludeExamples) && info.Examples.Any())
+            if ((Options.Examples?.Include ?? false) && info.Examples.Any())
             {
-                sections.Add(new Section(Strings.UsageInfoExamplesHeader + ":", info.Examples));
+                sections.Add(new Section(Options, Options.Examples, info.Examples));
             }
 
             // If requested, display remarks
-            if (Options.HasFlag(UsageInfoOptions.IncludeRemarks) && !string.IsNullOrEmpty(info.Remarks))
+            if ((Options.Remarks?.Include ?? false) && !string.IsNullOrEmpty(info.Remarks))
             {
-                sections.Add(new Section(Strings.UsageInfoRemarksHeader + ":", info.Remarks));
+                sections.Add(new Section(Options, Options.Remarks, info.Remarks));
             }
 
             return sections;
@@ -170,7 +150,7 @@ namespace NClap.Parser
         private ColoredMultistring FormatEnumValueInfo(IArgumentValue value)
         {
             var builder = new ColoredMultistringBuilder();
-            builder.Append(new ColoredString(value.DisplayName, ParameterNameForegroundColor));
+            builder.Append(new ColoredString(value.DisplayName, Options.Arguments?.ArgumentNameColor));
 
             if (!string.IsNullOrEmpty(value.Description))
             {
@@ -181,9 +161,9 @@ namespace NClap.Parser
             if (!string.IsNullOrEmpty(value.ShortName))
             {
                 builder.Append(" [");
-                builder.Append(new ColoredString(Strings.UsageInfoShortForm, ParameterMetadataForegroundColor));
+                builder.Append(new ColoredString(Strings.UsageInfoShortForm, Options.Arguments.MetadataColor));
                 builder.Append(" ");
-                builder.Append(new ColoredString(value.ShortName, NameForegroundColor));
+                builder.Append(new ColoredString(value.ShortName, Options.Arguments?.ArgumentNameColor));
                 builder.Append("]");
             }
 
@@ -269,9 +249,9 @@ namespace NClap.Parser
             var builder = new ColoredMultistringBuilder();
 
             var syntax = SimplifyParameterSyntax(info.DetailedSyntax);
-            builder.Append(new ColoredString(syntax, ParameterNameForegroundColor));
+            builder.Append(new ColoredString(syntax, Options.Arguments?.ArgumentNameColor));
 
-            if (!string.IsNullOrEmpty(info.Description))
+            if (Options.Arguments.IncludeDescription && !string.IsNullOrEmpty(info.Description))
             {
                 builder.Append(" - ");
                 builder.Append(info.Description);
@@ -279,27 +259,27 @@ namespace NClap.Parser
 
             var metadataItems = new List<List<ColoredString>>();
 
-            if (Options.HasFlag(UsageInfoOptions.IncludeParameterDefaultValues) &&
+            if (Options.Arguments.DefaultValue == ArgumentDefaultValueHelpMode.AppendToDescription &&
                 !string.IsNullOrEmpty(info.DefaultValue))
             {
                 metadataItems.Add(new List<ColoredString>
                 {
-                    new ColoredString(Strings.UsageInfoDefaultValue, ParameterMetadataForegroundColor),
+                    new ColoredString(Strings.UsageInfoDefaultValue, Options.Arguments.MetadataColor),
                     " ",
                     info.DefaultValue
                 });
             }
 
             // Append parameter's short name (if it has one).
-            if (Options.HasFlag(UsageInfoOptions.IncludeParameterShortNameAliases) &&
+            if (Options.Arguments.ShortName == ArgumentShortNameHelpMode.AppendToDescription &&
                 !string.IsNullOrEmpty(info.ShortName) &&
                 !string.IsNullOrEmpty(setInfo.DefaultShortNamePrefix))
             {
                 metadataItems.Add(new List<ColoredString>
                 {
-                    new ColoredString(Strings.UsageInfoShortForm, ParameterMetadataForegroundColor),
+                    new ColoredString(Strings.UsageInfoShortForm, Options.Arguments.MetadataColor),
                     " ",
-                    new ColoredString(setInfo.DefaultShortNamePrefix + info.ShortName, NameForegroundColor)
+                    new ColoredString(setInfo.DefaultShortNamePrefix + info.ShortName, Options.Arguments?.ArgumentNameColor)
                 });
             }
 
@@ -318,7 +298,7 @@ namespace NClap.Parser
                 {
                     var indentedEntry = new ColoredMultistring(new ColoredString[]
                     {
-                        new string(' ', Section.DefaultIndent)
+                        new string(' ', Options.SectionEntryBlockIndentWidth)
                     }.Concat(entry.Content));
                     formattedInfo.Add(indentedEntry);
                 }

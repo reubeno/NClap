@@ -48,6 +48,24 @@ namespace NClap.Utilities
         }
 
         /// <summary>
+        /// Constructor that takes a <see cref="TextColor"/> object.
+        /// </summary>
+        /// <param name="content">The string content.</param>
+        /// <param name="color">The content's intended color.</param>
+        public ColoredString(string content, TextColor color) : this(content, color.Foreground, color.Background)
+        {
+        }
+
+        /// <summary>
+        /// Constructor that takes a nullable <see cref="TextColor"/> object.
+        /// </summary>
+        /// <param name="content">The string content.</param>
+        /// <param name="color">The content's intended color.</param>
+        public ColoredString(string content, TextColor? color) : this(content, color?.Foreground, color?.Background)
+        {
+        }
+
+        /// <summary>
         /// Empty string.
         /// </summary>
         public static ColoredString Empty { get; } = new ColoredString(string.Empty);

@@ -8,8 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NClap
-{
+namespace NClap {
     using System.Reflection;
 
 
@@ -515,7 +514,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Description.
+        ///   Looks up a localized string similar to Description:.
         /// </summary>
         internal static string UsageInfoDescriptionHeader {
             get {
@@ -533,7 +532,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Examples.
+        ///   Looks up a localized string similar to Examples:.
         /// </summary>
         internal static string UsageInfoExamplesHeader {
             get {
@@ -551,7 +550,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name.
+        ///   Looks up a localized string similar to Name:.
         /// </summary>
         internal static string UsageInfoNameHeader {
             get {
@@ -560,7 +559,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Optional Parameters.
+        ///   Looks up a localized string similar to Optional Parameters:.
         /// </summary>
         internal static string UsageInfoOptionalParametersHeader {
             get {
@@ -569,7 +568,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remarks.
+        ///   Looks up a localized string similar to Remarks:.
         /// </summary>
         internal static string UsageInfoRemarksHeader {
             get {
@@ -578,7 +577,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Required Parameters.
+        ///   Looks up a localized string similar to Required Parameters:.
         /// </summary>
         internal static string UsageInfoRequiredParametersHeader {
             get {
@@ -596,7 +595,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Syntax.
+        ///   Looks up a localized string similar to Syntax:.
         /// </summary>
         internal static string UsageInfoSyntaxHeader {
             get {
@@ -605,7 +604,7 @@ namespace NClap
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Usage.
+        ///   Looks up a localized string similar to Usage:.
         /// </summary>
         internal static string UsageInfoUsageHeader {
             get {

@@ -6,6 +6,7 @@ using System.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Exceptions;
+using NClap.Help;
 using NClap.Metadata;
 using NClap.Types;
 using NClap.Utilities;
@@ -537,14 +538,7 @@ namespace NClap.Tests.Parser
         public void GetUsageStringWorks()
         {
             GetUsageStringWorks(new SimpleArguments());
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeBasicSyntax | UsageInfoOptions.UseColor);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeLogo);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeExamples);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.IncludeParameterDescriptions | UsageInfoOptions.IncludeParameterDefaultValues);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.Default);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.Default | UsageInfoOptions.VerticallyExpandedOutput);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.DefaultAbridged);
-            GetUsageStringWorks(new SimpleArguments(), options: UsageInfoOptions.DefaultAbridged | UsageInfoOptions.VerticallyExpandedOutput);
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions());
 
             GetUsageStringWorks(new PositionalArguments());
         }
@@ -558,7 +552,7 @@ namespace NClap.Tests.Parser
             {
                 CommandLineParser.GetConsoleWidth = () => { throw new IOException(); };
 
-                var usageInfo = CommandLineParser.GetUsageInfo(typeof(SimpleArguments), UsageInfoOptions.Default);
+                var usageInfo = CommandLineParser.GetUsageInfo(typeof(SimpleArguments));
                 usageInfo.ToString().Should().NotBeNullOrWhiteSpace();
             }
             finally
@@ -570,34 +564,38 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void GetUsageStringThrowsWithVerySmallWidth()
         {
-            Action getUsage = () => CommandLineParser.GetUsageInfo(typeof(SimpleArguments), null, 4, null, UsageInfoOptions.Default);
+            Action getUsage = () => CommandLineParser.GetUsageInfo(typeof(SimpleArguments), new ArgumentSetHelpOptions { MaxWidth = 4 });
             getUsage.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
         public void GetUsageStringWorkWithSmallButNotTinyWidth()
         {
-            GetUsageStringWorks(new SimpleArguments(), 40);
+            GetUsageStringWorks(new SimpleArguments(), new ArgumentSetHelpOptions().With().MaxWidth(40));
         }
 
         [TestMethod]
         public void GetUsageStringWithAdditionalHelp()
         {
-            var usageStr = CommandLineParser.GetUsageInfo(typeof(AdditionalHelpArguments), null, 80, null, UsageInfoOptions.Default).ToString();
+            var usageStr = CommandLineParser.GetUsageInfo(typeof(AdditionalHelpArguments)).ToString();
 
             usageStr.Should().Contain("More help content.");
         }
 
-        private static void GetUsageStringWorks<T>(T args, int width = 80, UsageInfoOptions? options = null)
+        private static void GetUsageStringWorks<T>(T args, ArgumentSetHelpOptions options = null)
         {
+            var widerOptions = options?.DeepClone() ?? new ArgumentSetHelpOptions();
+            widerOptions.MaxWidth = 80;
+
             var usageStr = CommandLineParser.GetUsageInfo(
-                typeof(T), args,
-                width, null, options ?? UsageInfoOptions.Default).ToString();
+                typeof(T), widerOptions, args).ToString();
             usageStr.Should().NotBeNullOrWhiteSpace();
 
+            var narrowOptions = options?.DeepClone() ?? new ArgumentSetHelpOptions();
+            narrowOptions.MaxWidth = 60;
+
             var narrowUsageStr = CommandLineParser.GetUsageInfo(
-                typeof(T), args,
-                60, null, options ?? UsageInfoOptions.Default).ToString();
+                typeof(T), narrowOptions, args).ToString();
             narrowUsageStr.Should().NotBeNullOrWhiteSpace();
         }
 

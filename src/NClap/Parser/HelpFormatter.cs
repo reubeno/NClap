@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using NClap.Help;
 using NClap.Utilities;
 
 namespace NClap.Parser
@@ -10,11 +10,7 @@ namespace NClap.Parser
     /// </summary>
     internal abstract class HelpFormatter
     {
-        public int MaxWidth { get; set; } = 80;
-        public ConsoleColor HeaderForegroundColor { get; set; } = ConsoleColor.Cyan;
-        public ConsoleColor ParameterMetadataForegroundColor { get; set; } = ConsoleColor.DarkCyan;
-        public UsageInfoOptions Options { get; set; } = UsageInfoOptions.Default;
-        public bool UseColor => Options.HasFlag(UsageInfoOptions.UseColor);
+        public ArgumentSetHelpOptions Options { get; set; } = new ArgumentSetHelpOptions();
 
         public abstract ColoredMultistring Format(ArgumentSetUsageInfo info);
 
@@ -29,30 +25,39 @@ namespace NClap.Parser
             {
                 if (!firstSection)
                 {
-                    builder.AppendLine();
+                    for (var i = 0; i < Options.BlankLinesBetweenSections; ++i)
+                    {
+                        builder.AppendLine();
+                    }
                 }
 
                 // Add header.
-                if (!string.IsNullOrEmpty(section.Name))
+                if ((Options.SectionHeaders?.Include ?? false) && !string.IsNullOrEmpty(section.Name))
                 {
-                    var header = new ColoredString(section.Name, UseColor ? new ConsoleColor?(HeaderForegroundColor) : null);
-                    builder.AppendLine(header);
+                    if (Options.UseColor)
+                    {
+                        builder.AppendLine(new ColoredString(section.Name, Options.SectionHeaders.Color));
+                    }
+                    else
+                    {
+                        builder.AppendLine(section.Name);
+                    }
                 }
 
                 // Add content.
                 foreach (var entry in section.Entries)
                 {
                     var text = (ColoredMultistring)entry.Wrap(
-                        MaxWidth,
-                        indent: section.BodyIndentWidth,
+                        Options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth),
+                        blockIndent: section.BodyIndentWidth,
                         hangingIndent: section.HangingIndentWidth);
 
-                    if (UseColor)
+                    if (Options.UseColor)
                     {
                         builder.AppendLine(text);
                     }
                     else
-                    {
+                    {   
                         builder.AppendLine(text.ToString());
                     }
                 }
@@ -75,33 +80,36 @@ namespace NClap.Parser
 
         protected class Section
         {
-            public const int DefaultIndent = 4;
-
-            public Section(string name, IEnumerable<ColoredMultistring> entries)
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredMultistring> entries, string name = null)
             {
-                Name = name;
                 Entries = entries.ToList();
+                Name = name ?? itemOptions.HeaderTitle;
+                BodyIndentWidth = itemOptions.BlockIndent.GetValueOrDefault(options.SectionEntryBlockIndentWidth);
+                HangingIndentWidth = itemOptions.HangingIndent.GetValueOrDefault(options.SectionEntryHangingIndentWidth);
             }
 
-            public Section(string name, ColoredMultistring entry) : this(name, new[] { entry })
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredMultistring entry) :
+                this(options, itemOptions, new[] { entry })
             {
             }
 
-            public Section(string name, IEnumerable<ColoredString> entries) :
-                this(name, entries.Select(e => (ColoredMultistring)e))
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredString> entries) :
+                this(options, itemOptions, entries.Select(e => (ColoredMultistring)e))
             {
             }
 
-            public Section(string name, IEnumerable<string> entries) : this(name, entries.Select(e => (ColoredString)e))
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<string> entries) :
+                this(options, itemOptions, entries.Select(e => (ColoredString)e))
             {
             }
 
-            public Section(string name, ColoredString entry) : this(name, new[] { entry })
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredString entry) :
+                this(options, itemOptions, new[] { entry })
             {
             }
 
-            public int BodyIndentWidth { get; set; } = DefaultIndent;
-            public int HangingIndentWidth { get; set; } = 0;
+            public int BodyIndentWidth { get; set; }
+            public int HangingIndentWidth { get; set; }
             public string Name { get; }
             public IReadOnlyList<ColoredMultistring> Entries { get; set; }
         }

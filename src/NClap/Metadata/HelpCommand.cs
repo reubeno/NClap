@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NClap.ConsoleInput;
+using NClap.Help;
 using NClap.Parser;
 using NClap.Utilities;
 
@@ -12,10 +13,10 @@ namespace NClap.Metadata
     public static class HelpCommand
     {
         /// <summary>
-        /// The default options to use for generate usage info.
+        /// The default options to use for generate help.
         /// </summary>
-        public static UsageInfoOptions DefaultUsageInfoOptions { get; set; } =
-            UsageInfoOptions.Default & ~UsageInfoOptions.IncludeLogo;
+        public static ArgumentSetHelpOptions DefaultHelpOptions { get; set; } =
+            new ArgumentSetHelpOptions { Logo = new ArgumentMetadataHelpOptions { Include = false } };
 
         /// <summary>
         /// The output handler function for this class.
@@ -32,12 +33,6 @@ namespace NClap.Metadata
     {
         [PositionalArgument(ArgumentFlags.RestOfLine, Position = 0)]
         public string[] Arguments { get; set; }
-
-        /// <summary>
-        /// Options for displaying help.
-        /// </summary>
-        [NamedArgument(ArgumentFlags.AtMostOnce, Description = "Options for displaying help.")]
-        public HelpOptions Options { get; set; }
 
         /// <summary>
         /// Displays help about the available commands.
@@ -64,10 +59,8 @@ namespace NClap.Metadata
 
             var info = CommandLineParser.GetUsageInfo(
                 typeof(CommandGroup<TCommandType>),
-                null, // defaultValues
-                null, // columns
-                string.Empty, // commandName
-                HelpCommand.DefaultUsageInfoOptions);
+                HelpCommand.DefaultHelpOptions,
+                commandName: string.Empty);
 
             outputHandler(info);
         }
@@ -85,10 +78,9 @@ namespace NClap.Metadata
 
             var info = CommandLineParser.GetUsageInfo(
                 parser.ArgumentSet,
-                null, // columns
-                string.Empty, // commandName
-                HelpCommand.DefaultUsageInfoOptions,
-                group);
+                HelpCommand.DefaultHelpOptions,
+                group,
+                commandName: string.Empty);
 
             outputHandler(info);
         }

@@ -12,7 +12,7 @@ namespace NClap.Parser
     /// <summary>
     /// Encapsulates an argument set.
     /// </summary>
-    public class ArgumentSetDefinition
+    public class ArgumentSetDefinition : IDeepCloneable<ArgumentSetDefinition>
     {
         // Argument metadata and parse state.
         private readonly Dictionary<IMutableMemberInfo, ArgumentDefinition> _argumentsByMember = new Dictionary<IMutableMemberInfo, ArgumentDefinition>();
@@ -180,7 +180,7 @@ namespace NClap.Parser
         /// Shallow clones this definition.
         /// </summary>
         /// <returns>The cloned object.</returns>
-        public ArgumentSetDefinition Clone() => new ArgumentSetDefinition(this);
+        public ArgumentSetDefinition DeepClone() => new ArgumentSetDefinition(this);
 
         private void AddNamedArgument(ArgumentDefinition argument)
         {
