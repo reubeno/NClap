@@ -16,7 +16,11 @@ namespace NClap.Metadata
         /// The default options to use for generate help.
         /// </summary>
         public static ArgumentSetHelpOptions DefaultHelpOptions { get; set; } =
-            new ArgumentSetHelpOptions { Logo = new ArgumentMetadataHelpOptions { Include = false } };
+            new ArgumentSetHelpOptions
+            {
+                Logo = new ArgumentMetadataHelpOptions { Include = false },
+                Name = string.Empty
+            };
 
         /// <summary>
         /// The output handler function for this class.
@@ -59,8 +63,7 @@ namespace NClap.Metadata
 
             var info = CommandLineParser.GetUsageInfo(
                 typeof(CommandGroup<TCommandType>),
-                HelpCommand.DefaultHelpOptions,
-                commandName: string.Empty);
+                HelpCommand.DefaultHelpOptions);
 
             outputHandler(info);
         }
@@ -79,8 +82,7 @@ namespace NClap.Metadata
             var info = CommandLineParser.GetUsageInfo(
                 parser.ArgumentSet,
                 HelpCommand.DefaultHelpOptions,
-                group,
-                commandName: string.Empty);
+                group);
 
             outputHandler(info);
         }

@@ -198,17 +198,13 @@ namespace NClap
         /// <param name="options">Options for generating usage info.</param>
         /// <param name="defaultValues">Optionally provides an object with
         /// default values.</param>
-        /// <param name="commandName">Command name to display in the usage
-        /// information.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
         public static ColoredMultistring GetUsageInfo(
             Type type,
             ArgumentSetHelpOptions options = null,
-            object defaultValues = null,
-            string commandName = null) =>
-            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues),
-                options, commandName: commandName);
+            object defaultValues = null) =>
+            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues), options);
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -288,8 +284,7 @@ namespace NClap
         internal static ColoredMultistring GetUsageInfo(
             ArgumentSetDefinition argSet,
             ArgumentSetHelpOptions options = null,
-            object destination = null,
-            string commandName = null)
+            object destination = null)
         {
             // Default options.
             if (options == null)
@@ -307,7 +302,6 @@ namespace NClap
             // Construct info for argument set.
             var info = new ArgumentSetUsageInfo
             {
-                Name = commandName ?? AssemblyUtilities.GetAssemblyFileName(),
                 Description = argSet.Attribute.AdditionalHelp,
                 DefaultShortNamePrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
             };
@@ -323,14 +317,6 @@ namespace NClap
             if (argSet.Attribute.LogoString != null)
             {
                 info.Logo = argSet.Attribute.LogoString;
-            }
-
-            // Compose remarks, if any.
-            const string defaultHelpArgumentName = "?";
-            var namedArgPrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
-            if (namedArgPrefix != null && argSet.TryGetNamedArgument(ArgumentNameType.ShortName, defaultHelpArgumentName, out ArgumentDefinition ignored))
-            {
-                info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
             }
 
             // Construct renderer and use it.

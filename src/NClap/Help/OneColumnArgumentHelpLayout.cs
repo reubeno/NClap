@@ -4,12 +4,12 @@
     /// Describes a single-column argument help layout: name(s) followed
     /// by description (if applicable) in the second.
     /// </summary>
-    public class SingleColumnArgumentHelpLayout : ArgumentHelpLayout
+    public class OneColumnArgumentHelpLayout : ArgumentHelpLayout
     {
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public SingleColumnArgumentHelpLayout()
+        public OneColumnArgumentHelpLayout()
         {
         }
 
@@ -17,7 +17,7 @@
         /// Deeply cloning constructor.
         /// </summary>
         /// <param name="other">Template for clone.</param>
-        private SingleColumnArgumentHelpLayout(SingleColumnArgumentHelpLayout other) : base(other)
+        private OneColumnArgumentHelpLayout(OneColumnArgumentHelpLayout other) : base(other)
         {
         }
 
@@ -26,6 +26,6 @@
         /// </summary>
         /// <returns>Clone.</returns>
         public override ArgumentHelpLayout DeepClone() =>
-            new SingleColumnArgumentHelpLayout();
+            new OneColumnArgumentHelpLayout();
     }
 }

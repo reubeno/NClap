@@ -41,6 +41,7 @@ namespace NClap.Help
             SectionEntryBlockIndentWidth = other.SectionEntryBlockIndentWidth;
             SectionEntryHangingIndentWidth = other.SectionEntryHangingIndentWidth;
             BlankLinesBetweenSections = other.BlankLinesBetweenSections;
+            Name = other.Name;
             SectionHeaders = other.SectionHeaders.DeepClone();
             Logo = other.Logo.DeepClone();
             Description = other.Description.DeepClone();
@@ -76,6 +77,11 @@ namespace NClap.Help
         /// Number of lines left blank between major sections of the help information.
         /// </summary>
         public int BlankLinesBetweenSections { get; set; } = 1;
+
+        /// <summary>
+        /// Name to use for argument set (i.e. first token in syntax).
+        /// </summary>
+        public string Name { get; set; } = AssemblyUtilities.GetAssemblyFileName();
 
         /// <summary>
         /// Options for section headers.

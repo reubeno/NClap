@@ -31,6 +31,7 @@ namespace NClap.Help
             ShortName = other.ShortName;
             Ordering = other.Ordering;
             MetadataColor = other.MetadataColor;
+            IncludePositionalArgumentTypes = other.IncludePositionalArgumentTypes;
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace NClap.Help
         /// <summary>
         /// Layout of argument help.
         /// </summary>
-        public ArgumentHelpLayout Layout { get; set; } = new SingleColumnArgumentHelpLayout();
+        public ArgumentHelpLayout Layout { get; set; } = new OneColumnArgumentHelpLayout();
 
         /// <summary>
         /// Width, in characters, of hanging indent.
@@ -102,6 +103,11 @@ namespace NClap.Help
         {
             Foreground = ConsoleColor.White
         };
+
+        /// <summary>
+        /// Whether or not to display the types of positional arguments.
+        /// </summary>
+        public bool IncludePositionalArgumentTypes { get; set; } = true;
 
         /// <summary>
         /// Creates a separate clone of this object.

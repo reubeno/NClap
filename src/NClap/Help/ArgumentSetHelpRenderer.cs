@@ -92,9 +92,9 @@ namespace NClap.Help
             {
                 var basicSyntax = new List<ColoredString>();
 
-                if (!string.IsNullOrEmpty(info.Name))
+                if (!string.IsNullOrEmpty(_options.Name))
                 {
-                    basicSyntax.Add(new ColoredString(info.Name, _options.Syntax?.CommandNameColor));
+                    basicSyntax.Add(new ColoredString(_options.Name, _options.Syntax?.CommandNameColor));
                     basicSyntax.Add(" ");
                 }
 
@@ -120,7 +120,7 @@ namespace NClap.Help
             if ((_options.Arguments?.RequiredArguments?.Include ?? false) &&
                 info.RequiredParameters.Any())
             {
-                var entries = GetParameterEntries(info.RequiredParameters, info, inlineDocumented).ToList();
+                var entries = GetAndFormatParameterEntries(_options.Arguments.RequiredArguments, info.RequiredParameters, info, inlineDocumented).ToList();
                 if (entries.Count > 0)
                 {
                     sections.Add(new Section(_options, _options.Arguments.RequiredArguments, entries));
@@ -131,7 +131,7 @@ namespace NClap.Help
             if ((_options.Arguments?.OptionalArguments?.Include ?? false) &&
                 info.OptionalParameters.Any())
             {
-                var entries = GetParameterEntries(info.OptionalParameters, info, inlineDocumented).ToList();
+                var entries = GetAndFormatParameterEntries(_options.Arguments.OptionalArguments, info.OptionalParameters, info, inlineDocumented).ToList();
                 if (entries.Count > 0)
                 {
                     sections.Add(new Section(_options, _options.Arguments.OptionalArguments, entries));
@@ -198,37 +198,25 @@ namespace NClap.Help
                 .OrderBy(v => v.DisplayName)
                 .ToList();
 
-            IEnumerable<ColoredMultistring> entries;
-
             // See if we can collapse the values onto one entry.
             if (values.All(v => string.IsNullOrEmpty(v.Description) && v.ShortName == null))
             {
-                entries = new[] { new ColoredMultistring($"{{{string.Join(", ", values.Select(v => v.DisplayName))}}}") };
+                return new[] { new ColoredMultistring($"{{{string.Join(", ", values.Select(v => v.DisplayName))}}}") };
             }
             else
             {
-                entries = values.Select(FormatEnumValueInfo);
+                var entries = values.Select(GetEnumValueInfo);
+                return FormatParameterEntries(_options.EnumValues, entries);
             }
-
-            if ((_options.Arguments?.BlankLinesBetweenArguments ?? 0) > 0)
-            {
-                var insertion = new ColoredMultistring(
-                    Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments));
-
-                entries = entries.InsertBetween(insertion);
-            }
-
-            return entries;
         }
-            
-        private ColoredMultistring FormatEnumValueInfo(IArgumentValue value)
-        {
-            var builder = new ColoredMultistringBuilder();
-            builder.Append(new ColoredString(value.DisplayName, _options.Arguments?.ArgumentNameColor));
 
+        private ParameterEntry GetEnumValueInfo(IArgumentValue value)
+        {
+            var syntax = new ColoredString(value.DisplayName, _options.Arguments?.ArgumentNameColor);
+
+            var builder = new ColoredMultistringBuilder();
             if (!string.IsNullOrEmpty(value.Description))
             {
-                builder.Append(" - ");
                 builder.Append(value.Description);
             }
 
@@ -241,7 +229,14 @@ namespace NClap.Help
                 builder.Append("]");
             }
 
-            return builder.ToMultistring();
+            var desc = builder.ToMultistring();
+
+            return new ParameterEntry
+            {
+                Syntax = new ColoredMultistring(syntax),
+                Description = desc,
+                InlineEnumEntries = null
+            };
         }
 
         private static IEnumerable<IArgumentType> GetDependencyTransitiveClosure(IArgumentType type)
@@ -293,12 +288,152 @@ namespace NClap.Help
             return map;
         }
 
-        private IEnumerable<ColoredMultistring> GetParameterEntries(
+        private IEnumerable<ColoredMultistring> GetAndFormatParameterEntries(
+            ArgumentMetadataHelpOptions itemOptions,
             IEnumerable<ArgumentUsageInfo> info,
             ArgumentSetUsageInfo setInfo,
             IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumentedEnums)
         {
-            var entries = info.Select(i =>
+            var entries = GetParameterEntries(info, setInfo, inlineDocumentedEnums);
+            return FormatParameterEntries(itemOptions, entries);
+        }
+
+        private IEnumerable<ColoredMultistring> FormatParameterEntries(
+            ArgumentMetadataHelpOptions itemOptions,
+            IEnumerable<ParameterEntry> entries)
+        {
+            IEnumerable<IEnumerable<ColoredMultistring>> formatted;
+            if (_options.Arguments.Layout is OneColumnArgumentHelpLayout)
+            {
+                formatted = FormatParameterEntriesInOneColumn(entries);
+            }
+            else if (_options.Arguments.Layout is TwoColumnArgumentHelpLayout layout)
+            {
+                formatted = FormatParameterEntriesInTwoColumns(itemOptions, layout, entries);
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported argument help layout");
+            }
+
+            if (_options.Arguments.BlankLinesBetweenArguments > 0)
+            {
+                var insertion = new[] { new ColoredMultistring(
+                        Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+
+                formatted = formatted.InsertBetween(insertion);
+            }
+
+            return formatted.Flatten();
+        }
+
+        private IEnumerable<IEnumerable<ColoredMultistring>> FormatParameterEntriesInOneColumn(
+            IEnumerable<ParameterEntry> entries) =>
+            entries.Select(e =>
+            {
+                var builder = new ColoredMultistringBuilder();
+
+                builder.Append(e.Syntax);
+
+                if (!e.Description.IsEmpty())
+                {
+                    builder.Append(" - ");
+                    builder.Append(e.Description);
+                }
+
+                IEnumerable<ColoredMultistring> composed = new[] { builder.ToMultistring() };
+
+                if (e.InlineEnumEntries != null)
+                {
+                    var indent = new string(' ', _options.SectionEntryHangingIndentWidth);
+                    composed = composed.Concat(e.InlineEnumEntries.Select(iee => indent + iee));
+                }
+
+                return composed;
+            });
+
+        private IEnumerable<IEnumerable<ColoredMultistring>> FormatParameterEntriesInTwoColumns(
+            ArgumentMetadataHelpOptions itemOptions,
+            TwoColumnArgumentHelpLayout layout,
+            IEnumerable<ParameterEntry> entries)
+        {
+            var maxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
+            maxWidth -= itemOptions.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
+
+            var totalWidths = layout.ColumnWidths.Sum(i => i.GetValueOrDefault(0)) + layout.ColumnSeparator.Length;
+            if (totalWidths > _options.MaxWidth.Value)
+            {
+                throw new NotSupportedException("Column widths are too wide.");
+            }
+
+            if (layout.ColumnWidths.Any(c => c.HasValue && c.Value == 0))
+            {
+                throw new NotSupportedException("Invalid column width 0.");
+            }
+
+            var columnWidths = new int[2]
+            {
+                layout.ColumnWidths[0].GetValueOrDefault(0),
+                layout.ColumnWidths[1].GetValueOrDefault(0)
+            };
+
+            if (columnWidths[0] == 0 && columnWidths[1] == 0)
+            {
+                columnWidths[0] = entries.Max(e => e.Syntax.Length);
+                if (columnWidths[0] > maxWidth)
+                {
+                    columnWidths[0] = maxWidth / 2;
+                }
+            }
+
+            if (columnWidths[0] == 0) columnWidths[0] = maxWidth - layout.ColumnSeparator.Length - columnWidths[1];
+            if (columnWidths[1] == 0) columnWidths[1] = maxWidth - layout.ColumnSeparator.Length- columnWidths[0];
+
+            return entries.Select(e =>
+            {
+                var wrappedSyntaxLines = e.Syntax.Wrap(columnWidths[0]).Split('\n').ToList();
+                var wrappedDescLines = e.Description.Wrap(columnWidths[1]).Split('\n').ToList();
+
+                var lineCount = Math.Max(wrappedSyntaxLines.Count, wrappedDescLines.Count);
+                while (wrappedSyntaxLines.Count < lineCount)
+                {
+                    wrappedSyntaxLines.Add(ColoredMultistring.Empty);
+                }
+                while (wrappedDescLines.Count < lineCount)
+                {
+                    wrappedDescLines.Add(ColoredMultistring.Empty);
+                }
+
+                wrappedSyntaxLines = wrappedSyntaxLines.Select(line => RightPadWithSpace(line, columnWidths[0])).ToList();
+                wrappedDescLines = wrappedDescLines.Select(line => RightPadWithSpace(line, columnWidths[1])).ToList();
+
+                var lines = wrappedSyntaxLines.Zip(
+                    wrappedDescLines,
+                    (left, right) =>
+                    {
+                        if (string.IsNullOrWhiteSpace(right.ToString()))
+                        {
+                            return (ColoredMultistring)left;
+                        }
+
+                        return (ColoredMultistring)left + layout.ColumnSeparator + (ColoredMultistring)right;
+                    });
+
+                if (e.InlineEnumEntries != null)
+                {
+                    var indent = new string(' ', _options.SectionEntryHangingIndentWidth);
+                    lines = lines.Concat(e.InlineEnumEntries.Select(iee => indent + iee));
+                }
+
+                return lines;
+            });
+        }
+
+        private IEnumerable<ParameterEntry> GetParameterEntries(
+            IEnumerable<ArgumentUsageInfo> info,
+            ArgumentSetUsageInfo setInfo,
+            IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumentedEnums) =>
+            info.Select(i =>
             {
                 List<IEnumArgumentType> enumTypes = null;
                 inlineDocumentedEnums?.TryGetValue(i, out enumTypes);
@@ -306,36 +441,38 @@ namespace NClap.Help
                 // N.B. Special-case parent command groups that are already selected (i.e. skip them).
                 if (i.IsSelectedCommand())
                 {
-                    return Enumerable.Empty<ColoredMultistring>();
+                    return null;
                 }
 
-                return FormatParameterInfo(i, setInfo, enumTypes);
-            });
+                return FormatParameterEntry(i, setInfo, enumTypes);
+            }).Where(e => e != null);
 
-            if (_options.Arguments.BlankLinesBetweenArguments > 0)
+        private ParameterEntry FormatParameterEntry(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, List<IEnumArgumentType> inlineDocumentedEnums) =>
+            new ParameterEntry
             {
-                var insertion = new[] { new ColoredMultistring(
-                    Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                Syntax = FormatParameterSyntax(info),
+                Description = FormatParameterDescription(info, setInfo),
+                InlineEnumEntries = inlineDocumentedEnums?.Count > 0 ?
+                    inlineDocumentedEnums.SelectMany(GetEnumValueEntries) :
+                    null
+            };
 
-                entries = entries.InsertBetween(insertion);
-            }
-
-            return entries.Flatten();
+        private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info)
+        {
+            var originalSyntax = _options.Arguments.IncludePositionalArgumentTypes ? info.DetailedSyntax : info.Syntax;
+            var syntax = SimplifyParameterSyntax(originalSyntax);
+            var formattedSyntax = new ColoredString(syntax, _options.Arguments?.ArgumentNameColor);
+            return new ColoredMultistring(formattedSyntax);
         }
 
-        private IEnumerable<ColoredMultistring> FormatParameterInfo(
+        private ColoredMultistring FormatParameterDescription(
             ArgumentUsageInfo info,
-            ArgumentSetUsageInfo setInfo,
-            List<IEnumArgumentType> inlineDocumentedEnums)
+            ArgumentSetUsageInfo setInfo)
         {
             var builder = new ColoredMultistringBuilder();
 
-            var syntax = SimplifyParameterSyntax(info.DetailedSyntax);
-            builder.Append(new ColoredString(syntax, _options.Arguments?.ArgumentNameColor));
-
             if (_options.Arguments.IncludeDescription && !string.IsNullOrEmpty(info.Description))
             {
-                builder.Append(" - ");
                 builder.Append(info.Description);
             }
 
@@ -367,26 +504,17 @@ namespace NClap.Help
 
             if (metadataItems.Count > 0)
             {
-                builder.Append(" [");
+                if (builder.Length > 0)
+                {
+                    builder.Append(" ");
+                }
+
+                builder.Append("[");
                 builder.Append(metadataItems.InsertBetween(new List<ColoredString> { ", " }).Flatten());
                 builder.Append("]");
             }
 
-            var formattedInfo = new List<ColoredMultistring> { builder.ToMultistring() };
-
-            if (inlineDocumentedEnums?.Count > 0)
-            {
-                foreach (var entry in inlineDocumentedEnums.SelectMany(GetEnumValueEntries))
-                {
-                    var indentedEntry = new ColoredMultistring(new ColoredString[]
-                    {
-                        new string(' ', _options.SectionEntryBlockIndentWidth)
-                    }.Concat(entry.Content));
-                    formattedInfo.Add(indentedEntry);
-                }
-            }
-
-            return formattedInfo;
+            return builder.ToMultistring();
         }
 
         // We add logic here to trim out a single pair of enclosing
@@ -398,6 +526,18 @@ namespace NClap.Help
         private static string SimplifyParameterSyntax(string s) =>
             s.TrimStart('[')
              .TrimEnd(']', '*', '+');
+
+        private static IString RightPadWithSpace(IString s, int length)
+        {
+            if (s.Length >= length) return s;
+
+            var builder = s.CreateNewBuilder();
+
+            builder.Append(s);
+            builder.Append(new string(' ', length - s.Length));
+
+            return builder.Generate();
+        }
 
         private class ArgumentTypeComparer : IEqualityComparer<IArgumentType>
         {
@@ -445,6 +585,15 @@ namespace NClap.Help
             public string Name { get; }
 
             public IReadOnlyList<ColoredMultistring> Entries { get; set; }
+        }
+
+        class ParameterEntry
+        {
+            public ColoredMultistring Syntax { get; set; }
+
+            public ColoredMultistring Description { get; set; }
+
+            public IEnumerable<ColoredMultistring> InlineEnumEntries { get; set; }
         }
     }
 }
