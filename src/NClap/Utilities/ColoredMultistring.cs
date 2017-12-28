@@ -134,8 +134,9 @@ namespace NClap.Utilities
         /// Split the string by the indicated separator.
         /// </summary>
         /// <param name="separator">Separator for splitting.</param>
+        /// <param name="options">Split options.</param>
         /// <returns>The split pieces of the string.</returns>
-        public IEnumerable<IString> Split(char separator)
+        public IEnumerable<IString> Split(char separator, StringSplitOptions options = StringSplitOptions.None)
         {
             ColoredMultistringBuilder builder = null;
             foreach (var piece in Content)
@@ -144,7 +145,7 @@ namespace NClap.Utilities
                 int index;
                 while ((index = s.IndexOf(separator)) >= 0)
                 {
-                    if (index > 0)
+                    if (index > 0 || (index == 0 && options == StringSplitOptions.None))
                     {
                         if (builder == null)
                         {

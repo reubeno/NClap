@@ -333,9 +333,9 @@ namespace NClap
                 info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
             }
 
-            // Construct formatter and use it.
-            HelpFormatter formatter = new CondensedHelpFormatter { Options = options };
-            return formatter.Format(info);
+            // Construct renderer and use it.
+            var renderer = new ArgumentSetHelpRenderer(options);
+            return renderer.Format(info);
         }
 
         private static int GetCurrentConsoleWidth()

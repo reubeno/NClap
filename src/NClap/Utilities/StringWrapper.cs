@@ -77,9 +77,10 @@ namespace NClap.Utilities
         /// Split the string by the indicated separator.
         /// </summary>
         /// <param name="separator">Separator for splitting.</param>
+        /// <param name="options">Split options.</param>
         /// <returns>The split pieces of the string.</returns>
-        public IEnumerable<IString> Split(char separator) =>
-            Content.Split(new[] { separator }, StringSplitOptions.None).Select(s => (StringWrapper)s);
+        public IEnumerable<IString> Split(char separator, StringSplitOptions options = StringSplitOptions.None) =>
+            Content.Split(new[] { separator }, options).Select(s => (StringWrapper)s);
 
         /// <summary>
         /// Extract a substring.

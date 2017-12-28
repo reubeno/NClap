@@ -62,14 +62,7 @@ namespace NClap.Help
         /// <summary>
         /// Number of lines left blank between two adjacent arguments.
         /// </summary>
-        public int BlankLinesBetweenArguments
-        {
-            get => 0;
-            set
-            {
-                if (value != 0) throw new NotSupportedException("Not currently supported to skip lines between arguments.");
-            }
-        }
+        public int BlankLinesBetweenArguments { get; set; } = 0;
 
         /// <summary>
         /// Include argument descriptions.

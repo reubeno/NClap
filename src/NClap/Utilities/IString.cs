@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NClap.Utilities
 {
@@ -32,8 +33,9 @@ namespace NClap.Utilities
         /// Split the string by the indicated separator.
         /// </summary>
         /// <param name="separator">Separator for splitting.</param>
+        /// <param name="options">Split options.</param>
         /// <returns>The split pieces of the string.</returns>
-        IEnumerable<IString> Split(char separator);
+        IEnumerable<IString> Split(char separator, StringSplitOptions options = StringSplitOptions.None);
 
         /// <summary>
         /// Extract a substring.

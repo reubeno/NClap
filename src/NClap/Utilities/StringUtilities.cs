@@ -121,9 +121,13 @@ namespace NClap.Utilities
             char[] whiteSpaceChars = { ' ', '\t', '\n' };
 
             var firstLine = true;
-            foreach (var line in text.Replace("\r", string.Empty)
-                                     .Split('\n')
-                                     .Select(line => line.TrimEnd()))
+
+            var preprocessedAndSplitByLine =
+                text.Replace("\r", string.Empty)
+                    .Split('\n')
+                    .Select(line => line.TrimEnd());
+
+            foreach (var line in preprocessedAndSplitByLine)
             {
                 // Handle empty lines specially.
                 if (line.Length == 0)
