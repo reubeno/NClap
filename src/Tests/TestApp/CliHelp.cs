@@ -6,7 +6,7 @@ namespace NClap.TestApp
     {
         public override CommandResult Execute()
         {
-            var info = CommandLineParser.GetUsageInfo(typeof(ProgramArguments), UsageInfoOptions.Default);
+            var info = CommandLineParser.GetUsageInfo(typeof(ProgramArguments));
             CommandLineParser.DefaultReporter(info);
             return CommandResult.Success;
         }

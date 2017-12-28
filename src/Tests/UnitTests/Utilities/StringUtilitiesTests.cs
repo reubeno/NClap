@@ -124,12 +124,15 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
-        public void WrapThrowsOnHangingIndentLargerThanIndent()
+        public void WrapThrowsWhenIndentsAreLargerThanOrEqualToWidth()
         {
             const string text = "Hello";
 
-            Action wrapAction = () => StringUtilities.Wrap(text, 80, 10, 11);
+            Action wrapAction = () => StringUtilities.Wrap(text, width: 20, blockIndent: 10, hangingIndent: 11);
             wrapAction.Should().Throw<ArgumentOutOfRangeException>();
+
+            Action wrapAction2 = () => StringUtilities.Wrap(text, width: 20, blockIndent: 10, hangingIndent: 10);
+            wrapAction2.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -215,12 +218,32 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
-        public void WrapWithEmptyLines()
+        public void WrapWithEmptyTrailingLine()
         {
-            StringUtilities.Wrap("1234" + Environment.NewLine + Environment.NewLine, 10, 4).Should().Be(
+            var input =
+                "1234" + Environment.NewLine +
+                string.Empty + Environment.NewLine;
+
+            StringUtilities.Wrap(input, width: 10, blockIndent: 4).Should().Be(
                 "    1234" + Environment.NewLine +
-                "    "     + Environment.NewLine +
+                "    " + Environment.NewLine +
                 "    ");
+        }
+
+        [TestMethod]
+        public void WrapWithEmptyLinesInTheMiddle()
+        {
+            var input =
+                "1234" + Environment.NewLine +
+                string.Empty + Environment.NewLine +
+                string.Empty + Environment.NewLine +
+                "5678";
+
+            StringUtilities.Wrap(input, width: 10, blockIndent: 4).Should().Be(
+                "    1234" + Environment.NewLine +
+                "    " + Environment.NewLine +
+                "    " + Environment.NewLine +
+                "    5678");
         }
 
         [TestMethod]

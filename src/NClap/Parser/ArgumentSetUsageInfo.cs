@@ -12,8 +12,6 @@ namespace NClap.Parser
         private readonly List<ArgumentUsageInfo> _allParameters = new List<ArgumentUsageInfo>();
         private readonly List<string> _examples = new List<string>();
 
-        public string Name { get; set; }
-
         public string Description { get; set; }
 
         public ColoredMultistring Logo { get; set; } = ColoredMultistring.FromString(AssemblyUtilities.GetLogo());

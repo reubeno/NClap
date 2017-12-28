@@ -1,8 +1,7 @@
 {
   "profiles": {
     "NClap.TestApp": {
-      "commandName": "Project",
-      "commandLineArgs": "repl"
+      "commandName": "Project"
     }
   }
 }

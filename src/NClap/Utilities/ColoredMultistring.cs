@@ -24,10 +24,10 @@ namespace NClap.Utilities
         /// <summary>
         /// Primary constructor.
         /// </summary>
-        /// <param name="value">Pieces of the multistring.</param>
-        public ColoredMultistring(IEnumerable<ColoredString> value)
+        /// <param name="values">Pieces of the multistring.</param>
+        public ColoredMultistring(IEnumerable<ColoredString> values)
         {
-            Content = value.ToList();
+            Content = values.ToList();
         }
 
         /// <summary>
@@ -93,6 +93,35 @@ namespace NClap.Utilities
             new ColoredMultistring(new[] { value });
 
         /// <summary>
+        /// Constructs a new <see cref="ColoredMultistring"/> by concatenating.
+        /// </summary>
+        /// <param name="value">The base multistring.</param>
+        /// <param name="suffix">The string to concatenate onto the end of the base
+        /// multistring.</param>
+        /// <returns>The concatenation result, as a separate multistring.</returns>
+        public static ColoredMultistring operator +(ColoredMultistring value, ColoredString suffix) =>
+            new ColoredMultistring(value.Content.Concat(new[] { suffix }));
+
+        /// <summary>
+        /// Constructs a new <see cref="ColoredMultistring"/> by concatenating.
+        /// </summary>
+        /// <param name="prefix">The string to concatenate onto the front of the base
+        /// multistring.</param>
+        /// <param name="value">The base multistring.</param>
+        /// <returns>The concatenation result, as a separate multistring.</returns>
+        public static ColoredMultistring operator +(ColoredString prefix, ColoredMultistring value) =>
+            new ColoredMultistring(new[] { prefix }.Concat(value.Content));
+
+        /// <summary>
+        /// Constructs a new <see cref="ColoredMultistring"/> by concatenating.
+        /// </summary>
+        /// <param name="prefix">The first part.</param>
+        /// <param name="suffix">The second part.</param>
+        /// <returns>The concatenation result, as a separate multistring.</returns>
+        public static ColoredMultistring operator +(ColoredMultistring prefix, ColoredMultistring suffix) =>
+            new ColoredMultistring(prefix.Content.Concat(suffix.Content));
+
+        /// <summary>
         /// Wraps a string.
         /// </summary>
         /// <param name="value">The string to wrap.</param>
@@ -134,8 +163,9 @@ namespace NClap.Utilities
         /// Split the string by the indicated separator.
         /// </summary>
         /// <param name="separator">Separator for splitting.</param>
+        /// <param name="options">Split options.</param>
         /// <returns>The split pieces of the string.</returns>
-        public IEnumerable<IString> Split(char separator)
+        public IEnumerable<IString> Split(char separator, StringSplitOptions options = StringSplitOptions.None)
         {
             ColoredMultistringBuilder builder = null;
             foreach (var piece in Content)
@@ -144,7 +174,7 @@ namespace NClap.Utilities
                 int index;
                 while ((index = s.IndexOf(separator)) >= 0)
                 {
-                    if (index > 0)
+                    if (index > 0 || (index == 0 && options == StringSplitOptions.None))
                     {
                         if (builder == null)
                         {

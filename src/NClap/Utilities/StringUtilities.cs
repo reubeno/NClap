@@ -22,16 +22,15 @@ namespace NClap.Utilities
         /// <param name="text">Text to append.</param>
         /// <param name="width">Maximum width of the text, in number of
         /// characters.</param>
-        /// <param name="indent">The number of characters to indent
-        /// lines after the first one; 0 to indicate no indentation
-        /// should occur.</param>
+        /// <param name="blockIndent">The number of characters to block-indent
+        /// all lines. Use 0 to indicate no block indentation should occur.</param>
         public static void AppendWrappedLine(
             this StringBuilder builder,
             string text,
             int width,
-            int indent = 0)
+            int blockIndent = 0)
         {
-            builder.AppendWrapped(text, width, indent);
+            builder.AppendWrapped(text, width, blockIndent);
             builder.AppendLine();
         }
 
@@ -44,21 +43,20 @@ namespace NClap.Utilities
         /// <param name="text">Text to append.</param>
         /// <param name="width">Maximum width of the text, in number of
         /// characters.</param>
-        /// <param name="indent">The number of characters to indent
-        /// lines after the first one; 0 to indicate no indentation
-        /// should occur.</param>
+        /// <param name="blockIndent">The number of characters to block-indent
+        /// all lines. Use 0 to indicate no block indentation should occur.</param>
         public static void AppendWrapped(
             this StringBuilder builder,
             string text,
             int width,
-            int indent = 0)
+            int blockIndent = 0)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Append(Wrap(text, width, indent));
+            builder.Append(Wrap(text, width, blockIndent));
         }
 
 
@@ -69,13 +67,15 @@ namespace NClap.Utilities
         /// <param name="text">Text to wrap.</param>
         /// <param name="width">Maximum width of the text, in number of
         /// characters.</param>
-        /// <param name="indent">The number of characters to indent
-        /// lines; 0 to indicate no indentation should occur.</param>
-        /// <param name="hangingIndent">The number of characters to
-        /// unindent the first line.</param>
+        /// <param name="blockIndent">The number of characters to block-indent
+        /// all lines. Use 0 to indicate no block indentation should occur.</param>
+        /// <param name="hangingIndent">The number of characters to hanging-indent
+        /// the text; all lines after the first line are affected, and the first
+        /// line is left unmodified.  Use 0 to indicate no hanging indentation
+        /// should occur.</param>
         /// <returns>The wrapped text.</returns>
-        public static ColoredString Wrap(this ColoredString text, int width, int indent = 0, int hangingIndent = 0) =>
-            text.Transform(content => Wrap(content, width, indent, hangingIndent));
+        public static ColoredString Wrap(this ColoredString text, int width, int blockIndent = 0, int hangingIndent = 0) =>
+            text.Transform(content => Wrap(content, width, blockIndent, hangingIndent));
 
         /// <summary>
         /// Wrap the provided text at the given width, indenting it with the
@@ -84,13 +84,15 @@ namespace NClap.Utilities
         /// <param name="text">Text to wrap.</param>
         /// <param name="width">Maximum width of the text, in number of
         /// characters.</param>
-        /// <param name="indent">The number of characters to indent
-        /// lines; 0 to indicate no indentation should occur.</param>
-        /// <param name="hangingIndent">The number of characters to
-        /// unindent the first line.</param>
+        /// <param name="blockIndent">The number of characters to block-indent
+        /// all lines. Use 0 to indicate no block indentation should occur.</param>
+        /// <param name="hangingIndent">The number of characters to hanging-indent
+        /// the text; all lines after the first line are affected, and the first
+        /// line is left unmodified.  Use 0 to indicate no hanging indentation
+        /// should occur.</param>
         /// <returns>The wrapped text.</returns>
-        public static string Wrap(this string text, int width, int indent = 0, int hangingIndent = 0) =>
-            Wrap((IString)(StringWrapper)text, width, indent, hangingIndent).ToString();
+        public static string Wrap(this string text, int width, int blockIndent = 0, int hangingIndent = 0) =>
+            Wrap((IString)(StringWrapper)text, width, blockIndent, hangingIndent).ToString();
 
         /// <summary>
         /// Wrap the provided text at the given width, indenting it with the
@@ -99,19 +101,17 @@ namespace NClap.Utilities
         /// <param name="text">Text to wrap.</param>
         /// <param name="width">Maximum width of the text, in number of
         /// characters.</param>
-        /// <param name="indent">The number of characters to indent
-        /// lines; 0 to indicate no indentation should occur.</param>
-        /// <param name="hangingIndent">The number of characters to
-        /// unindent the first line.</param>
+        /// <param name="blockIndent">The number of characters to block-indent
+        /// all lines. Use 0 to indicate no block indentation should occur.</param>
+        /// <param name="hangingIndent">The number of characters to hanging-indent
+        /// the text; all lines after the first line are affected, and the first
+        /// line is left unmodified.  Use 0 to indicate no hanging indentation
+        /// should occur.</param>
         /// <returns>The wrapped text.</returns>
-        public static IString Wrap(this IString text, int width, int indent = 0, int hangingIndent = 0)
+        public static IString Wrap(this IString text, int width, int blockIndent = 0, int hangingIndent = 0)
         {
-            if (text == null)
-            {
-                throw new ArgumentNullException(nameof(text));
-            }
-
-            if ((width < 0) || (width <= indent) || (hangingIndent > indent))
+            if (text == null) throw new ArgumentNullException(nameof(text));
+            if (width < 0 || width <= blockIndent + hangingIndent)
             {
                 throw new ArgumentOutOfRangeException(nameof(width));
             }
@@ -121,9 +121,13 @@ namespace NClap.Utilities
             char[] whiteSpaceChars = { ' ', '\t', '\n' };
 
             var firstLine = true;
-            foreach (var line in text.Replace("\r", string.Empty)
-                                     .Split('\n')
-                                     .Select(line => line.TrimEnd()))
+
+            var preprocessedAndSplitByLine =
+                text.Replace("\r", string.Empty)
+                    .Split('\n')
+                    .Select(line => line.TrimEnd());
+
+            foreach (var line in preprocessedAndSplitByLine)
             {
                 // Handle empty lines specially.
                 if (line.Length == 0)
@@ -133,10 +137,17 @@ namespace NClap.Utilities
                         builder.Append(Environment.NewLine);
                     }
 
-                    // If there's an indent, insert it.
-                    if (indent > 0)
+                    // If there's a block indent, insert it.
+                    if (blockIndent > 0)
                     {
-                        builder.Append(' ', indent);
+                        builder.Append(' ', blockIndent);
+                    }
+
+                    // If we're not on the first line and there's a hanging indent,
+                    // insert it.
+                    if (hangingIndent > 0 && !firstLine)
+                    {
+                        builder.Append(' ', hangingIndent);
                     }
 
                     firstLine = false;
@@ -155,7 +166,7 @@ namespace NClap.Utilities
                     }
 
                     // If there's an indent for this line, then insert it.
-                    var effectiveIndent = firstLine ? indent - hangingIndent : indent;
+                    var effectiveIndent = firstLine ? blockIndent : blockIndent + hangingIndent;
                     if (effectiveIndent > 0)
                     {
                         builder.Append(' ', effectiveIndent);

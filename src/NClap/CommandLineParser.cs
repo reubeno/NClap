@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using NClap.ConsoleInput;
+using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Utilities;
@@ -108,7 +109,7 @@ namespace NClap
             var reportedLines = new List<ColoredMultistring>();
             var actualReporter = options.Reporter;
 
-            options = options.Clone();
+            options = options.DeepClone();
             options.Reporter = s => reportedLines.Add(s);
 
             //
@@ -127,7 +128,7 @@ namespace NClap
 
             if ((destination is IHelpArguments helpArgs) && helpArgs.Help && actualReporter != null)
             {
-                actualReporter(GetUsageInfo(parserArgSet, null, null, options.UsageInfoOptions, destination));
+                actualReporter(GetUsageInfo(parserArgSet, options.HelpOptions, destination));
                 return false;
             }
 
@@ -150,7 +151,7 @@ namespace NClap
             if (!parseResult && options.DisplayUsageInfoOnError && actualReporter != null)
             {
                 actualReporter(ColoredMultistring.FromString(Environment.NewLine));
-                actualReporter(GetUsageInfo(parserArgSet, null, null, options.UsageInfoOptions, destination));
+                actualReporter(GetUsageInfo(parserArgSet, options.HelpOptions, destination));
             }
 
             return parseResult;
@@ -191,93 +192,19 @@ namespace NClap
 
         /// <summary>
         /// Returns a usage string for command line argument parsing. Use
-        /// ArgumentAttributes to control parsing behavior. Formats the output
-        /// to the width of the current console window.
-        /// </summary>
-        /// <param name="type">Type of the parsed arguments object to get usage
-        /// info for.</param>
-        /// <returns>Printable string containing a user friendly description of
-        /// command line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type) => 
-            GetUsageInfo(type, type.GetDefaultValue());
-
-        /// <summary>
-        /// Returns a usage string for command line argument parsing. Use
-        /// ArgumentAttributes to control parsing behavior. Formats the output
-        /// to the width of the current console window.
-        /// </summary>
-        /// <param name="type">Type of the parsed arguments object to get usage
-        /// info for.</param>
-        /// <param name="options">Options for generating usage info.</param>
-        /// <returns>Printable string containing a user friendly description of
-        /// command line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type, UsageInfoOptions options) =>
-            GetUsageInfo(type, type.GetDefaultValue(), null, null, options);
-
-        /// <summary>
-        /// Returns a usage string for command line argument parsing. Use
-        /// ArgumentAttributes to control parsing behavior. Formats the output
-        /// to the width of the current console window.
-        /// </summary>
-        /// <param name="type">Type of the parsed arguments object.</param>
-        /// <param name="defaultValues">Optionally provides an object with
-        /// default values.</param>
-        /// <returns>Printable string containing a user friendly description of
-        /// command line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type, object defaultValues) =>
-            GetUsageInfo(type, defaultValues, null);
-
-        /// <summary>
-        /// Returns a usage string for command line argument parsing. Use
-        /// ArgumentAttributes to control parsing behavior. Formats the output
-        /// to the width of the current console window.
-        /// </summary>
-        /// <param name="type">Type of the parsed arguments object.</param>
-        /// <param name="defaultValues">Optionally provides an object with
-        /// default values.</param>
-        /// <param name="options">Options for generating usage info.</param>
-        /// <returns>Printable string containing a user friendly description of
-        /// command line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type, object defaultValues, UsageInfoOptions options) =>
-            GetUsageInfo(type, defaultValues, null, null, options);
-
-        /// <summary>
-        /// Returns a Usage string for command line argument parsing. Use
-        /// ArgumentAttributes to control parsing behavior.
-        /// </summary>
-        /// <param name="type">Type of the parsed arguments object.</param>
-        /// <param name="defaultValues">Optionally provides an object with
-        /// default values.</param>
-        /// <param name="columns">The number of columns to format the output to.
-        /// </param>
-        /// <returns>Printable string containing a user friendly description of
-        /// command-line arguments.</returns>
-        public static ColoredMultistring GetUsageInfo(Type type, object defaultValues, int? columns) =>
-            GetUsageInfo(type, defaultValues, columns, null, UsageInfoOptions.Default);
-
-        /// <summary>
-        /// Returns a usage string for command line argument parsing. Use
         /// argument attributes to control parsing behavior.
         /// </summary>
         /// <param name="type">Type of the parsed arguments object.</param>
+        /// <param name="options">Options for generating usage info.</param>
         /// <param name="defaultValues">Optionally provides an object with
         /// default values.</param>
-        /// <param name="columns">The number of columns to format the output to.
-        /// </param>
-        /// <param name="commandName">Command name to display in the usage
-        /// information.</param>
-        /// <param name="options">Options for generating usage info.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
         public static ColoredMultistring GetUsageInfo(
             Type type,
-            object defaultValues,
-            int? columns,
-            string commandName,
-            UsageInfoOptions options) =>
-
-            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues),
-                columns, commandName, options);
+            ArgumentSetHelpOptions options = null,
+            object defaultValues = null) =>
+            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues), options);
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -356,22 +283,25 @@ namespace NClap
 
         internal static ColoredMultistring GetUsageInfo(
             ArgumentSetDefinition argSet,
-            int? columns,
-            string commandName,
-            UsageInfoOptions options,
+            ArgumentSetHelpOptions options = null,
             object destination = null)
         {
-            if (!columns.HasValue)
+            // Default options.
+            if (options == null)
             {
-                columns = GetCurrentConsoleWidth();
+                options = new ArgumentSetHelpOptions();
             }
 
-            var maxUsageWidth = columns.Value;
+            // Default max width.
+            if (!options.MaxWidth.HasValue)
+            {
+                options = options.With()
+                    .MaxWidth(GetCurrentConsoleWidth());
+            }
 
             // Construct info for argument set.
             var info = new ArgumentSetUsageInfo
             {
-                Name = commandName ?? AssemblyUtilities.GetAssemblyFileName(),
                 Description = argSet.Attribute.AdditionalHelp,
                 DefaultShortNamePrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
             };
@@ -389,29 +319,9 @@ namespace NClap
                 info.Logo = argSet.Attribute.LogoString;
             }
 
-            // Compose remarks, if any.
-            const string defaultHelpArgumentName = "?";
-            var namedArgPrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault();
-            if (namedArgPrefix != null && argSet.TryGetNamedArgument(ArgumentNameType.ShortName, defaultHelpArgumentName, out ArgumentDefinition ignored))
-            {
-                info.Remarks = string.Format(Strings.UsageInfoHelpAdvertisement, $"{info.Name} {namedArgPrefix}{defaultHelpArgumentName}");
-            }
-
-            // Construct formatter and use it.
-            HelpFormatter formatter;
-            if (options.HasFlag(UsageInfoOptions.VerticallyExpandedOutput))
-            {
-                formatter = new PowershellStyleHelpFormatter();
-            }
-            else
-            {
-                formatter = new CondensedHelpFormatter();
-            }
-
-            formatter.MaxWidth = maxUsageWidth;
-            formatter.Options = options;
-
-            return formatter.Format(info);
+            // Construct renderer and use it.
+            var renderer = new ArgumentSetHelpRenderer(options);
+            return renderer.Format(info);
         }
 
         private static int GetCurrentConsoleWidth()

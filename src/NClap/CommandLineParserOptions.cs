@@ -1,21 +1,44 @@
-﻿using NClap.Types;
+﻿using NClap.Help;
+using NClap.Types;
+using NClap.Utilities;
 
 namespace NClap
 {
     /// <summary>
     /// Set of options for command-line parsing operations.
     /// </summary>
-    public class CommandLineParserOptions
+    public class CommandLineParserOptions : IDeepCloneable<CommandLineParserOptions>
     {
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public CommandLineParserOptions()
+        {
+        }
+
+        /// <summary>
+        /// Deeply cloning constructor.
+        /// </summary>
+        /// <param name="other">Template for clone.</param>
+        private CommandLineParserOptions(CommandLineParserOptions other)
+        {
+            DisplayUsageInfoOnError = other.DisplayUsageInfoOnError;
+            HelpOptions = other.HelpOptions.DeepClone();
+            Reporter = other.Reporter;
+            FileSystemReader = other.FileSystemReader;
+            Context = other.Context;
+        }
+
         /// <summary>
         /// True to display usage info on error; false otherwise.
         /// </summary>
         public bool DisplayUsageInfoOnError { get; set; } = true;
 
         /// <summary>
-        /// Specifies which options to use when display usage.
+        /// Specifies which options to use when generating (and displaying)
+        /// help for the argument set being parsed.
         /// </summary>
-        public UsageInfoOptions UsageInfoOptions { get; set; } = UsageInfoOptions.Default;
+        public ArgumentSetHelpOptions HelpOptions { get; set; } = new ArgumentSetHelpOptions();
 
         /// <summary>
         /// Function to invoke when reporting errors.
@@ -37,13 +60,6 @@ namespace NClap
         /// Duplicates the options.
         /// </summary>
         /// <returns>The duplicate.</returns>
-        public CommandLineParserOptions Clone() => new CommandLineParserOptions
-        {
-            DisplayUsageInfoOnError = DisplayUsageInfoOnError,
-            UsageInfoOptions = UsageInfoOptions,
-            Reporter = Reporter,
-            FileSystemReader = FileSystemReader,
-            Context = Context
-        };
+        public CommandLineParserOptions DeepClone() => new CommandLineParserOptions(this);
     }
 }

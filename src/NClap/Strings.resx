@@ -271,37 +271,37 @@ Reason:
     <value>Default:</value>
   </data>
   <data name="UsageInfoDescriptionHeader" xml:space="preserve">
-    <value>Description</value>
+    <value>Description:</value>
   </data>
   <data name="UsageInfoEnumValueHeaderFormat" xml:space="preserve">
     <value>Valid &lt;{0}&gt; values:</value>
   </data>
   <data name="UsageInfoExamplesHeader" xml:space="preserve">
-    <value>Examples</value>
+    <value>Examples:</value>
   </data>
   <data name="UsageInfoHelpAdvertisement" xml:space="preserve">
     <value>For more information, type: "{0}"</value>
   </data>
   <data name="UsageInfoNameHeader" xml:space="preserve">
-    <value>Name</value>
+    <value>Name:</value>
   </data>
   <data name="UsageInfoOptionalParametersHeader" xml:space="preserve">
-    <value>Optional Parameters</value>
+    <value>Optional Parameters:</value>
   </data>
   <data name="UsageInfoRemarksHeader" xml:space="preserve">
-    <value>Remarks</value>
+    <value>Remarks:</value>
   </data>
   <data name="UsageInfoRequiredParametersHeader" xml:space="preserve">
-    <value>Required Parameters</value>
+    <value>Required Parameters:</value>
   </data>
   <data name="UsageInfoShortForm" xml:space="preserve">
     <value>Alias:</value>
   </data>
   <data name="UsageInfoSyntaxHeader" xml:space="preserve">
-    <value>Syntax</value>
+    <value>Syntax:</value>
   </data>
   <data name="UsageInfoUsageHeader" xml:space="preserve">
-    <value>Usage</value>
+    <value>Usage:</value>
   </data>
   <data name="ValidCommandsHeader" xml:space="preserve">
     <value>Valid commands:

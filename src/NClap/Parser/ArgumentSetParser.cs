@@ -41,10 +41,10 @@ namespace NClap.Parser
             }
 
             // Clone the argument set definition, as parsing may mutate it.
-            ArgumentSet = argSet.Clone();
+            ArgumentSet = argSet.DeepClone();
 
             // Save off the options provided; if none were provided, construct some defaults.
-            _options = options?.Clone() ?? new CommandLineParserOptions();
+            _options = options?.DeepClone() ?? new CommandLineParserOptions();
 
             // If no reporter was provided, use a no-op one.
             if (_options.Reporter == null)
