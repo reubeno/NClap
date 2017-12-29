@@ -41,10 +41,16 @@ namespace HelpApp
     }
 
     [ArgumentSet(
+        Style = ArgumentSetStyle.GetOpt,
+        PreferNamedArgumentValueAsSucceedingToken = true,
         Logo = "Sample Help Application v0.1\n" + "Expect nothing.",
         Description = "This is a sample application that exercises the help content generation facilities of NClap. Nothing contained within has any specific meaning or semantic sense, but is structurally representative.",
-        PreferNamedArgumentValueAsSucceedingToken = true,
-        Style = ArgumentSetStyle.GetOpt)]
+        Examples = new string[]
+        {
+            "Behaving mediocrely:",
+            "",
+            "    behave mediocre"
+        })]
     internal class ProgramArguments : IHelpArguments
     {
         [PositionalArgument(

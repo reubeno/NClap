@@ -13,7 +13,6 @@ namespace HelpApp.Actions
         [NamedArgument(
             ArgumentFlags.Required,
             LongName = "med-level",
-            ShortName = "ml",
             Description = "Level of mediocrity desired to be attained. Or barely passed.")]
         MediocrityLevel Level { get; set; }
 

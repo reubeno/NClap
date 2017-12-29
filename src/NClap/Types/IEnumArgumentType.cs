@@ -16,5 +16,14 @@ namespace NClap.Types
         /// </summary>
         /// <returns>The values.</returns>
         IEnumerable<IArgumentValue> GetValues();
+
+        /// <summary>
+        /// Tries to look up the <see cref="IArgumentValue"/> corresponding with
+        /// the given object.
+        /// </summary>
+        /// <param name="value">Object to look up.</param>
+        /// <param name="argValue">On success, receives the object's value.</param>
+        /// <returns>true on success; false otherwise.</returns>
+        bool TryGetValue(object value, out IArgumentValue argValue);
     }
 }

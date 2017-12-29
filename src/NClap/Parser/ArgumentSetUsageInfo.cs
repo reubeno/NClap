@@ -19,7 +19,9 @@ namespace NClap.Parser
         public string DefaultShortNamePrefix { get; set; }
 
         public IReadOnlyList<ArgumentUsageInfo> AllParameters => _allParameters;
+
         public IEnumerable<ArgumentUsageInfo> RequiredParameters => AllParameters.Where(p => p.Required);
+
         public IEnumerable<ArgumentUsageInfo> OptionalParameters => AllParameters.Where(p => !p.Required);
 
         public IReadOnlyList<string> Examples => _examples;
@@ -44,9 +46,11 @@ namespace NClap.Parser
         }
 
         public void AddParameter(ArgumentUsageInfo info) => _allParameters.Add(info);
+
         public void AddParameters(IEnumerable<ArgumentUsageInfo> info) => _allParameters.AddRange(info);
 
         public void AddExample(string example) => _examples.Add(example);
+
         public void AddExamples(IEnumerable<string> examples) => _examples.AddRange(examples);
     }
 }

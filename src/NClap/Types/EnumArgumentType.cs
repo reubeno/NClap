@@ -151,6 +151,25 @@ namespace NClap.Types
         /// <returns>The values.</returns>
         public IEnumerable<IArgumentValue> GetValues() => _values;
 
+        /// <summary>
+        /// Tries to look up the <see cref="IArgumentValue"/> corresponding with
+        /// the given object.
+        /// </summary>
+        /// <param name="value">Object to look up.</param>
+        /// <param name="argValue">On success, receives the object's value.</param>
+        /// <returns>true on success; false otherwise.</returns>
+        public bool TryGetValue(object value, out IArgumentValue argValue)
+        {
+            if (!_valuesByValue.TryGetValue(value, out EnumArgumentValue enumArgValue))
+            {
+                argValue = null;
+                return false;
+            }
+
+            argValue = enumArgValue;
+            return true;
+        }
+
         private static IEnumerable<EnumArgumentValue> GetAllValues(Type type) =>
             type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static).Select(f => new EnumArgumentValue(f));
 

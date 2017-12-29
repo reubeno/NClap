@@ -21,6 +21,7 @@ namespace NClap.Parser
         private readonly Dictionary<string, ArgumentDefinition> _namedArgumentsByShortName;
         private readonly Dictionary<string, ArgumentDefinition> _namedArgumentsByLongName;
         private readonly SortedList<int, ArgumentDefinition> _positionalArguments = new SortedList<int, ArgumentDefinition>();
+        private readonly List<ArgumentSetAttribute> _auxiliaryAttributes = new List<ArgumentSetAttribute>();
 
         // State.
         private int _nextPositionalArgIndexToDefine;
@@ -55,6 +56,7 @@ namespace NClap.Parser
             }
 
             _nextPositionalArgIndexToDefine = template._nextPositionalArgIndexToDefine;
+            _auxiliaryAttributes.AddRange(template._auxiliaryAttributes);
         }
 
         /// <summary>
@@ -175,6 +177,13 @@ namespace NClap.Parser
             // Re-validate positional arguments.
             ValidateThatPositionalArgumentsDoNotOverlap();
         }
+
+        /// <summary>
+        /// Adds an auxiliary argument set attribute.
+        /// </summary>
+        /// <param name="attrib">Attribute to add.</param>
+        public void AddAuxiliaryAttribute(ArgumentSetAttribute attrib) =>
+            _auxiliaryAttributes.Add(attrib);
 
         /// <summary>
         /// Shallow clones this definition.

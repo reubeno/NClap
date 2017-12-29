@@ -7,6 +7,7 @@ using NClap.ConsoleInput;
 using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
+using NClap.Types;
 using NClap.Utilities;
 
 namespace NClap
@@ -314,6 +315,19 @@ namespace NClap
             if (argSet.Attribute.LogoString != null)
             {
                 info.Logo = argSet.Attribute.LogoString;
+            }
+
+            // Update description, in case we have a selected command.
+            var lastSelectedCommand = info.AllParameters.LastOrDefault(parameter => parameter.IsSelectedCommand());
+            if (lastSelectedCommand != null &&
+                lastSelectedCommand.CurrentValue is ICommandGroup group &&
+                group.HasSelection &&
+                ArgumentType.TryGetType(group.Selection.GetType(), out IArgumentType argType) &&
+                argType is IEnumArgumentType enumArgType &&
+                enumArgType.TryGetValue(group.Selection, out IArgumentValue value) &&
+                !string.IsNullOrEmpty(value.Description))
+            {
+                info.Description = value.Description;
             }
 
             // Construct renderer and use it.
