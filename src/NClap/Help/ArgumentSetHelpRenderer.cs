@@ -146,10 +146,14 @@ namespace NClap.Help
                     var maxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
                     maxWidth -= _options.EnumValues.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
 
-                    sections.Add(new Section(_options,
-                        _options.EnumValues,
-                        GetEnumValueEntries(maxWidth, enumType),
-                        name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
+                    var enumValueEntries = GetEnumValueEntries(maxWidth, enumType).ToList();
+                    if (enumValueEntries.Count > 0)
+                    {
+                        sections.Add(new Section(_options,
+                            _options.EnumValues,
+                            enumValueEntries,
+                            name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
+                    }
                 }
             }
 
@@ -381,7 +385,7 @@ namespace NClap.Help
             var entriesList = entries.ToList();
             if (entriesList.Count == 0)
             {
-                return Enumerable.Empty<ParameterEntry>();
+                return Enumerable.Empty<IEnumerable<ColoredMultistring>>();
             }
 
             if (layout.FirstLineColumnSeparator != null && layout.DefaultColumnSeparator != null &&
@@ -503,17 +507,30 @@ namespace NClap.Help
             int currentMaxWidth,
             ArgumentUsageInfo info,
             ArgumentSetUsageInfo setInfo,
-            List<IEnumArgumentType> inlineDocumentedEnums) =>
-            new ParameterEntry
+            List<IEnumArgumentType> inlineDocumentedEnums)
+        {
+            List<ColoredMultistring> enumValueEntries = null;
+
+            if (inlineDocumentedEnums?.Count > 0)
+            {
+                enumValueEntries = inlineDocumentedEnums.SelectMany(
+                    e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e))
+                    .ToList();
+
+                if (enumValueEntries.Count == 0)
+                {
+                    enumValueEntries = null;
+                }
+            }
+
+            return new ParameterEntry
             {
                 Syntax = FormatParameterSyntax(info, setInfo, inlineDocumentedEnums?.Count > 0),
                 Description = FormatParameterDescription(info, setInfo),
-
                 // TODO: Let section hanging indent override.
-                InlineEnumEntries = inlineDocumentedEnums?.Count > 0 ?
-                    inlineDocumentedEnums.SelectMany(e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e)) :
-                    null
+                InlineEnumEntries = enumValueEntries
             };
+        }
 
         private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, bool suppressTypeInfo)
         {
