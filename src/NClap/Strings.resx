@@ -187,7 +187,7 @@ Reason:
     <value>The file does not exist.</value>
   </data>
   <data name="FileSystemPathDisplayName" xml:space="preserve">
-    <value>FilePath</value>
+    <value>Path</value>
   </data>
   <data name="ImplementingTypeNotICommand" xml:space="preserve">
     <value>The implementing type for this command ('{0}') does not implement the '{1}' interface.</value>
@@ -287,9 +287,6 @@ Reason:
   </data>
   <data name="UsageInfoOptionalParametersHeader" xml:space="preserve">
     <value>Optional Parameters:</value>
-  </data>
-  <data name="UsageInfoRemarksHeader" xml:space="preserve">
-    <value>Remarks:</value>
   </data>
   <data name="UsageInfoRequiredParametersHeader" xml:space="preserve">
     <value>Required Parameters:</value>

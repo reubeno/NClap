@@ -11,6 +11,12 @@
         Omit,
 
         /// <summary>
+        /// Include short names together with long names at the beginning of the
+        /// description.
+        /// </summary>
+        IncludeWithLongName,
+
+        /// <summary>
         /// Append short names to the end of the description.
         /// </summary>
         AppendToDescription

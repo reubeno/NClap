@@ -17,6 +17,11 @@ namespace NClap.Types
         }
 
         /// <summary>
+        /// Display name.
+        /// </summary>
+        public override string DisplayName => "Str";
+
+        /// <summary>
         /// Public factory method.
         /// </summary>
         /// <returns>A constructed object.</returns>

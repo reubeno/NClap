@@ -7,6 +7,7 @@ using NClap.ConsoleInput;
 using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
+using NClap.Types;
 using NClap.Utilities;
 
 namespace NClap
@@ -96,10 +97,7 @@ namespace NClap
 
         internal static bool TryParse<T>(ArgumentSetDefinition argSet, IEnumerable<string> arguments, CommandLineParserOptions options, T destination)
         {
-            if (options == null)
-            {
-                options = new CommandLineParserOptions { Reporter = DefaultReporter };
-            }
+            if (options == null) options = new CommandLineParserOptions();
 
             //
             // Buffer output to the reporter; suppress it if we find afterwards
@@ -126,7 +124,7 @@ namespace NClap
             // See if the user requested help output; if so, then suppress any errors.
             //
 
-            if ((destination is IHelpArguments helpArgs) && helpArgs.Help && actualReporter != null)
+            if ((destination is IArgumentSetWithHelp helpArgs) && helpArgs.Help && actualReporter != null)
             {
                 actualReporter(GetUsageInfo(parserArgSet, options.HelpOptions, destination));
                 return false;
@@ -240,7 +238,7 @@ namespace NClap
         /// <returns>The candidate completions for the specified token.
         /// </returns>
         public static IEnumerable<string> GetCompletions(Type type, IEnumerable<string> tokens, int indexOfTokenToComplete, CommandLineParserOptions options) =>
-            GetCompletions(type, tokens, indexOfTokenToComplete, options, null /* object factory */);
+            GetCompletions(type, tokens, indexOfTokenToComplete, options ?? CommandLineParserOptions.Quiet(), null /* object factory */);
 
         /// <summary>
         /// Generate possible completions for the specified set of command-line
@@ -302,7 +300,7 @@ namespace NClap
             // Construct info for argument set.
             var info = new ArgumentSetUsageInfo
             {
-                Description = argSet.Attribute.AdditionalHelp,
+                Description = argSet.Attribute.Description,
                 DefaultShortNamePrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
             };
 
@@ -317,6 +315,19 @@ namespace NClap
             if (argSet.Attribute.LogoString != null)
             {
                 info.Logo = argSet.Attribute.LogoString;
+            }
+
+            // Update description, in case we have a selected command.
+            var lastSelectedCommand = info.AllParameters.LastOrDefault(parameter => parameter.IsSelectedCommand());
+            if (lastSelectedCommand != null &&
+                lastSelectedCommand.CurrentValue is ICommandGroup group &&
+                group.HasSelection &&
+                ArgumentType.TryGetType(group.Selection.GetType(), out IArgumentType argType) &&
+                argType is IEnumArgumentType enumArgType &&
+                enumArgType.TryGetValue(group.Selection, out IArgumentValue value) &&
+                !string.IsNullOrEmpty(value.Description))
+            {
+                info.Description = value.Description;
             }
 
             // Construct renderer and use it.

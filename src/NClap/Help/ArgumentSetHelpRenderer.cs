@@ -143,9 +143,12 @@ namespace NClap.Help
             {
                 foreach (var enumType in separatelyDocumented)
                 {
+                    var maxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
+                    maxWidth -= _options.EnumValues.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
+
                     sections.Add(new Section(_options,
                         _options.EnumValues,
-                        GetEnumValueEntries(enumType),
+                        GetEnumValueEntries(maxWidth, enumType),
                         name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
                 }
             }
@@ -154,12 +157,6 @@ namespace NClap.Help
             if ((_options.Examples?.Include ?? false) && info.Examples.Any())
             {
                 sections.Add(new Section(_options, _options.Examples, info.Examples));
-            }
-
-            // If requested, display remarks
-            if ((_options.Remarks?.Include ?? false) && !string.IsNullOrEmpty(info.Remarks))
-            {
-                sections.Add(new Section(_options, _options.Remarks, info.Remarks));
             }
 
             return sections;
@@ -191,7 +188,9 @@ namespace NClap.Help
                 .Select(e => (IEnumArgumentType)e.Key);
         }
 
-        private IEnumerable<ColoredMultistring> GetEnumValueEntries(IEnumArgumentType type)
+        private IEnumerable<ColoredMultistring> GetEnumValueEntries(
+            int currentMaxWidth,
+            IEnumArgumentType type)
         {
             var values = type.GetValues()
                 .Where(v => !v.Disallowed && !v.Hidden)
@@ -206,35 +205,45 @@ namespace NClap.Help
             else
             {
                 var entries = values.Select(GetEnumValueInfo);
-                return FormatParameterEntries(_options.EnumValues, entries);
+                return FormatParameterEntries(currentMaxWidth, entries);
             }
         }
 
         private ParameterEntry GetEnumValueInfo(IArgumentValue value)
         {
-            var syntax = new ColoredString(value.DisplayName, _options.Arguments?.ArgumentNameColor);
+            var syntaxBuilder = new ColoredMultistringBuilder();
 
-            var builder = new ColoredMultistringBuilder();
+            if (_options.Arguments.ShortName == ArgumentShortNameHelpMode.IncludeWithLongName &&
+                !string.IsNullOrEmpty(value.ShortName))
+            {
+                syntaxBuilder.Append(new ColoredString(value.ShortName, _options.Arguments?.ArgumentNameColor));
+                syntaxBuilder.Append(", ");
+            }
+
+            syntaxBuilder.Append(new ColoredString(value.DisplayName, _options.Arguments?.ArgumentNameColor));
+
+            var descBuilder = new ColoredMultistringBuilder();
             if (!string.IsNullOrEmpty(value.Description))
             {
-                builder.Append(value.Description);
+                descBuilder.Append(value.Description);
             }
 
-            if (!string.IsNullOrEmpty(value.ShortName))
+            if (_options.Arguments.ShortName == ArgumentShortNameHelpMode.AppendToDescription &&
+                !string.IsNullOrEmpty(value.ShortName))
             {
-                builder.Append(" [");
-                builder.Append(new ColoredString(Strings.UsageInfoShortForm, _options.Arguments.MetadataColor));
-                builder.Append(" ");
-                builder.Append(new ColoredString(value.ShortName, _options.Arguments?.ArgumentNameColor));
-                builder.Append("]");
+                descBuilder.Append(" [");
+                descBuilder.Append(new ColoredString(Strings.UsageInfoShortForm, _options.Arguments.MetadataColor));
+                descBuilder.Append(" ");
+                descBuilder.Append(new ColoredString(value.ShortName, _options.Arguments?.ArgumentNameColor));
+                descBuilder.Append("]");
             }
 
-            var desc = builder.ToMultistring();
+            var desc = descBuilder.ToMultistring();
 
             return new ParameterEntry
             {
-                Syntax = new ColoredMultistring(syntax),
-                Description = desc,
+                Syntax = syntaxBuilder.ToMultistring(),
+                Description = descBuilder.ToMultistring(),
                 InlineEnumEntries = null
             };
         }
@@ -294,12 +303,15 @@ namespace NClap.Help
             ArgumentSetUsageInfo setInfo,
             IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumentedEnums)
         {
-            var entries = GetParameterEntries(info, setInfo, inlineDocumentedEnums);
-            return FormatParameterEntries(itemOptions, entries);
+            var currentMaxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
+            currentMaxWidth -= itemOptions.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
+
+            var entries = GetParameterEntries(currentMaxWidth, info, setInfo, inlineDocumentedEnums);
+            return FormatParameterEntries(currentMaxWidth, entries);
         }
 
         private IEnumerable<ColoredMultistring> FormatParameterEntries(
-            ArgumentMetadataHelpOptions itemOptions,
+            int currentMaxWidth,
             IEnumerable<ParameterEntry> entries)
         {
             IEnumerable<IEnumerable<ColoredMultistring>> formatted;
@@ -309,7 +321,7 @@ namespace NClap.Help
             }
             else if (_options.Arguments.Layout is TwoColumnArgumentHelpLayout layout)
             {
-                formatted = FormatParameterEntriesInTwoColumns(itemOptions, layout, entries);
+                formatted = FormatParameterEntriesInTwoColumns(currentMaxWidth, layout, entries);
             }
             else
             {
@@ -345,6 +357,15 @@ namespace NClap.Help
 
                 if (e.InlineEnumEntries != null)
                 {
+                    if (_options.Arguments.BlankLinesBetweenArguments > 0)
+                    {
+                        var insertion = new[] { new ColoredMultistring(
+                            Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+
+                        composed = composed.Concat(insertion);
+                    }
+
+                    // TODO: Let section hanging indent override.
                     var indent = new string(' ', _options.SectionEntryHangingIndentWidth);
                     composed = composed.Concat(e.InlineEnumEntries.Select(iee => indent + iee));
                 }
@@ -353,15 +374,18 @@ namespace NClap.Help
             });
 
         private IEnumerable<IEnumerable<ColoredMultistring>> FormatParameterEntriesInTwoColumns(
-            ArgumentMetadataHelpOptions itemOptions,
+            int currentMaxWidth,
             TwoColumnArgumentHelpLayout layout,
             IEnumerable<ParameterEntry> entries)
         {
-            var maxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
-            maxWidth -= itemOptions.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
+            if (layout.FirstLineColumnSeparator != null && layout.DefaultColumnSeparator != null &&
+                layout.FirstLineColumnSeparator.Length != layout.DefaultColumnSeparator.Length)
+            {
+                throw new NotSupportedException("Default and first-line column separators must have the same length");
+            }
 
-            var totalWidths = layout.ColumnWidths.Sum(i => i.GetValueOrDefault(0)) + layout.ColumnSeparator.Length;
-            if (totalWidths > _options.MaxWidth.Value)
+            var totalWidths = layout.ColumnWidths.Sum(i => i.GetValueOrDefault(0)) + layout.DefaultColumnSeparator.Length;
+            if (totalWidths > currentMaxWidth)
             {
                 throw new NotSupportedException("Column widths are too wide.");
             }
@@ -380,14 +404,14 @@ namespace NClap.Help
             if (columnWidths[0] == 0 && columnWidths[1] == 0)
             {
                 columnWidths[0] = entries.Max(e => e.Syntax.Length);
-                if (columnWidths[0] > maxWidth)
+                if (columnWidths[0] > currentMaxWidth)
                 {
-                    columnWidths[0] = maxWidth / 2;
+                    columnWidths[0] = currentMaxWidth / 2;
                 }
             }
 
-            if (columnWidths[0] == 0) columnWidths[0] = maxWidth - layout.ColumnSeparator.Length - columnWidths[1];
-            if (columnWidths[1] == 0) columnWidths[1] = maxWidth - layout.ColumnSeparator.Length- columnWidths[0];
+            if (columnWidths[0] == 0) columnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[1];
+            if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length- columnWidths[0];
 
             return entries.Select(e =>
             {
@@ -407,20 +431,41 @@ namespace NClap.Help
                 wrappedSyntaxLines = wrappedSyntaxLines.Select(line => RightPadWithSpace(line, columnWidths[0])).ToList();
                 wrappedDescLines = wrappedDescLines.Select(line => RightPadWithSpace(line, columnWidths[1])).ToList();
 
-                var lines = wrappedSyntaxLines.Zip(
-                    wrappedDescLines,
-                    (left, right) =>
+                List<ColoredMultistring> linesList = new List<ColoredMultistring>();
+                for (var i = 0; i < wrappedSyntaxLines.Count; ++i)
+                {
+                    var left = wrappedSyntaxLines[i];
+                    var right = wrappedDescLines[i];
+
+                    if (string.IsNullOrWhiteSpace(right.ToString()))
                     {
-                        if (string.IsNullOrWhiteSpace(right.ToString()))
+                        linesList.Add((ColoredMultistring)left);
+                    }
+                    else
+                    {
+                        var separator = layout.DefaultColumnSeparator;
+                        if (i == 0 && layout.FirstLineColumnSeparator != null)
                         {
-                            return (ColoredMultistring)left;
+                            separator = layout.FirstLineColumnSeparator;
                         }
 
-                        return (ColoredMultistring)left + layout.ColumnSeparator + (ColoredMultistring)right;
-                    });
+                        linesList.Add((ColoredMultistring)left + separator + (ColoredMultistring)right);
+                    }
+                }
+
+                IEnumerable<ColoredMultistring> lines = linesList;
 
                 if (e.InlineEnumEntries != null)
                 {
+                    if (_options.Arguments.BlankLinesBetweenArguments > 0)
+                    {
+                        var insertion = new[] { new ColoredMultistring(
+                            Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+
+                        lines = lines.Concat(insertion);
+                    }
+
+                    // TODO: Let section hanging indent override.
                     var indent = new string(' ', _options.SectionEntryHangingIndentWidth);
                     lines = lines.Concat(e.InlineEnumEntries.Select(iee => indent + iee));
                 }
@@ -430,6 +475,7 @@ namespace NClap.Help
         }
 
         private IEnumerable<ParameterEntry> GetParameterEntries(
+            int currentMaxWidth,
             IEnumerable<ArgumentUsageInfo> info,
             ArgumentSetUsageInfo setInfo,
             IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumentedEnums) =>
@@ -444,24 +490,45 @@ namespace NClap.Help
                     return null;
                 }
 
-                return FormatParameterEntry(i, setInfo, enumTypes);
+                return FormatParameterEntry(currentMaxWidth, i, setInfo, enumTypes);
             }).Where(e => e != null);
 
-        private ParameterEntry FormatParameterEntry(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, List<IEnumArgumentType> inlineDocumentedEnums) =>
+        private ParameterEntry FormatParameterEntry(
+            int currentMaxWidth,
+            ArgumentUsageInfo info,
+            ArgumentSetUsageInfo setInfo,
+            List<IEnumArgumentType> inlineDocumentedEnums) =>
             new ParameterEntry
             {
-                Syntax = FormatParameterSyntax(info),
+                Syntax = FormatParameterSyntax(info, setInfo, inlineDocumentedEnums?.Count > 0),
                 Description = FormatParameterDescription(info, setInfo),
+
+                // TODO: Let section hanging indent override.
                 InlineEnumEntries = inlineDocumentedEnums?.Count > 0 ?
-                    inlineDocumentedEnums.SelectMany(GetEnumValueEntries) :
+                    inlineDocumentedEnums.SelectMany(e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e)) :
                     null
             };
 
-        private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info)
+        private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, bool suppressTypeInfo)
         {
-            var originalSyntax = _options.Arguments.IncludePositionalArgumentTypes ? info.DetailedSyntax : info.Syntax;
+            if (!_options.Arguments.IncludePositionalArgumentTypes) suppressTypeInfo = true;
+
+            var originalSyntax = suppressTypeInfo ? info.Syntax : info.DetailedSyntax;
             var syntax = SimplifyParameterSyntax(originalSyntax);
-            var formattedSyntax = new ColoredString(syntax, _options.Arguments?.ArgumentNameColor);
+
+            var formattedSyntax = new List<ColoredString>();
+
+            // First add parameter's short name (if it has one and if it's supposed to be here).
+            if (_options.Arguments.ShortName == ArgumentShortNameHelpMode.IncludeWithLongName &&
+                !string.IsNullOrEmpty(info.ShortName) &&
+                !string.IsNullOrEmpty(setInfo.DefaultShortNamePrefix))
+            {
+                formattedSyntax.Add(new ColoredString(setInfo.DefaultShortNamePrefix + info.ShortName, _options.Arguments?.ArgumentNameColor));
+                formattedSyntax.Add(", ");
+            }
+
+            formattedSyntax.Add(new ColoredString(syntax, _options.Arguments?.ArgumentNameColor));
+
             return new ColoredMultistring(formattedSyntax);
         }
 
@@ -471,22 +538,42 @@ namespace NClap.Help
         {
             var builder = new ColoredMultistringBuilder();
 
+            List<ColoredString> defaultValueContent = null;
+            if (_options.Arguments.DefaultValue != ArgumentDefaultValueHelpMode.Omit &&
+                !string.IsNullOrEmpty(info.DefaultValue))
+            {
+                defaultValueContent = new List<ColoredString>
+                {
+                    new ColoredString(Strings.UsageInfoDefaultValue, _options.Arguments.MetadataColor),
+                    " ",
+                    info.DefaultValue
+                };
+            }
+
+            if (_options.Arguments.DefaultValue == ArgumentDefaultValueHelpMode.PrependToDescription &&
+                defaultValueContent != null)
+            {
+                builder.Append("[");
+                builder.Append(defaultValueContent);
+                builder.Append("]");
+            }
+
             if (_options.Arguments.IncludeDescription && !string.IsNullOrEmpty(info.Description))
             {
+                if (builder.Length > 0)
+                {
+                    builder.Append(" ");
+                }
+
                 builder.Append(info.Description);
             }
 
             var metadataItems = new List<List<ColoredString>>();
 
             if (_options.Arguments.DefaultValue == ArgumentDefaultValueHelpMode.AppendToDescription &&
-                !string.IsNullOrEmpty(info.DefaultValue))
+                defaultValueContent != null)
             {
-                metadataItems.Add(new List<ColoredString>
-                {
-                    new ColoredString(Strings.UsageInfoDefaultValue, _options.Arguments.MetadataColor),
-                    " ",
-                    info.DefaultValue
-                });
+                metadataItems.Add(defaultValueContent);
             }
 
             // Append parameter's short name (if it has one).

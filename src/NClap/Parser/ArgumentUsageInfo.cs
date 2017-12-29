@@ -205,6 +205,12 @@ namespace NClap.Parser
             return string.Join(" ", formattedArg);
         }
 
+        /// <summary>
+        /// Utility for checking if the given object is an instance of a command
+        /// enum type.
+        /// </summary>
+        /// <param name="value">Object to inspect.</param>
+        /// <returns>true if it is an instance of such a type; false otherwise.</returns>
         public static bool IsCommandEnum(object value)
         {
             var ty = value.GetType();

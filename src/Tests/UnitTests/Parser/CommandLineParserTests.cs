@@ -320,7 +320,7 @@ namespace NClap.Tests.Parser
             public string Value0;
         }
 
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AdditionalHelp = "More help content.")]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, Description = "More help content.")]
         class AdditionalHelpArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -520,7 +520,7 @@ namespace NClap.Tests.Parser
             var reporter = Substitute.For<NClap.ErrorReporter>();
 
             TryParseWithUsage(
-                new[] { "/?" },
+                new[] { "/help" },
                 new SimpleArguments(),
                 new CommandLineParserOptions { Reporter = reporter })
                     .Should().BeFalse();

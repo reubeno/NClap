@@ -159,7 +159,7 @@ namespace NClap.Repl
                 _commandType,
                 tokens,
                 indexOfTokenToComplete,
-                null, // CommandLineParserOptions
+                CommandLineParserOptions.Quiet(),
                 _objectFactory);
 
         private string[] ReadInput()

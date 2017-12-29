@@ -48,9 +48,7 @@ namespace NClap.Help
             Syntax = (ArgumentSyntaxHelpOptions)other.Syntax.DeepClone();
             EnumValues = other.EnumValues.DeepClone();
             Examples = other.Examples.DeepClone();
-            Remarks = other.Remarks.DeepClone();
             Arguments = other.Arguments.DeepClone();
-            ArgumentGroupingMode = other.ArgumentGroupingMode;
         }
 
         /// <summary>
@@ -103,7 +101,10 @@ namespace NClap.Help
         /// <summary>
         /// Description options.
         /// </summary>
-        public ArgumentMetadataHelpOptions Description { get; set; } = new ArgumentMetadataHelpOptions();
+        public ArgumentMetadataHelpOptions Description { get; set; } = new ArgumentMetadataHelpOptions
+        {
+            HangingIndent = 0
+        };
 
         /// <summary>
         /// Basic syntax options.
@@ -130,23 +131,9 @@ namespace NClap.Help
         };
 
         /// <summary>
-        /// Custom remarks options.
-        /// </summary>
-        public ArgumentMetadataHelpOptions Remarks { get; set; } = new ArgumentMetadataHelpOptions
-        {
-            Include = false,
-            HeaderTitle = Strings.UsageInfoRemarksHeader
-        };
-
-        /// <summary>
         /// Options for arguments.
         /// </summary>
         public ArgumentHelpOptions Arguments { get; set; } = new ArgumentHelpOptions();
-
-        /// <summary>
-        /// Mode for grouping arguments.
-        /// </summary>
-        public ArgumentGroupingMode ArgumentGroupingMode { get; set; } = ArgumentGroupingMode.RequiredVersusOptional;
 
         /// <summary>
         /// Creates a separate clone of this object.

@@ -30,7 +30,7 @@ namespace NClap
         }
 
         /// <summary>
-        /// True to display usage info on error; false otherwise.
+        /// True to display usage info on parse error; false otherwise.
         /// </summary>
         public bool DisplayUsageInfoOnError { get; set; } = true;
 
@@ -41,14 +41,15 @@ namespace NClap
         public ArgumentSetHelpOptions HelpOptions { get; set; } = new ArgumentSetHelpOptions();
 
         /// <summary>
-        /// Function to invoke when reporting errors.
+        /// Function to invoke when reporting errors. Defaults to a basic
+        /// reporter that displays errors to the console.
         /// </summary>
-        public ErrorReporter Reporter { get; set; }
+        public ErrorReporter Reporter { get; set; } = CommandLineParser.DefaultReporter;
 
         /// <summary>
         /// File system reader to use.
         /// </summary>
-        public IFileSystemReader FileSystemReader { get; set; }
+        public IFileSystemReader FileSystemReader { get; set; } = Parser.FileSystemReader.Create();
 
         /// <summary>
         /// Arbitrary context object to be made available in created instances
@@ -61,5 +62,16 @@ namespace NClap
         /// </summary>
         /// <returns>The duplicate.</returns>
         public CommandLineParserOptions DeepClone() => new CommandLineParserOptions(this);
+
+        /// <summary>
+        /// Constructs a new set of options intended for quiet operation (i.e. no
+        /// console output).
+        /// </summary>
+        /// <returns>The options.</returns>
+        public static CommandLineParserOptions Quiet() => new CommandLineParserOptions
+        {
+            DisplayUsageInfoOnError = false,
+            Reporter = s => { }
+        };
     }
 }

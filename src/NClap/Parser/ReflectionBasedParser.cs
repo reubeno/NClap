@@ -32,7 +32,7 @@ namespace NClap.Parser
             object fixedDestination = null)
         {
             // Find high-level metadata for the argument set.
-            var argSetAttrib = attribute ?? GetSetAttribute(typeToReflectOn);
+            var argSetAttrib = attribute ?? GetSetAttributeOrDefault(typeToReflectOn);
 
             // Construct an empty definition.
             var argSet = new ArgumentSetDefinition(argSetAttrib);
@@ -69,10 +69,21 @@ namespace NClap.Parser
 
             // Define the arguments.
             argSet.Add(args);
+
+            // If the provided type we're reflecting on has an ArgumentSetAttribute,
+            // then add that as auxiliary information.
+            var auxiliaryAttrib = TryGetSetAttribute(typeToReflectOn);
+            if (auxiliaryAttrib != null)
+            {
+                argSet.AddAuxiliaryAttribute(auxiliaryAttrib);
+            }
         }
 
-        private static ArgumentSetAttribute GetSetAttribute(Type typeToReflectOn) =>
-            typeToReflectOn.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>() ?? new ArgumentSetAttribute();
+        private static ArgumentSetAttribute GetSetAttributeOrDefault(Type typeToReflectOn) =>
+            TryGetSetAttribute(typeToReflectOn) ?? new ArgumentSetAttribute();
+
+        private static ArgumentSetAttribute TryGetSetAttribute(Type typeToReflectOn) =>
+            typeToReflectOn.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>();
 
         private static IEnumerable<ArgumentDefinition> GetArgumentDescriptors(Type type, ArgumentSetDefinition argSet, object defaultValues, object fixedDestination, ArgumentDefinition containingArgument)
         {

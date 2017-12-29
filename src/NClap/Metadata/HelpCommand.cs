@@ -75,7 +75,7 @@ namespace NClap.Metadata
             var group = new CommandGroup<TCommandType>();
             var parser = new ArgumentSetParser(
                 ReflectionBasedParser.CreateArgumentSet(group.GetType()),
-                new CommandLineParserOptions());
+                CommandLineParserOptions.Quiet());
 
             parser.ParseTokens(tokens, group);
 

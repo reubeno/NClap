@@ -83,15 +83,6 @@ namespace NClap.Metadata
         public bool DynamicDefaultValue { get; set; }
 
         /// <summary>
-        /// Deprecated; alias for <see cref="Description"/>.
-        /// </summary>
-        public string HelpText
-        {
-            get => Description;
-            set => Description = value;
-        }
-
-        /// <summary>
         /// The description of the argument, exposed via help/usage information.
         /// </summary>
         public string Description { get; set; }

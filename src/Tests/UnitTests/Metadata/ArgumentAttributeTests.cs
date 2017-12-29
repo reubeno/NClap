@@ -14,7 +14,7 @@ namespace NClap.Tests.Metadata
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class SimpleTestClass
         {
-            [NamedArgument(HelpText = "My value")]
+            [NamedArgument(Description = "My value")]
             public int Value { get; set; }
         }
 
@@ -61,17 +61,6 @@ namespace NClap.Tests.Metadata
 
             Action setNull = () => attribute.ConflictsWith = null;
             setNull.Should().Throw<ArgumentNullException>();
-        }
-
-        [TestMethod]
-        public void CompatibilityDescriptionPropertyWorks()
-        {
-            var property = typeof(SimpleTestClass).GetTypeInfo().GetProperty(nameof(SimpleTestClass.Value));
-            var attribute = property.GetSingleAttribute<NamedArgumentAttribute>();
-
-            attribute.Should().NotBeNull();
-            attribute.Description.Should().NotBeNullOrEmpty();
-            attribute.Description.Should().Be(attribute.HelpText);
         }
     }
 }

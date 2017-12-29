@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace NClap {
+    using System;
     using System.Reflection;
 
 
@@ -262,7 +263,7 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FilePath.
+        ///   Looks up a localized string similar to Path.
         /// </summary>
         internal static string FileSystemPathDisplayName {
             get {
@@ -564,15 +565,6 @@ namespace NClap {
         internal static string UsageInfoOptionalParametersHeader {
             get {
                 return ResourceManager.GetString("UsageInfoOptionalParametersHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Remarks:.
-        /// </summary>
-        internal static string UsageInfoRemarksHeader {
-            get {
-                return ResourceManager.GetString("UsageInfoRemarksHeader", resourceCulture);
             }
         }
         

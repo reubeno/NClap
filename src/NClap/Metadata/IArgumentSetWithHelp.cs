@@ -1,9 +1,9 @@
 ﻿namespace NClap.Metadata
 {
     /// <summary>
-    /// Interface to be implemented on arguments types that expose help options.
+    /// Interface to be implemented on argument set types that expose help options.
     /// </summary>
-    public interface IHelpArguments
+    public interface IArgumentSetWithHelp
     {
         /// <summary>
         /// True if the user wants to receive usage help information; false
