@@ -51,7 +51,7 @@ namespace HelpApp
             "",
             "    behave mediocre"
         })]
-    internal class ProgramArguments : IHelpArguments
+    internal class ProgramArguments : IArgumentSetWithHelp
     {
         [PositionalArgument(
             ArgumentFlags.Required,

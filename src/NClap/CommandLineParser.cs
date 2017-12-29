@@ -124,7 +124,7 @@ namespace NClap
             // See if the user requested help output; if so, then suppress any errors.
             //
 
-            if ((destination is IHelpArguments helpArgs) && helpArgs.Help && actualReporter != null)
+            if ((destination is IArgumentSetWithHelp helpArgs) && helpArgs.Help && actualReporter != null)
             {
                 actualReporter(GetUsageInfo(parserArgSet, options.HelpOptions, destination));
                 return false;

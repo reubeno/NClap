@@ -11,7 +11,7 @@ namespace NClap.Metadata
     /// <summary>
     /// Represents a group of commands, i.e. a command with sub-commands.
     /// </summary>
-    public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IHelpArguments where TCommandType : struct
+    public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IArgumentSetWithHelp where TCommandType : struct
     {
         private object _parentObject;
         private TCommandType? _selectedCommandType;
