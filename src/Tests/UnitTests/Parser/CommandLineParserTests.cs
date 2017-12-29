@@ -520,7 +520,7 @@ namespace NClap.Tests.Parser
             var reporter = Substitute.For<NClap.ErrorReporter>();
 
             TryParseWithUsage(
-                new[] { "/?" },
+                new[] { "/help" },
                 new SimpleArguments(),
                 new CommandLineParserOptions { Reporter = reporter })
                     .Should().BeFalse();
