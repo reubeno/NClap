@@ -146,10 +146,14 @@ namespace NClap.Help
                     var maxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
                     maxWidth -= _options.EnumValues.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
 
-                    sections.Add(new Section(_options,
-                        _options.EnumValues,
-                        GetEnumValueEntries(maxWidth, enumType),
-                        name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
+                    var enumValueEntries = GetEnumValueEntries(maxWidth, enumType).ToList();
+                    if (enumValueEntries.Count > 0)
+                    {
+                        sections.Add(new Section(_options,
+                            _options.EnumValues,
+                            enumValueEntries,
+                            name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
+                    }
                 }
             }
 
@@ -378,6 +382,12 @@ namespace NClap.Help
             TwoColumnArgumentHelpLayout layout,
             IEnumerable<ParameterEntry> entries)
         {
+            var entriesList = entries.ToList();
+            if (entriesList.Count == 0)
+            {
+                return Enumerable.Empty<IEnumerable<ColoredMultistring>>();
+            }
+
             if (layout.FirstLineColumnSeparator != null && layout.DefaultColumnSeparator != null &&
                 layout.FirstLineColumnSeparator.Length != layout.DefaultColumnSeparator.Length)
             {
@@ -403,7 +413,7 @@ namespace NClap.Help
 
             if (columnWidths[0] == 0 && columnWidths[1] == 0)
             {
-                columnWidths[0] = entries.Max(e => e.Syntax.Length);
+                columnWidths[0] = entriesList.Max(e => e.Syntax.Length);
                 if (columnWidths[0] > currentMaxWidth)
                 {
                     columnWidths[0] = currentMaxWidth / 2;
@@ -413,7 +423,7 @@ namespace NClap.Help
             if (columnWidths[0] == 0) columnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[1];
             if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length- columnWidths[0];
 
-            return entries.Select(e =>
+            return entriesList.Select(e =>
             {
                 var wrappedSyntaxLines = e.Syntax.Wrap(columnWidths[0]).Split('\n').ToList();
                 var wrappedDescLines = e.Description.Wrap(columnWidths[1]).Split('\n').ToList();
@@ -497,17 +507,30 @@ namespace NClap.Help
             int currentMaxWidth,
             ArgumentUsageInfo info,
             ArgumentSetUsageInfo setInfo,
-            List<IEnumArgumentType> inlineDocumentedEnums) =>
-            new ParameterEntry
+            List<IEnumArgumentType> inlineDocumentedEnums)
+        {
+            List<ColoredMultistring> enumValueEntries = null;
+
+            if (inlineDocumentedEnums?.Count > 0)
+            {
+                enumValueEntries = inlineDocumentedEnums.SelectMany(
+                    e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e))
+                    .ToList();
+
+                if (enumValueEntries.Count == 0)
+                {
+                    enumValueEntries = null;
+                }
+            }
+
+            return new ParameterEntry
             {
                 Syntax = FormatParameterSyntax(info, setInfo, inlineDocumentedEnums?.Count > 0),
                 Description = FormatParameterDescription(info, setInfo),
-
                 // TODO: Let section hanging indent override.
-                InlineEnumEntries = inlineDocumentedEnums?.Count > 0 ?
-                    inlineDocumentedEnums.SelectMany(e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e)) :
-                    null
+                InlineEnumEntries = enumValueEntries
             };
+        }
 
         private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, bool suppressTypeInfo)
         {
