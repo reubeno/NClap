@@ -378,6 +378,12 @@ namespace NClap.Help
             TwoColumnArgumentHelpLayout layout,
             IEnumerable<ParameterEntry> entries)
         {
+            var entriesList = entries.ToList();
+            if (entriesList.Count == 0)
+            {
+                return Enumerable.Empty<ParameterEntry>();
+            }
+
             if (layout.FirstLineColumnSeparator != null && layout.DefaultColumnSeparator != null &&
                 layout.FirstLineColumnSeparator.Length != layout.DefaultColumnSeparator.Length)
             {
@@ -403,7 +409,7 @@ namespace NClap.Help
 
             if (columnWidths[0] == 0 && columnWidths[1] == 0)
             {
-                columnWidths[0] = entries.Max(e => e.Syntax.Length);
+                columnWidths[0] = entriesList.Max(e => e.Syntax.Length);
                 if (columnWidths[0] > currentMaxWidth)
                 {
                     columnWidths[0] = currentMaxWidth / 2;
@@ -413,7 +419,7 @@ namespace NClap.Help
             if (columnWidths[0] == 0) columnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[1];
             if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length- columnWidths[0];
 
-            return entries.Select(e =>
+            return entriesList.Select(e =>
             {
                 var wrappedSyntaxLines = e.Syntax.Wrap(columnWidths[0]).Split('\n').ToList();
                 var wrappedDescLines = e.Description.Wrap(columnWidths[1]).Split('\n').ToList();
