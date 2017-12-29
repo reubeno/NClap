@@ -570,7 +570,7 @@ namespace NClap.Parser
 
         private bool IsEmptyStringValid()
         {
-            var parseState = new ArgumentParser(ContainingSet, this, new CommandLineParserOptions(), /*destination=*/null);
+            var parseState = new ArgumentParser(ContainingSet, this, CommandLineParserOptions.Quiet(), /*destination=*/null);
 
             return ArgumentType.TryParse(parseState.ParseContext, string.Empty, out object parsedEmptyString) &&
             parseState.TryValidateValue(

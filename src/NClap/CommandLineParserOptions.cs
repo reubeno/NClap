@@ -62,5 +62,16 @@ namespace NClap
         /// </summary>
         /// <returns>The duplicate.</returns>
         public CommandLineParserOptions DeepClone() => new CommandLineParserOptions(this);
+
+        /// <summary>
+        /// Constructs a new set of options intended for quiet operation (i.e. no
+        /// console output).
+        /// </summary>
+        /// <returns>The options.</returns>
+        public static CommandLineParserOptions Quiet() => new CommandLineParserOptions
+        {
+            DisplayUsageInfoOnError = false,
+            Reporter = s => { }
+        };
     }
 }

@@ -238,7 +238,7 @@ namespace NClap
         /// <returns>The candidate completions for the specified token.
         /// </returns>
         public static IEnumerable<string> GetCompletions(Type type, IEnumerable<string> tokens, int indexOfTokenToComplete, CommandLineParserOptions options) =>
-            GetCompletions(type, tokens, indexOfTokenToComplete, options, null /* object factory */);
+            GetCompletions(type, tokens, indexOfTokenToComplete, options ?? CommandLineParserOptions.Quiet(), null /* object factory */);
 
         /// <summary>
         /// Generate possible completions for the specified set of command-line
