@@ -21,10 +21,10 @@
     <Description>NClap is a .NET library for parsing command-line arguments and building interactive command shells. It's driven by a declarative attribute syntax, and easy to extend.</Description>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation. All right reserved.</Copyright>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
-    <PackageVersion>$(Version)-beta5</PackageVersion>
+    <PackageVersion>$(Version)</PackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://reubeno.github.io/NClap/LICENSE.txt</PackageLicenseUrl>
