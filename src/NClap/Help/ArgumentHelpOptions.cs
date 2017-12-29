@@ -23,6 +23,7 @@ namespace NClap.Help
         {
             RequiredArguments = other.RequiredArguments.DeepClone();
             OptionalArguments = other.OptionalArguments.DeepClone();
+            GroupingMode = other.GroupingMode;
             Layout = other.Layout.DeepClone();
             HangingIndentWidth = other.HangingIndentWidth;
             BlankLinesBetweenArguments = other.BlankLinesBetweenArguments;
@@ -49,6 +50,11 @@ namespace NClap.Help
         {
             HeaderTitle = Strings.UsageInfoOptionalParametersHeader
         };
+
+        /// <summary>
+        /// Mode for grouping arguments.
+        /// </summary>
+        public ArgumentGroupingMode GroupingMode { get; set; } = ArgumentGroupingMode.RequiredVersusOptional;
 
         /// <summary>
         /// Layout of argument help.
@@ -85,8 +91,7 @@ namespace NClap.Help
         /// <summary>
         /// Ordering of arguments.
         /// </summary>
-        public ArgumentSortOrder Ordering { get; set; } =
-            ArgumentSortOrder.Lexicographic;
+        public ArgumentSortOrder Ordering { get; set; } = ArgumentSortOrder.Lexicographic;
 
         /// <summary>
         /// Color of argument metadata.

@@ -24,7 +24,8 @@
                 ColumnWidths[i] = other.ColumnWidths[i];
             }
 
-            ColumnSeparator = this.ColumnSeparator;
+            FirstLineColumnSeparator = this.FirstLineColumnSeparator;
+            DefaultColumnSeparator = this.DefaultColumnSeparator;
         }
 
         /// <summary>
@@ -33,9 +34,17 @@
         public int?[] ColumnWidths = new int?[2] { null, null };
 
         /// <summary>
+        /// Optionally specifies separator string to be used between columns,
+        /// but only on the first line; for all subsequent lines, or in case
+        /// this property is left null, <see cref="DefaultColumnSeparator"/> is otherwise
+        /// used.
+        /// </summary>
+        public string FirstLineColumnSeparator { get; set; } = " - ";
+
+        /// <summary>
         /// Separator string between columns.
         /// </summary>
-        public string ColumnSeparator { get; set; } = " - ";
+        public string DefaultColumnSeparator { get; set; } = "   ";
 
         /// <summary>
         /// Create a separate clone of this object.

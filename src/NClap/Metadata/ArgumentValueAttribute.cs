@@ -49,15 +49,6 @@ namespace NClap.Metadata
         }
 
         /// <summary>
-        /// Deprecated; alias for <see cref="Description"/>.
-        /// </summary>
-        public string HelpText
-        {
-            get => Description;
-            set => Description = value;
-        }
-
-        /// <summary>
         /// The description of the value, exposed via help/usage information.
         /// </summary>
         public string Description { get; set; }

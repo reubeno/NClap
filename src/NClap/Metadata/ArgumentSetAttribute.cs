@@ -45,10 +45,10 @@ namespace NClap.Metadata
         }
 
         /// <summary>
-        /// If this is non-null, it is added to the end of the help/usage
-        /// message when that is generated.
+        /// If this is non-null, it is included as the top-level description summary
+        /// for the argument set in any help/usage messages generated.
         /// </summary>
-        public string AdditionalHelp { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Optionally provides examples for usage information.
@@ -198,6 +198,16 @@ namespace NClap.Metadata
         /// must be part of the same token.
         /// </summary>
         public bool AllowNamedArgumentValueAsSucceedingToken { get; set; }
+
+        /// <summary>
+        /// True to indicate that this argument set prefers for named argument
+        /// values to be provided in a succeeding token rather than in the same
+        /// token after a separator; should only be set to true if
+        /// <see cref="AllowNamedArgumentValueAsSucceedingToken"/> is also set
+        /// to true.  Primarily used for formatting arguments (unparsing) back
+        /// into a command line, or for generating help information.
+        /// </summary>
+        public bool PreferNamedArgumentValueAsSucceedingToken { get; set; }
 
         /// <summary>
         /// Flags indicating how to auto-generate names.

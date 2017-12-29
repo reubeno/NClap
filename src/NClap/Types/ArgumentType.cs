@@ -44,12 +44,12 @@ namespace NClap.Types
         /// <summary>
         /// Describes System.Int32.
         /// </summary>
-        public static IArgumentType Int { get; } = IntegerArgumentType.Create(int.Parse, isSigned: true);
+        public static IArgumentType Int { get; } = IntegerArgumentType.Create(int.Parse, isSigned: true, displayName: "Int");
 
         /// <summary>
         /// Describes System.UInt32.
         /// </summary>
-        public static IArgumentType UInt { get; } = IntegerArgumentType.Create(uint.Parse, isSigned: false);
+        public static IArgumentType UInt { get; } = IntegerArgumentType.Create(uint.Parse, isSigned: false, displayName: "UInt");
 
         /// <summary>
         /// Describes System.Int16.

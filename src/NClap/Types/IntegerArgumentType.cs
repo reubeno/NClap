@@ -34,6 +34,7 @@ namespace NClap.Types
     internal class IntegerArgumentType : ArgumentTypeBase
     {
         private readonly IntegerArgumentTypeParseHandler<object> _parseHandler;
+        private readonly string _displayName;
 
         /// <summary>
         /// Constructs a new object to describe the provided integer type.
@@ -43,7 +44,9 @@ namespace NClap.Types
         /// given type.</param>
         /// <param name="isSigned">True if this type is signed; false if it's
         /// unsigned.</param>
-        public IntegerArgumentType(Type type, IntegerArgumentTypeParseHandler<object> parseHandler, bool isSigned)
+        /// <param name="displayName">Optionally provides a custom display
+        /// name for the type, or null to use the default.</param>
+        public IntegerArgumentType(Type type, IntegerArgumentTypeParseHandler<object> parseHandler, bool isSigned, string displayName = null)
             : base(type)
         {
             if (!type.GetTypeInfo().IsPrimitive)
@@ -53,12 +56,18 @@ namespace NClap.Types
 
             _parseHandler = parseHandler;
             IsSigned = isSigned;
+            _displayName = displayName;
         }
 
         /// <summary>
         /// True if the type is signed; false if it's unsigned.
         /// </summary>
         public bool IsSigned { get; }
+
+        /// <summary>
+        /// The type's human-readable (display) name.
+        /// </summary>
+        public override string DisplayName => _displayName ?? base.DisplayName;
 
         /// <summary>
         /// Convenience method, primarily useful to allow for inference of the
@@ -69,12 +78,14 @@ namespace NClap.Types
         /// given type.</param>
         /// <param name="isSigned">True if this type is signed; false if it's
         /// unsigned.</param>
+        /// <param name="displayName">Optionally provides a custom display
+        /// name for the type, or null to use the default.</param>
         /// <returns>The constructed object.</returns>
         [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
-        public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned)
+        public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned, string displayName = null)
         {
             if (parseHandler == null) throw new ArgumentNullException(nameof(parseHandler));
-            return new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), isSigned);
+            return new IntegerArgumentType(typeof(T), (s, styles) => parseHandler(s, styles), isSigned, displayName);
         }
 
         /// <summary>

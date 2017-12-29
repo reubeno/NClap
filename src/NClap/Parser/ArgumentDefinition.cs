@@ -328,7 +328,7 @@ namespace NClap.Parser
                 if (detailed)
                 {
                     builder.Append(" : ");
-                    builder.Append(ArgumentType.SyntaxSummary);
+                    builder.Append(GetTypeSyntaxSummary());
                 }
 
                 if (TakesRestOfLine)
@@ -371,8 +371,17 @@ namespace NClap.Parser
                         builder.Append("[");
                     }
 
-                    builder.Append(ContainingSet.Attribute.ArgumentValueSeparators[0]);
-                    builder.Append(ArgumentType.SyntaxSummary);
+                    if (ContainingSet.Attribute.AllowNamedArgumentValueAsSucceedingToken &&
+                        ContainingSet.Attribute.PreferNamedArgumentValueAsSucceedingToken)
+                    {
+                        builder.Append(" ");
+                    }
+                    else
+                    {
+                        builder.Append(ContainingSet.Attribute.ArgumentValueSeparators[0]);
+                    }
+
+                    builder.Append(GetTypeSyntaxSummary());
 
                     if (supportsEmptyStrings)
                     {
@@ -602,6 +611,17 @@ namespace NClap.Parser
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        private string GetTypeSyntaxSummary()
+        {
+            var summary = ArgumentType.SyntaxSummary;
+            if (ContainingSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+            {
+                summary = summary.ToHyphenatedLowerCase();
+            }
+
+            return summary;
         }
     }
 }

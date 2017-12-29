@@ -16,8 +16,6 @@ namespace NClap.Parser
 
         public ColoredMultistring Logo { get; set; } = ColoredMultistring.FromString(AssemblyUtilities.GetLogo());
 
-        public string Remarks { get; set; }
-
         public string DefaultShortNamePrefix { get; set; }
 
         public IReadOnlyList<ArgumentUsageInfo> AllParameters => _allParameters;

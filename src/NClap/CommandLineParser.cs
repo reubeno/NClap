@@ -96,10 +96,7 @@ namespace NClap
 
         internal static bool TryParse<T>(ArgumentSetDefinition argSet, IEnumerable<string> arguments, CommandLineParserOptions options, T destination)
         {
-            if (options == null)
-            {
-                options = new CommandLineParserOptions { Reporter = DefaultReporter };
-            }
+            if (options == null) options = new CommandLineParserOptions();
 
             //
             // Buffer output to the reporter; suppress it if we find afterwards
@@ -302,7 +299,7 @@ namespace NClap
             // Construct info for argument set.
             var info = new ArgumentSetUsageInfo
             {
-                Description = argSet.Attribute.AdditionalHelp,
+                Description = argSet.Attribute.Description,
                 DefaultShortNamePrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
             };
 

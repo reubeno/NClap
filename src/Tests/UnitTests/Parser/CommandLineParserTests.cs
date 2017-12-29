@@ -320,7 +320,7 @@ namespace NClap.Tests.Parser
             public string Value0;
         }
 
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, AdditionalHelp = "More help content.")]
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, Description = "More help content.")]
         class AdditionalHelpArguments
         {
             [NamedArgument(ArgumentFlags.AtMostOnce)]
