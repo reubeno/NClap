@@ -47,6 +47,20 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
+        public void TestThatGetCompletionsThrowsOnNullType()
+        {
+            Action a = () => CommandLineParser.GetCompletions(null, new string[] { }, 0);
+            a.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void TestThatGetCompletionsThrowsOnNullTokens()
+        {
+            Action a = () => CommandLineParser.GetCompletions(typeof(SimpleArgs), null, 0);
+            a.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
         public void CompleteBogusIndex()
         {
             Action a = () => CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/" }, 2).ToList();
@@ -65,7 +79,7 @@ namespace NClap.Tests.Parser
             var options = new CommandLineParserOptions { FileSystemReader = reader };
             var completions = CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "@" + Path.Combine(".", "Foo") }, 0, options).ToList();
 
-            completions.Should().ContainInOrder("@" + Path.Combine(".", "FooBar"), "@" + Path.Combine(".", "Foo.txt"));
+            completions.Should().Equal("@" + Path.Combine(".", "FooBar"), "@" + Path.Combine(".", "Foo.txt"));
             reader.Received().EnumerateFileSystemEntries(".", "Foo*");
         }
 
@@ -86,22 +100,22 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void CanCompleteArgNamesPrefixedWithHyphen() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "-" }, 0).ToList()
-                .Should().ContainInOrder("-Bar", "-Baz", "-SomeFlag");
+                .Should().Contain("-Bar", "-Baz", "-SomeFlag");
 
         [TestMethod]
         public void CanCompleteArgNamesPrefixedWithSlash() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/" }, 0).ToList()
-                .Should().ContainInOrder("/Bar", "/Baz", "/SomeFlag");
+                .Should().Contain("/Bar", "/Baz", "/SomeFlag");
 
         [TestMethod]
         public void CanCompleteArgNamesWithPartialPrefix() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/ba" }, 0).ToList()
-                .Should().ContainInOrder("/Bar", "/Baz");
+                .Should().Equal("/Bar", "/Baz");
 
         [TestMethod]
         public void CanCompleteArgNameCapitalizationWithFullMatch() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/bar" }, 0).ToList()
-                .Should().ContainInOrder("/Bar");
+                .Should().Equal("/Bar");
 
         [TestMethod]
         public void ArgNameWithStrictPrefixMatchDoesNotComplete() =>
@@ -111,22 +125,22 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void CanCompleteArgNameEvenIfItHasAlreadyAppeared() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/Bar=foo", "/Ba" }, 1).ToList()
-                .Should().ContainInOrder("/Bar", "/Baz");
+                .Should().Equal("/Bar", "/Baz");
 
         [TestMethod]
         public void CompleteBoolArgCompletesToItself() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeFlag" }, 0).ToList()
-                .Should().ContainInOrder("/SomeFlag");
+                .Should().Equal("/SomeFlag");
 
         [TestMethod]
         public void BoolArgWithEqualsCompletesToFalseAndTrueCompletions() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeFlag=" }, 0).ToList()
-                .Should().ContainInOrder("/SomeFlag=False", "/SomeFlag=True");
+                .Should().Equal("/SomeFlag=False", "/SomeFlag=True");
 
         [TestMethod]
         public void BoolArgWithPrefixOfFalseCompletes() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeFlag=f" }, 0).ToList()
-                .Should().ContainInOrder("/SomeFlag=False");
+                .Should().Equal("/SomeFlag=False");
 
         [TestMethod]
         public void BoolArgWithPlusHasNoCompletions() =>
@@ -147,13 +161,13 @@ namespace NClap.Tests.Parser
         public void CompleteBoolPositionalArgument()
         {
             CommandLineParser.GetCompletions(typeof(SimpleArgs), Array.Empty<string>(), 0).ToList()
-                .Should().ContainInOrder("False", "True");
+                .Should().Equal("False", "True");
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { string.Empty }, 0).ToList()
-                .Should().ContainInOrder("False", "True");
+                .Should().Equal("False", "True");
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "f" }, 0).ToList()
-                .Should().ContainInOrder("False");
+                .Should().Equal("False");
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "x" }, 0).ToList()
                 .Should().BeEmpty();
@@ -162,25 +176,25 @@ namespace NClap.Tests.Parser
                 .Should().BeEmpty();
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeFlag=true", "FA", "/Baz" }, 1).ToList()
-                .Should().ContainInOrder("False");
+                .Should().Equal("False");
         }
 
         [TestMethod]
         public void NamedArgumentCanGenerateCompletionsInSameOrSucceedingToken()
         {
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeEnum" }, 0).ToList()
-                .Should().ContainInOrder("/SomeEnum");
+                .Should().Equal("/SomeEnum");
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeEnum:" }, 0).ToList()
-                .Should().ContainInOrder("/SomeEnum:Nothing", "/SomeEnum:Something");
+                .Should().Equal("/SomeEnum:Nothing", "/SomeEnum:Something");
 
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/SomeEnum" }, 1).ToList()
-                .Should().ContainInOrder("Nothing", "Something");
+                .Should().Equal("Nothing", "Something");
         }
 
         [TestMethod]
         public void CanGenerateCompletionWithShortName() =>
             CommandLineParser.GetCompletions(typeof(SimpleArgs), new[] { "/sen" }, 0).ToList()
-                .Should().ContainInOrder("/senum");
+                .Should().Equal("/senum");
     }
 }

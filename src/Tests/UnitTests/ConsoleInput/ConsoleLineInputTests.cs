@@ -1301,7 +1301,7 @@ namespace NClap.Tests.ConsoleInput
 
             if (expectedCompletionTokenIndex.HasValue)
             {
-                calls[0].Item1.Should().ContainInOrder(textAsTokens.ToArray());
+                calls[0].Item1.Should().Equal(textAsTokens.ToArray());
                 calls[0].Item2.Should().Be(expectedCompletionTokenIndex.Value);
             }
         }

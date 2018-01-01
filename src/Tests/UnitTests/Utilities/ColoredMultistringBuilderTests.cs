@@ -14,10 +14,10 @@ namespace NClap.Tests.Utilities
             builder.Length.Should().Be(0);
 
         public static void ShouldProduce(this ColoredMultistringBuilder builder, IEnumerable<ColoredString> pieces) =>
-            builder.ToMultistring().Content.Should().BeEquivalentTo(pieces);
+            builder.ToMultistring().Content.Should().Equal(pieces);
 
         public static void ShouldProduce(this ColoredMultistringBuilder builder, params ColoredString[] pieces) =>
-            builder.ToMultistring().Content.Should().BeEquivalentTo(pieces);
+            builder.ToMultistring().Content.Should().Equal(pieces);
     }
 
     [TestClass]
@@ -118,13 +118,32 @@ namespace NClap.Tests.Utilities
         public void TestAppendingMultistringAddsItsPieces()
         {
             var anyColoredStrings = anyArrayOfMultipleColoredStrings;
-
             var anyMultistring = new ColoredMultistring(anyColoredStrings);
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(anyMultistring);
 
             builder.ShouldProduce(anyMultistring.Content);
+        }
+
+        [TestMethod]
+        public void TestAppendingMultipleMultistrings()
+        {
+            var anyColoredStrings = anyArrayOfMultipleColoredStrings;
+            var anyMultistring = new ColoredMultistring(anyColoredStrings);
+
+            var anyOtherArrayOfMultipleColoredStrings = new[]
+            {
+                new ColoredString("Another", ConsoleColor.Cyan),
+                new ColoredString("string", ConsoleColor.Gray)
+            };
+
+            var anyOtherMultistring = new ColoredMultistring(anyOtherArrayOfMultipleColoredStrings);
+
+            var builder = new ColoredMultistringBuilder();
+            builder.Append(new[] { anyMultistring, anyOtherMultistring });
+
+            builder.ShouldProduce(anyColoredStrings.Concat(anyOtherMultistring.Content));
         }
 
         [TestMethod]
@@ -333,7 +352,7 @@ namespace NClap.Tests.Utilities
             }
 
             builder.CopyTo(1, buffer, 3, 5);
-            buffer.Should().BeEquivalentTo(new[] { ' ', ' ', ' ', 'e', 'l', 'l', 'o', ',', });
+            buffer.Should().Equal(new[] { ' ', ' ', ' ', 'e', 'l', 'l', 'o', ',', });
         }
 
         [TestMethod]
@@ -366,6 +385,25 @@ namespace NClap.Tests.Utilities
 
             builder.Invoking(b => b.CopyTo(0, buffer, 0, builder.Length))
                    .Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void TestInsertingAtANegativeIndexThrows()
+        {
+            var builder = new ColoredMultistringBuilder();
+
+            builder.Invoking(b => b.Insert(Any.NegativeInt(), 'x'))
+                .Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void TestInsertingAfterEndOfStringThrows()
+        {
+            var builder = new ColoredMultistringBuilder();
+            builder.Append(anyArrayOfMultipleColoredStrings);
+
+            builder.Invoking(b => b.Insert(builder.Length + 1, anyChar))
+                .Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
@@ -548,6 +586,25 @@ namespace NClap.Tests.Utilities
             builder.Remove(0, 0);
 
             builder.ShouldProduce(anyArrayOfMultipleColoredStrings);
+        }
+
+        [TestMethod]
+        public void TestRemovingMiddleOfPiecePreservesSurroundingText()
+        {
+            var builder = new ColoredMultistringBuilder();
+
+            const string anyString = "SomeStringWithLength";
+            var piece = new ColoredString(anyString, Any.Enum<ConsoleColor>());
+
+            const int removeIndex = 2;
+            const int removeLength = 3;
+
+            builder.Append(piece);
+            builder.Remove(removeIndex, removeLength);
+
+            builder.ShouldProduce(new ColoredString(
+                anyString.Remove(removeIndex, removeLength),
+                piece.ForegroundColor, piece.BackgroundColor));
         }
 
         private static ColoredString CreateColoredString(string strContent = null)

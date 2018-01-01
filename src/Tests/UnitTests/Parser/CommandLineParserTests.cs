@@ -1001,7 +1001,7 @@ namespace NClap.Tests.Parser
             TryParse(new[] { "10", "bar", "baz" }, args).Should().BeTrue();
 
             args.Value.Should().Be(10);
-            args.RestOfLine.Should().ContainInOrder("bar", "baz");
+            args.RestOfLine.Should().Equal("bar", "baz");
         }
 
         [TestMethod]
@@ -1021,7 +1021,7 @@ namespace NClap.Tests.Parser
             TryParse(new[] { "/Value=10", "bar", "baz" }, args).Should().BeTrue();
 
             args.Value.Should().Be(10);
-            args.RestOfLine.Should().ContainInOrder("bar", "baz");
+            args.RestOfLine.Should().Equal("bar", "baz");
         }
 
         [TestMethod]

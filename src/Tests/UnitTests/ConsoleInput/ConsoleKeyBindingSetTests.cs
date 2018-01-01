@@ -35,8 +35,8 @@ namespace NClap.Tests.ConsoleInput
             var keyInfo = new ConsoleKeyInfo('\x04', ConsoleKey.D, false, false, true);
             bindings.Count.Should().Be(1);
             bindings.ContainsKey(keyInfo).Should().BeTrue();
-            bindings.Keys.Should().ContainInOrder(keyInfo);
-            bindings.Values.Should().ContainInOrder(op);
+            bindings.Keys.Should().Equal(keyInfo);
+            bindings.Values.Should().Equal(op);
 
             bindings[keyInfo].Should().Be(op);
 
@@ -46,7 +46,7 @@ namespace NClap.Tests.ConsoleInput
 
             var pairs = bindings.ToList();
             pairs.Should().HaveCount(1);
-            pairs.Should().ContainInOrder(new KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>(keyInfo, op));
+            pairs.Should().Equal(new KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>(keyInfo, op));
         }
 
         [TestMethod]

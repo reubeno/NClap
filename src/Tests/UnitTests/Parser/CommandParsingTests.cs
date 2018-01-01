@@ -67,7 +67,7 @@ namespace NClap.Tests.Parser
 
             var formattedArgs = CommandLineParser.Format(args).ToList();
 
-            formattedArgs.Should().ContainInOrder(
+            formattedArgs.Should().Equal(
                 "/GlobalOption=True", "OtherThing", "/ThatOtherThing=True");
         }
     }

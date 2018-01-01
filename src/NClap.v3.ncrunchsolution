@@ -1,0 +1,21 @@
+﻿<SolutionConfiguration>
+  <Settings>
+    <AllowParallelTestExecution>True</AllowParallelTestExecution>
+    <MetricsExclusionList>
+      <Value>Tests\UnitTests\NClap.Tests.csproj:net461</Value>
+      <Value>Tests\UnitTests\NClap.Tests.csproj:netcoreapp2.0</Value>
+      <Value>Tests\TestApp\NClap.TestApp.csproj:netcoreapp1.1</Value>
+      <Value>Tests\TestApp\NClap.TestApp.csproj:net461</Value>
+      <Value>Tests\DocValidation\NClap.DocValidation.csproj</Value>
+      <Value>Tools\Completer\NClap.Completer.csproj</Value>
+      <Value>Samples\MultilevelCommandApp\MultilevelCommandApp.csproj:netcoreapp2.0</Value>
+      <Value>Samples\MultilevelCommandApp\MultilevelCommandApp.csproj:net461</Value>
+      <Value>Samples\HelpApp\HelpApp.csproj:netcoreapp2.0</Value>
+      <Value>Samples\HelpApp\HelpApp.csproj:net461</Value>
+      <Value>NClap\NClap.csproj:netstandard1.6</Value>
+    </MetricsExclusionList>
+    <NUnit3Enabled>False</NUnit3Enabled>
+    <SolutionConfigured>True</SolutionConfigured>
+    <XUnit2Enabled>False</XUnit2Enabled>
+  </Settings>
+</SolutionConfiguration>

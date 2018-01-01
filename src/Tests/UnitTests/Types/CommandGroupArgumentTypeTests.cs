@@ -90,7 +90,7 @@ namespace NClap.Tests.Types
             var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
             argType.GetCompletions(new ArgumentCompletionContext(), "N")
                 .Should().ContainSingle()
-                .And.ContainInOrder(nameof(SimpleCommandType.Nested));
+                .And.Equal(nameof(SimpleCommandType.Nested));
         }
 
         [TestMethod]

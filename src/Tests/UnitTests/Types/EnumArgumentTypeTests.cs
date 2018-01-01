@@ -97,7 +97,7 @@ namespace NClap.Tests.Types
 
             values.Select(v => v.LongName)
                 .OrderBy(name => name)
-                .Should().ContainInOrder("None", "Nothing", "Some", "Something");
+                .Should().Equal("None", "Nothing", "Some", "Something");
 
             argType.TryParse(ArgumentParseContext.Default, "None", out object value1)
                 .Should().BeTrue();

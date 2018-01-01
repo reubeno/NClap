@@ -232,7 +232,7 @@ namespace NClap.Tests.Metadata
             TryParse(new[] { "/some-value=11" }, args).Should().BeTrue();
             args.SomeValue.Should().Be(11);
 
-            CommandLineParser.Format(args).ToList().Should().BeEquivalentTo("/some-value=11");
+            CommandLineParser.Format(args).ToList().Should().Equal("/some-value=11");
 
             TryParse(new[] { "/SomeValue" }, args).Should().BeFalse();
             TryParse(new[] { "/somevalue" }, args).Should().BeFalse();

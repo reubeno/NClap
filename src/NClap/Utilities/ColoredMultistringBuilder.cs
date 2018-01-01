@@ -385,10 +385,15 @@ namespace NClap.Utilities
                     {
                         _pieces.RemoveAt(pieceIndex);
 
-                        _pieces.Insert(pieceIndex, piece.Substring(0, offsetIntoPiece));
-                        _pieces.Insert(pieceIndex + 1, piece.Substring(offsetIntoPiece + charsToRemoveThisTime));
+                        _pieces.Insert(
+                            pieceIndex,
+                            new ColoredString(
+                                piece.Content.Substring(0, offsetIntoPiece) +
+                                  piece.Content.Substring(offsetIntoPiece + charsToRemoveThisTime),
+                                piece.ForegroundColor,
+                                piece.BackgroundColor));
 
-                        pieceIndex += 2;
+                        pieceIndex += 1;
                     }
 
                     charsLeftToRemove -= charsToRemoveThisTime;

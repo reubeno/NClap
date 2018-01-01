@@ -272,10 +272,10 @@ namespace NClap.Tests.ConsoleInput
             buffer.Insert("abcd");
 
             buffer.Read(0).Should().BeEmpty();
-            buffer.Read(1).Should().ContainInOrder('a');
-            buffer.Read(2).Should().ContainInOrder('a', 'b');
-            buffer.Read(3).Should().ContainInOrder('a', 'b', 'c');
-            buffer.Read(4).Should().ContainInOrder('a', 'b', 'c', 'd');
+            buffer.Read(1).Should().Equal('a');
+            buffer.Read(2).Should().Equal('a', 'b');
+            buffer.Read(3).Should().Equal('a', 'b', 'c');
+            buffer.Read(4).Should().Equal('a', 'b', 'c', 'd');
             buffer.Invoking(b => b.Read(5)).Should().Throw<ArgumentException>();
         }
 
@@ -285,8 +285,8 @@ namespace NClap.Tests.ConsoleInput
             var buffer = new ConsoleInputBuffer();
             buffer.Insert("abcd");
 
-            buffer.ReadAt(0, 2).Should().ContainInOrder('a', 'b');
-            buffer.ReadAt(2, 2).Should().ContainInOrder('c', 'd');
+            buffer.ReadAt(0, 2).Should().Equal('a', 'b');
+            buffer.ReadAt(2, 2).Should().Equal('c', 'd');
 
             buffer.Invoking(b => b.ReadAt(2, 4)).Should().Throw<ArgumentException>();
             buffer.Invoking(b => b.ReadAt(3, 2)).Should().Throw<ArgumentException>();

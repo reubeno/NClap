@@ -34,11 +34,11 @@ namespace NClap.Tests.Types
             var type = (ArrayArgumentType)ArgumentType.GetType(typeof(bool[]));
             var c = new ArgumentCompletionContext { ParseContext = ArgumentParseContext.Default };
 
-            type.GetCompletions(c, "Tr").Should().ContainInOrder("True");
-            type.GetCompletions(c, string.Empty).Should().ContainInOrder("False", "True");
-            type.GetCompletions(c, "False,f").Should().ContainInOrder("False,False");
-            type.GetCompletions(c, "33,f").Should().ContainInOrder("33,False");
-            type.GetCompletions(c, "True,False,").Should().ContainInOrder("True,False,False", "True,False,True");
+            type.GetCompletions(c, "Tr").Should().Equal("True");
+            type.GetCompletions(c, string.Empty).Should().Equal("False", "True");
+            type.GetCompletions(c, "False,f").Should().Equal("False,False");
+            type.GetCompletions(c, "33,f").Should().Equal("33,False");
+            type.GetCompletions(c, "True,False,").Should().Equal("True,False,False", "True,False,True");
         }
     }
 }
