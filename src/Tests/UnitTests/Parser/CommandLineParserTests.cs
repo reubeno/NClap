@@ -26,6 +26,18 @@ namespace NClap.Tests.Parser
             SomeOtherOtherValue
         }
 
+        enum MyBetterDocumentedEnum
+        {
+            [ArgumentValue(LongName = "first", ShortName = "f", Description = "The one that starts everything")]
+            FirstValue,
+
+            [ArgumentValue(LongName = "middle", ShortName = "m", Description = "The one in the middle")]
+            TheOneAfterFirst,
+
+            [ArgumentValue(LongName = "last", Description = "The one that wraps everything up")]
+            Final
+        }
+
     #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
@@ -56,6 +68,15 @@ namespace NClap.Tests.Parser
 
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public MyEnum MyEnum;
+
+            [NamedArgument(ArgumentFlags.AtMostOnce)]
+            public MyEnum MyOtherEnum;
+
+            [NamedArgument(
+                ArgumentFlags.AtMostOnce,
+                Description = "My infinitely cooler enum value",
+                DefaultValue = MyBetterDocumentedEnum.TheOneAfterFirst)]
+            public MyBetterDocumentedEnum MyDocumentedEnum;
 
             [NamedArgument(ArgumentFlags.Multiple)]
             public string[] MyStringArray;
@@ -537,10 +558,58 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void GetUsageStringWorks()
         {
+            //
+            // Try a few variations.
+            //
+
+            GetUsageStringWorks(new NoArguments());
+
             GetUsageStringWorks(new SimpleArguments());
+
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions());
 
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .OneColumnLayout());
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .TwoColumnLayout()
+                .BlankLinesBetweenArguments()
+                .ShortNames(ArgumentShortNameHelpMode.IncludeWithLongName)
+                .DefaultValues(ArgumentDefaultValueHelpMode.PrependToDescription));
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .BlankLinesBetweenArguments(2));
+
             GetUsageStringWorks(new PositionalArguments());
+        }
+
+        [TestMethod]
+        public void GetUsageInfoThrowsOnInvalidConfigurations()
+        {
+            ArgumentSetHelpOptions helpOptions = new ArgumentSetHelpOptions();
+            Action a = () => CommandLineParser.GetUsageInfo(typeof(SimpleArguments), helpOptions);
+
+            // Column widths are both 0.
+            helpOptions = helpOptions
+                .With()
+                .TwoColumnLayout()
+                .ColumnWidths(0, 0);
+            a.Should().Throw<NotSupportedException>();
+
+            // Columns don't fit in total width.
+            helpOptions = helpOptions
+                .With()
+                .MaxWidth(30)
+                .ColumnWidths(18, 18);
+            a.Should().Throw<NotSupportedException>();
+
+            // Separators are different lengths.
+            helpOptions = helpOptions
+                .With()
+                .ColumnSeparator(" ", "-----");
+            a.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]

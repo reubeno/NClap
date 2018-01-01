@@ -517,7 +517,7 @@ namespace NClap.Help
                     e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e))
                     .ToList();
 
-                if (enumValueEntries.Count == 0)
+                if (enumValueEntries.Count == 0) 
                 {
                     enumValueEntries = null;
                 }
