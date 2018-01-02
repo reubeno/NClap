@@ -67,7 +67,7 @@ namespace NClap.Utilities
         /// <param name="assembly">The assembly.</param>
         /// <param name="assemblyName">The assembly's name.</param>
         /// <returns>The formatted title string.</returns>
-        internal static string GetAssemblyTitle(ICustomAttributeProvider assembly, string assemblyName)
+        internal static string GetAssemblyTitle(this ICustomAttributeProvider assembly, string assemblyName)
         {
             Debug.Assert(assembly != null);
 

@@ -105,5 +105,34 @@ namespace NClap.Tests.Types
                 .Should().BeTrue();
             value1.Should().Be(value2);
         }
+
+        [TestMethod]
+        public void TestThatFormatThrowsOnNull()
+        {
+            var argType = EnumArgumentType.Create(typeof(SampleEnum));
+
+            argType.Invoking(t => t.Format(null))
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void TestThatNonExistentValuesAreNotFindable()
+        {
+            var argType = EnumArgumentType.Create(typeof(SampleEnum));
+
+            argType.TryGetValue("foo", out IArgumentValue value).Should().BeFalse();
+            value.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void TestThatValuesAreRetrievable()
+        {
+            var argType = EnumArgumentType.Create(typeof(SampleEnum));
+
+            argType.TryGetValue(SampleEnum.Other, out IArgumentValue value).Should().BeTrue();
+            value.Should().NotBeNull();
+
+            value.ShortName.Should().Be("o");
+        }
     }
 }

@@ -387,11 +387,9 @@ namespace NClap.Utilities
 
                         _pieces.Insert(
                             pieceIndex,
-                            new ColoredString(
-                                piece.Content.Substring(0, offsetIntoPiece) +
-                                  piece.Content.Substring(offsetIntoPiece + charsToRemoveThisTime),
-                                piece.ForegroundColor,
-                                piece.BackgroundColor));
+                            piece.Transform(pieceContent =>
+                                pieceContent.Substring(0, offsetIntoPiece) +
+                                  pieceContent.Substring(offsetIntoPiece + charsToRemoveThisTime)));
 
                         pieceIndex += 1;
                     }

@@ -8,11 +8,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Reflection;
+
 namespace NClap {
-    using System;
-    using System.Reflection;
-
-
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -272,15 +270,6 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The implementing type for this command (&apos;{0}&apos;) does not implement the &apos;{1}&apos; interface..
-        /// </summary>
-        internal static string ImplementingTypeNotICommand {
-            get {
-                return ResourceManager.GetString("ImplementingTypeNotICommand", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An invalid argument long name was found..
         /// </summary>
         internal static string InvalidArgumentLongName {
@@ -340,24 +329,6 @@ namespace NClap {
         internal static string MissingRequiredPositionalArgument {
             get {
                 return ResourceManager.GetString("MissingRequiredPositionalArgument", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; does not implement an accessible parameterless constructor..
-        /// </summary>
-        internal static string NoAccessibleParameterlessConstructor {
-            get {
-                return ResourceManager.GetString("NoAccessibleParameterlessConstructor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No help information available..
-        /// </summary>
-        internal static string NoHelpAvailable {
-            get {
-                return ResourceManager.GetString("NoHelpAvailable", resourceCulture);
             }
         }
         
@@ -488,15 +459,6 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; is not a recognized command..
-        /// </summary>
-        internal static string UnrecognizedCommand {
-            get {
-                return ResourceManager.GetString("UnrecognizedCommand", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unterminated quotes found..
         /// </summary>
         internal static string UnterminatedQuotes {
@@ -515,15 +477,6 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Description:.
-        /// </summary>
-        internal static string UsageInfoDescriptionHeader {
-            get {
-                return ResourceManager.GetString("UsageInfoDescriptionHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Valid &lt;{0}&gt; values:.
         /// </summary>
         internal static string UsageInfoEnumValueHeaderFormat {
@@ -538,24 +491,6 @@ namespace NClap {
         internal static string UsageInfoExamplesHeader {
             get {
                 return ResourceManager.GetString("UsageInfoExamplesHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to For more information, type: &quot;{0}&quot;.
-        /// </summary>
-        internal static string UsageInfoHelpAdvertisement {
-            get {
-                return ResourceManager.GetString("UsageInfoHelpAdvertisement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Name:.
-        /// </summary>
-        internal static string UsageInfoNameHeader {
-            get {
-                return ResourceManager.GetString("UsageInfoNameHeader", resourceCulture);
             }
         }
         
@@ -587,30 +522,11 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Syntax:.
-        /// </summary>
-        internal static string UsageInfoSyntaxHeader {
-            get {
-                return ResourceManager.GetString("UsageInfoSyntaxHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Usage:.
         /// </summary>
         internal static string UsageInfoUsageHeader {
             get {
                 return ResourceManager.GetString("UsageInfoUsageHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Valid commands:
-        ///{0}.
-        /// </summary>
-        internal static string ValidCommandsHeader {
-            get {
-                return ResourceManager.GetString("ValidCommandsHeader", resourceCulture);
             }
         }
         

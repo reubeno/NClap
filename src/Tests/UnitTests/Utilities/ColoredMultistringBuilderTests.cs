@@ -187,6 +187,15 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
+        public void TestThatAppendingLineInsertsNewLine()
+        {
+            var builder = new ColoredMultistringBuilder();
+            builder.AppendLine(Enumerable.Empty<ColoredMultistring>());
+
+            builder.ShouldProduce(new ColoredString(Environment.NewLine));
+        }
+
+        [TestMethod]
         public void TestClearingEmptyBuilderHasNoEffect()
         {
             var builder = new ColoredMultistringBuilder();

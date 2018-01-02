@@ -26,6 +26,6 @@
         /// </summary>
         /// <returns>Clone.</returns>
         public override ArgumentHelpLayout DeepClone() =>
-            new OneColumnArgumentHelpLayout();
+            new OneColumnArgumentHelpLayout(this);
     }
 }
