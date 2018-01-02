@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Utilities;
@@ -80,5 +82,59 @@ namespace NClap.Tests.Utilities
             InputUtilities.TryGetSingleChar(ConsoleKey.Oem7, (ConsoleModifiers)0).Should().Be('\'');
             InputUtilities.TryGetSingleChar(ConsoleKey.Oem7, ConsoleModifiers.Shift).Should().Be('\"');
         }
+
+#if true || NET461
+        [TestMethod]
+        public void TestThatTwoCodePathsAgree()
+        {
+            var allConsoleKeys = typeof(ConsoleKey).GetTypeInfo().GetEnumValues().Cast<ConsoleKey>();
+
+            bool result = true;
+            foreach (var key in allConsoleKeys)
+            {
+                if (key == ConsoleKey.Packet || key == ConsoleKey.Oem102) continue;
+
+                result = DoTwoCodePathsAgree(key, (ConsoleModifiers)0) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Control) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Shift) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Alt) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Control | ConsoleModifiers.Alt) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Control | ConsoleModifiers.Shift) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Shift | ConsoleModifiers.Alt) && result;
+                result = DoTwoCodePathsAgree(key, ConsoleModifiers.Control | ConsoleModifiers.Alt | ConsoleModifiers.Shift) && result;
+            }
+
+            result.Should().BeTrue();
+        }
+
+        private bool DoTwoCodePathsAgree(ConsoleKey key, ConsoleModifiers modifiers)
+        {
+            var portableChars = InputUtilities.GetCharsOnAnyPlatform(key, modifiers);
+            var winChars = InputUtilities.GetCharsOnWindows(key, modifiers);
+
+            if (portableChars.Length != winChars.Length)
+            {
+                Console.Error.WriteLine(
+                    $"Different char counts for '{key}' (mods={modifiers}): " +
+                    $"portable=[{string.Join(", ", portableChars.Select(c => ((byte)c).ToString()))}] " +
+                    $"win=[{string.Join(", ", winChars.Select(c => ((byte)c).ToString()))}]");
+                return false;
+            }
+
+            for (var i = 0; i < portableChars.Length; ++i)
+            {
+                if (portableChars[i] != winChars[i])
+                {
+                    Console.Error.WriteLine(
+                        $"Different chars for '{key}' (mods={modifiers}): " +
+                        $"portable=[{string.Join(", ", portableChars.Select(c => ((byte)c).ToString()))}] " +
+                        $"win=[{string.Join(", ", winChars.Select(c => ((byte)c).ToString()))}]");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+#endif
     }
 }

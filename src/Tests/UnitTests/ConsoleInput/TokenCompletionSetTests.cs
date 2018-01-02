@@ -30,6 +30,13 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
+        public void NullCompleter()
+        {
+            Action a = () => TokenCompletionSet.Create("hello", 0, null);
+            a.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
         public void UntokenizableString()
         {
             const string text = "\"s\"x\"";
@@ -46,142 +53,142 @@ namespace NClap.Tests.ConsoleInput
         [TestMethod]
         public void EmptyString()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create(string.Empty, 0, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().BeEmpty();
-            completionCalls[0].Item2.Should().Be(0);
+            completionCalls[0].Tokens.Should().BeEmpty();
+            completionCalls[0].TokenIndex.Should().Be(0);
         }
 
         [TestMethod]
         public void SpaceOnlyString()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("  ", 0, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().BeEmpty();
-            completionCalls[0].Item2.Should().Be(0);
+            completionCalls[0].Tokens.Should().BeEmpty();
+            completionCalls[0].TokenIndex.Should().Be(0);
         }
 
         [TestMethod]
         public void AtStartOfFirstToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a b", 0, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b");
-            completionCalls[0].Item2.Should().Be(0);
+            completionCalls[0].Tokens.Should().Equal("a", "b");
+            completionCalls[0].TokenIndex.Should().Be(0);
         }
 
         [TestMethod]
         public void AtEndOfFirstToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a b", 1, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b");
-            completionCalls[0].Item2.Should().Be(0);
+            completionCalls[0].Tokens.Should().Equal("a", "b");
+            completionCalls[0].TokenIndex.Should().Be(0);
         }
 
         [TestMethod]
         public void AtStartOfSecondToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a b c", 2, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b");
-            completionCalls[0].Item2.Should().Be(1);
+            completionCalls[0].Tokens.Should().Equal("a", "b", "c");
+            completionCalls[0].TokenIndex.Should().Be(1);
         }
 
         [TestMethod]
         public void AtEndOfSecondToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a b c", 3, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b");
-            completionCalls[0].Item2.Should().Be(1);
+            completionCalls[0].Tokens.Should().Equal("a", "b", "c");
+            completionCalls[0].TokenIndex.Should().Be(1);
         }
 
         [TestMethod]
         public void InLeadingSpace()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("   a b c", 0, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder(string.Empty, "a", "b", "c");
-            completionCalls[0].Item2.Should().Be(0);
+            completionCalls[0].Tokens.Should().Equal(string.Empty, "a", "b", "c");
+            completionCalls[0].TokenIndex.Should().Be(0);
         }
 
         [TestMethod]
         public void InTrailingSpace()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a b c   ", 6, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b", "c");
-            completionCalls[0].Item2.Should().Be(3);
+            completionCalls[0].Tokens.Should().Equal("a", "b", "c");
+            completionCalls[0].TokenIndex.Should().Be(3);
         }
 
         [TestMethod]
         public void InInterstitialSpace()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a   b   c", 6, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b", string.Empty, "c");
-            completionCalls[0].Item2.Should().Be(2);
+            completionCalls[0].Tokens.Should().Equal("a", "b", string.Empty, "c");
+            completionCalls[0].TokenIndex.Should().Be(2);
         }
 
         [TestMethod]
         public void AtEndOfString()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a b c", 5, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b");
-            completionCalls[0].Item2.Should().Be(2);
+            completionCalls[0].Tokens.Should().Equal("a", "b", "c");
+            completionCalls[0].TokenIndex.Should().Be(2);
         }
 
         [TestMethod]
         public void AtEndOfUnclosedQuotedToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a \"b ", 5, GetHandler(completionCalls));
 
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b ");
-            completionCalls[0].Item2.Should().Be(1);
+            completionCalls[0].Tokens.Should().Equal("a", "b ");
+            completionCalls[0].TokenIndex.Should().Be(1);
         }
 
         [TestMethod]
         public void InMiddleOfClosedQuotedToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a \"bc \"", 4, GetHandler(completionCalls));
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "bc ");
-            completionCalls[0].Item2.Should().Be(1);
+            completionCalls[0].Tokens.Should().Equal("a", "bc ");
+            completionCalls[0].TokenIndex.Should().Be(1);
         }
 
         [TestMethod]
         public void JustBeforeEndOfClosedQuotedToken()
         {
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create("a \"b \"", 4, GetHandler(completionCalls));
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("a", "b ");
-            completionCalls[0].Item2.Should().Be(1);
+            completionCalls[0].Tokens.Should().Equal("a", "b ");
+            completionCalls[0].TokenIndex.Should().Be(1);
         }
 
         [TestMethod]
@@ -189,18 +196,25 @@ namespace NClap.Tests.ConsoleInput
         {
             var text = "here " + '"' + @"c:\program files" + '"';
 
-            var completionCalls = new List<Tuple<string[], int>>();
+            var completionCalls = new List<TokenCompletionCall>();
             var set = TokenCompletionSet.Create(text, text.Length, GetHandler(completionCalls));
             completionCalls.Should().HaveCount(1);
-            completionCalls[0].Item1.Should().ContainInOrder("here", @"c:\program files");
-            completionCalls[0].Item2.Should().Be(1);
+            completionCalls[0].Tokens.Should().Equal("here", @"c:\program files");
+            completionCalls[0].TokenIndex.Should().Be(1);
         }
 
-        private static ITokenCompleter GetHandler(ICollection<Tuple<string[], int>> callList)
+        private class TokenCompletionCall
+        {
+            public IEnumerable<string> Tokens { get; set; }
+
+            public int TokenIndex { get; set; }
+        }
+
+        private static ITokenCompleter GetHandler(ICollection<TokenCompletionCall> calls)
         {
             return new TestTokenCompleter((tokens, index) =>
             {
-                callList.Add(Tuple.Create(tokens.ToArray(), index));
+                calls.Add(new TokenCompletionCall { Tokens = tokens, TokenIndex = index });
                 return Enumerable.Empty<string>();
             });
         }

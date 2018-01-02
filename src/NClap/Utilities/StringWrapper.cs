@@ -17,12 +17,7 @@ namespace NClap.Utilities
         /// <param name="s">String to wrap.</param>
         public StringWrapper(string s)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException(nameof(s));
-            }
-
-            Content = s;
+            Content = s ?? throw new ArgumentNullException(nameof(s));
         }
 
         /// <summary>

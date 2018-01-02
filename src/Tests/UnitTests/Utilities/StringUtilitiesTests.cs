@@ -239,11 +239,11 @@ namespace NClap.Tests.Utilities
                 string.Empty + Environment.NewLine +
                 "5678";
 
-            StringUtilities.Wrap(input, width: 10, blockIndent: 4).Should().Be(
+            StringUtilities.Wrap(input, width: 10, blockIndent: 4, hangingIndent: 2).Should().Be(
                 "    1234" + Environment.NewLine +
-                "    " + Environment.NewLine +
-                "    " + Environment.NewLine +
-                "    5678");
+                "      " + Environment.NewLine +
+                "      " + Environment.NewLine +
+                "      5678");
         }
 
         [TestMethod]

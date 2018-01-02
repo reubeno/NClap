@@ -199,7 +199,7 @@ namespace NClap.Tests.Parser
             args.Value.Should().BeNull();
 
             CommandLineParser.TryParse(new[] { @"/value=c:\temp" }, out ArgumentsWithType<FileSystemPath> args2).Should().BeTrue();
-            args2.Value.Should().BeEquivalentTo((FileSystemPath)@"c:\temp");
+            args2.Value.Should().Be((FileSystemPath)@"c:\temp");
         }
 
         [TestMethod]

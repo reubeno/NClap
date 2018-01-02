@@ -27,8 +27,8 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void GetAssemblyTitleForAssemblyWithNoAttributes()
         {
-            var assembly = Substitute.For<ICustomAttributeProvider>();
-            var title = AssemblyUtilities.GetAssemblyTitle(assembly, "MyAssembly");
+            var assembly = GetFakeAssembly();
+            var title = assembly.GetAssemblyTitle("MyAssembly");
             title.Should().NotBeNullOrWhiteSpace();
             title.Should().Be("MyAssembly");
         }
@@ -36,22 +36,50 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void GetAssemblyTitleForAssemblyWithOnlyCompany()
         {
-            var assembly = Substitute.For<ICustomAttributeProvider>();
-            assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), true).Returns(new object[] { new AssemblyCompanyAttribute("MyCompany") });
+            var assembly = GetFakeAssembly(company: "MyCompany");
 
-            var title = AssemblyUtilities.GetAssemblyTitle(assembly, "MyAssembly");
+            var title = assembly.GetAssemblyTitle("MyAssembly");
             title.Should().Be("MyCompany MyAssembly");
         }
 
         [TestMethod]
         public void GetAssemblyTitleForAssemblyWithCompanyAndProductName()
         {
-            var assembly = Substitute.For<ICustomAttributeProvider>();
-            assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), true).Returns(new object[] { new AssemblyCompanyAttribute("MyCompany") });
-            assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), true).Returns(new object[] { new AssemblyProductAttribute("MyCompany MyProduct") });
+            var assembly = GetFakeAssembly(company: "MyCompany", product: "MyProduct");
 
-            var title = AssemblyUtilities.GetAssemblyTitle(assembly, "MyAssembly");
+            var title = assembly.GetAssemblyTitle("MyAssembly");
             title.Should().Be("MyCompany MyProduct");
+        }
+
+        [TestMethod]
+        public void GetAssemblyTitleForAssemblyWithRedundantCompanyAndProductName()
+        {
+            var assembly = GetFakeAssembly(company: "MyCompany", product: "MyCompany MyProduct");
+
+            var title = assembly.GetAssemblyTitle("MyAssembly");
+            title.Should().Be("MyCompany MyProduct");
+        }
+
+        private ICustomAttributeProvider GetFakeAssembly(string company = null, string product = null, string title = null)
+        {
+            var assembly = Substitute.For<ICustomAttributeProvider>();
+
+            if (company != null)
+            {
+                assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), true).Returns(new object[] { new AssemblyCompanyAttribute(company) });
+            }
+
+            if (product != null)
+            {
+                assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), true).Returns(new object[] { new AssemblyProductAttribute(product) });
+            }
+
+            if (title != null)
+            {
+                assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), true).Returns(new object[] { new AssemblyTitleAttribute(title) });
+            }
+
+            return assembly;
         }
     }
 }

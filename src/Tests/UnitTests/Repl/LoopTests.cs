@@ -166,15 +166,17 @@ namespace NClap.Tests.Repl
         [TestMethod]
         public void CommandsCanBeCompleted()
         {
+            // TODO: We're not thrilled that 'NoAttribute' shows up below; needs revisiting.
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new string[] { }, 0).ToList();
-            completions.Should().ContainInOrder("DoSomething", "Exit", "NoConstructor", "NonCommand");
+            completions.Should().Equal("DoSomething", "Exit", "Help", "NoAttribute", "NoConstructor", "NonCommand");
         }
 
         [TestMethod]
         public void CommandPrefixCanBeCompleted()
         {
+            // TODO: We're not thrilled that 'NoAttribute' shows up below; needs revisiting.
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "N" }, 0).ToList();
-            completions.Should().ContainInOrder("NoConstructor", "NonCommand");
+            completions.Should().Equal("NoAttribute", "NoConstructor", "NonCommand");
         }
 
         [TestMethod]

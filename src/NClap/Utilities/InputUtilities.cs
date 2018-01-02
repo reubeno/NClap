@@ -83,7 +83,7 @@ namespace NClap.Utilities
 #endif
         }
 
-        private static char[] GetCharsOnAnyPlatform(ConsoleKey key, ConsoleModifiers modifiers)
+        internal static char[] GetCharsOnAnyPlatform(ConsoleKey key, ConsoleModifiers modifiers)
         {
             if (key >= ConsoleKey.A && key <= ConsoleKey.Z)
             {
@@ -92,7 +92,14 @@ namespace NClap.Utilities
                 char c;
                 if (modifiers.HasFlag(ConsoleModifiers.Control))
                 {
-                    c = (char)(alphaIndex + 1);
+                    if (modifiers.HasFlag(ConsoleModifiers.Alt))
+                    {
+                        return Array.Empty<char>();
+                    }
+                    else
+                    {
+                        c = (char)(alphaIndex + 1);
+                    }
                 }
                 else
                 {
@@ -104,6 +111,41 @@ namespace NClap.Utilities
                 }
 
                 return new[] { c };
+            }
+
+            if (modifiers == ConsoleModifiers.Control)
+            {
+                int c = 0;
+                switch (key)
+                {
+                    case ConsoleKey.Backspace: c = 127; break;
+                    case ConsoleKey.Enter: c = 10; break;
+                    case ConsoleKey.Escape: c = (int)key; break;
+                    case ConsoleKey.Spacebar: c = (int)key; break;
+                    case ConsoleKey.Oem4: c = 27; break;
+                    case ConsoleKey.Oem5: c = 28; break;
+                    case ConsoleKey.Oem6: c = 29; break;
+                }
+
+                if (c != 0)
+                {
+                    return new[] { (char)c };
+                }
+            }
+
+            if (modifiers.HasFlag(ConsoleModifiers.Control))
+            {
+                if (modifiers == (ConsoleModifiers.Control | ConsoleModifiers.Shift))
+                {
+                    switch (key)
+                    {
+                        case ConsoleKey.D2: return new[] { (char)0 };
+                        case ConsoleKey.D6: return new[] { (char)30 };
+                        case ConsoleKey.OemMinus: return new[] { (char)31 };
+                    }
+                }
+
+                return Array.Empty<char>();
             }
 
             if (key >= ConsoleKey.D0 && key <= ConsoleKey.D9)
@@ -137,13 +179,36 @@ namespace NClap.Utilities
                 return new[] { c };
             }
 
+            if (key >= ConsoleKey.NumPad0 && key <= ConsoleKey.NumPad9)
+            {
+                if (modifiers.HasFlag(ConsoleModifiers.Shift))
+                {
+                    return Array.Empty<char>();
+                }
+
+                var offset = (int)key - (int)ConsoleKey.NumPad0;
+                return new[] { (char)('0' + offset) };
+            }
+
             switch (key)
             {
+                case ConsoleKey.Backspace:
+                case ConsoleKey.Enter:
+                case ConsoleKey.Escape:
                 case ConsoleKey.Spacebar:
-                    return new char[] { ' ' };
-
                 case ConsoleKey.Tab:
-                    return new char[] { '\t' };
+                    return new char[] { (char)key };
+
+                case ConsoleKey.Multiply:
+                    return new char[] { '*' };
+                case ConsoleKey.Add:
+                    return new char[] { '+' };
+                case ConsoleKey.Subtract:
+                    return new char[] { '-' };
+                case ConsoleKey.Decimal:
+                    return new char[] { '.' };
+                case ConsoleKey.Divide:
+                    return new char[] { '/' };
 
                 case ConsoleKey.OemComma:
                     return modifiers.HasFlag(ConsoleModifiers.Shift) ? new[] { '<' } : new[] { ',' };
@@ -173,7 +238,7 @@ namespace NClap.Utilities
             }
         }
 
-        private static char[] GetCharsOnWindows(ConsoleKey key, ConsoleModifiers modifiers)
+        internal static char[] GetCharsOnWindows(ConsoleKey key, ConsoleModifiers modifiers)
         {
             var virtKey = (uint)key;
             var output = new char[32];

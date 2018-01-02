@@ -97,13 +97,42 @@ namespace NClap.Tests.Types
 
             values.Select(v => v.LongName)
                 .OrderBy(name => name)
-                .Should().ContainInOrder("None", "Nothing", "Some", "Something");
+                .Should().Equal("None", "Nothing", "Some", "Something");
 
             argType.TryParse(ArgumentParseContext.Default, "None", out object value1)
                 .Should().BeTrue();
             argType.TryParse(ArgumentParseContext.Default, "Nothing", out object value2)
                 .Should().BeTrue();
             value1.Should().Be(value2);
+        }
+
+        [TestMethod]
+        public void TestThatFormatThrowsOnNull()
+        {
+            var argType = EnumArgumentType.Create(typeof(SampleEnum));
+
+            argType.Invoking(t => t.Format(null))
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void TestThatNonExistentValuesAreNotFindable()
+        {
+            var argType = EnumArgumentType.Create(typeof(SampleEnum));
+
+            argType.TryGetValue("foo", out IArgumentValue value).Should().BeFalse();
+            value.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void TestThatValuesAreRetrievable()
+        {
+            var argType = EnumArgumentType.Create(typeof(SampleEnum));
+
+            argType.TryGetValue(SampleEnum.Other, out IArgumentValue value).Should().BeTrue();
+            value.Should().NotBeNull();
+
+            value.ShortName.Should().Be("o");
         }
     }
 }

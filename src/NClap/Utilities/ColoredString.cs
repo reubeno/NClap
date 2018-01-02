@@ -203,17 +203,13 @@ namespace NClap.Utilities
         /// <returns>True if the objects are equal; false otherwise.</returns>
         public bool Equals(ColoredString value, StringComparison comparisonType)
         {
-            if ((Content == null) != (value.Content == null))
-            {
-                return false;
-            }
+            // This shouldn't be possible, but we sometimes see cases in testing
+            // where mocking results in this case.
+            if (value.Content == null && Content == null) return true;
 
-            if (Content != null && !Content.Equals(value.Content, comparisonType))
-            {
-                return false;
-            }
-
-            return IsSameColorAs(value);
+            return value.Content != null && Content != null &&
+                   Content.Equals(value.Content, comparisonType) &&
+                   IsSameColorAs(value);
         }
     }
 }

@@ -383,7 +383,6 @@ namespace NClap
             if (argSet.Attribute.AnswerFileArgumentPrefix != null)
             {
                 var pseudoArgLongName = Strings.AnswerFileArgumentName;
-
                 if (argSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
                 {
                     pseudoArgLongName = pseudoArgLongName.ToHyphenatedLowerCase();

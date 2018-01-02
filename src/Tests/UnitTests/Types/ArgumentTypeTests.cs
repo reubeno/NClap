@@ -150,7 +150,7 @@ namespace NClap.Tests.Types
 
             var list = (List<int>)value;
             list.Should().HaveCount(2);
-            list.Should().ContainInOrder(1, 2);
+            list.Should().Equal(1, 2);
         }
 
         [TestMethod]
@@ -192,7 +192,7 @@ namespace NClap.Tests.Types
 
             var outList = (List<int>)outCollection;
             outList.Should().HaveCount(2);
-            outList.Should().ContainInOrder(10, -1);
+            outList.Should().Equal(10, -1);
         }
 
         [TestMethod]
@@ -343,20 +343,20 @@ namespace NClap.Tests.Types
             var c = CreateContext();
 
             type.GetCompletions(c, string.Empty).ToArray()
-                .Should().ContainInOrder("Default", "SomeOtherValue", "SomeValue");
+                .Should().Equal("Default", "SomeOtherValue", "SomeValue");
 
             type.GetCompletions(c, "a").ToArray().Should().BeEmpty();
 
             type.GetCompletions(c, "s").ToArray()
-                .Should().ContainInOrder("SomeOtherValue", "SomeValue");
+                .Should().Equal("SomeOtherValue", "SomeValue");
 
             type.GetCompletions(c, "S").ToArray()
-                .Should().ContainInOrder("SomeOtherValue", "SomeValue");
+                .Should().Equal("SomeOtherValue", "SomeValue");
 
             type.GetCompletions(c, "Defaulte").ToArray().Should().BeEmpty();
 
             type.GetCompletions(c, "Default").ToArray()
-                .Should().ContainInOrder("Default");
+                .Should().Equal("Default");
         }
 
         [TestMethod]
@@ -365,15 +365,15 @@ namespace NClap.Tests.Types
             var type = ArgumentType.Bool;
             var c = CreateContext();
 
-            type.GetCompletions(c, string.Empty).ToArray().Should().ContainInOrder("False", "True");
+            type.GetCompletions(c, string.Empty).ToArray().Should().Equal("False", "True");
 
             type.GetCompletions(c, "a").ToArray().Should().BeEmpty();
             type.GetCompletions(c, "+").ToArray().Should().BeEmpty();
             type.GetCompletions(c, "-").ToArray().Should().BeEmpty();
 
-            type.GetCompletions(c, "f").ToArray().Should().ContainInOrder("False");
-            type.GetCompletions(c, "false").ToArray().Should().ContainInOrder("False");
-            type.GetCompletions(c, "FA").ToArray().Should().ContainInOrder("False");
+            type.GetCompletions(c, "f").ToArray().Should().Equal("False");
+            type.GetCompletions(c, "false").ToArray().Should().Equal("False");
+            type.GetCompletions(c, "FA").ToArray().Should().Equal("False");
         }
 
         [TestMethod]

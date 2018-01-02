@@ -182,7 +182,7 @@ namespace NClap.Utilities
                         }
 
                         var firstPart = s.Substring(0, index);
-                        builder.Append(new ColoredString(firstPart, piece.ForegroundColor, piece.BackgroundColor));
+                        builder.Append(piece.WithContent(firstPart));
 
                         yield return builder.ToMultistring();
                         builder = null;
@@ -198,7 +198,7 @@ namespace NClap.Utilities
                         builder = new ColoredMultistringBuilder();
                     }
 
-                    builder.Append(new ColoredString(s, piece.ForegroundColor, piece.BackgroundColor));
+                    builder.Append(piece.WithContent(s));
                 }
             }
 

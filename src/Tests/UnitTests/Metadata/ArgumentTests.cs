@@ -199,7 +199,7 @@ namespace NClap.Tests.Metadata
 
             var value = arg.EffectiveDefaultValue;
             value.Should().BeOfType(typeof(string[]));
-            ((string[])value).Should().ContainInOrder("a", "b");
+            ((string[])value).Should().Equal("a", "b");
 
             arg.GetSyntaxSummary().Should().Be("[/Value[=<Str>]]*");
 

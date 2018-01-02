@@ -25,6 +25,18 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
+        public void TestThatExplicitConversionOperatorsPreserveNull()
+        {
+            string nullStr = null;
+
+            ColoredMultistring cms = (ColoredMultistring)nullStr;
+            cms.Should().BeNull();
+
+            string unwrapped = (string)cms;
+            unwrapped.Should().BeNull();
+        }
+
+        [TestMethod]
         public void LengthIsCorrect()
         {
             var s = CreateCMS("xy", "zzy");

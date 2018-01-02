@@ -24,10 +24,10 @@ namespace NClap.Tests.Types
             var type = (TupleArgumentType)ArgumentType.GetType(typeof(Tuple<bool, int, bool>));
             var c = new ArgumentCompletionContext { ParseContext = ArgumentParseContext.Default };
 
-            type.GetCompletions(c, "Tr").Should().ContainInOrder("True");
-            type.GetCompletions(c, string.Empty).Should().ContainInOrder("False", "True");
+            type.GetCompletions(c, "Tr").Should().Equal("True");
+            type.GetCompletions(c, string.Empty).Should().Equal("False", "True");
             type.GetCompletions(c, "False,3").Should().BeEmpty();
-            type.GetCompletions(c, "False,3,").Should().ContainInOrder("False,3,False", "False,3,True");
+            type.GetCompletions(c, "False,3,").Should().Equal("False,3,False", "False,3,True");
         }
     }
 }

@@ -385,10 +385,13 @@ namespace NClap.Utilities
                     {
                         _pieces.RemoveAt(pieceIndex);
 
-                        _pieces.Insert(pieceIndex, piece.Substring(0, offsetIntoPiece));
-                        _pieces.Insert(pieceIndex + 1, piece.Substring(offsetIntoPiece + charsToRemoveThisTime));
+                        _pieces.Insert(
+                            pieceIndex,
+                            piece.Transform(pieceContent =>
+                                pieceContent.Substring(0, offsetIntoPiece) +
+                                  pieceContent.Substring(offsetIntoPiece + charsToRemoveThisTime)));
 
-                        pieceIndex += 2;
+                        pieceIndex += 1;
                     }
 
                     charsLeftToRemove -= charsToRemoveThisTime;

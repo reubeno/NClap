@@ -47,14 +47,14 @@ namespace NClap.Tests.Types
         public void CustomFormatter()
         {
             var args = new TestArguments { Value = "foo" };
-            CommandLineParser.Format(args).Should().ContainInOrder("|foo|");
+            CommandLineParser.Format(args).Should().Equal("|foo|");
         }
 
         [TestMethod]
         public void CustomCompleter()
         {
             var completions = CommandLineParser.GetCompletions(typeof(TestArguments), new[] { "|a|" }, 0);
-            completions.Should().ContainInOrder("|a|", "|ABC|");
+            completions.Should().Equal("|a|", "|ABC|");
         }
     }
 }

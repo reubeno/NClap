@@ -278,11 +278,6 @@ namespace NClap.Help
 
         private static IReadOnlyDictionary<IArgumentType, List<ArgumentUsageInfo>> GetAllArgumentTypeMap(ArgumentSetUsageInfo setInfo, Func<IArgumentType, bool> typeFilterFunc)
         {
-            if (typeFilterFunc == null)
-            {
-                throw new ArgumentNullException(nameof(typeFilterFunc));
-            }
-
             var map = new Dictionary<IArgumentType, List<ArgumentUsageInfo>>(new ArgumentTypeComparer());
             foreach (var parameter in setInfo.AllParameters.Where(p => p.ArgumentType != null))
             {
@@ -517,7 +512,7 @@ namespace NClap.Help
                     e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e))
                     .ToList();
 
-                if (enumValueEntries.Count == 0)
+                if (enumValueEntries.Count == 0) 
                 {
                     enumValueEntries = null;
                 }
