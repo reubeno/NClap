@@ -2,6 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Repl;
 using NClap.Tests.ConsoleInput;
@@ -50,14 +51,14 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void ConstructorThrowsOnNullClient()
+        public void TestThatConstructorThrowsOnNullClient()
         {
             Action constructAction = () => { var x = new Loop(typeof(EmptyCommand), (ILoopClient)null); };
             constructAction.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
-        public void LoopWithNoCommands()
+        public void TestThatLoopWithNoCommandsIsValid()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns((string)null);
@@ -67,7 +68,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void LoopWithOnlyExitCommand()
+        public void TestExecutingLoopWithOnlyExitCommand()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("exit");
@@ -77,7 +78,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void LoopWithSimpleCommand()
+        public void TestExecutingLoopWithSimpleCommand()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("DoSomething", string.Empty, "&DoSomething", (string)null);
@@ -88,7 +89,28 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void NonCommandEnum()
+        public void TestThatConstructorThrowsOnNullType()
+        {
+            Action a = () => new Loop((Type)null, (ILoopClient)null);
+            a.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void TestThatConstructorThrowsOnUnusableType()
+        {
+            Action a = () => new Loop(typeof(string));
+            a.Should().Throw<NotSupportedException>();
+        }
+
+        [TestMethod]
+        public void TestThatConstructorThrowsOnICommandTypeWithNoParameterlessConstructor()
+        {
+            Action a = () => new Loop(typeof(NoConstructorCommand));
+            a.Should().Throw<NotSupportedException>();
+        }
+
+        [TestMethod]
+        public void TestThatErrorIsDisplayedWithNonCommandEnum()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("ThisNotACommand", new string[] { null });
@@ -98,7 +120,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void NonParseable()
+        public void TestThatErrorIsDisplayedWithNonParseableObject()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("\"NotACommand", new string[] { null });
@@ -108,7 +130,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void NoConstructorInCommand()
+        public void TestThatErrorIsDisplayedWithSelectedCommandWithNoConstructor()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("NoConstructor", new string[] { null });
@@ -118,7 +140,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void ImplementingTypeIsNotACommand()
+        public void TestThatErrorIsDisplayedWhenImplementingTypeIsNotACommand()
         {
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("NonCommand", new string[] { null });
@@ -164,7 +186,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void CommandsCanBeCompleted()
+        public void TestThatCommandsCanBeCompletedFromEmptyToken()
         {
             // TODO: We're not thrilled that 'NoAttribute' shows up below; needs revisiting.
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new string[] { }, 0).ToList();
@@ -172,7 +194,28 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void CommandPrefixCanBeCompleted()
+        public void TestThatCommandsCanBeCompletedWithCustomClientLoop()
+        {
+            var input = Substitute.For<IConsoleInput>();
+
+            var output = Substitute.For<IConsoleOutput>();
+            output.BufferWidth.Returns(80);
+            output.BufferHeight.Returns(25);
+
+            var client = (ConsoleLoopClient)Loop.CreateClient(new LoopInputOutputParameters
+            {
+                ConsoleInput = input,
+                ConsoleOutput = output
+            });
+
+            var loop = new Loop(typeof(TestCommand), client);
+
+            client.Reader.LineInput.ReplaceCurrentTokenWithNextCompletion(false);
+            client.Reader.LineInput.Contents.Should().Be("DoSomething");
+        }
+
+        [TestMethod]
+        public void TestThatCommandsCanBeCompletedFromPrefix()
         {
             // TODO: We're not thrilled that 'NoAttribute' shows up below; needs revisiting.
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "N" }, 0).ToList();
@@ -180,35 +223,35 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void ParameterlessCommandHasNoArgCompletions()
+        public void TestThatParameterlessCommandHasNoArgCompletions()
         {
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "DoSomething" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void BogusCommandGetsNoCompletions()
+        public void TestThatBogusCommandGetsNoCompletions()
         {
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "BogusCommand" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AttributeLessEnumValueCannotBeCompleted()
+        public void TestThatAttributeLessEnumValueCannotBeCompleted()
         {
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "NoAttribute" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void ExitCommandGetsNoArgCompletion()
+        public void TestThatExitCommandGetsNoArgCompletion()
         {
             var completions = new Loop(typeof(TestCommand)).GetCompletions(new[] { "Exit" }, 1).ToList();
             completions.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void LoopCreatedWithIoParameters()
+        public void TestThatLoopCreatedWithIoParametersExecutes()
         {
             var keys = OnlyExitableCommand.Exit.ToString().AsKeys().Concat(
                 ConsoleKey.Enter.ToKeyInfo());

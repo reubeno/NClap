@@ -15,14 +15,14 @@ namespace NClap.Tests.Repl
     public class ConsoleLoopClientTests
     {
         [TestMethod]
-        public void ConstructorThrowsOnNull()
+        public void TestThatConstructorThrowsOnNull()
         {
             Action constructAction = () => new ConsoleLoopClient(null);
             constructAction.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
-        public void Constructor()
+        public void TestThatConstructorGeneratesPlausibleClient()
         {
             var reader = Substitute.For<IConsoleReader>();
             var client = new ConsoleLoopClient(reader);
@@ -31,7 +31,19 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void ErrorsAreIgnoredWithNoErrorWriter()
+        public void TestThatStoredTokenCompleterIsRetrievable()
+        {
+            var reader = Substitute.For<IConsoleReader>();
+            var completer = Substitute.For<ITokenCompleter>();
+
+            var client = new ConsoleLoopClient(reader);
+            client.TokenCompleter = completer;
+
+            client.TokenCompleter.Should().BeSameAs(completer);
+        }
+
+        [TestMethod]
+        public void TestThatErrorsAreIgnoredWithNoErrorWriter()
         {
             var reader = Substitute.For<IConsoleReader>();
             var client = new ConsoleLoopClient(reader);
@@ -40,7 +52,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void ErrorWriterReceivesError()
+        public void TestThatErrorWriterReceivesError()
         {
             const string errorText = "Hello, errors!";
 
@@ -57,7 +69,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void Prompts()
+        public void TestThatPromptsAreObserved()
         {
             const string prompt = "[Prompt!] ";
 
@@ -80,7 +92,7 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void ReadLine()
+        public void TestThatReadLineWorksAsExpected()
         {
             const string lineText = "The line that was read.";
 
