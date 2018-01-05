@@ -1,4 +1,7 @@
 ﻿using NClap.Metadata;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NClap.Types
 {
@@ -8,6 +11,7 @@ namespace NClap.Types
     public class ArgumentParseContext
     {
         private IFileSystemReader _fileSystemReader = Parser.FileSystemReader.Create();
+        private IReadOnlyList<string> _elementSeparators = new List<string> { "," };
 
         /// <summary>
         /// The default context for parsing.
@@ -35,18 +39,31 @@ namespace NClap.Types
         /// <summary>
         /// Options for parsing numeric arguments.
         /// </summary>
-        public NumberOptions NumberOptions { get; set; }
+        public NumberOptions NumberOptions { get; set; } = NumberOptions.None;
 
         /// <summary>
         /// True to allow "empty" arguments (e.g. empty strings); false to
         /// consider them invalid.
         /// </summary>
-        public bool AllowEmpty { get; set; }
+        public bool AllowEmpty { get; set; } = false;
 
         /// <summary>
         /// True for parsing to be case sensitive; false to be case insensitive.
         /// </summary>
-        public bool CaseSensitive { get; set; }
+        public bool CaseSensitive { get; set; } = false;
+
+        /// <summary>
+        /// Strings that may separate multiple elements stored in the same token.
+        /// </summary>
+        public IReadOnlyList<string> ElementSeparators
+        {
+            get => _elementSeparators;
+            set
+            {
+                if (value == null) _elementSeparators = new string[] { };
+                _elementSeparators = value.ToList();
+            }
+        }
 
         /// <summary>
         /// Optionally provides a reference to the object containing the one to

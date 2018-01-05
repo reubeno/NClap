@@ -118,6 +118,14 @@ namespace NClap.Metadata
         public bool AllowEmpty { get; set; }
 
         /// <summary>
+        /// Optionally specifies the strings that may be used as element
+        /// separators for multiple elements that have been expressed in the
+        /// same token.  Only relevant for parsing collection types, and
+        /// ignored otherwise.
+        /// </summary>
+        public string[] ElementSeparators { get; set; } = new[] { "," };
+
+        /// <summary>
         /// Optionally provides a type that implements IStringParser, and which
         /// should be used for parsing strings for this argument instead of the
         /// default IArgumentType class associated with the field/property's

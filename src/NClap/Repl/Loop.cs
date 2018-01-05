@@ -42,10 +42,7 @@ namespace NClap.Repl
         /// for the argument set that will be dynamically created for this loop.</param>
         public Loop(Type commandType, ILoopClient loopClient, ArgumentSetAttribute argSetAttribute = null)
         {
-            if (commandType == null)
-            {
-                throw new ArgumentNullException(nameof(commandType));
-            }
+            if (commandType == null) throw new ArgumentNullException(nameof(commandType));
 
             _client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
             _client.TokenCompleter = new TokenCompleter(this);
@@ -219,7 +216,7 @@ namespace NClap.Repl
             }
 
             // See if it is an enum; if so, use it as the inner type for a command group.
-            if (inputType.GetTypeInfo().IsEnum)
+            else if (inputType.GetTypeInfo().IsEnum)
             {
                 loopType = typeof(CommandGroup<>).MakeGenericType(new[] { inputType });
             }

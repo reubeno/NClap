@@ -31,7 +31,7 @@
         /// <summary>
         /// Optional maximum widths of columns; null indicates no preference.
         /// </summary>
-        public int?[] ColumnWidths = new int?[2] { null, null };
+        public int?[] ColumnWidths { get; } = new int?[2] { null, null };
 
         /// <summary>
         /// Optionally specifies separator string to be used between columns,

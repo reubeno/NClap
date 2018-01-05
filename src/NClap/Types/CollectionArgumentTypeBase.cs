@@ -13,8 +13,6 @@ namespace NClap.Types
     /// </summary>
     internal abstract class CollectionArgumentTypeBase : ArgumentTypeBase, ICollectionArgumentType
     {
-        private const char ElementSeparatorChar = ',';
-
         private readonly IArgumentType _elementArgumentType;
 
         /// <summary>
@@ -73,7 +71,18 @@ namespace NClap.Types
                 throw new ArgumentNullException(nameof(valueToComplete));
             }
 
-            var tokens = valueToComplete.Split(ElementSeparatorChar);
+            string[] tokens;
+            if (context.ParseContext.ElementSeparators.Any())
+            {
+                tokens = valueToComplete.Split(
+                    context.ParseContext.ElementSeparators.ToArray(),
+                    StringSplitOptions.None);
+            }
+            else
+            {
+                tokens = new[] { valueToComplete };
+            }
+
             Debug.Assert(tokens.Length >= 1);
 
             var currentTokenIndex = tokens.Length - 1;
@@ -81,8 +90,10 @@ namespace NClap.Types
 
             tokens[currentTokenIndex] = string.Empty;
 
+            var preferredSeparator = GetPreferredElementSeparatorOrDefault(context.ParseContext) ?? string.Empty;
+
             return _elementArgumentType.GetCompletions(context, currentToken)
-                       .Select(completion => string.Join(ElementSeparatorChar.ToString(), tokens) + completion);
+                       .Select(completion => string.Join(preferredSeparator, tokens) + completion);
         }
 
         /// <summary>
@@ -109,7 +120,17 @@ namespace NClap.Types
         /// <returns>The parsed object.</returns>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
-            var elementStrings = stringToParse.Split(ElementSeparatorChar);
+            string[] elementStrings;
+            if (context.ElementSeparators.Any())
+            {
+                elementStrings = stringToParse.Split(
+                    context.ElementSeparators.ToArray(),
+                    StringSplitOptions.None);
+            }
+            else
+            {
+                elementStrings = new[] { stringToParse };
+            }
 
             var parsedElements = elementStrings.Select(elementString =>
             {
@@ -136,5 +157,14 @@ namespace NClap.Types
         /// <param name="collection">Collection to enumerate.</param>
         /// <returns>The enumerated objects.</returns>
         protected abstract IEnumerable<object> GetElements(object collection);
+
+        /// <summary>
+        /// Given a parser context, returns the preferred element separator. Returns null
+        /// if no such separator exists.
+        /// </summary>
+        /// <param name="context">Parser context.</param>
+        /// <returns>Preferred element separator, if one exists; null otherwise.</returns>
+        private static string GetPreferredElementSeparatorOrDefault(ArgumentParseContext context) =>
+            context.ElementSeparators.FirstOrDefault();
     }
 }
