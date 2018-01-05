@@ -3,7 +3,7 @@
 #---------------------------------#
 
 # version format
-version: 2.0.0.{build}-{branch}
+version: 2.1.0.{build}-{branch}
 
 # branches to build
 branches:
@@ -43,8 +43,8 @@ platform: Any CPU
 
 # build Configuration, i.e. Debug, Release, etc.
 configuration:
-  - Debug
   - Release
+  - Debug
 
 # install a few prereqs
 install:
