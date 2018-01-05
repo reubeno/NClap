@@ -365,6 +365,7 @@ namespace NClap.Parser
             new ArgumentParseContext
             {
                 NumberOptions = argument.Attribute.NumberOptions,
+                ElementSeparators = argument.Attribute.ElementSeparators,
                 AllowEmpty = argument.Attribute.AllowEmpty,
                 FileSystemReader = options.FileSystemReader,
                 ParserContext = options.Context,

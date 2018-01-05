@@ -154,6 +154,23 @@ namespace NClap.Tests.Types
         }
 
         [TestMethod]
+        public void TryParseCollectionWithNonDefaultSeparators()
+        {
+            var argType = new CollectionOfTArgumentType(typeof(List<string>));
+
+            var context = ArgumentParseContext.Default;
+            context.AllowEmpty = true;
+            context.ElementSeparators = new[] { "|", "~" };
+
+            argType.TryParse(context, "1,3|00~4~", out object value).Should().BeTrue();
+            value.Should().BeOfType<List<string>>();
+
+            var list = (List<string>)value;
+            list.Should().HaveCount(4);
+            list.Should().Equal("1,3", "00", "4", string.Empty);
+        }
+
+        [TestMethod]
         public void TryParseCollectionWithBadSyntax()
         {
             var listOfIntArgType = new CollectionOfTArgumentType(typeof(List<int>));

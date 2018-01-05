@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -129,6 +130,17 @@ namespace NClap.Tests.Types
         {
             var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
             argType.DisplayName.Should().Be(nameof(SimpleCommandType));
+        }
+
+        [TestMethod]
+        public void TestThatDependentTypesAreCorrect()
+        {
+            var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
+            argType.DependentTypes.Should().HaveCount(1);
+
+            var dependentType = argType.DependentTypes.First();
+            var enumType = dependentType.Should().BeAssignableTo<IEnumArgumentType>().Which;
+            enumType.Type.Should().Be(typeof(SimpleCommandType));
         }
 
         [TestMethod]
