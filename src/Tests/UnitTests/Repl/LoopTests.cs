@@ -181,7 +181,7 @@ namespace NClap.Tests.Repl
         [TestMethod]
         public void InvalidTokenCannotBeCompleted()
         {
-            Action action = () => new Loop(typeof(TestCommand)).GetCompletions(new string[] { }, 1).ToList();
+            Action action = () => new Loop(typeof(TestCommand)).GetCompletions(Array.Empty<string>(), 1).ToList();
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
 
@@ -189,7 +189,7 @@ namespace NClap.Tests.Repl
         public void TestThatCommandsCanBeCompletedFromEmptyToken()
         {
             // TODO: We're not thrilled that 'NoAttribute' shows up below; needs revisiting.
-            var completions = new Loop(typeof(TestCommand)).GetCompletions(new string[] { }, 0).ToList();
+            var completions = new Loop(typeof(TestCommand)).GetCompletions(Array.Empty<string>(), 0).ToList();
             completions.Should().Equal("DoSomething", "Exit", "Help", "NoAttribute", "NoConstructor", "NonCommand");
         }
 

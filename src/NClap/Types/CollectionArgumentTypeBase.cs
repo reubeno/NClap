@@ -164,7 +164,10 @@ namespace NClap.Types
         /// </summary>
         /// <param name="context">Parser context.</param>
         /// <returns>Preferred element separator, if one exists; null otherwise.</returns>
-        private static string GetPreferredElementSeparatorOrDefault(ArgumentParseContext context) =>
-            context.ElementSeparators.FirstOrDefault();
+        private static string GetPreferredElementSeparatorOrDefault(ArgumentParseContext context)
+        {
+            var seps = context.ElementSeparators;
+            return (seps.Count == 0) ? null : seps[0];
+        }
     }
 }

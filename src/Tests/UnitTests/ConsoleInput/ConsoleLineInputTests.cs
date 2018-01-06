@@ -1255,7 +1255,7 @@ namespace NClap.Tests.ConsoleInput
             var console = new SimulatedConsoleOutput();
             var input = CreateInput(console);
 
-            input.DisplayInColumns(new string[] { });
+            input.DisplayInColumns(Array.Empty<string>());
             GetContents(console).Should().BeEmpty();
         }
 

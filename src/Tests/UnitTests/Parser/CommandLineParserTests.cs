@@ -531,7 +531,7 @@ namespace NClap.Tests.Parser
         public void NoArgumentsWorks()
         {
             var args = new NoArguments();
-            TryParseWithUsage(new string[] { }, args).Should().BeTrue();
+            TryParseWithUsage(Array.Empty<string>(), args).Should().BeTrue();
             TryParseWithUsage(new[] { "/unknown" }, args).Should().BeFalse();
         }
 
@@ -676,7 +676,7 @@ namespace NClap.Tests.Parser
             Action parse0 = () => TryParseWithUsage(null, args);
             parse0.Should().Throw<ArgumentNullException>();
 
-            Action parse1 = () => TryParseWithUsage(new string[] { }, (SimpleArguments)null);
+            Action parse1 = () => TryParseWithUsage(Array.Empty<string>(), (SimpleArguments)null);
             parse1.Should().Throw<ArgumentNullException>();
         }
 
@@ -873,7 +873,7 @@ namespace NClap.Tests.Parser
         public void DefaultValueIsUsedWhenArgumentNotPresent()
         {
             var args = new ArgumentsWithDefaultValue();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             args.Argument.Should().Be(10);
 
             CommandLineParser.Format(args).Should().BeEmpty();
@@ -891,7 +891,7 @@ namespace NClap.Tests.Parser
         public void AlreadySetValueIsIgnoredByDefault()
         {
             var args = new ArgumentsWithDefaultValue { Argument = 17 };
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             args.Argument.Should().Be(10);
 
             CommandLineParser.Format(args).Should().BeEmpty();
@@ -901,7 +901,7 @@ namespace NClap.Tests.Parser
         public void DynamicDefaultValueIsObserved()
         {
             var args = new ArgumentsWithDynamicDefaultValue { Argument = 17 };
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             args.Argument.Should().Be(17);
 
             CommandLineParser.Format(args).Should().Equal("/Argument=17");
@@ -911,7 +911,7 @@ namespace NClap.Tests.Parser
         public void EmptyCommandLineParsesOkay()
         {
             var args = new SimpleArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             CommandLineParser.Format(args).Should().BeEmpty();
         }
 
@@ -928,10 +928,10 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void UnsupportedFieldTypesThrow()
         {
-            Action readOnlyField = () => TryParse(new string[] { }, new ReadOnlyFieldArguments());
+            Action readOnlyField = () => TryParse(Array.Empty<string>(), new ReadOnlyFieldArguments());
             readOnlyField.Should().Throw<InvalidArgumentSetException>();
 
-            Action constField = () => TryParse(new string[] { }, new ConstFieldArguments());
+            Action constField = () => TryParse(Array.Empty<string>(), new ConstFieldArguments());
             constField.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -971,7 +971,7 @@ namespace NClap.Tests.Parser
         {
             var args = new NoAttributedArguments();
 
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=7" }, args).Should().BeFalse();
         }
 
@@ -990,7 +990,7 @@ namespace NClap.Tests.Parser
         {
             var args = new EmptyShortNameArguments();
 
-            Action parseFunc = () => TryParse(new string[] { }, args);
+            Action parseFunc = () => TryParse(Array.Empty<string>(), args);
             parseFunc.Should().NotThrow();
         }
 
@@ -999,7 +999,7 @@ namespace NClap.Tests.Parser
         {
             var args = new DuplicateLongNameArguments();
 
-            Action parseFunc = () => TryParse(new string[] { }, args);
+            Action parseFunc = () => TryParse(Array.Empty<string>(), args);
             parseFunc.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -1018,7 +1018,7 @@ namespace NClap.Tests.Parser
         {
             var args = new DuplicateShortNameArguments();
 
-            Action parseFunc = () => TryParse(new string[] { }, args);
+            Action parseFunc = () => TryParse(Array.Empty<string>(), args);
             parseFunc.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -1035,21 +1035,21 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void UnsettablePropertyArgument()
         {
-            Action parse = () => TryParse(new string[] { }, new UnsettablePropertyArguments());
+            Action parse = () => TryParse(Array.Empty<string>(), new UnsettablePropertyArguments());
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void DuplicatePositionThrows()
         {
-            Action parse = () => TryParse(new string[] { }, new SamePositionArguments());
+            Action parse = () => TryParse(Array.Empty<string>(), new SamePositionArguments());
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void NoZeroPositionThrows()
         {
-            Action parse = () => TryParse(new string[] { }, new NoZeroPositionArguments());
+            Action parse = () => TryParse(Array.Empty<string>(), new NoZeroPositionArguments());
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -1096,14 +1096,14 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void RestOfLinePlusPositionalArgumentThrows()
         {
-            Action parse = () => TryParse(new string[] { }, new RestOfLinePlusPositionArguments());
+            Action parse = () => TryParse(Array.Empty<string>(), new RestOfLinePlusPositionArguments());
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
         public void MultiplePositionalArgumentsPlusPositionArgumentsThrows()
         {
-            Action parse = () => TryParse(new string[] { }, new MultiplePositionalArgumentsPlusPositionArguments());
+            Action parse = () => TryParse(Array.Empty<string>(), new MultiplePositionalArgumentsPlusPositionArguments());
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -1227,7 +1227,7 @@ namespace NClap.Tests.Parser
         public void FieldDefaultValueOfWrongType()
         {
             var args = new FieldDefaultValueOfWrongTypeArguments();
-            Action parse = () => TryParse(new string[] { }, args);
+            Action parse = () => TryParse(Array.Empty<string>(), args);
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -1235,7 +1235,7 @@ namespace NClap.Tests.Parser
         public void PropertyDefaultValueOfWrongType()
         {
             var args = new PropertyDefaultValueOfWrongTypeArguments();
-            Action parse = () => TryParse(new string[] { }, args);
+            Action parse = () => TryParse(Array.Empty<string>(), args);
             parse.Should().Throw<InvalidArgumentSetException>();
         }
 
@@ -1256,7 +1256,7 @@ namespace NClap.Tests.Parser
         public void ZeroLengthLongNameThrows()
         {
             var args = new ZeroLengthLongNameArguments();
-            Action parse = () => TryParse(new string[] { }, args);
+            Action parse = () => TryParse(Array.Empty<string>(), args);
             parse.Should().Throw<Exception>();
         }
 
@@ -1265,7 +1265,7 @@ namespace NClap.Tests.Parser
         {
             var args = new FlagEnumArguments();
 
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             args.Value.Should().Be(MyFlagsEnum.None);
 
             TryParse(new[] { "/Value=FlagOne" }, args).Should().BeTrue();

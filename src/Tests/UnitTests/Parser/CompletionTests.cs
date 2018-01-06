@@ -49,7 +49,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void TestThatGetCompletionsThrowsOnNullType()
         {
-            Action a = () => CommandLineParser.GetCompletions(null, new string[] { }, 0);
+            Action a = () => CommandLineParser.GetCompletions(null, Array.Empty<string>(), 0);
             a.Should().Throw<ArgumentNullException>();
         }
 

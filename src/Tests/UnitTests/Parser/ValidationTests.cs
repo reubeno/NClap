@@ -224,7 +224,7 @@ namespace NClap.Tests.Parser
         public void InvalidDefaultValue()
         {
             var args = new InvalidDefaultValueArguments();
-            TryParse(new string[] { }, args).Should().BeFalse();
+            TryParse(Array.Empty<string>(), args).Should().BeFalse();
             TryParse(new[] { "/value=" }, args).Should().BeFalse();
             TryParse(new[] { "/value=a" }, args).Should().BeTrue();
         }
@@ -233,7 +233,7 @@ namespace NClap.Tests.Parser
         public void NonEmptyAttribute()
         {
             var args = new NonEmptyStringArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=" }, args).Should().BeFalse();
             TryParse(new[] { "/value=a" }, args).Should().BeTrue();
             TryParse(new[] { "/value= " }, args).Should().BeTrue();
@@ -254,7 +254,7 @@ namespace NClap.Tests.Parser
         public void NotValueInt()
         {
             var args = new NotValueIntArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=0" }, args).Should().BeFalse();
             TryParse(new[] { "/value=7" }, args).Should().BeTrue();
         }
@@ -263,7 +263,7 @@ namespace NClap.Tests.Parser
         public void MultiNotValueInt()
         {
             var args = new MultiNotValueIntArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=0" }, args).Should().BeFalse();
             TryParse(new[] { "/value=7" }, args).Should().BeTrue();
             TryParse(new[] { "/value=10" }, args).Should().BeFalse();
@@ -273,7 +273,7 @@ namespace NClap.Tests.Parser
         public void NotValueString()
         {
             var args = new NotValueStringArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=abc" }, args).Should().BeTrue();
             TryParse(new[] { "/value=Hello" }, args).Should().BeFalse();
             TryParse(new[] { "/value=Hello " }, args).Should().BeTrue();
@@ -285,7 +285,7 @@ namespace NClap.Tests.Parser
         public void MatchesRegEx()
         {
             var args = new RegExStringArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=" }, args).Should().BeFalse();
             TryParse(new[] { "/value=hallo" }, args).Should().BeTrue();
             TryParse(new[] { "/value=halloo" }, args).Should().BeTrue();
@@ -297,7 +297,7 @@ namespace NClap.Tests.Parser
         public void DoesNotMatchRegEx()
         {
             var args = new NotRegExStringArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=" }, args).Should().BeTrue();
             TryParse(new[] { "/value=hallo" }, args).Should().BeFalse();
             TryParse(new[] { "/value=halloo" }, args).Should().BeFalse();
@@ -309,7 +309,7 @@ namespace NClap.Tests.Parser
         public void CaseInsensitivelyMatchesRegEx()
         {
             var args = new CaseInsensitiveRegExStringArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=" }, args).Should().BeFalse();
             TryParse(new[] { "/value=hallo" }, args).Should().BeTrue();
             TryParse(new[] { "/value=halloo" }, args).Should().BeTrue();
@@ -334,7 +334,7 @@ namespace NClap.Tests.Parser
         public void GreaterThan()
         {
             var args = new GreaterThanArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=0" }, args).Should().BeFalse();
             TryParse(new[] { "/value=10" }, args).Should().BeFalse();
             TryParse(new[] { "/value=11" }, args).Should().BeTrue();
@@ -344,7 +344,7 @@ namespace NClap.Tests.Parser
         public void GreaterThanOrEqualTo()
         {
             var args = new GreaterThanOrEqualToArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=0" }, args).Should().BeFalse();
             TryParse(new[] { "/value=10" }, args).Should().BeTrue();
             TryParse(new[] { "/value=11" }, args).Should().BeTrue();
@@ -354,7 +354,7 @@ namespace NClap.Tests.Parser
         public void LessThan()
         {
             var args = new LessThanArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=0" }, args).Should().BeTrue();
             TryParse(new[] { "/value=10" }, args).Should().BeFalse();
             TryParse(new[] { "/value=11" }, args).Should().BeFalse();
@@ -364,7 +364,7 @@ namespace NClap.Tests.Parser
         public void LessThanOrEqualTo()
         {
             var args = new LessThanOrEqualToArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             TryParse(new[] { "/value=0" }, args).Should().BeTrue();
             TryParse(new[] { "/value=10" }, args).Should().BeTrue();
             TryParse(new[] { "/value=11" }, args).Should().BeFalse();
@@ -374,7 +374,7 @@ namespace NClap.Tests.Parser
         public void FileStringExistence()
         {
             var args = new FileExistsStringArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
@@ -390,7 +390,7 @@ namespace NClap.Tests.Parser
         public void FileExistence()
         {
             var args = new FileExistsArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
@@ -406,7 +406,7 @@ namespace NClap.Tests.Parser
         public void DirectoryExistence()
         {
             var args = new DirectoryExistsArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
@@ -422,7 +422,7 @@ namespace NClap.Tests.Parser
         public void AnyExistence()
         {
             var args = new ExistsArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };
@@ -444,7 +444,7 @@ namespace NClap.Tests.Parser
         public void MustNotExist()
         {
             var args = new NotExistsArguments();
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
 
             var reader = Substitute.For<IFileSystemReader>();
             var options = new CommandLineParserOptions { FileSystemReader = reader };

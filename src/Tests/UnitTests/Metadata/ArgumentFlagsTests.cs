@@ -49,7 +49,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void RequiredScalar()
         {
-            ShouldFailToParse<RequiredArguments<string>>(new string[] { });
+            ShouldFailToParse<RequiredArguments<string>>(Array.Empty<string>());
             ShouldParseAs<RequiredArguments<string>, string>(new[] { "/value:a" }, "a");
             ShouldFailToParse<RequiredArguments<string>>(new[] { "/value:a", "/value:b" });
             ShouldFailToParse<RequiredArguments<string>>(new[] { "/value:a", "/value:a" });
@@ -58,7 +58,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void AtMostOnceScalar()
         {
-            ShouldParseAs<AtMostOnceArguments<string>, string>(new string[] { }, null);
+            ShouldParseAs<AtMostOnceArguments<string>, string>(Array.Empty<string>(), null);
             ShouldParseAs<AtMostOnceArguments<string>, string>(new[] { "/value:a" }, "a");
             ShouldFailToParse<AtMostOnceArguments<string>>(new[] { "/value:a", "/value:b" });
             ShouldFailToParse<AtMostOnceArguments<string>>(new[] { "/value:a", "/value:a" });
@@ -67,7 +67,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void AtLeastOnceScalar()
         {
-            ShouldFailToParse<AtLeastOnceArguments<string>>(new string[] { });
+            ShouldFailToParse<AtLeastOnceArguments<string>>(Array.Empty<string>());
             ShouldParseAs<AtLeastOnceArguments<string>, string>(new[] { "/value:a" }, "a");
             ShouldParseAs<AtLeastOnceArguments<string>, string>(new[] { "/value:a", "/value:b" }, "b");
             ShouldParseAs<AtLeastOnceArguments<string>, string>(new[] { "/value:a", "/value:a" }, "a");
@@ -76,7 +76,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void MultipleScalar()
         {
-            ShouldParseAs<MultipleArguments<string>, string>(new string[] { }, null);
+            ShouldParseAs<MultipleArguments<string>, string>(Array.Empty<string>(), null);
             ShouldParseAs<MultipleArguments<string>, string>(new[] { "/value:a" }, "a");
             ShouldParseAs<MultipleArguments<string>, string>(new[] { "/value:a", "/value:b" }, "b");
             ShouldParseAs<MultipleArguments<string>, string>(new[] { "/value:a", "/value:a" }, "a");
@@ -85,7 +85,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void MultipleUniqueScalar()
         {
-            ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new string[] { });
+            ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(Array.Empty<string>());
             ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new[] { "/value:a" });
             ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new[] { "/value:a", "/value:b" });
             ShouldThrow<MultipleUniqueArguments<string>, InvalidArgumentSetException>(new[] { "/value:a", "/value:a" });
@@ -95,7 +95,7 @@ namespace NClap.Tests.Metadata
         public void MultipleUniqueCollection()
         {
 
-            Parse(new string[] { }, out MultipleUniqueArguments<string[]> parsedArgs).Should().BeTrue();
+            Parse(Array.Empty<string>(), out MultipleUniqueArguments<string[]> parsedArgs).Should().BeTrue();
             parsedArgs.Value.Length.Should().Be(0);
 
             Parse(new[] { "/value:a" }, out parsedArgs).Should().BeTrue();

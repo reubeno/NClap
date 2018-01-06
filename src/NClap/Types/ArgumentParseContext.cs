@@ -62,7 +62,7 @@ namespace NClap.Types
             {
                 if (value == null)
                 {
-                    _elementSeparators = new string[] { };
+                    _elementSeparators = Array.Empty<string>();
                 }
                 else
                 {

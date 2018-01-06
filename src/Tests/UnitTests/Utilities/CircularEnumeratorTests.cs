@@ -11,7 +11,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void EnumerateEmptyList()
         {
-            var list = new string[] { };
+            var list = Array.Empty<string>();
             var e = CircularEnumerator.Create(list);
             e.Should().NotBeNull();
             e.CursorIndex.Should().NotHaveValue();

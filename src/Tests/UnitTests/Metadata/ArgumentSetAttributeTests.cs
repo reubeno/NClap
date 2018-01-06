@@ -127,7 +127,7 @@ namespace NClap.Tests.Metadata
         {
             var args = new AlternatePrefixArguments();
 
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             args.Value.Should().Be(0);
 
             TryParse(new[] { "/value=10" }, args).Should().BeFalse();
@@ -152,7 +152,7 @@ namespace NClap.Tests.Metadata
         {
             var args = new AlternateSeparatorArguments();
 
-            TryParse(new string[] { }, args).Should().BeTrue();
+            TryParse(Array.Empty<string>(), args).Should().BeTrue();
             args.Value.Should().Be(0);
 
             TryParse(new[] { "/value=10" }, args).Should().BeFalse();
