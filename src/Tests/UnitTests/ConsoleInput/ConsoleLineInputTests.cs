@@ -995,6 +995,15 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
+        public void DisplayAllCompletionsButNullHandler()
+        {
+            var input = CreateInput(new SimulatedConsoleOutput());
+
+            input.DisplayAllCompletions();
+            input.Contents.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void ReplaceWithAllCompletionsButNoCompletions()
         {
             var console = new SimulatedConsoleOutput();

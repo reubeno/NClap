@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -22,6 +23,33 @@ namespace NClap.Tests.ConsoleInput
         {
             var bindings = ConsoleKeyBindingSet.Default;
             bindings.Count.Should().BeGreaterThan(0);
+        }
+
+        [TestMethod]
+        public void EnumerateBindings()
+        {
+            var bindings = new ConsoleKeyBindingSet();
+            bindings.Bind(ConsoleKey.E, ConsoleModifiers.Shift, ConsoleInputOperation.BackwardKillWord);
+            bindings.Bind(ConsoleKey.F, ConsoleModifiers.Control, ConsoleInputOperation.AcceptLine);
+
+            var enumerable = (IEnumerable)bindings;
+            foreach (KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation> pair in enumerable)
+            {
+                if (pair.Key.Key == ConsoleKey.E)
+                {
+                    pair.Key.Modifiers.Should().Be(ConsoleModifiers.Shift);
+                    pair.Value.Should().Be(ConsoleInputOperation.BackwardKillWord);
+                }
+                else if (pair.Key.Key == ConsoleKey.F)
+                {
+                    pair.Key.Modifiers.Should().Be(ConsoleModifiers.Control);
+                    pair.Value.Should().Be(ConsoleInputOperation.AcceptLine);
+                }
+                else
+                {
+                    Assert.Fail();
+                }
+            }
         }
 
         [TestMethod]

@@ -193,11 +193,29 @@ namespace NClap.Tests.ConsoleInput
             .Should().Be("abc fooEllZzz");
 
         [TestMethod]
-        public void InsertComment() => Process(
+        public void InsertCommentButWithoutDefinedCommentChar() => Process(
             " hello world".AsKeys(),
             ConsoleKey.D3.WithAlt().WithShift(),
             " there".AsKeys())
             .Should().Be(" hello world there");
+
+        [TestMethod]
+        public void InsertCommentWithDefinedCommentChar()
+        {
+            var keys = new IEnumerable<ConsoleKeyInfo>[]
+            {
+                " hello world".AsKeys(),
+                ConsoleKey.D3.WithAlt().WithShift(),
+                "something else".AsKeys(),
+                ConsoleKey.Enter.AsInfo()
+            };
+
+            var reader = CreateReader(keys.SelectMany(k => k));
+            reader.CommentCharacter = '%';
+
+            reader.ReadLine().Should().Be("% hello world");
+            reader.ReadLine().Should().Be("something else");
+        }
 
         [TestMethod]
         public void CutAndPaste() => Process(
@@ -224,9 +242,10 @@ namespace NClap.Tests.ConsoleInput
         {
             var consoleOutput = new SimulatedConsoleOutput();
             var consoleInput = new SimulatedConsoleInput(keyStream);
-
-            var input = new ConsoleLineInput(consoleOutput, new ConsoleInputBuffer(), new ConsoleHistory());
-            input.TokenCompleter = tokenCompleter;
+            var input = new ConsoleLineInput(consoleOutput, new ConsoleInputBuffer(), new ConsoleHistory())
+            {
+                TokenCompleter = tokenCompleter
+            };
 
             return new ConsoleReader(input, consoleInput, consoleOutput, null);
         }
