@@ -175,12 +175,7 @@ namespace NClap.Help
             var id = new Dictionary<ArgumentUsageInfo, List<IEnumArgumentType>>();
             inlineDocumented = id;
 
-            bool ShouldSeparatelyDocumentEnum(List<ArgumentUsageInfo> usageInfos)
-            {
-                return usageInfos.Count > 1;
-            }
-
-            foreach (var pair in enumTypeMap.Where(e => !ShouldSeparatelyDocumentEnum(e.Value)))
+            foreach (var pair in enumTypeMap.Where(e => e.Value.Count == 1))
             {
                 var newKey = pair.Value.Single();
                 if (!id.TryGetValue(newKey, out List<IEnumArgumentType> types))
@@ -193,7 +188,7 @@ namespace NClap.Help
             }
 
             separatelyDocumented = enumTypeMap
-                .Where(e => ShouldSeparatelyDocumentEnum(e.Value))
+                .Where(e => e.Value.Count > 1)
                 .Select(e => (IEnumArgumentType)e.Key);
         }
 
