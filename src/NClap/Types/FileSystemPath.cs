@@ -21,6 +21,8 @@ namespace NClap.Types
         /// variables; false to leave environment variables unexpanded.</param>
         /// <param name="rootPathForRelativePaths">Root path to resolve the
         /// path with respect to, if it's relative.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="path"/>
+        /// is null or empty.</exception>
         public FileSystemPath(string path, bool expandEnvironmentVariables, string rootPathForRelativePaths)
         {
             if (string.IsNullOrEmpty(path))
@@ -103,12 +105,11 @@ namespace NClap.Types
         /// <param name="context">Context for completion.</param>
         /// <param name="pathPrefix">Path prefix to complete.</param>
         /// <returns>Possible completions.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="context"/>
+        /// is null.</exception>
         public static IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string pathPrefix)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             // If the string to be completed is empty, then treat it as if it
             // were a reference to the current working directory (with the

@@ -175,7 +175,12 @@ namespace NClap.Help
             var id = new Dictionary<ArgumentUsageInfo, List<IEnumArgumentType>>();
             inlineDocumented = id;
 
-            foreach (var pair in enumTypeMap.Where(e => e.Value.Count == 1))
+            bool ShouldSeparatelyDocumentEnum(List<ArgumentUsageInfo> usageInfos)
+            {
+                return usageInfos.Count > 1;
+            }
+
+            foreach (var pair in enumTypeMap.Where(e => !ShouldSeparatelyDocumentEnum(e.Value)))
             {
                 var newKey = pair.Value.Single();
                 if (!id.TryGetValue(newKey, out List<IEnumArgumentType> types))
@@ -188,7 +193,7 @@ namespace NClap.Help
             }
 
             separatelyDocumented = enumTypeMap
-                .Where(e => e.Value.Count > 1)
+                .Where(e => ShouldSeparatelyDocumentEnum(e.Value))
                 .Select(e => (IEnumArgumentType)e.Key);
         }
 
@@ -649,11 +654,11 @@ namespace NClap.Help
             public bool Equals(IArgumentType x, IArgumentType y) =>
                 x.Type.GetTypeInfo().GUID == y.Type.GetTypeInfo().GUID;
 
-            public int GetHashCode(IArgumentType obj) =>
-                obj.Type.GetTypeInfo().GUID.GetHashCode();
+            public int GetHashCode(IArgumentType value) =>
+                value.Type.GetTypeInfo().GUID.GetHashCode();
         }
 
-        private class Section
+        private sealed class Section
         {
             public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredMultistring> entries, string name = null)
             {
@@ -692,7 +697,7 @@ namespace NClap.Help
             public IReadOnlyList<ColoredMultistring> Entries { get; set; }
         }
 
-        class ParameterEntry
+        private class ParameterEntry
         {
             public ColoredMultistring Syntax { get; set; }
 

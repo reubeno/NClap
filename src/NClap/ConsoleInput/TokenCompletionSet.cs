@@ -62,12 +62,11 @@ namespace NClap.ConsoleInput
         /// <param name="tokenCompleter">Token completion handler to invoke.
         /// </param>
         /// <returns>The generated completion set.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="tokenCompleter" />
+        /// is null.</exception>
         public static TokenCompletionSet Create(string inputText, int cursorIndex, ITokenCompleter tokenCompleter)
         {
-            if (tokenCompleter == null)
-            {
-                throw new ArgumentNullException(nameof(tokenCompleter));
-            }
+            if (tokenCompleter == null) throw new ArgumentNullException(nameof(tokenCompleter));
 
             var completions = Create(inputText, cursorIndex, tokenCompleter, out int tokenStartIndex, out int tokenLength);
             var originalToken = new Token(new Substring(inputText, tokenStartIndex, tokenLength));

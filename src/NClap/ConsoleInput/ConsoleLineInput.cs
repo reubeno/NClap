@@ -210,12 +210,11 @@ namespace NClap.ConsoleInput
         /// Insert a string at the cursor without moving the cursor.
         /// </summary>
         /// <param name="value">The string to insert.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
+        /// is null.</exception>
         public void Insert(string value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            if (value == null) throw new ArgumentNullException(nameof(value));
 
             var originalCursorIndex = Buffer.CursorIndex;
             var originalLength = Buffer.Length;
@@ -372,12 +371,11 @@ namespace NClap.ConsoleInput
         /// function.  Does not move the cursor.
         /// </summary>
         /// <param name="transformation">Function to apply.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="transformation" />
+        /// is null.</exception>
         public void TransformCurrentWord(Func<string, string> transformation)
         {
-            if (transformation == null)
-            {
-                throw new ArgumentNullException(nameof(transformation));
-            }
+            if (transformation == null) throw new ArgumentNullException(nameof(transformation));
 
             var word = new string(Buffer.Read(FindIndexOfNextWord() - Buffer.CursorIndex));
             var transformedWord = transformation(word);

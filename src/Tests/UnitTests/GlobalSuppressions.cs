@@ -5,6 +5,7 @@
 // a specific target and scoped to a namespace, type, member, etc.
 //
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider")]
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1307:Specify StringComparison")]
+using System.Diagnostics.CodeAnalysis;
 
+[assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider")]
+[assembly: SuppressMessage("Globalization", "CA1307:Specify StringComparison")]

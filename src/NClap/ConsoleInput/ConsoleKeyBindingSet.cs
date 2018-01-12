@@ -250,6 +250,8 @@ namespace NClap.ConsoleInput
         /// <param name="key">The key info.</param>
         /// <returns>The mapped operation; throws an exception if the key press is
         /// not mapped.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown when the key press
+        /// is not mapped.</exception>
         public ConsoleInputOperation GetValue(ConsoleKeyInfo key)
         {
             if (!TryGetValue(key, out ConsoleInputOperation op))

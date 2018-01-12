@@ -197,6 +197,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="lineCount">The number of lines by which to scroll the
         /// contents.</param>
+        /// <exception cref="Win32Exception">Thrown when an internal error
+        /// occurs.</exception>
         public void ScrollContents(int lineCount)
         {
             var handle = NativeMethods.GetStdHandle(NativeMethods.StandardHandleType.Output);

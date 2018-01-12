@@ -46,14 +46,13 @@ namespace NClap.Types
         /// </summary>
         /// <param name="value">The value to format into a string.</param>
         /// <returns>The formatted string.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
+        /// is null.</exception>
         public virtual string Format(object value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            if (value == null) throw new ArgumentNullException(nameof(value));
 
-            if (value.GetType() != Type)
+            if (value.GetType() != Type) 
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }

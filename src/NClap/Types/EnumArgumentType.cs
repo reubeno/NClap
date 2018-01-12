@@ -32,6 +32,8 @@ namespace NClap.Types
         /// Constructs an object to describe the provided enumeration type.
         /// </summary>
         /// <param name="type">The enumeration type to describe.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="type" />
+        /// is not an enum type with a valid backing integer representation type.</exception>
         protected EnumArgumentType(Type type) : base(type)
         {
             if (!type.GetTypeInfo().IsEnum)
@@ -79,12 +81,11 @@ namespace NClap.Types
         /// </summary>
         /// <param name="value">The value to format into a string.</param>
         /// <returns>The formatted string.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
+        /// is null.</exception>
         public override string Format(object value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            if (value == null) throw new ArgumentNullException(nameof(value));
 
             if (_valuesByValue.TryGetValue(value, out EnumArgumentValue enumValue))
             {

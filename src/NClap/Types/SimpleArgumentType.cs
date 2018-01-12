@@ -56,6 +56,8 @@ namespace NClap.Types
         /// the given type.</param>
         /// <param name="displayName">The type's human-readable name.</param>
         /// <returns>The constructed object.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="parseHandler"/>
+        /// is null.</exception>
         public static SimpleArgumentType Create<T>(SimpleArgumentTypeParseHandler<T> parseHandler, SimpleArgumentTypeCompletionHandler completionHandler = null, string displayName = null)
         {
             if (parseHandler == null) throw new ArgumentNullException(nameof(parseHandler));

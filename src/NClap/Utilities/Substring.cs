@@ -28,12 +28,11 @@ namespace NClap.Utilities
         /// substring starts in the provided string.</param>
         /// <param name="length">The number of characters in the substring.
         /// </param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
+        /// is null.</exception>
         public Substring(string value, int startingOffset, int length)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            if (value == null) throw new ArgumentNullException(nameof(value));
 
             if (startingOffset < 0)
             {

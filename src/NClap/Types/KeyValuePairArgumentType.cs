@@ -75,17 +75,12 @@ namespace NClap.Types
         /// <returns>An enumeration of a set of completion strings; if no such
         /// strings could be generated, or if the type doesn't support
         /// completion, then an empty enumeration is returned.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="context"/>
+        /// or <paramref name="valueToComplete"/> is null.</exception>
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (valueToComplete == null)
-            {
-                throw new ArgumentNullException(nameof(valueToComplete));
-            }
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (valueToComplete == null) throw new ArgumentNullException(nameof(valueToComplete));
 
             var separatorIndex = valueToComplete.IndexOf(KeyValueSeparatorChar);
             if (separatorIndex < 0)
@@ -105,6 +100,9 @@ namespace NClap.Types
         /// <param name="context">Context for parsing.</param>
         /// <param name="stringToParse">String to parse.</param>
         /// <returns>The parsed object.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when
+        /// <paramref name="stringToParse" /> is not a well-formed encoding of a
+        /// key/value pair</exception>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
             var separatorIndex = stringToParse.IndexOf(KeyValueSeparatorChar);
