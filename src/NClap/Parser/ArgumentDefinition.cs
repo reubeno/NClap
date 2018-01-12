@@ -15,7 +15,7 @@ namespace NClap.Parser
     /// <summary>
     /// Describes a command-line argument.
     /// </summary>
-    public class ArgumentDefinition
+    public sealed class ArgumentDefinition
     {
         private readonly HashSet<ArgumentDefinition> _conflictingArgs = new HashSet<ArgumentDefinition>();
 

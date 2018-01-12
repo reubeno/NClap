@@ -8,6 +8,13 @@ namespace NClap.Tests.Exceptions
     public class InvalidCommandExceptionTests
     {
         [TestMethod]
+        public void TestThatParameterlessConstructorYieldsExceptionWithDefaults()
+        {
+            var exn = new InvalidCommandException();
+            exn.Message.Should().NotBeEmpty();
+        }
+
+        [TestMethod]
         public void TestThatInnerMessageIsEmbeddedInConstructedObject()
         {
             const string anyMessage = "Some message";

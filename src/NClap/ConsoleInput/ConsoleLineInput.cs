@@ -516,9 +516,7 @@ namespace NClap.ConsoleInput
         private bool MoveConsoleAndBufferCursors(SeekOrigin origin, int deltaFromOrigin)
         {
             var result = false;
-
-            int movementDelta;
-            if (Buffer.MoveCursor(origin, deltaFromOrigin, out movementDelta))
+            if (Buffer.MoveCursor(origin, deltaFromOrigin, out int movementDelta))
             {
                 result = MoveConsoleCursor(movementDelta);
                 if (!result)

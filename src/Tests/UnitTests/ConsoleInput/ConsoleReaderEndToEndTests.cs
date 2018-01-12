@@ -112,8 +112,7 @@ namespace NClap.Tests.ConsoleInput
             .Should().Be("hello ");
 
         [TestMethod]
-        public void InsertTab() =>
-            Process(ConsoleKey.Tab.WithAlt()).Should().Be("\t");
+        public void InsertTab() => Process(ConsoleKey.Tab.WithAlt()).Should().Be("\t");
 
         [TestMethod]
         public void Abort() => Process(

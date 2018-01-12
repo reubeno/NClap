@@ -127,15 +127,65 @@ namespace NClap.Tests.ConsoleInput
         {
             const ConsoleInputOperation oldOp = ConsoleInputOperation.Undo;
             const ConsoleInputOperation newOp = ConsoleInputOperation.Abort;
+            var anyKey = Any.Enum<ConsoleKey>();
 
             var bindings = new ConsoleKeyBindingSet();
-            bindings.Bind(ConsoleKey.D, ConsoleModifiers.Control, oldOp);
-            bindings.Bind(ConsoleKey.D, ConsoleModifiers.Control, newOp);
+            bindings.Bind(anyKey, ConsoleModifiers.Control, oldOp);
+            bindings.Bind(anyKey, ConsoleModifiers.Control, newOp);
 
             bindings.Values.Should().HaveCount(1);
 
-            var keyInfo = new ConsoleKeyInfo('\x04', ConsoleKey.D, false, false, true);
+            var keyInfo = new ConsoleKeyInfo('\x04', anyKey, false, false, true);
             bindings[keyInfo].Should().Be(newOp);
+        }
+
+        [TestMethod]
+        public void TestThatKeyMayBeBoundWithIgnoredModifiers()
+        {
+            var anyKey = ConsoleKey.C;
+            var anyKeyChar = 'c';
+            var anyOp = Any.Enum<ConsoleInputOperation>();
+
+            var bindings = new ConsoleKeyBindingSet();
+            bindings.BindWithIgnoredModifiers(anyKey, anyOp);
+
+            // It's not enumerable.
+            bindings.Values.Should().HaveCount(0);
+
+            // ...but it's retrievable.
+            void ValidateItIsRetrievableWithModifier(ConsoleModifiers mods)
+            {
+                bindings.TryGetValue(new ConsoleKeyInfo(anyKeyChar, anyKey, false, false, false), out ConsoleInputOperation op)
+                    .Should().BeTrue();
+                op.Should().Be(anyOp);
+            }
+
+            ValidateItIsRetrievableWithModifier((ConsoleModifiers)0);
+
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Control);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Shift);
+
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt | ConsoleModifiers.Control);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt | ConsoleModifiers.Shift);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Control | ConsoleModifiers.Shift);
+
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt | ConsoleModifiers.Control | ConsoleModifiers.Shift);
+        }
+
+        [TestMethod]
+        public void TestThatKeyWithIgnoredModifiersMayBeUnbound()
+        {
+            var anyKey = ConsoleKey.C;
+            var anyKeyChar = 'c';
+            var anyOp = Any.Enum<ConsoleInputOperation>();
+
+            var bindings = new ConsoleKeyBindingSet();
+            bindings.BindWithIgnoredModifiers(anyKey, anyOp);
+            bindings.BindWithIgnoredModifiers(anyKey, null);
+
+            bindings.TryGetValue(new ConsoleKeyInfo(anyKeyChar, anyKey, false, false, false), out ConsoleInputOperation op)
+                .Should().BeFalse();
         }
     }
 }
