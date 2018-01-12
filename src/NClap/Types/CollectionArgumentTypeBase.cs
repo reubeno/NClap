@@ -59,17 +59,12 @@ namespace NClap.Types
         /// <returns>An enumeration of a set of completion strings; if no such
         /// strings could be generated, or if the type doesn't support
         /// completion, then an empty enumeration is returned.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="context"/>
+        /// or <paramref name="valueToComplete"/> is null.</exception>
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (valueToComplete == null)
-            {
-                throw new ArgumentNullException(nameof(valueToComplete));
-            }
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (valueToComplete == null) throw new ArgumentNullException(nameof(valueToComplete));
 
             string[] tokens;
             if (context.ParseContext.ElementSeparators.Any())
@@ -164,7 +159,10 @@ namespace NClap.Types
         /// </summary>
         /// <param name="context">Parser context.</param>
         /// <returns>Preferred element separator, if one exists; null otherwise.</returns>
-        private static string GetPreferredElementSeparatorOrDefault(ArgumentParseContext context) =>
-            context.ElementSeparators.FirstOrDefault();
+        private static string GetPreferredElementSeparatorOrDefault(ArgumentParseContext context)
+        {
+            var seps = context.ElementSeparators;
+            return (seps.Count == 0) ? null : seps[0];
+        }
     }
 }

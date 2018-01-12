@@ -39,7 +39,7 @@ namespace NClap.Tests.Utilities
         public void GetConstructorIgnoresParameterlessConstructorWhenAsked()
         {
             Action find = () => typeof(TestClass).GetConstructor<TestClass>(
-                new object[] { }, considerParameterlessConstructor: false);
+                Array.Empty<object>(), considerParameterlessConstructor: false);
 
             find.Should().Throw<NotSupportedException>();
         }
@@ -48,7 +48,7 @@ namespace NClap.Tests.Utilities
         public void GetConstructorFindsParameterlessConstructorWhenAsked()
         {
             var constructor = typeof(TestClass).GetConstructor<TestClass>(
-                new object[] { }, considerParameterlessConstructor: true);
+                Array.Empty<object>(), considerParameterlessConstructor: true);
 
             constructor.Should().NotBeNull();
 

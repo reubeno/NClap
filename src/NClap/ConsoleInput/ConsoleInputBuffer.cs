@@ -68,6 +68,8 @@ namespace NClap.ConsoleInput
         /// resulting offset moved from the previous position.</param>
         /// <returns>True on success; false if the movement could not be made.
         /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="origin"/>
+        /// is not a valid origin value.</exception>
         public bool MoveCursor(SeekOrigin origin, int offsetFromOrigin, out int offsetFromPreviousPosition)
         {
             int startingIndex;
@@ -137,12 +139,14 @@ namespace NClap.ConsoleInput
         /// <param name="destinationIndex">The index in the destination buffer
         /// at which to start writing.</param>
         /// <param name="count">The number of characters to read.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="buffer"/>
+        /// is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when indicated
+        /// range would require reading past the end of the the input buffer or
+        /// writing past the end of the provided output buffer.</exception>
         public void ReadAt(int sourceIndex, char[] buffer, int destinationIndex, int count)
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
+            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
 
             if (sourceIndex + count > _buffer.Length)
             {
@@ -197,12 +201,11 @@ namespace NClap.ConsoleInput
         /// remainder of the string.
         /// </summary>
         /// <param name="value"></param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
+        /// is null.</exception>
         public void Replace(string value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            if (value == null) throw new ArgumentNullException(nameof(value));
 
             if (CursorIndex + value.Length > _buffer.Length)
             {

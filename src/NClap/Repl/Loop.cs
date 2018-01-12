@@ -40,6 +40,8 @@ namespace NClap.Repl
         /// <param name="loopClient">The client to use.</param>
         /// <param name="argSetAttribute">Optionally provides attribute info
         /// for the argument set that will be dynamically created for this loop.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="commandType" />
+        /// is null.</exception>
         public Loop(Type commandType, ILoopClient loopClient, ArgumentSetAttribute argSetAttribute = null)
         {
             if (commandType == null) throw new ArgumentNullException(nameof(commandType));

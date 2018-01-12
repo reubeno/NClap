@@ -12,6 +12,13 @@ namespace NClap.Exceptions
         private readonly MemberInfo _commandValue;
 
         /// <summary>
+        /// Parameterless constructor.
+        /// </summary>
+        public InvalidCommandException() : this(null, null, null, null)
+        {
+        }
+
+        /// <summary>
         /// Standard constructor.
         /// </summary>
         /// <param name="commandType">Command type.</param>

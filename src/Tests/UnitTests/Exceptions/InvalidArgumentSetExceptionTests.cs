@@ -18,7 +18,9 @@ namespace NClap.Tests.Exceptions
         [TestMethod]
         public void ParameterlessConstructor()
         {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
             var exn = new InvalidArgumentSetException();
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
             exn.Message.Should().NotBeNullOrWhiteSpace();
         }
 

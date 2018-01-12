@@ -17,13 +17,11 @@ namespace NClap.Metadata
         /// <param name="type">Type to check.</param>
         /// <returns>True if this attribute accepts values of the specified
         /// type; false if not.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" />
+        /// is null.</exception>
         public sealed override bool AcceptsType(IArgumentType type)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
+            if (type == null) throw new ArgumentNullException(nameof(type));
             return (type.Type == typeof(string)) ||
                    type.Type.IsEffectivelySameAs(typeof(FileSystemPath));
         }

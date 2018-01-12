@@ -54,7 +54,7 @@ namespace NClap.Tests
         {
             if (!typeof(T).GetTypeInfo().IsEnum)
             {
-                throw new ArgumentOutOfRangeException(nameof(T));
+                throw new NotSupportedException($"Type {typeof(T).FullName} is not an enum");
             }
 
             return Of<T>(typeof(T).GetTypeInfo().GetEnumValues().Cast<T>());

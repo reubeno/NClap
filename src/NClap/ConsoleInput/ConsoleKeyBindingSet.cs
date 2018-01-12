@@ -250,6 +250,8 @@ namespace NClap.ConsoleInput
         /// <param name="key">The key info.</param>
         /// <returns>The mapped operation; throws an exception if the key press is
         /// not mapped.</returns>
+        /// <exception cref="KeyNotFoundException">Thrown when the key press
+        /// is not mapped.</exception>
         public ConsoleInputOperation GetValue(ConsoleKeyInfo key)
         {
             if (!TryGetValue(key, out ConsoleInputOperation op))
@@ -359,7 +361,7 @@ namespace NClap.ConsoleInput
         /// <param name="key">The key.</param>
         /// <param name="modifiers">The modifiers for the character.</param>
         /// <param name="op">If non-null, the operation to bind the key
-        /// to; otherwise, unbinds the character.</param>
+        /// to; otherwise, unbinds the key.</param>
         public void Bind(ConsoleKey key, ConsoleModifiers modifiers, ConsoleInputOperation? op)
         {
             Dictionary<ConsoleKey, ConsoleInputOperation> bindings;
@@ -392,6 +394,26 @@ namespace NClap.ConsoleInput
             else if (bindings.ContainsKey(key))
             {
                 bindings.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Binds the specified key (with *any* combination of modifiers) to
+        /// the indicated operation.  Note that this is different from binding
+        /// the use of a key with *no* modifiers.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="op">If non-null, the operation to bind the key
+        /// to; otherwise, unbinds the key.</param>
+        public void BindWithIgnoredModifiers(ConsoleKey key, ConsoleInputOperation? op)
+        {
+            if (op.HasValue)
+            {
+                _ignoredModifierKeyBindings[key] = op.Value;
+            }
+            else if (_ignoredModifierKeyBindings.ContainsKey(key))
+            {
+                _ignoredModifierKeyBindings.Remove(key);
             }
         }
 

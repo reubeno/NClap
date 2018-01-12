@@ -11,16 +11,12 @@ namespace HelpApp
             Console.WriteLine("Parsing...");
 
             // Set up help options the way we want them.
-            var helpOptions = new ArgumentSetHelpOptions
-            {
-                Arguments = new ArgumentHelpOptions
-                {
-                    BlankLinesBetweenArguments = 1,
-                    ShortName = ArgumentShortNameHelpMode.IncludeWithLongName,
-                    DefaultValue = ArgumentDefaultValueHelpMode.PrependToDescription,
-                    Layout = new TwoColumnArgumentHelpLayout()
-                }
-            };
+            var helpOptions = new ArgumentSetHelpOptions()
+                .With()
+                .BlankLinesBetweenArguments(1)
+                .ShortNames(ArgumentShortNameHelpMode.IncludeWithLongName)
+                .DefaultValues(ArgumentDefaultValueHelpMode.PrependToDescription)
+                .TwoColumnLayout();
 
             // Wrap help options in general parsing options.
             var options = new CommandLineParserOptions { HelpOptions = helpOptions };

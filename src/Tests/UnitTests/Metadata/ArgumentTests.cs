@@ -107,7 +107,7 @@ namespace NClap.Tests.Metadata
             public bool Value
             {
                 get => underlyingValue;
-                set => throw new ArgumentOutOfRangeException();
+                set => throw new ArgumentOutOfRangeException(nameof(value));
             }
         }
 
@@ -120,7 +120,7 @@ namespace NClap.Tests.Metadata
             public string[] Value
             {
                 get => underlyingValue;
-                set => throw new ArgumentOutOfRangeException();
+                set => throw new ArgumentOutOfRangeException(nameof(value));
             }
         }
 
@@ -136,7 +136,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(StringArguments), setAttrib: new ArgumentSetAttribute
             {
-                NamedArgumentPrefixes = new string[] { },
+                NamedArgumentPrefixes = Array.Empty<string>(),
             });
 
             Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxSummary();
@@ -148,7 +148,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(StringArguments), setAttrib: new ArgumentSetAttribute
             {
-                ArgumentValueSeparators = new char[] { }
+                ArgumentValueSeparators = Array.Empty<char>()
             });
 
             Action getSyntaxHelpWithBogusSeparators = () => arg.GetSyntaxSummary();

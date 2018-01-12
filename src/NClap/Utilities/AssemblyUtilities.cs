@@ -27,12 +27,11 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="assembly">Assembly to generate logo for.</param>
         /// <returns>The logo string.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="assembly"/>
+        /// is null.</exception>
         public static string GetLogo(Assembly assembly)
         {
-            if (assembly == null)
-            {
-                throw new ArgumentNullException(nameof(assembly));
-            }
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 
             var builder = new StringBuilder();
 

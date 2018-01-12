@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -22,6 +23,33 @@ namespace NClap.Tests.ConsoleInput
         {
             var bindings = ConsoleKeyBindingSet.Default;
             bindings.Count.Should().BeGreaterThan(0);
+        }
+
+        [TestMethod]
+        public void EnumerateBindings()
+        {
+            var bindings = new ConsoleKeyBindingSet();
+            bindings.Bind(ConsoleKey.E, ConsoleModifiers.Shift, ConsoleInputOperation.BackwardKillWord);
+            bindings.Bind(ConsoleKey.F, ConsoleModifiers.Control, ConsoleInputOperation.AcceptLine);
+
+            var enumerable = (IEnumerable)bindings;
+            foreach (KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation> pair in enumerable)
+            {
+                if (pair.Key.Key == ConsoleKey.E)
+                {
+                    pair.Key.Modifiers.Should().Be(ConsoleModifiers.Shift);
+                    pair.Value.Should().Be(ConsoleInputOperation.BackwardKillWord);
+                }
+                else if (pair.Key.Key == ConsoleKey.F)
+                {
+                    pair.Key.Modifiers.Should().Be(ConsoleModifiers.Control);
+                    pair.Value.Should().Be(ConsoleInputOperation.AcceptLine);
+                }
+                else
+                {
+                    Assert.Fail();
+                }
+            }
         }
 
         [TestMethod]
@@ -99,15 +127,65 @@ namespace NClap.Tests.ConsoleInput
         {
             const ConsoleInputOperation oldOp = ConsoleInputOperation.Undo;
             const ConsoleInputOperation newOp = ConsoleInputOperation.Abort;
+            var anyKey = Any.Enum<ConsoleKey>();
 
             var bindings = new ConsoleKeyBindingSet();
-            bindings.Bind(ConsoleKey.D, ConsoleModifiers.Control, oldOp);
-            bindings.Bind(ConsoleKey.D, ConsoleModifiers.Control, newOp);
+            bindings.Bind(anyKey, ConsoleModifiers.Control, oldOp);
+            bindings.Bind(anyKey, ConsoleModifiers.Control, newOp);
 
             bindings.Values.Should().HaveCount(1);
 
-            var keyInfo = new ConsoleKeyInfo('\x04', ConsoleKey.D, false, false, true);
+            var keyInfo = new ConsoleKeyInfo('\x04', anyKey, false, false, true);
             bindings[keyInfo].Should().Be(newOp);
+        }
+
+        [TestMethod]
+        public void TestThatKeyMayBeBoundWithIgnoredModifiers()
+        {
+            var anyKey = ConsoleKey.C;
+            var anyKeyChar = 'c';
+            var anyOp = Any.Enum<ConsoleInputOperation>();
+
+            var bindings = new ConsoleKeyBindingSet();
+            bindings.BindWithIgnoredModifiers(anyKey, anyOp);
+
+            // It's not enumerable.
+            bindings.Values.Should().HaveCount(0);
+
+            // ...but it's retrievable.
+            void ValidateItIsRetrievableWithModifier(ConsoleModifiers mods)
+            {
+                bindings.TryGetValue(new ConsoleKeyInfo(anyKeyChar, anyKey, false, false, false), out ConsoleInputOperation op)
+                    .Should().BeTrue();
+                op.Should().Be(anyOp);
+            }
+
+            ValidateItIsRetrievableWithModifier((ConsoleModifiers)0);
+
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Control);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Shift);
+
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt | ConsoleModifiers.Control);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt | ConsoleModifiers.Shift);
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Control | ConsoleModifiers.Shift);
+
+            ValidateItIsRetrievableWithModifier(ConsoleModifiers.Alt | ConsoleModifiers.Control | ConsoleModifiers.Shift);
+        }
+
+        [TestMethod]
+        public void TestThatKeyWithIgnoredModifiersMayBeUnbound()
+        {
+            var anyKey = ConsoleKey.C;
+            var anyKeyChar = 'c';
+            var anyOp = Any.Enum<ConsoleInputOperation>();
+
+            var bindings = new ConsoleKeyBindingSet();
+            bindings.BindWithIgnoredModifiers(anyKey, anyOp);
+            bindings.BindWithIgnoredModifiers(anyKey, null);
+
+            bindings.TryGetValue(new ConsoleKeyInfo(anyKeyChar, anyKey, false, false, false), out ConsoleInputOperation op)
+                .Should().BeFalse();
         }
     }
 }

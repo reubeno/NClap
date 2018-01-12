@@ -150,7 +150,9 @@ namespace NClap.Tests.Types
         public void GetCompletionsWhenReaderThrowsArgumentException()
         {
             var reader = Substitute.For<IFileSystemReader>();
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
             reader.EnumerateFileSystemEntries(".", "h*").Returns(call => { throw new ArgumentOutOfRangeException(); });
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
 
             var context = CreateContext(reader);
             FileSystemPath.GetCompletions(context, "h").Should().BeEmpty();

@@ -995,6 +995,15 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
+        public void DisplayAllCompletionsButNullHandler()
+        {
+            var input = CreateInput(new SimulatedConsoleOutput());
+
+            input.DisplayAllCompletions();
+            input.Contents.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void ReplaceWithAllCompletionsButNoCompletions()
         {
             var console = new SimulatedConsoleOutput();
@@ -1246,7 +1255,7 @@ namespace NClap.Tests.ConsoleInput
             var console = new SimulatedConsoleOutput();
             var input = CreateInput(console);
 
-            input.DisplayInColumns(new string[] { });
+            input.DisplayInColumns(Array.Empty<string>());
             GetContents(console).Should().BeEmpty();
         }
 

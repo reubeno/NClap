@@ -58,6 +58,8 @@ namespace NClap
         /// <param name="options">Options describing how to parse.</param>
         /// <param name="result">On success, returns the constructed result object.</param>
         /// <returns>True on success; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="arguments"/>
+        /// is null.</exception>
         public static bool TryParse<T>(IEnumerable<string> arguments, CommandLineParserOptions options, out T result)
             where T : class, new()
         {
@@ -85,6 +87,8 @@ namespace NClap
         /// <param name="destination">The object to parse into.</param>
         /// <param name="options">Options describing how to parse.</param>
         /// <returns>True on success; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="arguments"/> or
+        /// <paramref name="destination" /> is null.</exception>
         public static bool TryParse<T>(IEnumerable<string> arguments, T destination, CommandLineParserOptions options)
             where T : class
         {
@@ -254,17 +258,12 @@ namespace NClap
         /// filled out by this parser instance.</param>
         /// <returns>The candidate completions for the specified token.
         /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/>
+        /// or <paramref name="tokens"/> is null.</exception>
         public static IEnumerable<string> GetCompletions(Type type, IEnumerable<string> tokens, int indexOfTokenToComplete, CommandLineParserOptions options, Func<object> destObjectFactory)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(tokens));
-            }
-
-            if (tokens == null)
-            {
-                throw new ArgumentNullException(nameof(tokens));
-            }
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
             var parser = new ArgumentSetParser(ReflectionBasedParser.CreateArgumentSet(type), options);
             return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);

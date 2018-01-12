@@ -649,11 +649,11 @@ namespace NClap.Help
             public bool Equals(IArgumentType x, IArgumentType y) =>
                 x.Type.GetTypeInfo().GUID == y.Type.GetTypeInfo().GUID;
 
-            public int GetHashCode(IArgumentType obj) =>
-                obj.Type.GetTypeInfo().GUID.GetHashCode();
+            public int GetHashCode(IArgumentType value) =>
+                value.Type.GetTypeInfo().GUID.GetHashCode();
         }
 
-        private class Section
+        private sealed class Section
         {
             public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredMultistring> entries, string name = null)
             {
@@ -692,7 +692,7 @@ namespace NClap.Help
             public IReadOnlyList<ColoredMultistring> Entries { get; set; }
         }
 
-        class ParameterEntry
+        private class ParameterEntry
         {
             public ColoredMultistring Syntax { get; set; }
 

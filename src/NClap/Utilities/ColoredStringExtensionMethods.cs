@@ -13,6 +13,8 @@ namespace NClap.Utilities
         /// <param name="s">The input string.</param>
         /// <param name="func">The function to apply.</param>
         /// <returns>The generated string.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="func"/>
+        /// is null.</exception>
         public static ColoredString Transform(this ColoredString s, Func<string, string> func)
         {
             if (func == null) throw new ArgumentNullException(nameof(func));
@@ -26,6 +28,8 @@ namespace NClap.Utilities
         /// <param name="s">The input string.</param>
         /// <param name="newContent">The new content to use.</param>
         /// <returns>The generated string.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="newContent"/>
+        /// is null.</exception>
         public static ColoredString WithContent(this ColoredString s, string newContent)
         {
             if (newContent == null) throw new ArgumentNullException(nameof(newContent));

@@ -24,7 +24,9 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Basic constructor that allows specifying a maximum entry count.
         /// </summary>
-        /// <param name="maxEntryCount"></param>
+        /// <param name="maxEntryCount">Maximum entry count.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when
+        /// <paramref name="maxEntryCount" /> is 0 or negative.</exception>
         public ConsoleHistory(int? maxEntryCount)
         {
             if (maxEntryCount.HasValue && (maxEntryCount.Value <= 0))
@@ -95,6 +97,8 @@ namespace NClap.ConsoleInput
         /// specified origin.</param>
         /// <returns>True on success; false if the move could not be made.
         /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="origin"/>
+        /// is not a valid origin value.</exception>
         public bool MoveCursor(SeekOrigin origin, int offset)
         {
             int baseIndex;

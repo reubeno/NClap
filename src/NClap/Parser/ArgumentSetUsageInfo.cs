@@ -7,7 +7,7 @@ namespace NClap.Parser
     /// <summary>
     /// Describes help information for a command-line argument set.
     /// </summary>
-    internal class ArgumentSetUsageInfo
+    internal sealed class ArgumentSetUsageInfo
     {
         private readonly List<ArgumentUsageInfo> _allParameters = new List<ArgumentUsageInfo>();
         private readonly List<string> _examples = new List<string>();

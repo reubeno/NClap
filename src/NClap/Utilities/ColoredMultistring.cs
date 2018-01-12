@@ -125,13 +125,11 @@ namespace NClap.Utilities
         /// Wraps a string.
         /// </summary>
         /// <param name="value">The string to wrap.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
+        /// is null.</exception>
         public static ColoredMultistring FromString(string value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
+            if (value == null) throw new ArgumentNullException(nameof(value));
             return new ColoredMultistring(new ColoredString[] { value });
         }
 

@@ -12,7 +12,7 @@ namespace NClap.Parser
     /// <summary>
     /// Encapsulates an argument set.
     /// </summary>
-    public class ArgumentSetDefinition : IDeepCloneable<ArgumentSetDefinition>
+    public sealed class ArgumentSetDefinition : IDeepCloneable<ArgumentSetDefinition>
     {
         // Argument metadata and parse state.
         private readonly Dictionary<IMutableMemberInfo, ArgumentDefinition> _argumentsByMember = new Dictionary<IMutableMemberInfo, ArgumentDefinition>();
@@ -242,8 +242,7 @@ namespace NClap.Parser
 
             if (!string.IsNullOrEmpty(argument.ShortName))
             {
-                if (Attribute.AllowMultipleShortNamesInOneToken &&
-                    argument.ShortName.Length > 1)
+                if (Attribute.ShortNamesAreOneCharacterLong && argument.ShortName.Length > 1)
                 {
                     throw new InvalidArgumentSetException(argument, string.Format(CultureInfo.CurrentCulture,
                         Strings.ArgumentShortNameTooLong,

@@ -57,12 +57,11 @@ namespace NClap.Metadata
         /// message explaining why the value is not valid.</param>
         /// <returns>True if the value passes validation; false otherwise.
         /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="context"/>
+        /// is null.</exception>
         public override bool TryValidate(ArgumentValidationContext context, object value, out string reason)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             var path = (value as FileSystemPath) ?? (string)value;
 

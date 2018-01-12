@@ -67,6 +67,18 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
+        public void NoOp()
+        {
+            var anyKey = Any.Enum<ConsoleKey>();
+
+            var bindingSet = ConsoleKeyBindingSet.CreateDefaultSet();
+            bindingSet.Bind(anyKey, (ConsoleModifiers)0, ConsoleInputOperation.NoOp);
+
+            var reader = CreateReader(bindingSet: bindingSet);
+            reader.ProcessKey(anyKey.ToKeyInfo()).Should().Be(ConsoleInputOperationResult.Normal);
+        }
+
+        [TestMethod]
         public void UnimplementedOp()
         {
             var reader = CreateReader(
@@ -109,12 +121,12 @@ namespace NClap.Tests.ConsoleInput
             Received.InOrder(() => expectedCalls(reader.LineInput));
         }
 
-        private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream = null)
+        private static ConsoleReader CreateReader(IEnumerable<ConsoleKeyInfo> keyStream = null, ConsoleKeyBindingSet bindingSet = null)
         {
             var consoleOutput = new SimulatedConsoleOutput();
             var consoleInput = new SimulatedConsoleInput(keyStream ?? Enumerable.Empty<ConsoleKeyInfo>());
             var input = Substitute.For<IConsoleLineInput>();
-            return new ConsoleReader(input, consoleInput, consoleOutput, null);
+            return new ConsoleReader(input, consoleInput, consoleOutput, bindingSet);
         }
     }
 }

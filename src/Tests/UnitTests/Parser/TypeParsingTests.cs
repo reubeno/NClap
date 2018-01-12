@@ -32,12 +32,12 @@ namespace NClap.Tests.Parser
 
             public override bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
             {
-                switch (stringToParse.ToLowerInvariant())
+                switch (stringToParse.ToUpperInvariant())
                 {
-                case "one":
+                case "ONE":
                     value = One;
                     return true;
-                case "two":
+                case "TWO":
                     value = Two;
                     return true;
                 default:
@@ -91,23 +91,23 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void UnsupportedTypesForParsing()
         {
-            Action parseAsObject = () => Parse(new string[] { }, out ArgumentsWithType<object> objectArgs);
+            Action parseAsObject = () => Parse(Array.Empty<string>(), out ArgumentsWithType<object> objectArgs);
             parseAsObject.Should().Throw<NotSupportedException>();
 
-            Action parseAsPairOfObjects = () => Parse(new string[] { }, out ArgumentsWithType<KeyValuePair<object, object>> pairOfObjectsArgs);
+            Action parseAsPairOfObjects = () => Parse(Array.Empty<string>(), out ArgumentsWithType<KeyValuePair<object, object>> pairOfObjectsArgs);
             parseAsPairOfObjects.Should().Throw<NotSupportedException>();
 
-            Action parseAsQueueOfInts = () => Parse(new string[] { }, out ArgumentsWithType<Queue<int>> queueOfIntsArgs);
+            Action parseAsQueueOfInts = () => Parse(Array.Empty<string>(), out ArgumentsWithType<Queue<int>> queueOfIntsArgs);
             parseAsQueueOfInts.Should().Throw<NotSupportedException>();
 
-            Action parseAsIEnumerableOfInts = () => Parse(new string[] { }, out ArgumentsWithType<IEnumerable<int>> iEnumerableOfIntsArgs);
+            Action parseAsIEnumerableOfInts = () => Parse(Array.Empty<string>(), out ArgumentsWithType<IEnumerable<int>> iEnumerableOfIntsArgs);
             parseAsIEnumerableOfInts.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
         public void ParsingString()
         {
-            ShouldParseAs(new string[] { }, (string)null);
+            ShouldParseAs(Array.Empty<string>(), (string)null);
             ShouldParseAs(new[] { "/value" }, string.Empty);
             ShouldParseAs(new[] { "/value=" }, string.Empty);
             ShouldParseAs(new[] { "/value=a" }, "a");
@@ -128,7 +128,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingChar()
         {
-            ShouldParseAs(new string[] { }, '\0');
+            ShouldParseAs(Array.Empty<string>(), '\0');
             ShouldParseAs(new[] { "/value=a" }, 'a');
             ShouldParseAs(new[] { "/value=7" }, '7');
             ShouldParseAs(new[] { "/value=\n"}, '\n');
@@ -151,7 +151,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingGuid()
         {
-            ShouldParseAs(new string[] { }, Guid.Empty);
+            ShouldParseAs(Array.Empty<string>(), Guid.Empty);
             ShouldParseAs(new[] { "/value=00000000-0000-0000-0000-000000000000" }, Guid.Empty);
             ShouldParseAs(new[] { "/value=00000000000000000000000000000000" }, Guid.Empty);
             ShouldParseAs(new[] { "/value={00000000-0000-0000-0000-000000000000}" }, Guid.Empty);
@@ -171,14 +171,14 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingGuid()
         {
-            ShouldFormatAs(Guid.Empty, new string[] { });
+            ShouldFormatAs(Guid.Empty, Array.Empty<string>());
             ShouldFormatAs(Guid.Parse("9F4A81EB-4DEB-4492-93FC-0E4C0DF01B21"), new[] { "/Value=9f4a81eb-4deb-4492-93fc-0e4c0df01b21" });
         }
 
         [TestMethod]
         public void ParsingUri()
         {
-            ShouldParseAs(new string[] { }, (Uri)null);
+            ShouldParseAs(Array.Empty<string>(), (Uri)null);
             ShouldParseAs(new[] { "/value=http://www.microsoft.com" }, new Uri("http://www.microsoft.com"));
             ShouldParseAs(new[] { "/value=mailto:noone" }, new Uri("mailto:noone"));
 
@@ -195,7 +195,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingPath()
         {
-            CommandLineParser.TryParse(new string[] { }, out ArgumentsWithType<FileSystemPath> args).Should().BeTrue();
+            CommandLineParser.TryParse(Array.Empty<string>(), out ArgumentsWithType<FileSystemPath> args).Should().BeTrue();
             args.Value.Should().BeNull();
 
             CommandLineParser.TryParse(new[] { @"/value=c:\temp" }, out ArgumentsWithType<FileSystemPath> args2).Should().BeTrue();
@@ -211,7 +211,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingBool()
         {
-            ShouldParseAs(new string[] { }, false);
+            ShouldParseAs(Array.Empty<string>(), false);
 
             ShouldParseAs(new[] { "/value" }, true);
             ShouldParseAs(new[] { "/value=true" }, true);
@@ -231,14 +231,14 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingBool()
         {
-            ShouldFormatAs(false, new string[] { });
+            ShouldFormatAs(false, Array.Empty<string>());
             ShouldFormatAs(true, new[] { "/Value=True" });
         }
 
         [TestMethod]
         public void ParsingInt()
         {
-            ShouldParseAs(new string[] { }, 0);
+            ShouldParseAs(Array.Empty<string>(), 0);
             ShouldParseAs(new[] { "/value=0" }, 0);
             ShouldParseAs(new[] { "/value=1" }, 1);
             ShouldParseAs(new[] { "/value=-1" }, -1);
@@ -263,7 +263,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingInt()
         {
-            ShouldFormatAs(0, new string[] { });
+            ShouldFormatAs(0, Array.Empty<string>());
             ShouldFormatAs(1, new[] { "/Value=1" });
             ShouldFormatAs(1000, new[] { "/Value=1000" });
             ShouldFormatAs(-10, new[] { "/Value=-10" });
@@ -272,7 +272,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingUInt()
         {
-            ShouldParseAs<uint>(new string[] { }, 0);
+            ShouldParseAs<uint>(Array.Empty<string>(), 0);
             ShouldParseAs<uint>(new[] { "/value=0" }, 0);
             ShouldParseAs<uint>(new[] { "/value=1" }, 1);
             ShouldParseAs<uint>(new[] { "/value=16" }, 16);
@@ -295,7 +295,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingUInt()
         {
-            ShouldFormatAs<uint>(0, new string[] { });
+            ShouldFormatAs<uint>(0, Array.Empty<string>());
             ShouldFormatAs<uint>(1, new[] { "/Value=1" });
             ShouldFormatAs<uint>(1000, new[] { "/Value=1000" });
         }
@@ -303,7 +303,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingDecimal()
         {
-            ShouldParseAs(new string[] { }, 0.0M);
+            ShouldParseAs(Array.Empty<string>(), 0.0M);
             ShouldParseAs(new[] { "/value=0" }, 0.0M);
             ShouldParseAs(new[] { "/value=0." }, 0.0M);
             ShouldParseAs(new[] { "/value=0.0" }, 0.0M);
@@ -317,7 +317,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingDecimal()
         {
-            ShouldFormatAs(0.0M, new string[] { });
+            ShouldFormatAs(0.0M, Array.Empty<string>());
             ShouldFormatAs(1.2M, new[] { "/Value=1.2" });
             ShouldFormatAs(-2.3M, new[] { "/Value=-2.3" });
         }
@@ -325,7 +325,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingFloat()
         {
-            ShouldParseAs(new string[] { }, 0.0F);
+            ShouldParseAs(Array.Empty<string>(), 0.0F);
             ShouldParseAs(new[] { "/value=0" }, 0.0F);
             ShouldParseAs(new[] { "/value=0." }, 0.0F);
             ShouldParseAs(new[] { "/value=0.0" }, 0.0F);
@@ -339,7 +339,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingFloat()
         {
-            ShouldFormatAs(0.0F, new string[] { });
+            ShouldFormatAs(0.0F, Array.Empty<string>());
             ShouldFormatAs(1.2F, new[] { "/Value=1.2" });
             ShouldFormatAs(-2.3F, new[] { "/Value=-2.3" });
         }
@@ -347,7 +347,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingDouble()
         {
-            ShouldParseAs(new string[] { }, 0.0D);
+            ShouldParseAs(Array.Empty<string>(), 0.0D);
             ShouldParseAs(new[] { "/value=0" }, 0.0D);
             ShouldParseAs(new[] { "/value=0." }, 0.0D);
             ShouldParseAs(new[] { "/value=0.0" }, 0.0D);
@@ -361,7 +361,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingDouble()
         {
-            ShouldFormatAs(0.0D, new string[] { });
+            ShouldFormatAs(0.0D, Array.Empty<string>());
             ShouldFormatAs(1.2D, new[] { "/Value=1.2" });
             ShouldFormatAs(-2.3D, new[] { "/Value=-2.3" });
         }
@@ -369,7 +369,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingEnum()
         {
-            ShouldParseAs(new string[] { }, TestEnum.Default);
+            ShouldParseAs(Array.Empty<string>(), TestEnum.Default);
             ShouldParseAs(new[] { "/value=Default" }, TestEnum.Default);
             ShouldParseAs(new[] { "/value=0" }, TestEnum.Default);
             ShouldParseAs(new[] { "/value=SomeValue" }, TestEnum.SomeValue);
@@ -388,7 +388,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void FormattingEnum()
         {
-            ShouldFormatAs(TestEnum.Default, new string[] { });
+            ShouldFormatAs(TestEnum.Default, Array.Empty<string>());
             ShouldFormatAs(TestEnum.SomeOtherValue, new[] { "/Value=SomeOtherValue" });
             ShouldFormatAs(TestEnum.SomeValue, new[] { "/Value=SomeValue" });
             ShouldFormatAs(TestEnum.SomeDisallowedValue, new[] { "/Value=SomeDisallowedValue" });
@@ -398,7 +398,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingKeyValuePairOfStrings()
         {
-            ShouldParseAs(new string[] { }, new KeyValuePair<string, string>(null, null));
+            ShouldParseAs(Array.Empty<string>(), new KeyValuePair<string, string>(null, null));
             ShouldParseAs(new[] { "/value=a=b" }, new KeyValuePair<string, string>("a", "b"));
             ShouldParseAs(new[] { "/value=a b=c d" }, new KeyValuePair<string, string>("a b", "c d"));
             ShouldParseAs(new[] { "/value==" }, new KeyValuePair<string, string>(string.Empty, string.Empty));
@@ -420,7 +420,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingKeyValuePairOfStringAndInt()
         {
-            ShouldParseAs(new string[] { }, new KeyValuePair<string, int>(null, 0));
+            ShouldParseAs(Array.Empty<string>(), new KeyValuePair<string, int>(null, 0));
             ShouldParseAs(new[] { "/value=a=0" }, new KeyValuePair<string, int>("a", 0));
             ShouldParseAs(new[] { "/value=a b=0x20" }, new KeyValuePair<string, int>("a b", 32));
             ShouldParseAs(new[] { "/value==-10" }, new KeyValuePair<string, int>(string.Empty, -10));
@@ -435,7 +435,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingKeyValuePairOfIntAndInt()
         {
-            ShouldParseAs(new string[] { }, new KeyValuePair<int, int>(0, 0));
+            ShouldParseAs(Array.Empty<string>(), new KeyValuePair<int, int>(0, 0));
             ShouldParseAs(new[] { "/value=3=4" }, new KeyValuePair<int, int>(3, 4));
             ShouldParseAs(new[] { "/value= 3 =7" }, new KeyValuePair<int, int>(3, 7));
 
@@ -449,7 +449,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingTupleOfInt()
         {
-            ShouldParseAs(new string[] { }, (Tuple<int>)null);
+            ShouldParseAs(Array.Empty<string>(), (Tuple<int>)null);
 
             ShouldParseAs(new[] { "/value=3" }, Tuple.Create(3));
             ShouldFailToParse<Tuple<int>>(new[] { "/value" });
@@ -481,13 +481,13 @@ namespace NClap.Tests.Parser
         {
             ShouldFailToParse<int?>(new[] { "/value" });
             ShouldFailToParse<int?>(new[] { "/value=" });
-            ShouldParseAs(new string[] { }, (int?)null);
+            ShouldParseAs(Array.Empty<string>(), (int?)null);
             ShouldParseAs(new[] { "/value=1" }, new int?(1));
 
-            ShouldParseAs(new string[] { }, (Guid?)null);
+            ShouldParseAs(Array.Empty<string>(), (Guid?)null);
             ShouldParseAs(new[] { "/value=00000000-0000-0000-0000-000000000000" }, new Guid?(Guid.Empty));
 
-            ShouldParseAs(new string[] { }, (bool?)null);
+            ShouldParseAs(Array.Empty<string>(), (bool?)null);
             ShouldParseAs(new[] { "/value" }, new bool?(true));
             ShouldParseAs(new[] { "/value+" }, new bool?(true));
             ShouldParseAs(new[] { "/value-" }, new bool?(false));
@@ -497,7 +497,7 @@ namespace NClap.Tests.Parser
         public void FormattingNullableTypes()
         {
             ShouldFormatAs(new int?(3), new[] { "/Value=3" });
-            ShouldFormatAs((int?)null, new string[] { });
+            ShouldFormatAs((int?)null, Array.Empty<string>());
         }
 
         [TestMethod]
@@ -542,7 +542,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ParsingInvalidCustomObjectType()
         {
-            Action tryParse = () => Parse(new string[] { }, out ArgumentsWithType<InvalidCustomObjectType> args);
+            Action tryParse = () => Parse(Array.Empty<string>(), out ArgumentsWithType<InvalidCustomObjectType> args);
             tryParse.Should().Throw<NotSupportedException>();
         }
 
@@ -550,7 +550,7 @@ namespace NClap.Tests.Parser
         public void ParsingArrayOfStrings()
         {
             ShouldParseCollectionAs<int[]>(
-                new string[] { },
+                Array.Empty<string>(),
                 values => values.Length == 0);
 
             ShouldParseCollectionAs<int[]>(
@@ -564,7 +564,7 @@ namespace NClap.Tests.Parser
         public void ListOfIntsShouldParse()
         {
             ShouldFailToParseCollection<List<int>>(new[] { "/value" });
-            ShouldParseCollectionAs<List<int>>(new string[] { }, values => values.Count == 0);
+            ShouldParseCollectionAs<List<int>>(Array.Empty<string>(), values => values.Count == 0);
             ShouldParseCollectionAs<List<int>>(new[] { "/value:10", "/value:5" },
                 values => (values.Count == 2) && (values[0] == 10) && (values[1] == 5));
         }
@@ -572,7 +572,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void ListOfIntsShouldFormat()
         {
-            ShouldFormatCollectionAs(new List<int>(), new string[] { });
+            ShouldFormatCollectionAs(new List<int>(), Array.Empty<string>());
             ShouldFormatCollectionAs(new List<int>(new[] { 10, 5 }), new[] { "/Value=10", "/Value=5" });
         }
 
@@ -580,7 +580,7 @@ namespace NClap.Tests.Parser
         public void LinkedListOfIntsShouldParse()
         {
             ShouldFailToParseCollection<LinkedList<int>>(new[] { "/value" });
-            ShouldParseCollectionAs<LinkedList<int>>(new string[] { }, values => values.Count == 0);
+            ShouldParseCollectionAs<LinkedList<int>>(Array.Empty<string>(), values => values.Count == 0);
             ShouldParseCollectionAs<LinkedList<int>>(new[] { "/value:10", "/value:5" },
                 values => (values.Count == 2) && (values.First() == 10) && (values.Last() == 5));
         }
@@ -589,7 +589,7 @@ namespace NClap.Tests.Parser
         public void HashSetOfIntsShouldParse()
         {
             ShouldFailToParseCollection<HashSet<int>>(new[] { "/value" });
-            ShouldParseCollectionAs<HashSet<int>>(new string[] { }, values => values.Count == 0);
+            ShouldParseCollectionAs<HashSet<int>>(Array.Empty<string>(), values => values.Count == 0);
             ShouldParseCollectionAs<HashSet<int>>(new[] { "/value:10", "/value:5" },
                 values => (values.Count == 2) && (values.First() == 10) && (values.Last() == 5));
             ShouldParseCollectionAs<HashSet<int>>(new[] { "/value:10", "/value:10" },
@@ -600,7 +600,7 @@ namespace NClap.Tests.Parser
         public void SortedSetOfIntsShouldParse()
         {
             ShouldFailToParseCollection<SortedSet<int>>(new[] { "/value" });
-            ShouldParseCollectionAs<SortedSet<int>>(new string[] { }, values => values.Count == 0);
+            ShouldParseCollectionAs<SortedSet<int>>(Array.Empty<string>(), values => values.Count == 0);
             ShouldParseCollectionAs<SortedSet<int>>(new[] { "/value:10", "/value:5" },
                 values => (values.Count == 2) && (values.First() == 5) && (values.Last() == 10));
             ShouldParseCollectionAs<SortedSet<int>>(new[] { "/value:10", "/value:10" },
@@ -611,7 +611,7 @@ namespace NClap.Tests.Parser
         public void DictionaryOfIntsShouldParse()
         {
             ShouldFailToParseCollection<Dictionary<int, int>>(new[] { "/value" });
-            ShouldParseCollectionAs<Dictionary<int, int>>(new string[] { },
+            ShouldParseCollectionAs<Dictionary<int, int>>(Array.Empty<string>(),
                 values => values.Count == 0);
             ShouldParseCollectionAs<Dictionary<int, int>>(new[] { "/value:10=9", "/value:5=4" },
                 values => (values.Count == 2) && (values[10] == 9) && (values[5] == 4));
@@ -622,7 +622,7 @@ namespace NClap.Tests.Parser
         public void SortedDictionaryOfIntsShouldParse()
         {
             ShouldFailToParseCollection<SortedDictionary<int, int>>(new[] { "/value" });
-            ShouldParseCollectionAs<SortedDictionary<int, int>>(new string[] { },
+            ShouldParseCollectionAs<SortedDictionary<int, int>>(Array.Empty<string>(),
                 values => values.Count == 0);
             ShouldParseCollectionAs<SortedDictionary<int, int>>(new[] { "/value:10=9", "/value:5=4" },
                 values => (values.Count == 2) && (values[10] == 9) && (values[5] == 4) &&
@@ -633,7 +633,7 @@ namespace NClap.Tests.Parser
         public void SortedListOfIntsShouldParse()
         {
             ShouldFailToParseCollection<SortedList<int, int>>(new[] { "/value" });
-            ShouldParseCollectionAs<SortedList<int, int>>(new string[] { },
+            ShouldParseCollectionAs<SortedList<int, int>>(Array.Empty<string>(),
                 values => values.Count == 0);
             ShouldParseCollectionAs<SortedList<int, int>>(new[] { "/value:10=9", "/value:5=4" },
                 values => (values.Count == 2) && (values[10] == 9) && (values[5] == 4) &&

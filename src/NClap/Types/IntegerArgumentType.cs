@@ -81,6 +81,8 @@ namespace NClap.Types
         /// <param name="displayName">Optionally provides a custom display
         /// name for the type, or null to use the default.</param>
         /// <returns>The constructed object.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="parseHandler"/>
+        /// is null.</exception>
         [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
         public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned, string displayName = null)
         {
@@ -269,6 +271,8 @@ namespace NClap.Types
         /// <param name="context">Context for parsing.</param>
         /// <param name="stringToParse">String to parse.</param>
         /// <returns>The parsed object.</returns>
+        /// <exception cref="OverflowException">Thrown when the parsed value would
+        /// overflow the integer type represented by this object instance.</exception>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
             Debug.Assert(stringToParse != null);

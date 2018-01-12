@@ -60,8 +60,14 @@ namespace NClap.Types
             get => _elementSeparators;
             set
             {
-                if (value == null) _elementSeparators = new string[] { };
-                _elementSeparators = value.ToList();
+                if (value == null)
+                {
+                    _elementSeparators = Array.Empty<string>();
+                }
+                else
+                {
+                    _elementSeparators = value.ToList();
+                }
             }
         }
 
