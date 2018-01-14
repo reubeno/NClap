@@ -14,7 +14,6 @@ namespace NClap.Metadata
         /// <param name="commandType">The type of the command associated with this
         /// attribute.</param>
         /// <returns>The type.</returns>
-        
         public override Type GetImplementingType(Type commandType) =>
             typeof(HelpCommand<>).MakeGenericType(commandType);
     }

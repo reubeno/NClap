@@ -9,7 +9,7 @@ namespace NClap.Types
     /// <typeparam name="T">Argument type.</typeparam>
     /// <param name="stringToParse">String to parse.</param>
     /// <returns>The parsed object.</returns>
-    delegate T SimpleArgumentTypeParseHandler<out T>(string stringToParse);
+    internal delegate T SimpleArgumentTypeParseHandler<out T>(string stringToParse);
 
     /// <summary>
     /// Method that generates completions for a string.
@@ -17,7 +17,7 @@ namespace NClap.Types
     /// <param name="context">Context for completion.</param>
     /// <param name="valueToComplete">String to complete.</param>
     /// <returns>The possible completions.</returns>
-    delegate IEnumerable<string> SimpleArgumentTypeCompletionHandler(ArgumentCompletionContext context, string valueToComplete);
+    internal delegate IEnumerable<string> SimpleArgumentTypeCompletionHandler(ArgumentCompletionContext context, string valueToComplete);
 
     /// <summary>
     /// Basic implementation of IArgumentType, useful for describing built-in
@@ -75,7 +75,7 @@ namespace NClap.Types
         /// completion, then an empty enumeration is returned.</returns>
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete)
         {
-            return _completionHandler != null 
+            return _completionHandler != null
                 ? _completionHandler(context, valueToComplete)
                 : base.GetCompletions(context, valueToComplete);
         }

@@ -570,7 +570,12 @@ namespace NClap.Tests.Parser
 
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
                 .With()
+                .Color(false));
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
                 .OneColumnLayout());
+
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
                 .With()
                 .TwoColumnLayout()
@@ -610,24 +615,6 @@ namespace NClap.Tests.Parser
                 .With()
                 .ColumnSeparator(" ", "-----");
             a.Should().Throw<NotSupportedException>();
-        }
-
-        [TestMethod]
-        public void GetUsageInfoWorksEvenIfNoConsolePresent()
-        {
-            var originalGetWidth = CommandLineParser.GetConsoleWidth;
-
-            try
-            {
-                CommandLineParser.GetConsoleWidth = () => { throw new IOException(); };
-
-                var usageInfo = CommandLineParser.GetUsageInfo(typeof(SimpleArguments));
-                usageInfo.ToString().Should().NotBeNullOrWhiteSpace();
-            }
-            finally
-            {
-                CommandLineParser.GetConsoleWidth = originalGetWidth;
-            }
         }
 
         [TestMethod]

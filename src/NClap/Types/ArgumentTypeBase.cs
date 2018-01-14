@@ -39,7 +39,7 @@ namespace NClap.Types
         /// <summary>
         /// The Type object associated with values described by this interface.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
+        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods", Justification = "[Legacy]")]
         public Type Type { get; }
 
         /// <summary>
@@ -57,7 +57,6 @@ namespace NClap.Types
         /// <param name="value">On success, receives the parsed value; null
         /// otherwise.</param>
         /// <returns>True on success; false otherwise.</returns>
-        [SuppressMessage("Design", "CC0004:Catch block cannot be empty")]
         public bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
         {
             if (stringToParse == null)

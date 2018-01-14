@@ -11,7 +11,7 @@ namespace NClap.Help
     /// <summary>
     /// Help formatter.
     /// </summary>
-    internal class ArgumentSetHelpRenderer
+    internal sealed class ArgumentSetHelpRenderer
     {
         private readonly ArgumentSetHelpOptions _options;
 
@@ -329,8 +329,11 @@ namespace NClap.Help
 
             if (_options.Arguments.BlankLinesBetweenArguments > 0)
             {
-                var insertion = new[] { new ColoredMultistring(
-                        Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                var insertion = new[]
+                {
+                    new ColoredMultistring(
+                        Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments))
+                };
 
                 formatted = formatted.InsertBetween(insertion);
             }
@@ -358,8 +361,11 @@ namespace NClap.Help
                 {
                     if (_options.Arguments.BlankLinesBetweenArguments > 0)
                     {
-                        var insertion = new[] { new ColoredMultistring(
-                            Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                        var insertion = new[]
+                        {
+                            new ColoredMultistring(
+                                Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments))
+                        };
 
                         composed = composed.Concat(insertion);
                     }
@@ -416,7 +422,7 @@ namespace NClap.Help
             }
 
             if (columnWidths[0] == 0) columnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[1];
-            if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length- columnWidths[0];
+            if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[0];
 
             return entriesList.Select(e =>
             {
@@ -464,8 +470,11 @@ namespace NClap.Help
                 {
                     if (_options.Arguments.BlankLinesBetweenArguments > 0)
                     {
-                        var insertion = new[] { new ColoredMultistring(
-                            Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                        var insertion = new[]
+                        {
+                            new ColoredMultistring(
+                                Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments))
+                        };
 
                         lines = lines.Concat(insertion);
                     }
@@ -512,7 +521,7 @@ namespace NClap.Help
                     e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e))
                     .ToList();
 
-                if (enumValueEntries.Count == 0) 
+                if (enumValueEntries.Count == 0)
                 {
                     enumValueEntries = null;
                 }
@@ -663,23 +672,23 @@ namespace NClap.Help
                 HangingIndentWidth = itemOptions.HangingIndent.GetValueOrDefault(options.SectionEntryHangingIndentWidth);
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredMultistring entry) :
-                this(options, itemOptions, new[] { entry })
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredMultistring entry)
+                : this(options, itemOptions, new[] { entry })
             {
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredString> entries) :
-                this(options, itemOptions, entries.Select(e => (ColoredMultistring)e))
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredString> entries)
+                : this(options, itemOptions, entries.Select(e => (ColoredMultistring)e))
             {
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<string> entries) :
-                this(options, itemOptions, entries.Select(e => (ColoredString)e))
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<string> entries)
+                : this(options, itemOptions, entries.Select(e => (ColoredString)e))
             {
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredString entry) :
-                this(options, itemOptions, new[] { entry })
+            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredString entry)
+                : this(options, itemOptions, new[] { entry })
             {
             }
 

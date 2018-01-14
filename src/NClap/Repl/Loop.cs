@@ -14,7 +14,7 @@ namespace NClap.Repl
     /// <summary>
     /// An interactive REPL loop.
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords")]
+    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", Justification = "[Legacy]")]
     public class Loop
     {
         private class TokenCompleter : ITokenCompleter
@@ -23,14 +23,15 @@ namespace NClap.Repl
 
             public TokenCompleter(Loop loop) { _loop = loop; }
 
-            public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int tokenIndex) => 
+            public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int tokenIndex) =>
                 _loop.GetCompletions(tokens, tokenIndex);
         }
 
         private readonly Type _commandType;
         private readonly ArgumentSetDefinition _argSet;
-        private Func<object> _objectFactory;
         private readonly ILoopClient _client;
+
+        private Func<object> _objectFactory;
 
         /// <summary>
         /// Constructor that requires an explicit implementation of
@@ -62,8 +63,8 @@ namespace NClap.Repl
         /// parameters are used.</param>
         /// <param name="argSetAttribute">Optionally provides attribute info
         /// for the argument set that will be dynamically created for this loop.</param>
-        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null) :
-            this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute)
+        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null)
+            : this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute)
         {
         }
 
@@ -117,6 +118,7 @@ namespace NClap.Repl
             {
                 return CommandResult.Terminate;
             }
+
             if (args.Length == 0)
             {
                 return CommandResult.Success;

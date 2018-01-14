@@ -1,5 +1,5 @@
-﻿using NClap.Utilities;
-using System;
+﻿using System;
+using NClap.Utilities;
 
 namespace NClap.Help
 {

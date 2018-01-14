@@ -184,6 +184,5 @@ namespace NClap.Parser
 
             return members;
         }
-
     }
 }

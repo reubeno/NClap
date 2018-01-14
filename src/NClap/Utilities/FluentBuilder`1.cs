@@ -24,6 +24,7 @@ namespace NClap.Utilities
         /// <summary>
         /// Operator that allows implicit casting from a builder to its applied result.
         /// </summary>
+        /// <param name="builder">Fluent builder to apply and generate state from.</param>
         public static implicit operator TState(FluentBuilder<TState> builder) =>
             builder.Apply();
 
@@ -31,6 +32,7 @@ namespace NClap.Utilities
         /// Operator that allows implicitly forming a fluent builder from a starting
         /// state.
         /// </summary>
+        /// <param name="state">Input state object to create a fluent builder from.</param>
         public static implicit operator FluentBuilder<TState>(TState state) =>
             new FluentBuilder<TState>(state);
 

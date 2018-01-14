@@ -22,7 +22,7 @@ namespace NClap.ConsoleInput
         /// Add a new entry to the end of the history, and reset the history's
         /// cursor to that new entry.
         /// </summary>
-        /// <param name="entry"></param>
+        /// <param name="entry">Entry to add.</param>
         void Add(string entry);
 
         /// <summary>

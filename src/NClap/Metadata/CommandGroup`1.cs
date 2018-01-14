@@ -11,7 +11,9 @@ namespace NClap.Metadata
     /// <summary>
     /// Represents a group of commands, i.e. a command with sub-commands.
     /// </summary>
-    public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IArgumentSetWithHelp where TCommandType : struct
+    /// <typeparam name="TCommandType">Type defining the command.</typeparam>
+    public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IArgumentSetWithHelp
+        where TCommandType : struct
     {
         private object _parentObject;
         private TCommandType? _selectedCommandType;
@@ -92,7 +94,7 @@ namespace NClap.Metadata
         /// </summary>
         /// <returns>The object in question.</returns>
         public object GetDestinationObject() => InstantiatedCommand;
-        
+
         /// <summary>
         /// Executes the command synchronously.
         /// </summary>

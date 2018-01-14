@@ -3,6 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace NClap.Utilities
 {
+#pragma warning disable PC003 // TODO: Native API not available in UWP
+
     /// <summary>
     /// Modifier flags for a console key.
     /// </summary>

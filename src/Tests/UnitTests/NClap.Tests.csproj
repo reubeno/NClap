@@ -1,21 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net462</TargetFrameworks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <DebugType>full</DebugType>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.0.0-beta0004" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="FluentAssertions" Version="5.0.0-rc0002" />
+    <PackageReference Include="FluentAssertions.Analyzers" Version="0.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0-preview-20180109-01" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="NSubstitute" Version="3.1.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\NClap\NClap.csproj" />
   </ItemGroup>
+
 </Project>

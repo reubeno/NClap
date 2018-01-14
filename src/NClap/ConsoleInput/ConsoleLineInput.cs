@@ -613,7 +613,7 @@ namespace NClap.ConsoleInput
             // Snap info about the console state.
             var cursorLeft = ConsoleOutput.CursorLeft;
             var cursorTop = ConsoleOutput.CursorTop;
-            var cursorOffset = cursorTop * bufferWidth + cursorLeft;
+            var cursorOffset = (cursorTop * bufferWidth) + cursorLeft;
 
             // If the length is bigger than the buffer itself...
             if (length + extraSpaces > bufferSize)
@@ -638,7 +638,7 @@ namespace NClap.ConsoleInput
                 // Update console state.
                 cursorLeft = ConsoleOutput.CursorLeft;
                 cursorTop = ConsoleOutput.CursorTop;
-                cursorOffset = cursorTop * bufferWidth + cursorLeft;
+                cursorOffset = (cursorTop * bufferWidth) + cursorLeft;
             }
 
             // Allocate a fresh buffer so we can concatenate some chars on the

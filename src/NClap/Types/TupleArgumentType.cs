@@ -45,6 +45,11 @@ namespace NClap.Types
             string.Join(",", _argTypeParameters.Select(param => param.SyntaxSummary));
 
         /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
+        public override IEnumerable<IArgumentType> DependentTypes => _argTypeParameters;
+
+        /// <summary>
         /// Converts a value into a readable string form.  The value must be of
         /// the type described by this interface.
         /// </summary>
@@ -111,10 +116,5 @@ namespace NClap.Types
 
             return _creatorMethod.Invoke(parsedObjects);
         }
-
-        /// <summary>
-        /// Enumeration of all types that this type depends on / includes.
-        /// </summary>
-        public override IEnumerable<IArgumentType> DependentTypes => _argTypeParameters;
     }
 }

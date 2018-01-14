@@ -30,7 +30,7 @@ namespace NClap.Metadata
         /// Retrieves a string from the object, for use in validation.
         /// </summary>
         /// <param name="value">The object to retrieve the string from.</param>
-        /// <returns></returns>
+        /// <returns>The string.</returns>
         protected static string GetString(object value)
         {
             object valueToCast;

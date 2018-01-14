@@ -6,7 +6,6 @@ namespace NClap.Utilities
     /// <summary>
     /// A colored string intended for display on a console.
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores")]
     public struct ColoredString : IEquatable<ColoredString>
     {
         /// <summary>
@@ -52,7 +51,8 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="content">The string content.</param>
         /// <param name="color">The content's intended color.</param>
-        public ColoredString(string content, TextColor color) : this(content, color.Foreground, color.Background)
+        public ColoredString(string content, TextColor color)
+            : this(content, color.Foreground, color.Background)
         {
         }
 
@@ -104,7 +104,7 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="index">Zero-based index of the character.</param>
         /// <returns>The character at the specified index.</returns>
-        /// <returns></returns>
+        /// <returns>The indexed character.</returns>
         public char this[int index] => Content[index];
 
         /// <summary>
@@ -118,13 +118,14 @@ namespace NClap.Utilities
         /// Wraps an uncolored string.
         /// </summary>
         /// <param name="value">The value to wrap.</param>
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "[Legacy]")]
         public static implicit operator ColoredString(string value) => FromString(value);
 
         /// <summary>
         /// Wraps an uncolored string.
         /// </summary>
         /// <param name="value">The value to wrap.</param>
+        /// <returns>The wrapped string.</returns>
         public static ColoredString FromString(string value) =>
             new ColoredString(value, null, null);
 
@@ -172,9 +173,9 @@ namespace NClap.Utilities
             unchecked
             {
                 var hash = 17;
-                hash = hash * 23 + Content.GetHashCode();
-                hash = hash * 23 + ForegroundColor.GetHashCode();
-                hash = hash * 23 + BackgroundColor.GetHashCode();
+                hash = (hash * 23) + Content.GetHashCode();
+                hash = (hash * 23) + ForegroundColor.GetHashCode();
+                hash = (hash * 23) + BackgroundColor.GetHashCode();
                 return hash;
             }
         }
@@ -184,7 +185,7 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="obj">The object to compare.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
-        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison")]
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison", Justification = "[Legacy]")]
         public override bool Equals(object obj) =>
             obj is ColoredString && Equals((ColoredString)obj);
 

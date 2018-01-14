@@ -10,7 +10,7 @@ namespace NClap.Types
     /// <summary>
     /// Encapsulates a file-system path (i.e. to file or directory).
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores")]
+    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores", Justification = "[Legacy]")]
     public class FileSystemPath : IEquatable<FileSystemPath>
     {
         /// <summary>
@@ -70,7 +70,7 @@ namespace NClap.Types
         /// </summary>
         /// <param name="path">The path string.</param>
         /// <returns>The path object.</returns>
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "[Legacy]")]
         public static implicit operator FileSystemPath(string path) => FromString(path);
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace NClap.Types
                 if (string.IsNullOrEmpty(directoryPath))
                 {
                     var rootPath = System.IO.Path.GetPathRoot(pathPrefix);
-                    directoryPath = !String.IsNullOrEmpty(rootPath) ? rootPath : ".";
+                    directoryPath = !string.IsNullOrEmpty(rootPath) ? rootPath : ".";
                 }
 
                 // Construct a glob-style file pattern for matching.
@@ -159,13 +159,9 @@ namespace NClap.Types
         /// Compares this path object against the specified other object,
         /// with case insensitivity.
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">Object to compare against.</param>
         /// <returns>True if the objects are equivalent; false otherwise.</returns>
-        public override bool Equals(object obj)
-        {
-            var other = obj as FileSystemPath;
-            return (other != null) && Equals(other);
-        }
+        public override bool Equals(object obj) => (obj is FileSystemPath other) && Equals(other);
 
         /// <summary>
         /// Produces a stable hash code for the path object, assuming case
@@ -178,7 +174,7 @@ namespace NClap.Types
         /// Compares this path object against the specified other path object,
         /// with case insensitivity.
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">Other object to compare against.</param>
         /// <returns>True if the paths are equivalent; false otherwise.</returns>
         public bool Equals(FileSystemPath other) =>
             Path.Equals(other, ArePathsCaseSensitive() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);

@@ -74,7 +74,7 @@ namespace NClap.Utilities
         /// Ending offset of the token.  If the token ends with quotes,
         /// the ending offset of the ending quotes is returned.
         /// </summary>
-        public int OuterEndingOffset => Contents.EndingOffset + (EndsWithQuote? 1 : 0);
+        public int OuterEndingOffset => Contents.EndingOffset + (EndsWithQuote ? 1 : 0);
 
         /// <summary>
         /// Length of the token, including any quotes.
@@ -131,9 +131,9 @@ namespace NClap.Utilities
             unchecked
             {
                 var hash = 17;
-                hash = hash * 23 + Contents.GetHashCode();
-                hash = hash * 23 + StartsWithQuote.GetHashCode();
-                hash = hash * 23 + EndsWithQuote.GetHashCode();
+                hash = (hash * 23) + Contents.GetHashCode();
+                hash = (hash * 23) + StartsWithQuote.GetHashCode();
+                hash = (hash * 23) + EndsWithQuote.GetHashCode();
                 return hash;
             }
         }

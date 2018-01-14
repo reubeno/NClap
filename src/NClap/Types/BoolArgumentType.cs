@@ -7,7 +7,7 @@ namespace NClap.Types
     /// </summary>
     internal class BoolArgumentType : ArgumentTypeBase
     {
-        private static readonly BoolArgumentType s_instance = new BoolArgumentType();
+        private static readonly BoolArgumentType Instance = new BoolArgumentType();
 
         /// <summary>
         /// Primary constructor.
@@ -25,8 +25,8 @@ namespace NClap.Types
         /// Public factory method.
         /// </summary>
         /// <returns>A constructed object.</returns>
-        public static BoolArgumentType Create() => s_instance;
-        
+        public static BoolArgumentType Create() => Instance;
+
         /// <summary>
         /// Generates a set of valid strings--parseable to this type--that
         /// contain the provided string as a strict prefix.

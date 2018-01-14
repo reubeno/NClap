@@ -24,7 +24,7 @@ namespace NClap.Utilities
         /// Implicit conversion operator to wrap a string.
         /// </summary>
         /// <param name="s">String to wrap.</param>
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "[Legacy]")]
         public static implicit operator StringWrapper(string s) =>
             (s == null) ? null : new StringWrapper(s);
 
@@ -32,7 +32,7 @@ namespace NClap.Utilities
         /// Implicit conversion operator to unwrap a string.
         /// </summary>
         /// <param name="s">String to unwrap.</param>
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "[Legacy]")]
         public static implicit operator string(StringWrapper s) => s?.Content;
 
         /// <summary>
@@ -106,7 +106,6 @@ namespace NClap.Utilities
         /// character was found.</returns>
         public int LastIndexOfAny(char[] chars, int startIndex, int count) =>
             Content.LastIndexOfAny(chars, startIndex, count);
-
 
         /// <summary>
         /// Construct a builder that can generate a string of this type.

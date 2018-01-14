@@ -6,7 +6,6 @@ namespace NClap.Metadata
     /// <summary>
     /// Attribute class used to denote commands.
     /// </summary>
-    [SuppressMessage("Performance", "CC0023:Unsealed Attribute")]
     [AttributeUsage(AttributeTargets.Field)]
     public class CommandAttribute : ArgumentValueAttribute
     {

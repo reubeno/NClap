@@ -13,7 +13,7 @@ namespace NClap.Types
     /// Static class used to access references to the canonical IArgumentType
     /// implementations for .NET built-in types.
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]
+    [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", Justification = "[Legacy]")]
     public static class ArgumentType
     {
         /// <summary>
@@ -24,7 +24,7 @@ namespace NClap.Types
         /// <summary>
         /// Describes System.Double.
         /// </summary>
-        public static IArgumentType Double { get; }= SimpleArgumentType.Create(double.Parse);
+        public static IArgumentType Double { get; } = SimpleArgumentType.Create(double.Parse);
 
         /// <summary>
         /// Describes System.Single.
@@ -174,7 +174,7 @@ namespace NClap.Types
         /// </summary>
         public static IArgumentType Single => Float;
 
-        private static readonly Dictionary<Guid, IArgumentType> s_builtInTypes = new Dictionary<Guid, IArgumentType>();
+        private static readonly Dictionary<Guid, IArgumentType> BuiltInTypes = new Dictionary<Guid, IArgumentType>();
 
         /// <summary>
         /// Static constructor, responsible for internally registering all
@@ -213,10 +213,10 @@ namespace NClap.Types
 
             foreach (var type in types)
             {
-                s_builtInTypes.Add(type.Type.GetTypeInfo().GUID, type);
+                BuiltInTypes.Add(type.Type.GetTypeInfo().GUID, type);
             }
         }
-        
+
         /// <summary>
         /// Retrieves the registered, stock IArgumentType implementation that
         /// describes the specified type.  Throws an exception if no such
@@ -300,7 +300,7 @@ namespace NClap.Types
             if (type.GetTypeInfo().IsGenericType)
             {
                 var genericTy = type.GetGenericTypeDefinition();
-                
+
                 if (genericTy.IsEffectivelySameAs(typeof(KeyValuePair<,>)))
                 {
                     argType = new KeyValuePairArgumentType(type);
@@ -331,6 +331,6 @@ namespace NClap.Types
         }
 
         private static bool TryGetBuiltInType(Type type, out IArgumentType argType) =>
-            s_builtInTypes.TryGetValue(type.GetTypeInfo().GUID, out argType);
+            BuiltInTypes.TryGetValue(type.GetTypeInfo().GUID, out argType);
     }
 }

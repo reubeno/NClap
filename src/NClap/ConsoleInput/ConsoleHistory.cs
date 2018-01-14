@@ -57,7 +57,7 @@ namespace NClap.ConsoleInput
         /// Add a new entry to the end of the history, and reset the history's
         /// cursor to that new entry.
         /// </summary>
-        /// <param name="entry"></param>
+        /// <param name="entry">Entry to add.</param>
         public void Add(string entry)
         {
             // Only add the entry to history if it contains non-whitespace.

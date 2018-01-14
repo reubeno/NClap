@@ -17,7 +17,7 @@ namespace NClap.Parser
     internal class ArgumentParser
     {
         // Constants
-        private readonly static ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
+        private static readonly ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
 
         public ArgumentParser(ArgumentSetDefinition argSet, ArgumentDefinition arg, CommandLineParserOptions options,
             object destination = null, ArgumentParser parent = null)
@@ -28,6 +28,11 @@ namespace NClap.Parser
             DestinationObject = arg.FixedDestination ?? destination;
             Parent = parent;
             ParseContext = CreateParseContext(Argument, ArgumentSet.Attribute, options, DestinationObject);
+
+            if (Argument.IsCollection)
+            {
+                CollectionValues = GenericCollectionFactory.CreateList(Argument.CollectionArgumentType.ElementType.Type);
+            }
         }
 
         public ArgumentSetDefinition ArgumentSet { get; }
@@ -38,7 +43,7 @@ namespace NClap.Parser
 
         public ErrorReporter Reporter { get; }
 
-        public ArrayList CollectionValues { get; } = new ArrayList();
+        public IList CollectionValues { get; }
 
         public object DestinationObject { get; }
 
@@ -229,6 +234,7 @@ namespace NClap.Parser
 
             return Argument.ArgumentType.GetCompletions(context, valueToComplete);
         }
+
         public bool TryValidateValue(object value, ArgumentValidationContext validationContext, bool reportInvalidValue = true) =>
             Argument.ValidationAttributes.All(attrib =>
             {
@@ -271,7 +277,7 @@ namespace NClap.Parser
             }
         }
 
-        private bool TryCreateCollection(ICollectionArgumentType argType, ArrayList values, out object collection)
+        private bool TryCreateCollection(ICollectionArgumentType argType, IList values, out object collection)
         {
             try
             {
@@ -280,7 +286,13 @@ namespace NClap.Parser
             }
             catch (ArgumentException ex)
             {
-                ReportBadArgumentValue(string.Join(", ", values.ToArray().Select(v => v.ToString())), ex);
+                var convertedValues = new List<string>();
+                foreach (var v in values)
+                {
+                    convertedValues.Add(v.ToString());
+                }
+
+                ReportBadArgumentValue(string.Join(", ", convertedValues), ex);
 
                 collection = null;
                 return false;

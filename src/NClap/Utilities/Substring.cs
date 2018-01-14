@@ -14,8 +14,8 @@ namespace NClap.Utilities
         /// <param name="value">The base string object.</param>
         /// <param name="startingOffset">The starting offset at which the
         /// substring starts in the provided string.</param>
-        public Substring(string value, int startingOffset) :
-            this(value, startingOffset, value?.Length - startingOffset ?? 0)
+        public Substring(string value, int startingOffset)
+            : this(value, startingOffset, value?.Length - startingOffset ?? 0)
         {
         }
 
@@ -74,7 +74,8 @@ namespace NClap.Utilities
         /// <param name="startingOffset">The starting offset, relative to the
         /// containing substring.</param>
         /// <param name="length">The length of the new substring.</param>
-        public Substring(Substring substring, int startingOffset, int length) : this(substring.Base, substring.StartingOffset + startingOffset, length)
+        public Substring(Substring substring, int startingOffset, int length)
+            : this(substring.Base, substring.StartingOffset + startingOffset, length)
         {
             if (startingOffset < 0)
             {
@@ -159,9 +160,9 @@ namespace NClap.Utilities
             unchecked
             {
                 var hash = 17;
-                hash = hash * 23 + Base.GetHashCode();
-                hash = hash * 23 + StartingOffset.GetHashCode();
-                hash = hash * 23 + Length.GetHashCode();
+                hash = (hash * 23) + Base.GetHashCode();
+                hash = (hash * 23) + StartingOffset.GetHashCode();
+                hash = (hash * 23) + Length.GetHashCode();
                 return hash;
             }
         }
@@ -172,7 +173,7 @@ namespace NClap.Utilities
         /// <param name="other">The other substring.</param>
         /// <returns>True if the substrings are equal; false otherwise.
         /// </returns>
-        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison")]
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison", Justification = "[Legacy]")]
         public bool Equals(Substring other) =>
             Base.Equals(other.Base) &&
             StartingOffset == other.StartingOffset &&

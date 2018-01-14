@@ -1,5 +1,4 @@
 using System;
-
 using NClap.Utilities;
 
 namespace NClap.ConsoleInput
@@ -107,6 +106,9 @@ namespace NClap.ConsoleInput
         /// Clear the input buffer and reset the cursor to the beginning of the
         /// buffer.
         /// </summary>
+        /// <param name="clearBufferOnly">true to clear the buffer only without
+        /// resetting the cursor; false to both clear the buffer and reset the
+        /// cursor.</param>
         void ClearLine(bool clearBufferOnly);
 
         /// <summary>
@@ -156,7 +158,7 @@ namespace NClap.ConsoleInput
         /// line in the input history.
         /// </summary>
         void ReplaceWithYoungestLineInHistory();
-        
+
         /// <summary>
         /// Save the contents of the current buffer to the input history.
         /// </summary>

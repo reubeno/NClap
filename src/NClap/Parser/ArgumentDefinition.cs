@@ -33,9 +33,8 @@ namespace NClap.Parser
             ArgumentBaseAttribute attribute,
             ArgumentSetDefinition argSet,
             object defaultValue = null,
-            ArgumentDefinition containingArgument = null) :
-
-            this(GetMutableMemberInfo(member), attribute, argSet, defaultValue, /*fixedDestination=*/null, containingArgument)
+            ArgumentDefinition containingArgument = null)
+            : this(GetMutableMemberInfo(member), attribute, argSet, defaultValue, /*fixedDestination=*/null, containingArgument)
         {
         }
 

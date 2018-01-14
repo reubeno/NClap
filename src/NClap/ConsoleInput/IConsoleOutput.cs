@@ -29,6 +29,18 @@ namespace NClap.ConsoleInput
         int CursorTop { get; set; }
 
         /// <summary>
+        /// The width, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        int WindowWidth { get; set; }
+
+        /// <summary>
+        /// The height, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        int WindowHeight { get; set; }
+
+        /// <summary>
         /// The width, in characters, of the logical buffer associated with the
         /// console.
         /// </summary>

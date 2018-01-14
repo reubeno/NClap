@@ -59,7 +59,6 @@ namespace NClap.Utilities
             builder.Append(Wrap(text, width, blockIndent));
         }
 
-
         /// <summary>
         /// Wrap the provided text at the given width, indenting it with the
         /// given indentation width.
@@ -217,7 +216,7 @@ namespace NClap.Utilities
         /// <summary>
         /// Quotes the provided string if it contains whitespace.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">String to conditionally quote.</param>
         /// <returns>If the input string contains whitespace, the quoted version
         /// of the string; otherwise, the input string.</returns>
         public static string QuoteIfNeeded(string value)
@@ -230,7 +229,7 @@ namespace NClap.Utilities
 
             return string.Concat("\"", value, "\"");
         }
-        
+
         /// <summary>
         /// Tokenizes the provided input text line, observing quotes.
         /// </summary>
@@ -429,7 +428,7 @@ namespace NClap.Utilities
 
             var cols = Math.Max(1, screenBufferWidth / colWidth);
 
-            var lastColWidth = screenBufferWidth - colWidth * (cols - 1);
+            var lastColWidth = screenBufferWidth - (colWidth * (cols - 1));
 
             var rows = values.Count / cols;
             if (values.Count % cols != 0)
@@ -442,7 +441,7 @@ namespace NClap.Utilities
                 var charsInCol = 0;
                 for (var colIndex = 0; colIndex < cols; ++colIndex)
                 {
-                    var index = colIndex * rows + rowIndex;
+                    var index = (colIndex * rows) + rowIndex;
                     if (index >= values.Count)
                     {
                         builder.AppendLine();
@@ -484,7 +483,7 @@ namespace NClap.Utilities
 
         /// <summary>
         /// Computes the Damerau-Levenshtein edit distance between two strings.
-        /// 
+        ///
         /// Source: https://gist.github.com/wickedshimmy/449595.
         ///
         /// Copyright (c) 2010, 2012 Matt Enright
@@ -510,7 +509,7 @@ namespace NClap.Utilities
         /// <param name="original">Original string.</param>
         /// <param name="modified">Modified string.</param>
         /// <returns>Edit instance.</returns>
-        [SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional")]
+        [SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", Justification = "[Legacy]")]
         public static int GetDamerauLevenshteinEditDistance(string original, string modified)
         {
             var lenOrig = original.Length;
@@ -532,7 +531,8 @@ namespace NClap.Utilities
                 for (int j = 1; j <= lenDiff; j++)
                 {
                     var cost = modified[j - 1] == original[i - 1] ? 0 : 1;
-                    var vals = new int[] {
+                    var vals = new int[]
+                    {
                         matrix[i - 1, j] + 1,
                         matrix[i, j - 1] + 1,
                         matrix[i - 1, j - 1] + cost

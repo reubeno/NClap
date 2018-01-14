@@ -9,7 +9,6 @@ namespace NClap.Utilities
     /// <summary>
     /// Represents text comprised of strings of different colors.
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores")]
     public class ColoredMultistring : IString
     {
         /// <summary>
@@ -52,7 +51,7 @@ namespace NClap.Utilities
         /// <returns>The character at the specified index.</returns>
         public char this[int index]
         {
-            [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+            [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "[Legacy]")]
             get
             {
                 var currentCount = 0;
@@ -80,7 +79,7 @@ namespace NClap.Utilities
         /// Wraps a string.
         /// </summary>
         /// <param name="value">The string to wrap.</param>
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "[Legacy]")]
         public static explicit operator ColoredMultistring(string value) =>
             (value == null) ? null : FromString(value);
 
@@ -88,7 +87,7 @@ namespace NClap.Utilities
         /// Wraps a single colored string.
         /// </summary>
         /// <param name="value">The string to wrap.</param>
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "[Legacy]")]
         public static explicit operator ColoredMultistring(ColoredString value) =>
             new ColoredMultistring(new[] { value });
 
@@ -127,6 +126,7 @@ namespace NClap.Utilities
         /// <param name="value">The string to wrap.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
         /// is null.</exception>
+        /// <returns>The wrapped string.</returns>
         public static ColoredMultistring FromString(string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));

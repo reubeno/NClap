@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using NClap.Types;
-using System;
 
 namespace NClap.Metadata
 {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NClap.Utilities;
 
 namespace NClap.Types
 {
@@ -30,18 +31,8 @@ namespace NClap.Types
         /// <returns>Constructed collection.</returns>
         public override object ToCollection(IEnumerable objects)
         {
-            if (objects == null)
-            {
-                throw new ArgumentNullException(nameof(objects));
-            }
-
-            var arrayList = new ArrayList();
-            foreach (var o in objects)
-            {
-                arrayList.Add(o);
-            }
-
-            return arrayList.ToArray(ElementType.Type);
+            if (objects == null) throw new ArgumentNullException(nameof(objects));
+            return objects.ToArray(ElementType.Type);
         }
 
         /// <summary>

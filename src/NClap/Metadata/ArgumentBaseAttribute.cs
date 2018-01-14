@@ -17,7 +17,7 @@ namespace NClap.Metadata
         private object _defaultValue;
         private string _longName;
 
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
+        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "[Legacy]")]
         private string[] _conflictingMemberNames = Array.Empty<string>();
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace NClap.Metadata
         /// long name should be used.  The long name for every argument must
         /// be unique.  It is an error to specify a long name of string.Empty.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "[Legacy]")]
         public string LongName
         {
             get
@@ -175,6 +175,7 @@ namespace NClap.Metadata
         }
 
         private static T InvokeParameterlessConstructorIfPresent<T>(Type type) =>
-            (T)(type?.GetTypeInfo().GetConstructor(Array.Empty<Type>())?.Invoke(Array.Empty<object>()));
+            (T)type?.GetTypeInfo().GetConstructor(
+                Array.Empty<Type>())?.Invoke(Array.Empty<object>());
     }
 }

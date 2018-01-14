@@ -168,6 +168,7 @@ namespace NClap.ConsoleInput
                         ConsoleOutput.WriteLine(string.Empty);
                         result = ConsoleInputOperationResult.EndOfInputStream;
                     }
+
                     break;
                 case ConsoleInputOperation.BeginningOfLine:
                     LineInput.MoveCursorToStart();
@@ -244,6 +245,7 @@ namespace NClap.ConsoleInput
 
                         return ConsoleInputOperationResult.EndOfInputLine;
                     }
+
                     break;
                 case ConsoleInputOperation.TabInsert:
                     ProcessCharacterKey('\t');
@@ -257,26 +259,26 @@ namespace NClap.ConsoleInput
                 //
 
                 case ConsoleInputOperation.CompleteTokenNext:
-                {
-                    var lastOpWasCompleteToken =
-                        _lastOp.HasValue &&
-                        ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
-                            (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
+                    {
+                        var lastOpWasCompleteToken =
+                            _lastOp.HasValue &&
+                            ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
+                                (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
 
-                    ProcessTabKeyPress(false, lastOpWasCompleteToken);
-                    break;
-                }
+                        ProcessTabKeyPress(false, lastOpWasCompleteToken);
+                        break;
+                    }
 
                 case ConsoleInputOperation.CompleteTokenPrevious:
-                {
-                    var lastOpWasCompleteToken =
-                        _lastOp.HasValue &&
-                        ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
-                            (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
+                    {
+                        var lastOpWasCompleteToken =
+                            _lastOp.HasValue &&
+                            ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
+                                (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
 
-                    ProcessTabKeyPress(true, lastOpWasCompleteToken);
-                    break;
-                }
+                        ProcessTabKeyPress(true, lastOpWasCompleteToken);
+                        break;
+                    }
 
                 case ConsoleInputOperation.DeletePreviousChar:
                     LineInput.DeletePrecedingChar();

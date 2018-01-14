@@ -52,7 +52,7 @@ namespace NClap.Utilities
         /// <param name="otherValues">The second enumeration.</param>
         /// <param name="comparer">The comparer implementation to use, or null
         /// to use the default.</param>
-        /// <returns></returns>
+        /// <returns>true if the they contain any members in common; false otherwise.</returns>
         public static bool Overlaps<T>(this IEnumerable<T> values, IEnumerable<T> otherValues, IEqualityComparer<T> comparer = null) =>
             values.Intersect(otherValues, comparer).Any();
 

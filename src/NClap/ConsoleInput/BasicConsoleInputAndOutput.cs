@@ -6,6 +6,9 @@ using NClap.Utilities;
 
 namespace NClap.ConsoleInput
 {
+#pragma warning disable PC001 // TODO: API not supported on all platforms
+#pragma warning disable PC003 // TODO: Native API not available in UWP
+
     /// <summary>
     /// Stock implementation of the IConsoleInput and IConsoleOutput interfaces.
     /// </summary>
@@ -57,11 +60,9 @@ namespace NClap.ConsoleInput
                 // Setting the cursor size is not supported on all platforms,
                 // so we swallow the request.  This isn't awesome, but covers
                 // up for holes in the platform.
-#pragma warning disable CC0004 // Catch block cannot be empty
                 catch (Exception ex) when (IsExceptionAcceptable(ex))
                 {
                 }
-#pragma warning restore CC0004 // Catch block cannot be empty
             }
         }
 
@@ -121,6 +122,26 @@ namespace NClap.ConsoleInput
         {
             get => Console.CursorTop;
             set => Console.CursorTop = value;
+        }
+
+        /// <summary>
+        /// The width, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        public int WindowWidth
+        {
+            get => Console.WindowWidth;
+            set => Console.WindowWidth = value;
+        }
+
+        /// <summary>
+        /// The width, in height, of the window associated with the
+        /// console.
+        /// </summary>
+        public int WindowHeight
+        {
+            get => Console.WindowHeight;
+            set => Console.WindowHeight = value;
         }
 
         /// <summary>
@@ -366,8 +387,11 @@ namespace NClap.ConsoleInput
             public struct SmallRect
             {
                 public short Left { get; set; }
+
                 public short Top { get; set; }
+
                 public short Right { get; set; }
+
                 public short Bottom { get; set; }
             }
 
@@ -431,6 +455,7 @@ namespace NClap.ConsoleInput
             public struct CharInfo
             {
                 public char UnicodeChar { get; set; }
+
                 public CharAttributes Attributes { get; set; }
             }
 
@@ -438,6 +463,7 @@ namespace NClap.ConsoleInput
             public struct Coord
             {
                 public short X { get; set; }
+
                 public short Y { get; set; }
             }
 
@@ -445,7 +471,7 @@ namespace NClap.ConsoleInput
             public static extern IntPtr GetStdHandle(StandardHandleType type);
 
             [DllImport("kernel32.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, SetLastError = true, ThrowOnUnmappableChar = true)]
-            [return:  MarshalAs(UnmanagedType.Bool)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             public static extern bool ScrollConsoleScreenBuffer(
                 IntPtr consoleOutput,
                 [In] ref SmallRect scrollRectangle,

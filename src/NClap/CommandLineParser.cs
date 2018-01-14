@@ -24,11 +24,6 @@ namespace NClap
     public static class CommandLineParser
     {
         /// <summary>
-        /// Retrieves the current console's width in characters.
-        /// </summary>
-        internal static Func<int> GetConsoleWidth { get; set; } = () => Console.WindowWidth;
-
-        /// <summary>
         /// Default console width in characters.
         /// </summary>
         private const int DefaultConsoleWidth = 80;
@@ -46,7 +41,8 @@ namespace NClap
         /// <param name="arguments">The string arguments to parse.</param>
         /// <param name="result">On success, returns the constructed result object.</param>
         /// <returns>True on success; false otherwise.</returns>
-        public static bool TryParse<T>(IEnumerable<string> arguments, out T result) where T : class, new() =>
+        public static bool TryParse<T>(IEnumerable<string> arguments, out T result)
+            where T : class, new() =>
             TryParse(arguments, null, out result);
 
         /// <summary>
@@ -340,7 +336,7 @@ namespace NClap
 
             try
             {
-                columns = GetConsoleWidth?.Invoke() ?? DefaultConsoleWidth;
+                columns = BasicConsoleInputAndOutput.Default.WindowWidth;
             }
             catch (IOException)
             {

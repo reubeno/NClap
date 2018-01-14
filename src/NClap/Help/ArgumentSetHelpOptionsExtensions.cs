@@ -1,5 +1,5 @@
-﻿using NClap.Utilities;
-using System;
+﻿using System;
+using NClap.Utilities;
 
 namespace NClap.Help
 {
@@ -15,6 +15,18 @@ namespace NClap.Help
         /// <returns>Fluent builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> With(this ArgumentSetHelpOptions options) =>
             new FluentBuilder<ArgumentSetHelpOptions>(options);
+
+        /// <summary>
+        /// Updates the "use color or not" preference.
+        /// </summary>
+        /// <param name="builder">Options builders.</param>
+        /// <param name="useColor">true to use color; false otherwise.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> Color(this FluentBuilder<ArgumentSetHelpOptions> builder, bool useColor)
+        {
+            builder.AddTransformer(options => options.UseColor = useColor);
+            return builder;
+        }
 
         /// <summary>
         /// Updates the maximum width.

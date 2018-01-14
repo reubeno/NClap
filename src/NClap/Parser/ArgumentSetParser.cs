@@ -15,15 +15,9 @@ namespace NClap.Parser
     /// </summary>
     internal partial class ArgumentSetParser
     {
-        private class ArgumentAndValue
-        {
-            public ArgumentDefinition Arg { get; set; }
-            public string Value { get; set; }
-        }
-
         // Constants.
-        private readonly static ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
+        private static readonly ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
 
         private readonly Dictionary<ArgumentDefinition, ArgumentParser> _stateByArg =
             new Dictionary<ArgumentDefinition, ArgumentParser>();
@@ -364,6 +358,7 @@ namespace NClap.Parser
             {
                 result = TryParseNamedArgument(argument, longNameArgumentPrefix, ArgumentNameType.LongName, out parsedArgs);
             }
+
             if (result.IsUnknown && shortNameArgumentPrefix != null)
             {
                 result = TryParseNamedArgument(argument, shortNameArgumentPrefix, ArgumentNameType.ShortName, out parsedArgs);
@@ -584,11 +579,14 @@ namespace NClap.Parser
                     return ArgumentSetParseResult.UnknownNamedArgument(namedArgType, options);
                 }
 
-                parsedArgs = new[] { new ArgumentAndValue
+                parsedArgs = new[]
                 {
-                    Arg = arg,
-                    Value = optionArgument
-                } };
+                    new ArgumentAndValue
+                    {
+                        Arg = arg,
+                        Value = optionArgument
+                    }
+                };
             }
 
             // If the last named argument we saw in this token required an
@@ -806,6 +804,13 @@ namespace NClap.Parser
         /// <summary>
         /// Valid argument name terminators for this argument set.
         /// </summary>
-        private IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
+        private static IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
+
+        private class ArgumentAndValue
+        {
+            public ArgumentDefinition Arg { get; set; }
+
+            public string Value { get; set; }
+        }
     }
 }
