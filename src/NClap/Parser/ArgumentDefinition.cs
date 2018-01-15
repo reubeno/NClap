@@ -72,7 +72,7 @@ namespace NClap.Parser
 
             LongName = GetLongName(attribute, argSet.Attribute, member.MemberInfo);
             ExplicitShortName = HasExplicitShortName(attribute);
-            ShortName = GetShortName(attribute, argSet.Attribute, member.MemberInfo);
+            ShortName = GetShortNameOrNull(attribute, argSet.Attribute, member.MemberInfo);
             DefaultValue = GetDefaultValue(attribute, member, defaultValue);
 
             var nullableBase = Nullable.GetUnderlyingType(member.MemberType);
@@ -358,6 +358,7 @@ namespace NClap.Parser
                 // syntax help that just indicates how to flip the switch on.
                 else if ((ArgumentType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
                 {
+                    // Nothing to do.
                 }
 
                 // Otherwise, spell out the full syntax.
@@ -495,7 +496,7 @@ namespace NClap.Parser
             return longName;
         }
 
-        private static string GetShortName(ArgumentBaseAttribute attribute, ArgumentSetAttribute argSetAttribute, MemberInfo member)
+        private static string GetShortNameOrNull(ArgumentBaseAttribute attribute, ArgumentSetAttribute argSetAttribute, MemberInfo member)
         {
             if (attribute is PositionalArgumentAttribute)
             {

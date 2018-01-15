@@ -242,8 +242,6 @@ namespace NClap.Help
                 descBuilder.Append("]");
             }
 
-            var desc = descBuilder.ToMultistring();
-
             return new ParameterEntry
             {
                 Syntax = syntaxBuilder.ToMultistring(),
@@ -501,11 +499,11 @@ namespace NClap.Help
                 // N.B. Special-case parent command groups that are already selected (i.e. skip them).
                 if (i.IsSelectedCommand())
                 {
-                    return null;
+                    return new None();
                 }
 
-                return FormatParameterEntry(currentMaxWidth, i, setInfo, enumTypes);
-            }).Where(e => e != null);
+                return Some.Of(FormatParameterEntry(currentMaxWidth, i, setInfo, enumTypes));
+            }).WhereHasValue();
 
         private ParameterEntry FormatParameterEntry(
             int currentMaxWidth,
@@ -658,8 +656,8 @@ namespace NClap.Help
             public bool Equals(IArgumentType x, IArgumentType y) =>
                 x.Type.GetTypeInfo().GUID == y.Type.GetTypeInfo().GUID;
 
-            public int GetHashCode(IArgumentType value) =>
-                value.Type.GetTypeInfo().GUID.GetHashCode();
+            public int GetHashCode(IArgumentType obj) =>
+                obj.Type.GetTypeInfo().GUID.GetHashCode();
         }
 
         private sealed class Section

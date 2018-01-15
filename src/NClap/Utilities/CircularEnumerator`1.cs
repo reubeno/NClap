@@ -34,19 +34,19 @@ namespace NClap.Utilities
         public bool Started => CursorIndex.HasValue;
 
         /// <summary>
-        /// The current item.
+        /// Retrieves the current item.
         /// </summary>
-        public T CurrentItem
+        /// <returns>The current item.</returns>
+        /// <exception cref="IndexOutOfRangeException">Thrown when enumeration has
+        /// not yet started, or underlying list is empty.</exception>
+        public T GetCurrentItem()
         {
-            get
+            if (!Started)
             {
-                if (!CursorIndex.HasValue)
-                {
-                    throw new IndexOutOfRangeException();
-                }
-
-                return Values[CursorIndex.Value];
+                throw new InvalidOperationException();
             }
+
+            return Values[CursorIndex.Value];
         }
 
         /// <summary>

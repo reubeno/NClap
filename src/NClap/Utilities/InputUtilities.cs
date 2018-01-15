@@ -62,8 +62,8 @@ namespace NClap.Utilities
             // TODO: This whole method needs to be cleaned up.  We have
             // existing code that is Windows-specific, which p/invokes
             // into user32.dll to convert a ConsoleKey to an array of chars.
-            // Firstly, this definitely doesn't work on non-Windows platforms;
-            // secondly, it's not clear we need such a generic facility here
+            // Firstly, this definitely doesn't work on non-Windows platforms.
+            // Secondly, it's not clear we need such a generic facility here
             // anyhow.  Someone should look back into this to figure out what
             // we *really* need, and find a way to provide that in a
             // platform-agnostic way.

@@ -15,7 +15,7 @@ namespace NClap.Metadata
     public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IArgumentSetWithHelp
         where TCommandType : struct
     {
-        private object _parentObject;
+        private readonly object _parentObject;
         private TCommandType? _selectedCommandType;
 
         /// <summary>

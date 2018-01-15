@@ -22,18 +22,18 @@ namespace NClap.Utilities
         /// <summary>
         /// Compares the specified object against this object.
         /// </summary>
-        /// <param name="value">The object to compare.</param>
+        /// <param name="obj">The object to compare.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
-        public override bool Equals(object value) => value is TextColor tc && Equals(tc);
+        public override bool Equals(object obj) => obj is TextColor tc && Equals(tc);
 
         /// <summary>
         /// Compares the specified object against this object.
         /// </summary>
-        /// <param name="value">The object to compare.</param>
+        /// <param name="other">The object to compare.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
-        public bool Equals(TextColor value) =>
-            value.Foreground == Foreground &&
-            value.Background == Background;
+        public bool Equals(TextColor other) =>
+            other.Foreground == Foreground &&
+            other.Background == Background;
 
         /// <summary>
         /// Generate a hash code for the value.

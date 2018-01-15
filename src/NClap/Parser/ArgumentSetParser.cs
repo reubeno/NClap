@@ -391,6 +391,8 @@ namespace NClap.Parser
                 return result;
             }
 
+            Debug.Assert(parsedArgs != null);
+
             foreach (var parsedArg in parsedArgs)
             {
                 // TODO: Obviate the need to use string.Empty here.

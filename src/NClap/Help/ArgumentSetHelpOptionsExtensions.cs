@@ -112,7 +112,7 @@ namespace NClap.Help
                 {
                     if (widths.Length > 2)
                     {
-                        throw new ArgumentOutOfRangeException(nameof(widths), "May only specify up to 2 column widths with this layout");
+                        throw new NotSupportedException("May only specify up to 2 column widths with this layout");
                     }
 
                     if (widths.Length >= 1) layout.ColumnWidths[0] = widths[0];
@@ -120,7 +120,7 @@ namespace NClap.Help
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException(nameof(builder), "Cannot specify column widths on this layout");
+                    throw new NotSupportedException("Cannot specify column widths on this layout");
                 }
             });
 
@@ -146,7 +146,7 @@ namespace NClap.Help
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException(nameof(builder), "Cannot specify column widths on this layout");
+                    throw new NotSupportedException("Cannot specify column widths on this layout");
                 }
             });
 

@@ -97,7 +97,7 @@ namespace NClap.Utilities
 
             try
             {
-                var convertedValue = Convert.ChangeType(sourceValue, destType, CultureInfo.InvariantCulture);
+                Convert.ChangeType(sourceValue, destType, CultureInfo.InvariantCulture);
                 return true;
             }
             catch (InvalidCastException)

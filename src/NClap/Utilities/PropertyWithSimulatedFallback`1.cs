@@ -62,6 +62,7 @@ namespace NClap.Utilities
                 }
                 catch (Exception ex) when (_fallbackFilter(ex))
                 {
+                    // Nothing to do here.
                 }
 
                 _lastKnownValue = value;

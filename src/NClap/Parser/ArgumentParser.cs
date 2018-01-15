@@ -121,10 +121,14 @@ namespace NClap.Parser
             }
 
             // Check for conflicting arguments that have already been specified.
-            foreach (var arg in Argument.ConflictingArgs.Where(arg => setParseState.HasSeenValueFor(arg)))
+            bool conflictsDetected = false;
+            foreach (var arg in Argument.ConflictingArgs.Where(setParseState.HasSeenValueFor))
             {
                 ReportConflictingArgument(value, arg);
+            }
 
+            if (conflictsDetected)
+            {
                 parsedValue = null;
                 return false;
             }

@@ -192,9 +192,9 @@ namespace NClap.Utilities
         /// <summary>
         /// Compares the specified object against this object.
         /// </summary>
-        /// <param name="value">The object to compare.</param>
+        /// <param name="other">The object to compare.</param>
         /// <returns>True if the objects are equal; false otherwise.</returns>
-        public bool Equals(ColoredString value) => Equals(value, StringComparison.Ordinal);
+        public bool Equals(ColoredString other) => Equals(other, StringComparison.Ordinal);
 
         /// <summary>
         /// Compares the specified object against this object.

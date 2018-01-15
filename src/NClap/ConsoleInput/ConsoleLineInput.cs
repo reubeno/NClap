@@ -437,7 +437,7 @@ namespace NClap.ConsoleInput
 
             // Find the existing token length.
             var existingTokenLength = _completionEnumerator.Started
-                ? _completionEnumerator.CurrentItem.Length
+                ? _completionEnumerator.GetCurrentItem().Length
                 : _lastCompletions.OriginalToken.InnerLength;
 
             // Find the existing token start.
@@ -455,7 +455,7 @@ namespace NClap.ConsoleInput
             }
 
             // Select the completion.
-            var completion = _completionEnumerator.CurrentItem;
+            var completion = _completionEnumerator.GetCurrentItem();
 
             // Replace the current token in the buffer with the completion.
             MoveConsoleAndBufferCursors(SeekOrigin.Begin, existingTokenStart);
