@@ -93,11 +93,7 @@ namespace NClap.Types
         /// </summary>
         /// <returns>True if file paths are case-sensitive by default.</returns>
         public static bool ArePathsCaseSensitive() =>
-#if NET461
-            false;
-#else
             !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
 
         /// <summary>
         /// Get possible completions of the provided path prefix string.

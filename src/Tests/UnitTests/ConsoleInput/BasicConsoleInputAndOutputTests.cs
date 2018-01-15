@@ -7,19 +7,19 @@ using NClap.Utilities;
 namespace NClap.Tests.ConsoleInput
 {
     [TestClass]
-    public class BasicConsoleInputAndOutputTests
+    public class BasicConsoleTests
     {
         [TestMethod]
         public void DefaultObjectIsSingleton()
         {
-            BasicConsoleInputAndOutput.Default.Should().NotBeNull();
-            BasicConsoleInputAndOutput.Default.Should().BeSameAs(BasicConsoleInputAndOutput.Default);
+            BasicConsole.Default.Should().NotBeNull();
+            BasicConsole.Default.Should().BeSameAs(BasicConsole.Default);
         }
 
         [TestMethod, Ignore] // TODO: Disabled because it relies on having a console handy.
         public void BasicProperties()
         {
-            var con = BasicConsoleInputAndOutput.Default;
+            var con = BasicConsole.Default;
 
             con.CursorSize.Should().BeGreaterOrEqualTo(0).And.BeLessOrEqualTo(100);
             con.CursorLeft.Should().BeGreaterOrEqualTo(0);
@@ -36,7 +36,7 @@ namespace NClap.Tests.ConsoleInput
         [TestMethod]
         public void Writing()
         {
-            var con = BasicConsoleInputAndOutput.Default;
+            var con = BasicConsole.Default;
 
             con.Write(new ColoredString("Sample string. ", ConsoleColor.White, ConsoleColor.Black));
             con.Write("Sample string. ");

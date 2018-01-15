@@ -75,8 +75,8 @@ namespace NClap.Repl
         /// <returns>A constructed loop client.</returns>
         public static ILoopClient CreateClient(LoopInputOutputParameters parameters)
         {
-            var consoleInput = parameters.ConsoleInput ?? BasicConsoleInputAndOutput.Default;
-            var consoleOutput = parameters.ConsoleOutput ?? BasicConsoleInputAndOutput.Default;
+            var consoleInput = parameters.ConsoleInput ?? BasicConsole.Default;
+            var consoleOutput = parameters.ConsoleOutput ?? BasicConsole.Default;
             var keyBindingSet = parameters.KeyBindingSet ?? ConsoleKeyBindingSet.Default;
 
             var lineInput = parameters.LineInput ?? new ConsoleLineInput(

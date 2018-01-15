@@ -26,8 +26,8 @@ namespace NClap.ConsoleInput
         /// Default bindings are used if this parameter is null.</param>
         public ConsoleReader(IConsoleLineInput lineInput = null, IConsoleInput consoleInput = null, IConsoleOutput consoleOutput = null, IReadOnlyConsoleKeyBindingSet keyBindingSet = null)
         {
-            ConsoleInput = consoleInput ?? BasicConsoleInputAndOutput.Default;
-            ConsoleOutput = consoleOutput ?? BasicConsoleInputAndOutput.Default;
+            ConsoleInput = consoleInput ?? BasicConsole.Default;
+            ConsoleOutput = consoleOutput ?? BasicConsole.Default;
             KeyBindingSet = keyBindingSet ?? ConsoleKeyBindingSet.Default;
             LineInput = lineInput ?? new ConsoleLineInput(ConsoleOutput, new ConsoleInputBuffer(), new ConsoleHistory());
 

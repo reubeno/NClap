@@ -83,7 +83,6 @@ namespace NClap.Tests.Utilities
             InputUtilities.TryGetSingleChar(ConsoleKey.Oem7, ConsoleModifiers.Shift).Should().Be('\"');
         }
 
-#if true || NET461
         [TestMethod]
         public void TestThatTwoCodePathsAgree()
         {
@@ -109,8 +108,8 @@ namespace NClap.Tests.Utilities
 
         private bool DoTwoCodePathsAgree(ConsoleKey key, ConsoleModifiers modifiers)
         {
-            var portableChars = InputUtilities.GetCharsOnAnyPlatform(key, modifiers);
-            var winChars = InputUtilities.GetCharsOnWindows(key, modifiers);
+            var portableChars = InputUtilities.GetCharsPortable(key, modifiers);
+            var winChars = NClap.Utilities.Windows.InputUtilities.GetChars(key, modifiers);
 
             if (portableChars.Length != winChars.Length)
             {
@@ -135,6 +134,5 @@ namespace NClap.Tests.Utilities
 
             return true;
         }
-#endif
     }
 }

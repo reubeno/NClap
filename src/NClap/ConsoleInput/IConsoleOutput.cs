@@ -63,6 +63,11 @@ namespace NClap.ConsoleInput
         ConsoleColor BackgroundColor { get; set; }
 
         /// <summary>
+        /// Indicates if the console's buffer is scrollable.
+        /// </summary>
+        bool IsScrollable { get; }
+
+        /// <summary>
         /// Moves the cursor to the specified position.
         /// </summary>
         /// <param name="left">The new x-coordinate.</param>

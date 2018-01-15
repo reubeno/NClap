@@ -3,8 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace NClap.Utilities
 {
-#pragma warning disable PC003 // TODO: Native API not available in UWP
-
     /// <summary>
     /// Modifier flags for a console key.
     /// </summary>
@@ -71,21 +69,17 @@ namespace NClap.Utilities
             // platform-agnostic way.
             //
 
-#if NET461
-            return GetCharsOnWindows(key, modifiers);
-#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return GetCharsOnWindows(key, modifiers);
+                return Windows.InputUtilities.GetChars(key, modifiers);
             }
             else
             {
-                return GetCharsOnAnyPlatform(key, modifiers);
+                return GetCharsPortable(key, modifiers);
             }
-#endif
         }
 
-        internal static char[] GetCharsOnAnyPlatform(ConsoleKey key, ConsoleModifiers modifiers)
+        internal static char[] GetCharsPortable(ConsoleKey key, ConsoleModifiers modifiers)
         {
             if (key >= ConsoleKey.A && key <= ConsoleKey.Z)
             {
@@ -238,45 +232,6 @@ namespace NClap.Utilities
                 default:
                     return Array.Empty<char>();
             }
-        }
-
-        internal static char[] GetCharsOnWindows(ConsoleKey key, ConsoleModifiers modifiers)
-        {
-            var virtKey = (uint)key;
-            var output = new char[32];
-
-            var result = NativeMethods.ToUnicode(virtKey, 0, NativeMethods.GetKeyState(modifiers), output, output.Length, 0 /* flags */);
-            if (result < 0) result = 0;
-
-            var relevantOutput = new char[result];
-            Array.Copy(output, relevantOutput, result);
-
-            return relevantOutput;
-        }
-
-        private static class NativeMethods
-        {
-            public static byte[] GetKeyState(ConsoleModifiers modifiers)
-            {
-                const byte keyDownFlag = 0x80;
-
-                var keyState = new byte[256];
-
-                if (modifiers.HasFlag(ConsoleModifiers.Alt)) keyState[(int)ConsoleModifierKeys.Alt] |= keyDownFlag;
-                if (modifiers.HasFlag(ConsoleModifiers.Control)) keyState[(int)ConsoleModifierKeys.Control] |= keyDownFlag;
-                if (modifiers.HasFlag(ConsoleModifiers.Shift)) keyState[(int)ConsoleModifierKeys.Shift] |= keyDownFlag;
-
-                return keyState;
-            }
-
-            [DllImport("user32.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, ThrowOnUnmappableChar = true)]
-            public static extern int ToUnicode(
-                uint wVirtKey,
-                uint wScanCode,
-                byte[] lpKeyState,
-                [MarshalAs(UnmanagedType.LPArray)] [Out] char[] pwszBuff,
-                int cchBuff,
-                uint wFlags);
         }
     }
 }

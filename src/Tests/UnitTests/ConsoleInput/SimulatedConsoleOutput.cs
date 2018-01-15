@@ -147,6 +147,11 @@ namespace NClap.Tests.ConsoleInput
         }
 
         /// <summary>
+        /// Indicates if the console's buffer is scrollable.
+        /// </summary>
+        public bool IsScrollable => true;
+
+        /// <summary>
         /// Scrolls the bottom-most lines of the console's buffer upward within
         /// the buffer by the specified number of lines, effectively freeing up
         /// the specified number of lines.  The cursor is adjusted appropriately

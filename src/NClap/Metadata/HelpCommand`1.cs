@@ -22,7 +22,7 @@ namespace NClap.Metadata
         /// </summary>
         public override CommandResult Execute()
         {
-            var outputHandler = HelpCommand.OutputHandler ?? BasicConsoleInputAndOutput.Default.Write;
+            var outputHandler = HelpCommand.OutputHandler ?? BasicConsole.Default.Write;
 
             if (Arguments != null && Arguments.Length > 0)
             {

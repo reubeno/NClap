@@ -31,7 +31,7 @@ namespace NClap
         /// <summary>
         /// Default <see cref="ErrorReporter" /> used by this class.
         /// </summary>
-        public static ErrorReporter DefaultReporter { get; } = BasicConsoleInputAndOutput.Default.Write;
+        public static ErrorReporter DefaultReporter { get; } = BasicConsole.Default.Write;
 
         /// <summary>
         /// Tries to parse the given string arguments into a new instance of <typeparamref name="T"/>.
@@ -336,7 +336,7 @@ namespace NClap
 
             try
             {
-                columns = BasicConsoleInputAndOutput.Default.WindowWidth;
+                columns = BasicConsole.Default.WindowWidth;
             }
             catch (IOException)
             {
