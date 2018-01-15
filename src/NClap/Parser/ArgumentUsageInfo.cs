@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using NClap.Metadata;
 using NClap.Types;
@@ -211,19 +212,24 @@ namespace NClap.Parser
         /// </summary>
         /// <param name="value">Object to inspect.</param>
         /// <returns>true if it is an instance of such a type; false otherwise.</returns>
-        public static bool IsCommandEnum(object value)
-        {
-            var ty = value.GetType();
+        public static bool IsCommandEnum(object value) => IsCommandEnum(value.GetType());
 
-            if (!ty.GetTypeInfo().IsEnum)
+        /// <summary>
+        /// Utility for checking if the given type is a command enum type.
+        /// </summary>
+        /// <param name="type">Type to inspect.</param>
+        /// <returns>true if it is such a type; false otherwise.</returns>
+        public static bool IsCommandEnum(Type type)
+        {
+            if (!type.GetTypeInfo().IsEnum)
             {
                 return false;
             }
 
-            var fieldName = ty.GetTypeInfo().GetEnumName(value);
-            var field = ty.GetTypeInfo().GetField(fieldName);
-
-            return field.GetSingleAttribute<CommandAttribute>() != null;
+            // We check if any of the fields on this type have the expected
+            // command attribute.
+            return type.GetTypeInfo().GetFields().Any(field =>
+                field.GetSingleAttribute<CommandAttribute>() != null);
         }
     }
 }

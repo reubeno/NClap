@@ -46,7 +46,7 @@ namespace NClap.Help
             Logo = other.Logo.DeepClone();
             Description = other.Description.DeepClone();
             Syntax = (ArgumentSyntaxHelpOptions)other.Syntax.DeepClone();
-            EnumValues = other.EnumValues.DeepClone();
+            EnumValues = (ArgumentEnumValueHelpOptions)other.EnumValues.DeepClone();
             Examples = other.Examples.DeepClone();
             Arguments = other.Arguments.DeepClone();
         }
@@ -117,7 +117,7 @@ namespace NClap.Help
         /// <summary>
         /// Options for summaries of possible values for enum types.
         /// </summary>
-        public ArgumentMetadataHelpOptions EnumValues { get; set; } = new ArgumentMetadataHelpOptions
+        public ArgumentEnumValueHelpOptions EnumValues { get; set; } = new ArgumentEnumValueHelpOptions
         {
             HeaderTitle = Strings.UsageInfoEnumValueHeaderFormat
         };
