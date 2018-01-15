@@ -39,7 +39,7 @@ namespace NClap.Tests.Utilities
             e.Started.Should().BeFalse();
 
             Action currentItem = () => { var x = e.GetCurrentItem(); };
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MoveNext();
             e.GetCurrentItem().Should().Be(2);
@@ -62,7 +62,7 @@ namespace NClap.Tests.Utilities
             e.Started.Should().BeFalse();
 
             Action currentItem = () => { var x = e.GetCurrentItem(); };
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MovePrevious();
             e.GetCurrentItem().Should().Be(2);

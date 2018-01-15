@@ -15,7 +15,7 @@ namespace NClap.Tests.Help
                 .With().TwoColumnLayout();
 
             options.Invoking(o => o.ColumnWidths(Any.Int(), Any.Int(), Any.Int()).Apply())
-                .Should().Throw<ArgumentOutOfRangeException>();
+                .Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace NClap.Tests.Help
                 .With().OneColumnLayout();
 
             options.Invoking(o => o.ColumnWidths(10).Apply())
-                .Should().Throw<ArgumentOutOfRangeException>();
+                .Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace NClap.Tests.Help
                 .With().OneColumnLayout();
 
             options.Invoking(o => o.ColumnSeparator(" ").Apply())
-                .Should().Throw<ArgumentOutOfRangeException>();
+                .Should().Throw<NotSupportedException>();
         }
     }
 }
