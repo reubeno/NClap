@@ -25,6 +25,8 @@
     <Rule Id="SA1120" Action="None" />
     <!-- SA1128: Put constructor initializers on their own line -->
     <Rule Id="SA1128" Action="None" />
+    <!-- SA1200: Using directive should appear within a namespace declaration -->
+    <Rule Id="SA1200" Action="None" />
     <!-- SA1201: Elements should appear in the correct order -->
     <Rule Id="SA1201" Action="None" />
     <!-- SA1202: Elements should be ordered by access -->
@@ -55,5 +57,7 @@
     <Rule Id="SA1633" Action="None" />
     <!-- SA1642: Constructor summary documentation should begin with standard text -->
     <Rule Id="SA1642" Action="None" />
-  </Rules>
+    <!-- SA1649: File name should match first type name. -->
+    <Rule Id="SA1649" Action="None" />
+</Rules>
 </RuleSet>
