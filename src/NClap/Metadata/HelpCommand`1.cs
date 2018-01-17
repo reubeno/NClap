@@ -13,12 +13,16 @@ namespace NClap.Metadata
     internal class HelpCommand<TCommandType> : SynchronousCommand
         where TCommandType : struct
     {
+        /// <summary>
+        /// Arguments to get help for.
+        /// </summary>
         [PositionalArgument(ArgumentFlags.RestOfLine, Position = 0)]
         public string[] Arguments { get; set; }
 
         /// <summary>
         /// Displays help about the available commands.
         /// </summary>
+        /// <returns>Command result.</returns>
         public override CommandResult Execute()
         {
             var outputHandler = HelpCommand.OutputHandler ?? BasicConsole.Default.Write;

@@ -79,6 +79,15 @@ namespace NClap.Utilities
             }
         }
 
+        /// <summary>
+        /// Converts the indicated key (with modifiers) to the generated
+        /// characters, in accordance with the currently active keyboard
+        /// layout. Implementation is portable and expected to be supported
+        /// on all host platforms.
+        /// </summary>
+        /// <param name="key">The key to translate.</param>
+        /// <param name="modifiers">Key modifiers.</param>
+        /// <returns>The characters.</returns>
         internal static char[] GetCharsPortable(ConsoleKey key, ConsoleModifiers modifiers)
         {
             if (key >= ConsoleKey.A && key <= ConsoleKey.Z)

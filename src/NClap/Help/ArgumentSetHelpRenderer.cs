@@ -26,11 +26,20 @@ namespace NClap.Help
 
         private readonly ArgumentSetHelpOptions _options;
 
+        /// <summary>
+        /// Basic constructor.
+        /// </summary>
+        /// <param name="options">Help options.</param>
         public ArgumentSetHelpRenderer(ArgumentSetHelpOptions options)
         {
             _options = options;
         }
 
+        /// <summary>
+        /// Renders the given usage information.
+        /// </summary>
+        /// <param name="info">Usage info.</param>
+        /// <returns>Rendered string output, ready for display.</returns>
         public ColoredMultistring Format(ArgumentSetUsageInfo info)
         {
             var unorderedSections = GenerateSections(info);

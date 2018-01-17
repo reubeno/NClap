@@ -156,9 +156,21 @@ namespace NClap.Types
         protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<object> candidates) =>
             SelectCompletions(context, valueToComplete, candidates.Select(candidate => candidate.ToString()));
 
+        /// <summary>
+        /// Constructs a string comparer appropriate for use in matching string completions
+        /// for values of this type (i.e. with appropriate case sensitivity).
+        /// </summary>
+        /// <param name="context">Completion context.</param>
+        /// <returns>String comparer.</returns>
         protected static StringComparer GetStringComparer(ArgumentCompletionContext context) =>
             context.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
+        /// <summary>
+        /// Constructs a string comparison policy appropriate for use in matching string completions
+        /// for values of this type (i.e. with appropriate case sensitivity).
+        /// </summary>
+        /// <param name="context">Completion context.</param>
+        /// <returns>String comparison value.</returns>
         protected static StringComparison GetStringComparison(ArgumentCompletionContext context) =>
             context.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
     }

@@ -215,6 +215,7 @@ namespace NClap.Parser
         /// line.
         /// </summary>
         /// <param name="restOfLine">Remainder of the command-line tokens.</param>
+        /// <returns>true on success; false otherwise.</returns>
         public bool TrySetRestOfLine(IEnumerable<string> restOfLine)
         {
             Debug.Assert(restOfLine != null);

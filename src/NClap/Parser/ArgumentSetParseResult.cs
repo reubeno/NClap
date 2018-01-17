@@ -60,9 +60,11 @@ namespace NClap.Parser
             new ArgumentSetParseResult(ArgumentSetParseResultType.InvalidAnswerFile);
 
         /// <summary>
-        /// A singleton result for cases where parser is next looking to see an argument
+        /// Constructs a result for cases where parser is next looking to see an argument
         /// to an option.
         /// </summary>
+        /// <param name="arg">Argument that requires option argument.</param>
+        /// <returns>The constructed result object.</returns>
         public static ArgumentSetParseResult RequiresOptionArgument(ArgumentDefinition arg)
         {
             if (arg == null) throw new ArgumentNullException(nameof(arg));

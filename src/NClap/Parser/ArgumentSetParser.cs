@@ -27,6 +27,8 @@ namespace NClap.Parser
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="argSet">Argument set to create parser for.</param>
+        /// <param name="options">Parser options.</param>
         public ArgumentSetParser(ArgumentSetDefinition argSet, CommandLineParserOptions options)
         {
             if (argSet == null)
@@ -78,6 +80,13 @@ namespace NClap.Parser
             return parser.SeenValue;
         }
 
+        /// <summary>
+        /// Tries to parse the given list of tokens.
+        /// </summary>
+        /// <param name="args">Argument tokens to parse.</param>
+        /// <param name="destination">Destination object to store the parsed values.
+        /// May be null.</param>
+        /// <returns>Result of the parsing.</returns>
         public ArgumentSetParseResult ParseArgumentList(IEnumerable<string> args, object destination)
         {
             Debug.Assert(args != null);
@@ -94,6 +103,18 @@ namespace NClap.Parser
             return Finalize(destination);
         }
 
+        /// <summary>
+        /// Generates possible completions for the indicated argument token.
+        /// </summary>
+        /// <param name="tokens">Full list of tokens in context.</param>
+        /// <param name="indexOfTokenToComplete">0-based index of token
+        /// to complete; must either reference valid token in <paramref name="tokens"/>
+        /// or the index of the next token that would follow the provided
+        /// tokens.</param>
+        /// <param name="destObjectFactory">Optionally provides a function
+        /// that may be used to instantiate an object of the destination
+        /// parse output type.</param>
+        /// <returns>Possible completions for the token.</returns>
         public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete, Func<object> destObjectFactory)
         {
             Func<IEnumerable<string>> emptyCompletions = Enumerable.Empty<string>;
@@ -302,6 +323,11 @@ namespace NClap.Parser
             return result;
         }
 
+        /// <summary>
+        /// Tries to finalize parsing to the given output object.
+        /// </summary>
+        /// <param name="destination">Output object.</param>
+        /// <returns>Parse result.</returns>
         public ArgumentSetParseResult Finalize(object destination)
         {
             var result = ArgumentSetParseResult.Ready;

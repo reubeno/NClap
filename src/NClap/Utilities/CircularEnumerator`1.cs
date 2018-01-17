@@ -6,6 +6,7 @@ namespace NClap.Utilities
     /// <summary>
     /// Encapsulates a circular enumerator of a list.
     /// </summary>
+    /// <typeparam name="T">Type of element being iterated through.</typeparam>
     internal class CircularEnumerator<T>
     {
         /// <summary>

@@ -128,6 +128,12 @@ namespace NClap.ConsoleInput
             }
         }
 
+        /// <summary>
+        /// Interprets the given key press info by mapping it to an operation
+        /// and applying that operation.
+        /// </summary>
+        /// <param name="key">Key press info.</param>
+        /// <returns>Result of the operation.</returns>
         internal ConsoleInputOperationResult ProcessKey(ConsoleKeyInfo key)
         {
             if (!KeyBindingSet.TryGetValue(key, out ConsoleInputOperation op))
@@ -142,6 +148,12 @@ namespace NClap.ConsoleInput
             return result;
         }
 
+        /// <summary>
+        /// Applies the given console input operation.
+        /// </summary>
+        /// <param name="op">Operation.</param>
+        /// <param name="key">Key press info.</param>
+        /// <returns>Result of the operation.</returns>
         internal ConsoleInputOperationResult Process(ConsoleInputOperation op, ConsoleKeyInfo key)
         {
             var result = ConsoleInputOperationResult.Normal;
@@ -334,6 +346,11 @@ namespace NClap.ConsoleInput
             return result;
         }
 
+        /// <summary>
+        /// Capitalizes the initial character of the given string.
+        /// </summary>
+        /// <param name="value">Input value.</param>
+        /// <returns>Capitalized result string.</returns>
         internal static string Capitalize(string value)
         {
             if (string.IsNullOrEmpty(value))

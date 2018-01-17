@@ -410,6 +410,10 @@ namespace NClap.ConsoleInput
             MoveConsoleCursorForward(Buffer.CursorIndex);
         }
 
+        /// <summary>
+        /// Displays the given list of values in columnar form.
+        /// </summary>
+        /// <param name="values">Values to display.</param>
         internal void DisplayInColumns(IReadOnlyList<string> values)
         {
             ConsoleOutput.Write(StringUtilities.FormatInColumns(values, ConsoleOutput.BufferWidth));
