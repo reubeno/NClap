@@ -74,7 +74,6 @@ namespace NClap.Metadata
         /// in this array is considered "preferred" and will be used in
         /// generated usage help information.  This array may not be null.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] NamedArgumentPrefixes
         {
             get => _namedArgumentPrefixes;
@@ -101,7 +100,6 @@ namespace NClap.Metadata
         /// is considered "preferred" and will be used in generated usage help
         /// information.  This array may not be null.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] ShortNameArgumentPrefixes
         {
             get => _shortNameArgumentPrefixes;
@@ -128,7 +126,6 @@ namespace NClap.Metadata
         /// array is considered "preferred" and will be used in generated
         /// usage help information.  This array may not be null.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public char[] ArgumentValueSeparators
         {
             get => _argumentValueSeparators;

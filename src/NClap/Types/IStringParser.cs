@@ -16,8 +16,6 @@ namespace NClap.Types
         /// <param name="value">On success, receives the parsed value; null
         /// otherwise.</param>
         /// <returns>True on success; false otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate", Justification = "Callers don't know desired value type at runtime")]
-        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string", Justification = "It's a perfectly good name")]
         bool TryParse(ArgumentParseContext context, string stringToParse, out object value);
     }
 }

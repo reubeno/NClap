@@ -30,7 +30,6 @@ namespace NClap.Metadata
         /// in the containing type must unique.  It is an error to specify a
         /// long name of string.Empty.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "[Legacy]")]
         public string LongName
         {
             get => _longName;

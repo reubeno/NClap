@@ -10,7 +10,6 @@ namespace NClap.Types
     /// <summary>
     /// Encapsulates a file-system path (i.e. to file or directory).
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1707:IdentifiersShouldNotContainUnderscores", Justification = "[Legacy]")]
     public class FileSystemPath : IEquatable<FileSystemPath>
     {
         /// <summary>

@@ -11,13 +11,12 @@ namespace NClap.Metadata
     /// Abstract base class for logic shared between NamedArgumentAttribute and
     /// PositionalArgumentAttribute.
     /// </summary>
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public abstract class ArgumentBaseAttribute : Attribute
     {
         private object _defaultValue;
         private string _longName;
-
-        [SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "[Legacy]")]
         private string[] _conflictingMemberNames = Array.Empty<string>();
 
         /// <summary>
@@ -99,7 +98,6 @@ namespace NClap.Metadata
         /// member as well as for any of the members referenced by this
         /// property.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] ConflictsWith
         {
             get => _conflictingMemberNames;
