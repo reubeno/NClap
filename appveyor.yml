@@ -2,9 +2,6 @@
 #      general configuration      #
 #---------------------------------#
 
-# version format
-version: 2.1.2+{build}
-
 # branches to build
 branches:
   # whitelist
@@ -38,15 +35,19 @@ configuration:
 install:
   - choco install opencover.portable
   - choco install codecov
+  - choco install gitversion -pre -y
+  - cmd: dotnet restore src\NClap.sln
+  - ps: gitversion /l console /output buildserver
+  - ps: appveyor UpdateBuild -Version $env:GitVersion_FullSemVer
 
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
-  version: '$(version)'
-
-# restore NuGet packages before building
-before_build:
-  - cmd: dotnet restore src\NClap.sln
+  version: $(GitVersion_NuGetVersion)
+  package_version: $(GitVersion_NuGetVersion)
+  assembly_version: $(GitVersion_MajorMinorPatch)
+  file_version: $(GitVersion_MajorMinorPatch)
+  informational_version: $(GitVersion_InformationalVersion)
 
 build:
   project: src\NClap.sln

@@ -1,0 +1,8 @@
+next-version: 2.1.1
+branches:
+  master:
+    mode: ContinuousDelivery
+    tag:
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
