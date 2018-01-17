@@ -11,7 +11,7 @@
     <Description>NClap is a .NET library for parsing command-line arguments and building interactive command shells. It's driven by a declarative attribute syntax, and easy to extend.</Description>
     <Company>Microsoft Corporation</Company>
     <Copyright>Copyright © Microsoft Corporation. All right reserved.</Copyright>
-    <Version>2.1.1</Version>
+    <Version>0.999.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <PackageVersion>$(Version)</PackageVersion>
