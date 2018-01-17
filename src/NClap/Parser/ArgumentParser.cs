@@ -125,6 +125,7 @@ namespace NClap.Parser
             foreach (var arg in Argument.ConflictingArgs.Where(setParseState.HasSeenValueFor))
             {
                 ReportConflictingArgument(value, arg);
+                conflictsDetected = true;
             }
 
             if (conflictsDetected)

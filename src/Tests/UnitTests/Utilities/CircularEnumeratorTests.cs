@@ -19,13 +19,13 @@ namespace NClap.Tests.Utilities
             e.Started.Should().BeFalse();
 
             Action currentItem = () => { var x = e.GetCurrentItem(); };
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MoveNext();
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MovePrevious();
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]

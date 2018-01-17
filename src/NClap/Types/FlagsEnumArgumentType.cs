@@ -12,6 +12,17 @@ namespace NClap.Types
     internal class FlagsEnumArgumentType : EnumArgumentType
     {
         /// <summary>
+        /// The type underlying this enumeration type.
+        /// </summary>
+        private readonly Type _underlyingType;
+
+        /// <summary>
+        /// The IntegerArgumentType object for the type underlying this
+        /// enumeration type.
+        /// </summary>
+        private readonly IntegerArgumentType _underlyingIntegerType;
+
+        /// <summary>
         /// Primary constructor.
         /// </summary>
         /// <param name="type">The flag-based enumeration type to describe.
@@ -19,6 +30,23 @@ namespace NClap.Types
         public FlagsEnumArgumentType(Type type) : base(type)
         {
             if (type.GetTypeInfo().GetSingleAttribute<FlagsAttribute>() == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(type));
+            }
+
+            _underlyingType = Enum.GetUnderlyingType(type);
+            if (_underlyingType == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(type));
+            }
+
+            if (!ArgumentType.TryGetType(_underlyingType, out IArgumentType underlyingArgType))
+            {
+                throw new ArgumentOutOfRangeException(nameof(type));
+            }
+
+            _underlyingIntegerType = underlyingArgType as IntegerArgumentType;
+            if (_underlyingIntegerType == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
@@ -40,8 +68,8 @@ namespace NClap.Types
             }
 
             var underlyingResult =
-                pieces.Select(piece => Convert.ChangeType(base.Parse(context, piece), UnderlyingType))
-                      .Aggregate(UnderlyingIntegerType.Or);
+                pieces.Select(piece => Convert.ChangeType(base.Parse(context, piece), _underlyingType))
+                      .Aggregate(_underlyingIntegerType.Or);
 
             return Enum.ToObject(Type, underlyingResult);
         }

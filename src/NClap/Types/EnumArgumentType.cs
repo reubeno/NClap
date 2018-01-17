@@ -12,21 +12,23 @@ namespace NClap.Types
     /// </summary>
     internal class EnumArgumentType : ArgumentTypeBase, IEnumArgumentType
     {
-        private readonly IReadOnlyDictionary<string, EnumArgumentValue> _valuesByCaseSensitiveName;
-        private readonly IReadOnlyDictionary<string, EnumArgumentValue> _valuesByCaseInsensitiveName;
-        private readonly IReadOnlyDictionary<object, EnumArgumentValue> _valuesByValue;
-        private readonly IReadOnlyList<EnumArgumentValue> _values;
+        private readonly Dictionary<string, EnumArgumentValue> _valuesByCaseSensitiveName =
+            new Dictionary<string, EnumArgumentValue>(StringComparer.Ordinal);
+
+        private readonly Dictionary<string, EnumArgumentValue> _valuesByCaseInsensitiveName =
+            new Dictionary<string, EnumArgumentValue>(StringComparer.OrdinalIgnoreCase);
+
+        private readonly Dictionary<object, EnumArgumentValue> _valuesByValue = new Dictionary<object, EnumArgumentValue>();
+
+        private readonly List<EnumArgumentValue> _values = new List<EnumArgumentValue>();
 
         /// <summary>
-        /// The type underlying this enumeration type.
+        /// Constructs an object to describe an empty enumeration type.  Values must be
+        /// separately defined.
         /// </summary>
-        protected readonly Type UnderlyingType;
-
-        /// <summary>
-        /// The IntegerArgumentType object for the type underlying this
-        /// enumeration type.
-        /// </summary>
-        protected readonly IntegerArgumentType UnderlyingIntegerType;
+        protected EnumArgumentType() : base(typeof(object))
+        {
+        }
 
         /// <summary>
         /// Constructs an object to describe the provided enumeration type.
@@ -36,32 +38,7 @@ namespace NClap.Types
         /// is not an enum type with a valid backing integer representation type.</exception>
         protected EnumArgumentType(Type type) : base(type)
         {
-            if (!type.GetTypeInfo().IsEnum)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
-
-            UnderlyingType = Enum.GetUnderlyingType(type);
-            if (UnderlyingType == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
-
-            if (!ArgumentType.TryGetType(UnderlyingType, out IArgumentType underlyingArgType))
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
-
-            UnderlyingIntegerType = underlyingArgType as IntegerArgumentType;
-            if (UnderlyingIntegerType == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
-
-            _values = GetAllValues(type).ToList();
-            _valuesByCaseSensitiveName = ConstructValueNameMap(_values, true);
-            _valuesByCaseInsensitiveName = ConstructValueNameMap(_values, false);
-            _valuesByValue = ConstructValueMap(_values);
+            AddValuesFromType(type);
         }
 
         /// <summary>
@@ -127,6 +104,13 @@ namespace NClap.Types
             // First try looking up the string in our name map.
             if (!map.TryGetValue(stringToParse, out EnumArgumentValue value))
             {
+                // We might have more options if it's an enum type, but if it's not--there's
+                // nothing else we can do.
+                if (!Type.GetTypeInfo().IsEnum)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(stringToParse));
+                }
+
                 // Otherwise, only let through literal integers.
                 if (!int.TryParse(stringToParse, NumberStyles.AllowLeadingSign, null, out int parsedInt))
                 {
@@ -171,67 +155,79 @@ namespace NClap.Types
             return true;
         }
 
-        private static IEnumerable<EnumArgumentValue> GetAllValues(Type type) =>
-            type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static).Select(f => new EnumArgumentValue(f));
-
-        private static IReadOnlyDictionary<object, EnumArgumentValue> ConstructValueMap(IEnumerable<EnumArgumentValue> values)
+        /// <summary>
+        /// Defines a new value in this type.
+        /// </summary>
+        /// <param name="value">Value to define.</param>
+        protected void AddValue(EnumArgumentValue value)
         {
-            var map = new Dictionary<object, EnumArgumentValue>();
-
-            // Walk through all known values, trying to add them to the map.
-            foreach (var v in values)
-            {
-                // We do our best to add each value to the map; but if there
-                // are multiple members that share a value, then the first
-                // one will "win".  We don't bother trying to maintain a
-                // multimap.
-                if (!map.ContainsKey(v.Value))
-                {
-                    map.Add(v.Value, v);
-                }
-            }
-
-            return map;
+            _values.Add(value);
+            AddToValueNameMap(_valuesByCaseSensitiveName, value);
+            AddToValueNameMap(_valuesByCaseInsensitiveName, value);
+            AddToValueMap(_valuesByValue, value);
         }
 
         /// <summary>
-        /// Constructs a map from the provided enum values, useful for parsing.
+        /// Inspects the given type and defines all values in it.
         /// </summary>
-        /// <param name="values">The values in question.</param>
-        /// <param name="caseSensitive">True for the map to be built with case
-        /// sensitivity; false for case insensitivity.</param>
-        /// <returns>The constructed map.</returns>
-        private static IReadOnlyDictionary<string, EnumArgumentValue> ConstructValueNameMap(IEnumerable<EnumArgumentValue> values, bool caseSensitive)
+        /// <param name="type">Type to inspect.</param>
+        protected void AddValuesFromType(Type type)
         {
-            var valueNameMap = new Dictionary<string, EnumArgumentValue>(
-                caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-
-            // Process each value allowed on the given type, adding all synonyms
-            // that indicate them.
-            foreach (var value in values.Where(v => !v.Disallowed))
+            if (!type.GetTypeInfo().IsEnum)
             {
-                // Make sure the long name for the value isn't a duplicate.
-                if (valueNameMap.ContainsKey(value.LongName))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(values), Strings.EnumValueLongNameIsInvalid);
-                }
-
-                // If explicitly provided, make sure the short name for the
-                // value isn't a duplicate.
-                if ((value.ShortName != null) && valueNameMap.ContainsKey(value.ShortName))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(values), Strings.EnumValueShortNameIsInvalid);
-                }
-
-                // Add the long and short name.
-                valueNameMap[value.LongName] = value;
-                if (value.ShortName != null)
-                {
-                    valueNameMap[value.ShortName] = value;
-                }
+                throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            return valueNameMap;
+            foreach (var value in GetAllValues(type))
+            {
+                AddValue(value);
+            }
+        }
+
+        private static IEnumerable<EnumArgumentValue> GetAllValues(Type type) =>
+            type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static).Select(f => new EnumArgumentValue(f));
+
+        private static void AddToValueMap(Dictionary<object, EnumArgumentValue> map, EnumArgumentValue value)
+        {
+            // We do our best to add each value to the map; but if there
+            // are multiple members that share a value, then the first
+            // one will "win".  We don't bother trying to maintain a
+            // multimap.
+            if (!map.ContainsKey(value.Value))
+            {
+                map.Add(value.Value, value);
+            }
+        }
+
+        /// <summary>
+        /// Adds the given value to the provided name map.
+        /// </summary>
+        /// <param name="map">Map to add to.</param>
+        /// <param name="value">The value to add.</param>
+        private static void AddToValueNameMap(Dictionary<string, EnumArgumentValue> map, EnumArgumentValue value)
+        {
+            // We skip disallowed values.
+            if (value.Disallowed) return;
+
+            // Make sure the long name for the value isn't a duplicate.
+            if (map.ContainsKey(value.LongName))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), Strings.EnumValueLongNameIsInvalid);
+            }
+
+            // If explicitly provided, make sure the short name for the
+            // value isn't a duplicate.
+            if ((value.ShortName != null) && map.ContainsKey(value.ShortName))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), Strings.EnumValueShortNameIsInvalid);
+            }
+
+            // Add the long and short name.
+            map[value.LongName] = value;
+            if (value.ShortName != null)
+            {
+                map[value.ShortName] = value;
+            }
         }
     }
 }

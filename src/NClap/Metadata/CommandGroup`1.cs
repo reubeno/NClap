@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NClap.Exceptions;
+using NClap.Types;
 using NClap.Utilities;
 
 namespace NClap.Metadata
@@ -118,21 +119,31 @@ namespace NClap.Metadata
 
         private ICommand InstantiateCommand(TCommandType selection)
         {
-            var commandTypeType = typeof(TCommandType);
+            var commandTypeType = EnumArgumentType.Create(typeof(TCommandType));
 
-            var selectionName = commandTypeType.GetTypeInfo().GetEnumName(selection);
-            var selectionField = commandTypeType.GetTypeInfo().GetField(selectionName);
+            return InstantiateCommand(commandTypeType, selection);
+        }
+
+        private ICommand InstantiateCommand(IEnumArgumentType commandTypeType, object selection)
+        {
+            if (!commandTypeType.TryGetValue(selection, out IArgumentValue selectionValue))
+            {
+                throw new InternalInvariantBrokenException();
+            }
+
+            var enumValue = (EnumArgumentValue)selectionValue;
+            var selectionField = enumValue.ValueInfo;
 
             var commandAttrib = selectionField.GetSingleAttribute<CommandAttribute>();
             if (commandAttrib == null)
             {
-                throw new InvalidCommandException(commandTypeType, selectionField, $"No CommandAttribute was found on field '{selectionField.Name}' of type '{commandTypeType.FullName}'");
+                throw new InvalidCommandException($"No CommandAttribute was found on field '{selectionField.Name}' of type '{commandTypeType.DisplayName}'");
             }
 
-            var implementingType = commandAttrib.GetImplementingType(commandTypeType);
+            var implementingType = commandAttrib.GetImplementingType(typeof(TCommandType));
             if (implementingType == null)
             {
-                throw new InvalidCommandException(commandTypeType, selectionField, $"No implementing type found for command '{commandAttrib.LongName ?? selectionName}' in type '{commandTypeType.FullName}'");
+                throw new InvalidCommandException($"No implementing type found for command '{commandAttrib.LongName}' in type '{commandTypeType.DisplayName}'");
             }
 
             var constructorArgs = new List<object> { selection };

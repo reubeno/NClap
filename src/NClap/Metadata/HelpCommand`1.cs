@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using NClap.ConsoleInput;
-using NClap.Help;
 using NClap.Parser;
 using NClap.Utilities;
 
@@ -41,7 +40,7 @@ namespace NClap.Metadata
             if (outputHandler == null) return;
 
             var info = CommandLineParser.GetUsageInfo(
-                typeof(CommandGroup<TCommandType>),
+                CommandGroupType,
                 HelpCommand.DefaultHelpOptions);
 
             outputHandler(info);
@@ -51,7 +50,7 @@ namespace NClap.Metadata
         {
             if (outputHandler == null) return;
 
-            var group = new CommandGroup<TCommandType>();
+            var group = CreateCommandGroup();
             var parser = new ArgumentSetParser(
                 ReflectionBasedParser.CreateArgumentSet(group.GetType()),
                 CommandLineParserOptions.Quiet());
@@ -65,5 +64,9 @@ namespace NClap.Metadata
 
             outputHandler(info);
         }
+
+        private static object CreateCommandGroup() => new CommandGroup<TCommandType>();
+
+        private static Type CommandGroupType => typeof(CommandGroup<TCommandType>);
     }
 }
