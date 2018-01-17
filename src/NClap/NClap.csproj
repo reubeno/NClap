@@ -31,7 +31,6 @@
     <WarningsAsErrors />
     <Features>IOperation</Features>
     <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   
   <ItemGroup>
