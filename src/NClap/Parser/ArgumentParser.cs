@@ -19,6 +19,16 @@ namespace NClap.Parser
         // Constants
         private static readonly ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
 
+        /// <summary>
+        /// Constructs a new stateful parser for the given argument.
+        /// </summary>
+        /// <param name="argSet">The argument set containing the argument to be parsed.</param>
+        /// <param name="arg">The definition of the argument.</param>
+        /// <param name="options">General options for parsing this argument set.</param>
+        /// <param name="destination">The destination object into which the parsed result should go,
+        /// if so desired; null otherwise to parse without saving results.</param>
+        /// <param name="parent">Optionally provides a "parent" parser to this object, for the
+        /// case of nested arguments.</param>
         public ArgumentParser(ArgumentSetDefinition argSet, ArgumentDefinition arg, CommandLineParserOptions options,
             object destination = null, ArgumentParser parent = null)
         {
@@ -35,18 +45,40 @@ namespace NClap.Parser
             }
         }
 
+        /// <summary>
+        /// Argument set containing the definition of the argument to be parsed.
+        /// </summary>
         public ArgumentSetDefinition ArgumentSet { get; }
 
+        /// <summary>
+        /// Argument to be parsed.
+        /// </summary>
         public ArgumentDefinition Argument { get; }
 
+        /// <summary>
+        /// Context for parsing.
+        /// </summary>
         public ArgumentParseContext ParseContext { get; }
 
+        /// <summary>
+        /// Object to use to report errors.
+        /// </summary>
         public ErrorReporter Reporter { get; }
 
+        /// <summary>
+        /// For collections, stores the in-progress list of values seen.
+        /// </summary>
         public IList CollectionValues { get; }
 
+        /// <summary>
+        /// Destination object into which parsed and finalized result should be
+        /// stored. May not be present.
+        /// </summary>
         public object DestinationObject { get; }
 
+        /// <summary>
+        /// Parent parser. May not be present.
+        /// </summary>
         public ArgumentParser Parent { get; }
 
         /// <summary>
@@ -240,6 +272,14 @@ namespace NClap.Parser
             return Argument.ArgumentType.GetCompletions(context, valueToComplete);
         }
 
+        /// <summary>
+        /// Attempts to validate the given value in the provided context.
+        /// </summary>
+        /// <param name="value">Value to validate.</param>
+        /// <param name="validationContext">Context for validation.</param>
+        /// <param name="reportInvalidValue">Whether or not invalid values should
+        /// be reported.</param>
+        /// <returns>true if the value passed validation; false otherwise.</returns>
         public bool TryValidateValue(object value, ArgumentValidationContext validationContext, bool reportInvalidValue = true) =>
             Argument.ValidationAttributes.All(attrib =>
             {
