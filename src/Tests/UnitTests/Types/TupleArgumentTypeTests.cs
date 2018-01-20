@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Types;
@@ -28,6 +29,14 @@ namespace NClap.Tests.Types
             type.GetCompletions(c, string.Empty).Should().Equal("False", "True");
             type.GetCompletions(c, "False,3").Should().BeEmpty();
             type.GetCompletions(c, "False,3,").Should().Equal("False,3,False", "False,3,True");
+        }
+
+        [TestMethod]
+        public void TestThatDependentTypesListIsCorrect()
+        {
+            var type = (TupleArgumentType)ArgumentType.GetType(typeof(Tuple<bool, int, bool>));
+            type.DependentTypes.Should().BeEquivalentTo(
+                new[] { typeof(bool), typeof(int) }.Select(ArgumentType.GetType));
         }
     }
 }

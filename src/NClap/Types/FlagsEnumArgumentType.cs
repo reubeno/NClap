@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using NClap.Exceptions;
 using NClap.Utilities;
 
 namespace NClap.Types
@@ -35,20 +36,15 @@ namespace NClap.Types
             }
 
             _underlyingType = Enum.GetUnderlyingType(type);
-            if (_underlyingType == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
-
             if (!ArgumentType.TryGetType(_underlyingType, out IArgumentType underlyingArgType))
             {
-                throw new ArgumentOutOfRangeException(nameof(type));
+                throw new NotSupportedException(nameof(type));
             }
 
             _underlyingIntegerType = underlyingArgType as IntegerArgumentType;
             if (_underlyingIntegerType == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(type));
+                throw new InternalInvariantBrokenException();
             }
         }
 

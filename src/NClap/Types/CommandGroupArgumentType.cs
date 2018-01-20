@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Utilities;
 
@@ -95,16 +96,10 @@ namespace NClap.Types
             var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { _commandTypeType, typeof(object) });
             if (commandGroupConstructor == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(stringToParse));
+                throw new InternalInvariantBrokenException();
             }
 
-            var group = commandGroupConstructor.Invoke(new[] { selection, context.ContainingObject });
-            if (group == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(stringToParse));
-            }
-
-            return group;
+            return commandGroupConstructor.Invoke(new[] { selection, context.ContainingObject });
         }
 
         /// <summary>
