@@ -37,7 +37,7 @@ install:
   - choco install gitversion -pre -y
   - cmd: dotnet restore src\NClap.sln
   - ps: gitversion /l console /output buildserver
-  - ps: appveyor UpdateBuild -Version $env:GitVersion_FullSemVer.{build}
+  - ps: appveyor UpdateBuild -Version '$env:GitVersion_FullSemVer.build.{build}'
 
 dotnet_csproj:
   patch: true
