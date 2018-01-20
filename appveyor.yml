@@ -33,11 +33,10 @@ configuration:
 
 install:
   - choco install opencover.portable
-  # - choco install codecov
   - choco install gitversion -pre -y
   - cmd: dotnet restore src\NClap.sln
   - ps: gitversion /l console /output buildserver
-  - ps: appveyor UpdateBuild -Version $env:GitVersion_FullSemVer
+  - ps: appveyor UpdateBuild -Version "$env:GitVersion_SemVer-$env:GitVersion_BuildMetaData"
 
 dotnet_csproj:
   patch: true
