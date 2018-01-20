@@ -1,0 +1,20 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "settings": {
+    "documentationRules": {
+      "xmlHeader": false,
+      "documentInternalElements": true,
+      "fileNamingConvention": "metadata"
+    },
+
+    "maintainabilityRules": {
+      "topLevelTypes": [ "class", "interface" ]
+    },
+
+    "orderingRules": {
+      "systemUsingDirectivesFirst": true,
+      "usingDirectivesPlacement": "outsideNamespace",
+      "blankLinesBetweenUsingGroups": "omit"
+    }
+  }
+}
