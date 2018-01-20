@@ -16,16 +16,57 @@ namespace NClap.ConsoleInput
     {
         private const int _defaultCursorSize = 100;
         private const bool _defaultCursorVisibility = true;
+        private const int _defaultCursorLeft = 0;
+        private const int _defaultCursorTop = 0;
+        private const int _defaultWidth = 80;
+        private const int _defaultHeight = 25;
+        private const ConsoleColor _defaultForegroundColor = ConsoleColor.White;
+        private const ConsoleColor _defaultBackgroundColor = ConsoleColor.Black;
+        private const bool _defaultTreatControlCAsInput = false;
 
         private readonly PropertyWithSimulatedFallback<int> _cursorSize = CreateProperty(
-            () => Console.CursorSize,
-            value => Console.CursorSize = value,
+            () => Console.CursorSize, value => Console.CursorSize = value,
             _defaultCursorSize);
 
         private readonly PropertyWithSimulatedFallback<bool> _cursorVisible = CreateProperty(
-            () => Console.CursorVisible,
-            value => Console.CursorVisible = value,
+            () => Console.CursorVisible, value => Console.CursorVisible = value,
             _defaultCursorVisibility);
+
+        private readonly PropertyWithSimulatedFallback<int> _cursorLeft = CreateProperty(
+            () => Console.CursorLeft, value => Console.CursorLeft = value,
+            _defaultCursorLeft);
+
+        private readonly PropertyWithSimulatedFallback<int> _cursorTop = CreateProperty(
+            () => Console.CursorTop, value => Console.CursorTop = value,
+            _defaultCursorTop);
+
+        private readonly PropertyWithSimulatedFallback<int> _windowWidth = CreateProperty(
+            () => Console.WindowWidth, value => Console.WindowWidth = value,
+            _defaultWidth);
+
+        private readonly PropertyWithSimulatedFallback<int> _windowHeight = CreateProperty(
+            () => Console.WindowHeight, value => Console.WindowHeight = value,
+            _defaultHeight);
+
+        private readonly PropertyWithSimulatedFallback<int> _bufferWidth = CreateProperty(
+            () => Console.BufferWidth, value => Console.BufferWidth = value,
+            _defaultWidth);
+
+        private readonly PropertyWithSimulatedFallback<int> _bufferHeight = CreateProperty(
+            () => Console.BufferHeight, value => Console.BufferHeight = value,
+            _defaultHeight);
+
+        private readonly PropertyWithSimulatedFallback<ConsoleColor> _foregroundColor = CreateProperty(
+            () => Console.ForegroundColor, value => Console.ForegroundColor = value,
+            _defaultForegroundColor);
+
+        private readonly PropertyWithSimulatedFallback<ConsoleColor> _backgroundColor = CreateProperty(
+            () => Console.BackgroundColor, value => Console.BackgroundColor = value,
+            _defaultBackgroundColor);
+
+        private readonly PropertyWithSimulatedFallback<bool> _treatControlCAsInput = CreateProperty(
+            () => Console.TreatControlCAsInput, value => Console.TreatControlCAsInput = value,
+            _defaultTreatControlCAsInput);
 
         /// <summary>
         /// Dummy constructor, present to prevent outside callers from
@@ -41,6 +82,12 @@ namespace NClap.ConsoleInput
         /// <returns>A basic console instance.</returns>
         public static BasicConsole Default { get; } =
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new Windows.WindowsConsole() : new BasicConsole();
+
+        /// <summary>
+        /// For testing purposes, exposes a base instance implementation of the
+        /// console, independent of the running OS platform.
+        /// </summary>
+        internal static BasicConsole BaseInstance => new BasicConsole();
 
         /// <summary>
         /// The size of the cursor, expressed as an integral percentage.
@@ -70,8 +117,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public bool TreatControlCAsInput
         {
-            get => Console.TreatControlCAsInput;
-            set => Console.TreatControlCAsInput = value;
+            get => _treatControlCAsInput.Value;
+            set => _treatControlCAsInput.Value = value;
         }
 
         /// <summary>
@@ -79,8 +126,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int CursorLeft
         {
-            get => Console.CursorLeft;
-            set => Console.CursorLeft = value;
+            get => _cursorLeft.Value;
+            set => _cursorLeft.Value = value;
         }
 
         /// <summary>
@@ -88,8 +135,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int CursorTop
         {
-            get => Console.CursorTop;
-            set => Console.CursorTop = value;
+            get => _cursorTop.Value;
+            set => _cursorTop.Value = value;
         }
 
         /// <summary>
@@ -98,8 +145,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int WindowWidth
         {
-            get => Console.WindowWidth;
-            set => Console.WindowWidth = value;
+            get => _windowWidth.Value;
+            set => _windowWidth.Value = value;
         }
 
         /// <summary>
@@ -108,8 +155,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int WindowHeight
         {
-            get => Console.WindowHeight;
-            set => Console.WindowHeight = value;
+            get => _windowHeight.Value;
+            set => _windowHeight.Value = value;
         }
 
         /// <summary>
@@ -118,8 +165,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int BufferWidth
         {
-            get => Console.BufferWidth;
-            set => Console.BufferWidth = value;
+            get => _bufferWidth.Value;
+            set => _bufferWidth.Value = value;
         }
 
         /// <summary>
@@ -128,8 +175,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public int BufferHeight
         {
-            get => Console.BufferHeight;
-            set => Console.BufferHeight = value;
+            get => _bufferHeight.Value;
+            set => _bufferHeight.Value = value;
         }
 
         /// <summary>
@@ -137,8 +184,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public ConsoleColor ForegroundColor
         {
-            get => Console.ForegroundColor;
-            set => Console.ForegroundColor = value;
+            get => _foregroundColor.Value;
+            set => _foregroundColor.Value = value;
         }
 
         /// <summary>
@@ -146,8 +193,8 @@ namespace NClap.ConsoleInput
         /// </summary>
         public ConsoleColor BackgroundColor
         {
-            get => Console.BackgroundColor;
-            set => Console.BackgroundColor = value;
+            get => _backgroundColor.Value;
+            set => _backgroundColor.Value = value;
         }
 
         /// <summary>
@@ -167,15 +214,20 @@ namespace NClap.ConsoleInput
         /// move was invalid.</returns>
         public bool SetCursorPosition(int left, int top)
         {
+            if (left < 0) return false;
+            if (top < 0) return false;
+            if (left >= WindowWidth) return false;
+            if (top >= WindowHeight) return false;
+
             try
             {
                 Console.SetCursorPosition(left, top);
-                return true;
             }
-            catch (ArgumentOutOfRangeException)
+            catch (Exception ex) when (IsExceptionAcceptable(ex))
             {
-                return false;
             }
+
+            return true;
         }
 
         /// <summary>
@@ -200,7 +252,16 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// Clears the console without moving the cursor.
         /// </summary>
-        public void Clear() => Console.Clear();
+        public void Clear()
+        {
+            try
+            {
+                Console.Clear();
+            }
+            catch (Exception ex) when (IsExceptionAcceptable(ex))
+            {
+            }
+        }
 
         /// <summary>
         /// Writes colored text to the console.
@@ -226,27 +287,27 @@ namespace NClap.ConsoleInput
                 return;
             }
 
-            var originalForegroundColor = Console.ForegroundColor;
-            var originalBackgroundColor = Console.BackgroundColor;
+            var originalForegroundColor = ForegroundColor;
+            var originalBackgroundColor = BackgroundColor;
 
             try
             {
                 if (text.ForegroundColor.HasValue)
                 {
-                    Console.ForegroundColor = text.ForegroundColor.Value;
+                    ForegroundColor = text.ForegroundColor.Value;
                 }
 
                 if (text.BackgroundColor.HasValue)
                 {
-                    Console.BackgroundColor = text.BackgroundColor.Value;
+                    BackgroundColor = text.BackgroundColor.Value;
                 }
 
                 Write(text.Content);
             }
             finally
             {
-                Console.ForegroundColor = originalForegroundColor;
-                Console.BackgroundColor = originalBackgroundColor;
+                ForegroundColor = originalForegroundColor;
+                BackgroundColor = originalBackgroundColor;
             }
         }
 

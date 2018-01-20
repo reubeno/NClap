@@ -523,6 +523,9 @@ namespace NClap.Tests.Parser
             customObjectType.DisplayName.Should().Be(nameof(CustomObjectType));
             customObjectType.SyntaxSummary.Should().Be("<CustomObjectType>");
 
+            // TODO: This doesn't seem like desirable behavior.
+            customObjectType.DependentTypes.Should().BeEmpty();
+
             Action formattingNull = () => customObjectType.Format(null);
             formattingNull.Should().Throw<ArgumentNullException>();
 
