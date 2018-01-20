@@ -62,28 +62,33 @@ namespace NClap.Utilities
             // TODO: This whole method needs to be cleaned up.  We have
             // existing code that is Windows-specific, which p/invokes
             // into user32.dll to convert a ConsoleKey to an array of chars.
-            // Firstly, this definitely doesn't work on non-Windows platforms;
-            // secondly, it's not clear we need such a generic facility here
+            // Firstly, this definitely doesn't work on non-Windows platforms.
+            // Secondly, it's not clear we need such a generic facility here
             // anyhow.  Someone should look back into this to figure out what
             // we *really* need, and find a way to provide that in a
             // platform-agnostic way.
             //
 
-#if NET461
-            return GetCharsOnWindows(key, modifiers);
-#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return GetCharsOnWindows(key, modifiers);
+                return Windows.InputUtilities.GetChars(key, modifiers);
             }
             else
             {
-                return GetCharsOnAnyPlatform(key, modifiers);
+                return GetCharsPortable(key, modifiers);
             }
-#endif
         }
 
-        internal static char[] GetCharsOnAnyPlatform(ConsoleKey key, ConsoleModifiers modifiers)
+        /// <summary>
+        /// Converts the indicated key (with modifiers) to the generated
+        /// characters, in accordance with the currently active keyboard
+        /// layout. Implementation is portable and expected to be supported
+        /// on all host platforms.
+        /// </summary>
+        /// <param name="key">The key to translate.</param>
+        /// <param name="modifiers">Key modifiers.</param>
+        /// <returns>The characters.</returns>
+        internal static char[] GetCharsPortable(ConsoleKey key, ConsoleModifiers modifiers)
         {
             if (key >= ConsoleKey.A && key <= ConsoleKey.Z)
             {
@@ -236,45 +241,6 @@ namespace NClap.Utilities
                 default:
                     return Array.Empty<char>();
             }
-        }
-
-        internal static char[] GetCharsOnWindows(ConsoleKey key, ConsoleModifiers modifiers)
-        {
-            var virtKey = (uint)key;
-            var output = new char[32];
-
-            var result = NativeMethods.ToUnicode(virtKey, 0, NativeMethods.GetKeyState(modifiers), output, output.Length, 0 /* flags */);
-            if (result < 0) result = 0;
-
-            var relevantOutput = new char[result];
-            Array.Copy(output, relevantOutput, result);
-
-            return relevantOutput;
-        }
-
-        private static class NativeMethods
-        {
-            public static byte[] GetKeyState(ConsoleModifiers modifiers)
-            {
-                const byte keyDownFlag = 0x80;
-
-                var keyState = new byte[256];
-
-                if (modifiers.HasFlag(ConsoleModifiers.Alt)) keyState[(int)ConsoleModifierKeys.Alt] |= keyDownFlag;
-                if (modifiers.HasFlag(ConsoleModifiers.Control)) keyState[(int)ConsoleModifierKeys.Control] |= keyDownFlag;
-                if (modifiers.HasFlag(ConsoleModifiers.Shift)) keyState[(int)ConsoleModifierKeys.Shift] |= keyDownFlag;
-
-                return keyState;
-            }
-
-            [DllImport("user32.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, ThrowOnUnmappableChar = true)]
-            public static extern int ToUnicode(
-                uint wVirtKey,
-                uint wScanCode,
-                byte[] lpKeyState,
-                [MarshalAs(UnmanagedType.LPArray)] [Out] char[] pwszBuff,
-                int cchBuff,
-                uint wFlags);
         }
     }
 }

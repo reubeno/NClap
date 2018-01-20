@@ -2,12 +2,8 @@
 #      general configuration      #
 #---------------------------------#
 
-# version format
-version: 2.1.0.{build}-{branch}
-
 # branches to build
 branches:
-  # whitelist
   only:
     - master
 
@@ -20,55 +16,54 @@ skip_tags: true
 
 # operating system (build VM template)
 os: Windows Server 2016
-image: Visual Studio 2017 Preview
+image: Visual Studio 2017
 
 # scripts that are called at very beginning, before repo cloning
 init:
   - git config --global core.autocrlf input
 
-# build cache to preserve files/folders between builds
-cache:
-  - src\packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
-
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
 
-# set up environment
-environment:
-  EnableNuGetPackageRestore: true
-
-# build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform: Any CPU
-
-# build Configuration, i.e. Debug, Release, etc.
 configuration:
   - Release
   - Debug
 
-# install a few prereqs
 install:
   - choco install opencover.portable
-  - choco install codecov
-  # - choco install coveralls.net -source https://nuget.org/api/v2/
+  - choco install gitversion -pre -y
+  - cmd: dotnet restore src\NClap.sln
+  - ps: gitversion /l console /output buildserver
+  - ps: appveyor UpdateBuild -Version "$env:GitVersion_SemVer-$env:GitVersion_BuildMetaData"
 
-# restore NuGet packages before building
-before_build:
-  - nuget restore src\NClap.sln
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: $(GitVersion_NuGetVersion)
+  package_version: $(GitVersion_NuGetVersion)
+  assembly_version: $(GitVersion_MajorMinorPatch)
+  file_version: $(GitVersion_MajorMinorPatch)
+  informational_version: $(GitVersion_InformationalVersion)
 
-# build!
 build:
-  parallel: true                  # enable MSBuild parallel builds
-  project: src\NClap.sln          # path to Visual Studio solution or project
-  verbosity: minimal              # MSBuild verbosity level
+  project: src\NClap.sln
+  parallel: true
+  verbosity: minimal
 
 #---------------------------------#
 #       tests configuration       #
 #---------------------------------#
 
 test_script:
-  - ps: OpenCover.Console.exe -register:user "-target:vstest.console.exe" "-targetargs:src\Tests\UnitTests\bin\$env:CONFIGURATION\net462\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
-  - ps: codecov -f coverage_$env:CONFIGURATION.xml
+  - ps: OpenCover.Console.exe -oldstyle -register:user "-target:vstest.console.exe" "-targetargs:src\Tests\UnitTests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
+
+after_test:
+  - ps: |
+      (New-Object System.Net.WebClient).DownloadFile("https://github.com/codecov/codecov-exe/releases/download/1.0.3/Codecov.zip", (Join-Path $pwd "Codecov.zip")) # Download Codecov.zip from github release.
+      Expand-Archive .\Codecov.zip -DestinationPath . # UnZip the file.
+  - ps: .\Codecov\codecov.exe -f coverage_$env:CONFIGURATION.xml
 
 #---------------------------------#
 #      artifacts configuration    #
@@ -78,16 +73,12 @@ artifacts:
 
   # publish coverage data
   - path: coverage_$(Configuration).xml
-    name: CodeCoverageData
+    name: CodeCoverage
 
   # publish NuGet packages
-  - path: 'src\NClap\bin\$(Configuration)\*.nupkg' # find all NuGet packages recursively
-    name: NuGetPackages
+  - path: 'src\NClap\bin\$(Configuration)\*.nupkg'
+    name: Packages
 
-  # publish loose binaries
-  - path: 'src\NClap\bin\$(Configuration)\net461'
-    name: BinariesNetFramework
-
-  # publish loose binaries
-  - path: 'src\NClap\bin\$(Configuration)\netstandard1.6'
-    name: BinariesNetStandard
+  # publish loose binaries (all target frameworks)
+  - path: 'src\NClap\bin\$(Configuration)'
+    name: Binaries

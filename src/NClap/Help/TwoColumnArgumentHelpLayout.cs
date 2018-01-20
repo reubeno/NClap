@@ -17,7 +17,7 @@
         /// Deeply cloning constructor.
         /// </summary>
         /// <param name="other">Template for clone.</param>
-        private TwoColumnArgumentHelpLayout(TwoColumnArgumentHelpLayout other) : base(other)
+        private TwoColumnArgumentHelpLayout(TwoColumnArgumentHelpLayout other)
         {
             for (var i = 0; i < ColumnWidths.Length; ++i)
             {
@@ -31,7 +31,9 @@
         /// <summary>
         /// Optional maximum widths of columns; null indicates no preference.
         /// </summary>
+#pragma warning disable CA1819 // Properties should not return arrays
         public int?[] ColumnWidths { get; } = new int?[2] { null, null };
+#pragma warning restore CA1819 // Properties should not return arrays
 
         /// <summary>
         /// Optionally specifies separator string to be used between columns,

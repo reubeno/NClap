@@ -21,7 +21,7 @@ namespace NClap.Repl
         /// Optionally provides a token completer that the loop client may choose to use.
         /// </summary>
         ITokenCompleter TokenCompleter { get; set; }
-        
+
         /// <summary>
         /// Displays the loop prompt.
         /// </summary>

@@ -78,7 +78,7 @@ namespace NClap.Utilities
         {
             if (sourceValue != null)
             {
-                var method = destType.GetTypeInfo().GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
+                var method = destType.GetTypeInfo().GetMethod(ImplicitConversionMethodName, new[] { sourceValue.GetType() });
                 if ((method != null) &&
                     method.IsStatic &&
                     (method.ReturnType == destType))
@@ -86,7 +86,7 @@ namespace NClap.Utilities
                     return true;
                 }
 
-                method = sourceValue.GetType().GetTypeInfo().GetMethod(ImplicitConversionMethodName, new[] {sourceValue.GetType()});
+                method = sourceValue.GetType().GetTypeInfo().GetMethod(ImplicitConversionMethodName, new[] { sourceValue.GetType() });
                 if ((method != null) &&
                     method.IsStatic &&
                     (method.ReturnType == destType))
@@ -97,7 +97,7 @@ namespace NClap.Utilities
 
             try
             {
-                var convertedValue = Convert.ChangeType(sourceValue, destType, CultureInfo.InvariantCulture);
+                Convert.ChangeType(sourceValue, destType, CultureInfo.InvariantCulture);
                 return true;
             }
             catch (InvalidCastException)
@@ -123,7 +123,6 @@ namespace NClap.Utilities
         /// value.</param>
         /// <returns>True if the conversion succeeded; false otherwise.
         /// </returns>
-        [SuppressMessage("Design", "CC0004:Catch block cannot be empty")]
         public static bool TryConvertFrom(this Type destType, object sourceValue, out object convertedValue)
         {
             if (sourceValue != null)
@@ -155,7 +154,7 @@ namespace NClap.Utilities
                 {
                     try
                     {
-                        convertedValue = implicitConversionMethod.Invoke(null, new [] { sourceValue });
+                        convertedValue = implicitConversionMethod.Invoke(null, new[] { sourceValue });
                         return true;
                     }
                     catch (TargetInvocationException)

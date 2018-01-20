@@ -9,6 +9,10 @@ using NClap.Utilities;
 
 namespace NClap.Parser
 {
+    /// <summary>
+    /// Factory class useful for defining an argument set from reflecting on
+    /// attributes associated with a type and its members.
+    /// </summary>
     internal static class ReflectionBasedParser
     {
         /// <summary>
@@ -25,6 +29,7 @@ namespace NClap.Parser
         /// <param name="fixedDestination">Optionally provides a fixed object
         /// to store values to; regardless of the target object provided,
         /// parsed values will always be stored to this one.</param>
+        /// <returns>Created argument set.</returns>
         public static ArgumentSetDefinition CreateArgumentSet(
             Type typeToReflectOn,
             ArgumentSetAttribute attribute = null,
@@ -184,6 +189,5 @@ namespace NClap.Parser
 
             return members;
         }
-
     }
 }

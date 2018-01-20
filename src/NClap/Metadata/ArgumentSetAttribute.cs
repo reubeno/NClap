@@ -74,7 +74,6 @@ namespace NClap.Metadata
         /// in this array is considered "preferred" and will be used in
         /// generated usage help information.  This array may not be null.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] NamedArgumentPrefixes
         {
             get => _namedArgumentPrefixes;
@@ -101,7 +100,6 @@ namespace NClap.Metadata
         /// is considered "preferred" and will be used in generated usage help
         /// information.  This array may not be null.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public string[] ShortNameArgumentPrefixes
         {
             get => _shortNameArgumentPrefixes;
@@ -128,7 +126,6 @@ namespace NClap.Metadata
         /// array is considered "preferred" and will be used in generated
         /// usage help information.  This array may not be null.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Needs to be array so it functions as an attribute parameter")]
         public char[] ArgumentValueSeparators
         {
             get => _argumentValueSeparators;
@@ -217,7 +214,7 @@ namespace NClap.Metadata
         /// <summary>
         /// True to allow a command-line argument to indicate multiple short
         /// names in one token, or false to disable this behavior. This
-        /// behavior is only useful with arguments that take no values, 
+        /// behavior is only useful with arguments that take no values,
         /// when the short name prefixes are disjoint from the long name
         /// prefixes, and when short names are constrained to be one character
         /// long. Enabling this behavior will fail if any of these conditions
@@ -270,12 +267,13 @@ namespace NClap.Metadata
 
         /// <summary>
         /// Optionally provides logo text to be displayed at the top of help
-        /// output. Expected to be a <see cref="String"/>,
+        /// output. Expected to be a <see cref="string"/>,
         /// <see cref="ColoredMultistring"/>, or <see cref="ColoredString"/>.
         /// </summary>
         public object Logo
         {
-            get { return _logoMultistring; }
+            get => _logoMultistring;
+
             set
             {
                 if (value is string s)

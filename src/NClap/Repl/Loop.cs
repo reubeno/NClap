@@ -8,13 +8,14 @@ using System.Threading;
 using NClap.ConsoleInput;
 using NClap.Metadata;
 using NClap.Parser;
+using NClap.Utilities;
 
 namespace NClap.Repl
 {
     /// <summary>
     /// An interactive REPL loop.
     /// </summary>
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords")]
+    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", Justification = "[Legacy]")]
     public class Loop
     {
         private class TokenCompleter : ITokenCompleter
@@ -23,14 +24,14 @@ namespace NClap.Repl
 
             public TokenCompleter(Loop loop) { _loop = loop; }
 
-            public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int tokenIndex) => 
+            public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int tokenIndex) =>
                 _loop.GetCompletions(tokens, tokenIndex);
         }
 
         private readonly Type _commandType;
         private readonly ArgumentSetDefinition _argSet;
-        private Func<object> _objectFactory;
         private readonly ILoopClient _client;
+        private readonly Func<object> _objectFactory;
 
         /// <summary>
         /// Constructor that requires an explicit implementation of
@@ -62,8 +63,8 @@ namespace NClap.Repl
         /// parameters are used.</param>
         /// <param name="argSetAttribute">Optionally provides attribute info
         /// for the argument set that will be dynamically created for this loop.</param>
-        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null) :
-            this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute)
+        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null)
+            : this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute)
         {
         }
 
@@ -74,8 +75,8 @@ namespace NClap.Repl
         /// <returns>A constructed loop client.</returns>
         public static ILoopClient CreateClient(LoopInputOutputParameters parameters)
         {
-            var consoleInput = parameters.ConsoleInput ?? BasicConsoleInputAndOutput.Default;
-            var consoleOutput = parameters.ConsoleOutput ?? BasicConsoleInputAndOutput.Default;
+            var consoleInput = parameters.ConsoleInput ?? BasicConsole.Default;
+            var consoleOutput = parameters.ConsoleOutput ?? BasicConsole.Default;
             var keyBindingSet = parameters.KeyBindingSet ?? ConsoleKeyBindingSet.Default;
 
             var lineInput = parameters.LineInput ?? new ConsoleLineInput(
@@ -101,6 +102,7 @@ namespace NClap.Repl
         {
             while (ExecuteOnce() != CommandResult.Terminate)
             {
+                // Nothing to do in body.
             }
         }
 
@@ -112,12 +114,14 @@ namespace NClap.Repl
         {
             _client.DisplayPrompt();
 
-            var args = ReadInput();
-            if (args == null)
+            var readResult = ReadInput();
+            if (readResult.IsNone)
             {
                 return CommandResult.Terminate;
             }
-            if (args.Length == 0)
+
+            var args = readResult.Value;
+            if (args.Count == 0)
             {
                 return CommandResult.Success;
             }
@@ -161,14 +165,19 @@ namespace NClap.Repl
                 CommandLineParserOptions.Quiet(),
                 _objectFactory);
 
-        private string[] ReadInput()
+        /// <summary>
+        /// Reads and tokenizes a line of input.
+        /// </summary>
+        /// <returns>None if we're at the end of the input stream; otherwise, the
+        /// possibly empty list of tokens.</returns>
+        private Maybe<IReadOnlyList<string>> ReadInput()
         {
             var line = _client.ReadLine();
 
-            // Return null if we're at the end of the input stream.
+            // Return None if we're at the end of the input stream.
             if (line == null)
             {
-                return null;
+                return new None();
             }
 
             // Preprocess the line.

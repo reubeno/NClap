@@ -410,6 +410,10 @@ namespace NClap.ConsoleInput
             MoveConsoleCursorForward(Buffer.CursorIndex);
         }
 
+        /// <summary>
+        /// Displays the given list of values in columnar form.
+        /// </summary>
+        /// <param name="values">Values to display.</param>
         internal void DisplayInColumns(IReadOnlyList<string> values)
         {
             ConsoleOutput.Write(StringUtilities.FormatInColumns(values, ConsoleOutput.BufferWidth));
@@ -437,7 +441,7 @@ namespace NClap.ConsoleInput
 
             // Find the existing token length.
             var existingTokenLength = _completionEnumerator.Started
-                ? _completionEnumerator.CurrentItem.Length
+                ? _completionEnumerator.GetCurrentItem().Length
                 : _lastCompletions.OriginalToken.InnerLength;
 
             // Find the existing token start.
@@ -455,7 +459,7 @@ namespace NClap.ConsoleInput
             }
 
             // Select the completion.
-            var completion = _completionEnumerator.CurrentItem;
+            var completion = _completionEnumerator.GetCurrentItem();
 
             // Replace the current token in the buffer with the completion.
             MoveConsoleAndBufferCursors(SeekOrigin.Begin, existingTokenStart);
@@ -613,7 +617,7 @@ namespace NClap.ConsoleInput
             // Snap info about the console state.
             var cursorLeft = ConsoleOutput.CursorLeft;
             var cursorTop = ConsoleOutput.CursorTop;
-            var cursorOffset = cursorTop * bufferWidth + cursorLeft;
+            var cursorOffset = (cursorTop * bufferWidth) + cursorLeft;
 
             // If the length is bigger than the buffer itself...
             if (length + extraSpaces > bufferSize)
@@ -633,16 +637,19 @@ namespace NClap.ConsoleInput
                     ++spillOverLines;
                 }
 
-                ConsoleOutput.ScrollContents(spillOverLines);
+                // N.B. We can't count on the buffer being scrollable.
+                if (ConsoleOutput.IsScrollable)
+                {
+                    ConsoleOutput.ScrollContents(spillOverLines);
+                }
 
                 // Update console state.
                 cursorLeft = ConsoleOutput.CursorLeft;
                 cursorTop = ConsoleOutput.CursorTop;
-                cursorOffset = cursorTop * bufferWidth + cursorLeft;
+                cursorOffset = (cursorTop * bufferWidth) + cursorLeft;
             }
 
-            // Allocate a fresh buffer so we can concatenate some chars on the
-            // end.
+            // Allocate a fresh buffer so we can concatenate some chars on the end.
             var printBuffer = new char[length + extraSpaces];
             Buffer.ReadAt(startIndex, printBuffer, 0, length);
             for (var i = 0; i < extraSpaces; i++)
@@ -650,8 +657,7 @@ namespace NClap.ConsoleInput
                 printBuffer[length + i] = ' ';
             }
 
-            // Write out the chars to the buffer and then revert the cursor
-            // position.
+            // Write out the chars to the buffer and then revert the cursor position.
             ConsoleOutput.Write(new string(printBuffer));
             ConsoleOutput.SetCursorPosition(cursorLeft, cursorTop);
         }

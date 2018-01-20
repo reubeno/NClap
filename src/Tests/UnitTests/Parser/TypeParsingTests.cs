@@ -381,6 +381,7 @@ namespace NClap.Tests.Parser
             ShouldFailToParse<TestEnum>(new[] { "/value=Some Value" });
             ShouldFailToParse<TestEnum>(new[] { "/value= SomeValue " });
             ShouldFailToParse<TestEnum>(new[] { "/value=0x0" });
+            ShouldFailToParse<TestEnum>(new[] { "/value=99" });
             ShouldFailToParse<TestEnum>(new[] { "/value=-1" });
             ShouldFailToParse<TestEnum>(new[] { "/value=SomeDisallowedValue" });
         }

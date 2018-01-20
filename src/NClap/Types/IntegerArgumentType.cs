@@ -83,7 +83,6 @@ namespace NClap.Types
         /// <returns>The constructed object.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parseHandler"/>
         /// is null.</exception>
-        [SuppressMessage("Design", "CC0031:Check for null before calling a delegate")]
         public static IntegerArgumentType Create<T>(IntegerArgumentTypeParseHandler<T> parseHandler, bool isSigned, string displayName = null)
         {
             if (parseHandler == null) throw new ArgumentNullException(nameof(parseHandler));

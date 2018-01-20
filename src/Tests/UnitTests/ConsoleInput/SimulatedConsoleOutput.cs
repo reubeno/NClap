@@ -77,6 +77,26 @@ namespace NClap.Tests.ConsoleInput
         }
 
         /// <summary>
+        /// The width, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        public int WindowWidth
+        {
+            get => _bufferWidth;
+            set => throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The width, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        public int WindowHeight
+        {
+            get => _bufferHeight;
+            set => throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// The width, in characters, of the logical buffer associated with the
         /// console.
         /// </summary>
@@ -125,6 +145,11 @@ namespace NClap.Tests.ConsoleInput
                 return false;
             }
         }
+
+        /// <summary>
+        /// Indicates if the console's buffer is scrollable.
+        /// </summary>
+        public bool IsScrollable => true;
 
         /// <summary>
         /// Scrolls the bottom-most lines of the console's buffer upward within

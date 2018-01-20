@@ -18,14 +18,14 @@ namespace NClap.Tests.Utilities
             e.Values.Should().BeSameAs(list);
             e.Started.Should().BeFalse();
 
-            Action currentItem = () => { var x = e.CurrentItem; };
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            Action currentItem = () => { var x = e.GetCurrentItem(); };
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MoveNext();
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MovePrevious();
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            currentItem.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -38,17 +38,17 @@ namespace NClap.Tests.Utilities
             e.Values.Should().BeSameAs(list);
             e.Started.Should().BeFalse();
 
-            Action currentItem = () => { var x = e.CurrentItem; };
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            Action currentItem = () => { var x = e.GetCurrentItem(); };
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MoveNext();
-            e.CurrentItem.Should().Be(2);
+            e.GetCurrentItem().Should().Be(2);
 
             e.MovePrevious();
-            e.CurrentItem.Should().Be(2);
+            e.GetCurrentItem().Should().Be(2);
 
             e.MovePrevious();
-            e.CurrentItem.Should().Be(2);
+            e.GetCurrentItem().Should().Be(2);
         }
 
         [TestMethod]
@@ -61,23 +61,23 @@ namespace NClap.Tests.Utilities
             e.Values.Should().BeSameAs(list);
             e.Started.Should().BeFalse();
 
-            Action currentItem = () => { var x = e.CurrentItem; };
-            currentItem.Should().Throw<IndexOutOfRangeException>();
+            Action currentItem = () => { var x = e.GetCurrentItem(); };
+            currentItem.Should().Throw<InvalidOperationException>();
 
             e.MovePrevious();
-            e.CurrentItem.Should().Be(2);
+            e.GetCurrentItem().Should().Be(2);
 
             e.MoveNext();
-            e.CurrentItem.Should().Be(0);
+            e.GetCurrentItem().Should().Be(0);
 
             e.MoveNext();
-            e.CurrentItem.Should().Be(1);
+            e.GetCurrentItem().Should().Be(1);
 
             e.MoveNext();
-            e.CurrentItem.Should().Be(2);
+            e.GetCurrentItem().Should().Be(2);
 
             e.MoveNext();
-            e.CurrentItem.Should().Be(0);
+            e.GetCurrentItem().Should().Be(0);
         }
     }
 }

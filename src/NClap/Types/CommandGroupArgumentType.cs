@@ -14,6 +14,10 @@ namespace NClap.Types
         private readonly Type _commandTypeType;
         private readonly IEnumArgumentType _commandArgType;
 
+        /// <summary>
+        /// Constructs a new object to describe the provided command group type.
+        /// </summary>
+        /// <param name="type">Type to describe.</param>
         public CommandGroupArgumentType(Type type) : base(type)
         {
             if (!type.GetTypeInfo().IsGenericType)
@@ -46,9 +50,23 @@ namespace NClap.Types
             _commandArgType = (IEnumArgumentType)commandArgType;
         }
 
+        /// <summary>
+        /// Generates a set of valid strings--parseable to this type--that
+        /// contain the provided string as a strict prefix.
+        /// </summary>
+        /// <param name="context">Context for parsing.</param>
+        /// <param name="valueToComplete">The string to complete.</param>
+        /// <returns>An enumeration of a set of completion strings; if no such
+        /// strings could be generated, or if the type doesn't support
+        /// completion, then an empty enumeration is returned.</returns>
         public override IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
             _commandArgType.GetCompletions(context, valueToComplete);
 
+        /// <summary>
+        /// Converts a value into a readable string form.
+        /// </summary>
+        /// <param name="value">The value to format into a string.</param>
+        /// <returns>The formatted string.</returns>
         public override string Format(object value)
         {
             var group = (ICommandGroup)value;
@@ -60,6 +78,13 @@ namespace NClap.Types
             return _commandArgType.Format(group.Selection);
         }
 
+        /// <summary>
+        /// Tries to parse the provided string, extracting a value of the type
+        /// described by this interface.
+        /// </summary>
+        /// <param name="context">Context for parsing.</param>
+        /// <param name="stringToParse">The string to parse.</param>
+        /// <returns>True on success; false otherwise.</returns>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
             if (!_commandArgType.TryParse(context, stringToParse, out object selection))
@@ -82,8 +107,14 @@ namespace NClap.Types
             return group;
         }
 
+        /// <summary>
+        /// The type's human-readable (display) name.
+        /// </summary>
         public override string DisplayName => _commandArgType.DisplayName;
 
+        /// <summary>
+        /// Enumeration of all types that this type depends on / includes.
+        /// </summary>
         public override IEnumerable<IArgumentType> DependentTypes => new[] { _commandArgType };
     }
 }

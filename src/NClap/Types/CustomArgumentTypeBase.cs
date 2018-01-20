@@ -15,7 +15,7 @@ namespace NClap.Types
         /// <summary>
         /// The Type object associated with values described by this interface.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
+        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods", Justification = "[Legacy]")]
         public Type Type => GetType();
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace NClap.Types
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            if (value.GetType() != Type) 
+            if (value.GetType() != Type)
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
@@ -69,9 +69,11 @@ namespace NClap.Types
         /// <returns>An enumeration of a set of completion strings; if no such
         /// strings could be generated, or if the type doesn't support
         /// completion, then an empty enumeration is returned.</returns>
-        public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete) =>
+        public virtual IEnumerable<string> GetCompletions(ArgumentCompletionContext context, string valueToComplete)
+        {
             // By default, return an empty enumeration of strings.
-            Enumerable.Empty<string>();
+            return Enumerable.Empty<string>();
+        }
 
         /// <summary>
         /// Enumeration of all types that this type depends on / includes.

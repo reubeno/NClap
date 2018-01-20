@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{56524B7F-84C2-4D6D-9CF6-4117B2ECB0B2}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
+		..\GitVersion.yml = ..\GitVersion.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{77079178-A7A6-422C-83B7-8C2449DC46BA}"
@@ -40,7 +41,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9EFD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultilevelCommandApp", "Samples\MultilevelCommandApp\MultilevelCommandApp.csproj", "{4F102759-2395-4772-AA62-3430D860B36F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpApp", "Samples\HelpApp\HelpApp.csproj", "{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelpApp", "Samples\HelpApp\HelpApp.csproj", "{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergedCommandApp", "Samples\MergedCommandApp\MergedCommandApp.csproj", "{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +79,10 @@ Global
 		{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +95,7 @@ Global
 		{F0D1D482-9A62-4FCC-B665-85BF9E0ADE46} = {404EF6E0-0344-4CBE-8FB6-66B82BB53716}
 		{4F102759-2395-4772-AA62-3430D860B36F} = {9EFDFDC6-5551-401D-A88E-DA5EA118677A}
 		{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8} = {9EFDFDC6-5551-401D-A88E-DA5EA118677A}
+		{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E} = {9EFDFDC6-5551-401D-A88E-DA5EA118677A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CF1C2B40-8979-4030-AD41-B818045740B4}

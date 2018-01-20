@@ -15,14 +15,6 @@ namespace NClap.Help
         }
 
         /// <summary>
-        /// Deeply cloning constructor.
-        /// </summary>
-        /// <param name="other">Template for clone.</param>
-        protected ArgumentHelpLayout(ArgumentHelpLayout other)
-        {
-        }
-        
-        /// <summary>
         /// Create a separate clone of this object.
         /// </summary>
         /// <returns>Clone.</returns>

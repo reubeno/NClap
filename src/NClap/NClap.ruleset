@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="New Rule Set" Description=" " ToolsVersion="15.0">
+  <Include Path="basiccorrectnessrules.ruleset" Action="Warning" />
+  <Include Path="basicdesignguidelinerules.ruleset" Action="Warning" />
+  <Include Path="extendedcorrectnessrules.ruleset" Action="Warning" />
+  <Include Path="extendeddesignguidelinerules.ruleset" Action="Warning" />
+  <Include Path="minimumrecommendedrules.ruleset" Action="Warning" />
+  <Include Path="securityrules.ruleset" Action="Warning" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <!-- CA1304: SpecifyCultureInfo -->
+    <Rule Id="CA1304" Action="None" />
+    <!-- CA1305: SpecifyIFormatProvider -->
+    <Rule Id="CA1305" Action="None" />
+    <!-- CA2225: Operator overloads have named alternates -->
+    <Rule Id="CA2225" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <!-- SA1101: Prefix local calls with this -->
+    <Rule Id="SA1101" Action="None" />
+    <!-- SA1116: Split parameters should start on line after declaration -->
+    <Rule Id="SA1116" Action="None" />
+    <!-- SA1117: Parameters should be on same line or separate lines -->
+    <Rule Id="SA1117" Action="None" />
+    <!-- SA1120: Comments should contain text -->
+    <Rule Id="SA1120" Action="None" />
+    <!-- SA1128: Put constructor initializers on their own line -->
+    <Rule Id="SA1128" Action="None" />
+    <!-- SA1201: Elements should appear in the correct order -->
+    <Rule Id="SA1201" Action="None" />
+    <!-- SA1202: Elements should be ordered by access -->
+    <Rule Id="SA1202" Action="None" />
+    <!-- SA1204: Static elements should appear before instance elements -->
+    <Rule Id="SA1204" Action="None" />
+    <!-- SA1309: Field names should not begin with underscore -->
+    <Rule Id="SA1309" Action="None" />
+    <!-- SA1401: Fields should be private -->
+    <Rule Id="SA1401" Action="None" />
+    <!-- SA1405: Debug.Assert should provide message text -->
+    <Rule Id="SA1405" Action="None" />
+    <!-- SA1413: Use trailing comma in multi-line initializers -->
+    <Rule Id="SA1413" Action="None" />
+    <!-- SA1501: Statement should not be on a single line -->
+    <Rule Id="SA1501" Action="None" />
+    <!-- SA1502: Element should not be on a single line -->
+    <Rule Id="SA1502" Action="None" />
+    <!-- SA1503: Braces should not be omitted -->
+    <Rule Id="SA1503" Action="None" />
+    <!-- SA1512: Single-line comments should not be followed by blank line -->
+    <Rule Id="SA1512" Action="None" />
+    <!-- SA1515: Single-line comment should be preceded by blank line -->
+    <Rule Id="SA1515" Action="None" />
+    <!-- SA1623: Property summary documentation should match accessors -->
+    <Rule Id="SA1623" Action="None" />
+    <!-- SA1633: File should have header -->
+    <Rule Id="SA1633" Action="None" />
+    <!-- SA1642: Constructor summary documentation should begin with standard text -->
+    <Rule Id="SA1642" Action="None" />
+
+    <!-- TODO: These below throw analyzer-time internal exceptions -->
+    <!-- SA0002: StyleCop JSON settings file could not be loaded -->
+    <Rule Id="SA0002" Action="None" />
+    <!-- SA1624: Property summary documentation should omit set accessor with restricted access -->
+    <Rule Id="SA1624" Action="None" />
+    <!-- SA1625: Element documentation must not be copied and pasted -->
+    <Rule Id="SA1625" Action="None" />
+</Rules>
+</RuleSet>

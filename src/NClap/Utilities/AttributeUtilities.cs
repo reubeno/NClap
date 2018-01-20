@@ -45,16 +45,16 @@ namespace NClap.Utilities
                     var attribType = Type.GetType(d.AttributeType.FullName, /*throwIfNotFound=*/false, /*ignoreCase=*/false);
                     if (attribType == null)
                     {
-                        return null;
+                        return new None();
                     }
 
                     if (!typeof(T).GetTypeInfo().IsAssignableFrom(attribType))
                     {
-                        return null;
+                        return new None();
                     }
 
-                    return new { Type = attribType, Data = d };
-                }).Where(at => at != null);
+                    return Some.Of(new { Type = attribType, Data = d });
+                }).WhereHasValue();
 
                 return matchingAttribs.Select(attrib =>
                 {

@@ -29,6 +29,18 @@ namespace NClap.ConsoleInput
         int CursorTop { get; set; }
 
         /// <summary>
+        /// The width, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        int WindowWidth { get; set; }
+
+        /// <summary>
+        /// The height, in characters, of the window associated with the
+        /// console.
+        /// </summary>
+        int WindowHeight { get; set; }
+
+        /// <summary>
         /// The width, in characters, of the logical buffer associated with the
         /// console.
         /// </summary>
@@ -49,6 +61,11 @@ namespace NClap.ConsoleInput
         /// The console's background color.
         /// </summary>
         ConsoleColor BackgroundColor { get; set; }
+
+        /// <summary>
+        /// Indicates if the console's buffer is scrollable.
+        /// </summary>
+        bool IsScrollable { get; }
 
         /// <summary>
         /// Moves the cursor to the specified position.

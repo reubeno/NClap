@@ -78,6 +78,11 @@ namespace NClap.Types
         /// </summary>
         public string Description => _attribute.Description;
 
+        /// <summary>
+        /// Underlying field information.
+        /// </summary>
+        public FieldInfo ValueInfo => _fieldInfo;
+
         private static bool TryGetArgumentValueAttribute(FieldInfo fieldInfo, out ArgumentValueAttribute attribute)
         {
             // Look for an <see cref="ArgumentValueAttribute" /> attribute,

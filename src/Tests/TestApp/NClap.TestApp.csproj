@@ -1,22 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.1;net461</TargetFrameworks>
-    <RuntimeIdentifiers>win10-x64;ubuntu.16.04-x64</RuntimeIdentifiers>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <Description>TestApp description</Description>
-    <Copyright>Some copyright</Copyright>
-    <PackageTags></PackageTags>
-    <AssemblyVersion>1.4.3.2</AssemblyVersion>
-    <FileVersion>1.4.3.2</FileVersion>
-    <Version>1.4.3-beta1</Version>
-    <Product>NClap.TestApp</Product>
-    <Company>NClap.TestApp</Company>
-    <Authors>NClap.TestApp</Authors>
   </PropertyGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\NClap\NClap.csproj" />
   </ItemGroup>
+
 </Project>

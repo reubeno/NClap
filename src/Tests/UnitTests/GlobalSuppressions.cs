@@ -7,5 +7,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider")]
-[assembly: SuppressMessage("Globalization", "CA1307:Specify StringComparison")]
+[assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "[Legacy]")]
+[assembly: SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "[Legacy]")]

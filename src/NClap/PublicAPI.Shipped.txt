@@ -1,0 +1,954 @@
+NClap.CommandLineParser
+NClap.CommandLineParserOptions
+NClap.CommandLineParserOptions.CommandLineParserOptions() -> void
+NClap.CommandLineParserOptions.Context.get -> object
+NClap.CommandLineParserOptions.Context.set -> void
+NClap.CommandLineParserOptions.DeepClone() -> NClap.CommandLineParserOptions
+NClap.CommandLineParserOptions.DisplayUsageInfoOnError.get -> bool
+NClap.CommandLineParserOptions.DisplayUsageInfoOnError.set -> void
+NClap.CommandLineParserOptions.FileSystemReader.get -> NClap.IFileSystemReader
+NClap.CommandLineParserOptions.FileSystemReader.set -> void
+NClap.CommandLineParserOptions.HelpOptions.get -> NClap.Help.ArgumentSetHelpOptions
+NClap.CommandLineParserOptions.HelpOptions.set -> void
+NClap.CommandLineParserOptions.Reporter.get -> NClap.ErrorReporter
+NClap.CommandLineParserOptions.Reporter.set -> void
+NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.Abort = 14 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.AcceptLine = 2 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.BackwardChar = 7 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.BackwardKillWord = 28 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.BackwardWord = 16 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.BeginningOfHistory = 17 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.BeginningOfLine = 4 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.CapitalizeWord = 21 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.CharacterSearch = 41 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.CharacterSearchBackward = 48 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ClearScreen = 8 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.CompleteTokenNext = 29 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.CompleteTokenPrevious = 30 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.DeleteChar = 32 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.DeletePreviousChar = 31 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.DowncaseWord = 20 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.EndOfFile = 3 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.EndOfHistory = 18 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.EndOfLine = 5 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ForwardChar = 6 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ForwardSearchHistory = 35 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ForwardWord = 15 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.InsertComment = 26 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.InsertCompletions = 24 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.KillLine = 11 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.KillWord = 22 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.NextHistory = 10 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.NoOp = 0 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.NonIncrementalForwardSearchHistory = 44 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.NonIncrementalReverseSearchHistory = 43 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.PossibleCompletions = 23 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.PreviousHistory = 9 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ProcessCharacter = 1 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.QuotedInsert = 36 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ReverseSearchHistory = 34 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.RevertLine = 25 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.SetMark = 40 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.TabInsert = 27 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.TildeExpand = 46 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.ToggleInsertMode = 33 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.TransposeChars = 37 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.Undo = 39 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.UnixLineDiscard = 38 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.UnixWordRubout = 12 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.UpcaseWord = 19 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.Yank = 13 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.YankLastArg = 42 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.YankNthArg = 47 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleInputOperation.YankPop = 45 -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleKeyBindingSet
+NClap.ConsoleInput.ConsoleKeyBindingSet.Bind(System.ConsoleKey key, System.ConsoleModifiers modifiers, NClap.ConsoleInput.ConsoleInputOperation? op) -> void
+NClap.ConsoleInput.ConsoleKeyBindingSet.Bind(char value, System.ConsoleModifiers modifiers, NClap.ConsoleInput.ConsoleInputOperation? op) -> void
+NClap.ConsoleInput.ConsoleKeyBindingSet.BindWithIgnoredModifiers(System.ConsoleKey key, NClap.ConsoleInput.ConsoleInputOperation? op) -> void
+NClap.ConsoleInput.ConsoleKeyBindingSet.ConsoleKeyBindingSet() -> void
+NClap.ConsoleInput.ConsoleKeyBindingSet.ContainsKey(System.ConsoleKeyInfo key) -> bool
+NClap.ConsoleInput.ConsoleKeyBindingSet.Count.get -> int
+NClap.ConsoleInput.ConsoleKeyBindingSet.GetValue(System.ConsoleKeyInfo key) -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleKeyBindingSet.Keys.get -> System.Collections.Generic.IEnumerable<System.ConsoleKeyInfo>
+NClap.ConsoleInput.ConsoleKeyBindingSet.TryGetValue(System.ConsoleKeyInfo key, out NClap.ConsoleInput.ConsoleInputOperation value) -> bool
+NClap.ConsoleInput.ConsoleKeyBindingSet.Values.get -> System.Collections.Generic.IEnumerable<NClap.ConsoleInput.ConsoleInputOperation>
+NClap.ConsoleInput.ConsoleKeyBindingSet.this[System.ConsoleKeyInfo key].get -> NClap.ConsoleInput.ConsoleInputOperation
+NClap.ConsoleInput.ConsoleUtilities
+NClap.ConsoleInput.IConsoleHistory
+NClap.ConsoleInput.IConsoleHistory.Add(string entry) -> void
+NClap.ConsoleInput.IConsoleHistory.CurrentEntry.get -> string
+NClap.ConsoleInput.IConsoleHistory.EntryCount.get -> int
+NClap.ConsoleInput.IConsoleHistory.MoveCursor(System.IO.SeekOrigin origin, int offset) -> bool
+NClap.ConsoleInput.IConsoleInput
+NClap.ConsoleInput.IConsoleInput.ReadKey(bool suppressEcho) -> System.ConsoleKeyInfo
+NClap.ConsoleInput.IConsoleInput.TreatControlCAsInput.get -> bool
+NClap.ConsoleInput.IConsoleInput.TreatControlCAsInput.set -> void
+NClap.ConsoleInput.IConsoleInputBuffer
+NClap.ConsoleInput.IConsoleInputBuffer.Clear() -> void
+NClap.ConsoleInput.IConsoleInputBuffer.Contents.get -> string
+NClap.ConsoleInput.IConsoleInputBuffer.CursorIndex.get -> int
+NClap.ConsoleInput.IConsoleInputBuffer.CursorIsAtEnd.get -> bool
+NClap.ConsoleInput.IConsoleInputBuffer.Insert(char value) -> void
+NClap.ConsoleInput.IConsoleInputBuffer.Insert(string value) -> void
+NClap.ConsoleInput.IConsoleInputBuffer.Length.get -> int
+NClap.ConsoleInput.IConsoleInputBuffer.MoveCursor(System.IO.SeekOrigin origin, int offsetFromOrigin) -> bool
+NClap.ConsoleInput.IConsoleInputBuffer.MoveCursor(System.IO.SeekOrigin origin, int offsetFromOrigin, out int offsetFromPreviousPosition) -> bool
+NClap.ConsoleInput.IConsoleInputBuffer.Read(int count) -> char[]
+NClap.ConsoleInput.IConsoleInputBuffer.ReadAt(int sourceIndex, char[] buffer, int destinationIndex, int count) -> void
+NClap.ConsoleInput.IConsoleInputBuffer.ReadAt(int sourceIndex, int count) -> char[]
+NClap.ConsoleInput.IConsoleInputBuffer.Remove() -> bool
+NClap.ConsoleInput.IConsoleInputBuffer.Remove(int count) -> bool
+NClap.ConsoleInput.IConsoleInputBuffer.RemoveCharBeforeCursor() -> bool
+NClap.ConsoleInput.IConsoleInputBuffer.Replace(char value) -> void
+NClap.ConsoleInput.IConsoleInputBuffer.Replace(string value) -> void
+NClap.ConsoleInput.IConsoleInputBuffer.Truncate() -> void
+NClap.ConsoleInput.IConsoleInputBuffer.this[int index].get -> char
+NClap.ConsoleInput.IConsoleLineInput
+NClap.ConsoleInput.IConsoleLineInput.AtEnd.get -> bool
+NClap.ConsoleInput.IConsoleLineInput.ClearLine(bool clearBufferOnly) -> void
+NClap.ConsoleInput.IConsoleLineInput.ClearScreen() -> void
+NClap.ConsoleInput.IConsoleLineInput.Contents.get -> string
+NClap.ConsoleInput.IConsoleLineInput.CutToEnd() -> void
+NClap.ConsoleInput.IConsoleLineInput.Delete() -> void
+NClap.ConsoleInput.IConsoleLineInput.DeleteBackwardThroughLastWord() -> void
+NClap.ConsoleInput.IConsoleLineInput.DeleteForwardToNextWord() -> void
+NClap.ConsoleInput.IConsoleLineInput.DeletePrecedingChar() -> void
+NClap.ConsoleInput.IConsoleLineInput.DisplayAllCompletions() -> void
+NClap.ConsoleInput.IConsoleLineInput.DisplayPrompt() -> void
+NClap.ConsoleInput.IConsoleLineInput.History.get -> NClap.ConsoleInput.IConsoleHistory
+NClap.ConsoleInput.IConsoleLineInput.Insert(char value) -> void
+NClap.ConsoleInput.IConsoleLineInput.Insert(string value) -> void
+NClap.ConsoleInput.IConsoleLineInput.InsertMode.get -> bool
+NClap.ConsoleInput.IConsoleLineInput.InsertMode.set -> void
+NClap.ConsoleInput.IConsoleLineInput.MoveCursorBackward(int count) -> bool
+NClap.ConsoleInput.IConsoleLineInput.MoveCursorBackwardOneWord() -> void
+NClap.ConsoleInput.IConsoleLineInput.MoveCursorForward(int count) -> bool
+NClap.ConsoleInput.IConsoleLineInput.MoveCursorForwardOneWord() -> void
+NClap.ConsoleInput.IConsoleLineInput.MoveCursorToEnd() -> void
+NClap.ConsoleInput.IConsoleLineInput.MoveCursorToStart() -> void
+NClap.ConsoleInput.IConsoleLineInput.Paste() -> void
+NClap.ConsoleInput.IConsoleLineInput.PasteBuffer.get -> string
+NClap.ConsoleInput.IConsoleLineInput.Prompt.get -> NClap.Utilities.ColoredString
+NClap.ConsoleInput.IConsoleLineInput.Prompt.set -> void
+NClap.ConsoleInput.IConsoleLineInput.Replace(char value) -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceCurrentTokenWithAllCompletions() -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceCurrentTokenWithNextCompletion(bool lastOperationWasCompletion) -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceCurrentTokenWithPreviousCompletion(bool lastOperationWasCompletion) -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceWithLastLineInHistory() -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceWithNextLineInHistory() -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceWithOldestLineInHistory() -> void
+NClap.ConsoleInput.IConsoleLineInput.ReplaceWithYoungestLineInHistory() -> void
+NClap.ConsoleInput.IConsoleLineInput.SaveToHistory() -> void
+NClap.ConsoleInput.IConsoleLineInput.TokenCompleter.get -> NClap.ConsoleInput.ITokenCompleter
+NClap.ConsoleInput.IConsoleLineInput.TokenCompleter.set -> void
+NClap.ConsoleInput.IConsoleLineInput.TransformCurrentWord(System.Func<string, string> transformation) -> void
+NClap.ConsoleInput.IConsoleOutput
+NClap.ConsoleInput.IConsoleOutput.BackgroundColor.get -> System.ConsoleColor
+NClap.ConsoleInput.IConsoleOutput.BackgroundColor.set -> void
+NClap.ConsoleInput.IConsoleOutput.BufferHeight.get -> int
+NClap.ConsoleInput.IConsoleOutput.BufferHeight.set -> void
+NClap.ConsoleInput.IConsoleOutput.BufferWidth.get -> int
+NClap.ConsoleInput.IConsoleOutput.BufferWidth.set -> void
+NClap.ConsoleInput.IConsoleOutput.Clear() -> void
+NClap.ConsoleInput.IConsoleOutput.CursorLeft.get -> int
+NClap.ConsoleInput.IConsoleOutput.CursorLeft.set -> void
+NClap.ConsoleInput.IConsoleOutput.CursorSize.get -> int
+NClap.ConsoleInput.IConsoleOutput.CursorSize.set -> void
+NClap.ConsoleInput.IConsoleOutput.CursorTop.get -> int
+NClap.ConsoleInput.IConsoleOutput.CursorTop.set -> void
+NClap.ConsoleInput.IConsoleOutput.CursorVisible.get -> bool
+NClap.ConsoleInput.IConsoleOutput.CursorVisible.set -> void
+NClap.ConsoleInput.IConsoleOutput.ForegroundColor.get -> System.ConsoleColor
+NClap.ConsoleInput.IConsoleOutput.ForegroundColor.set -> void
+NClap.ConsoleInput.IConsoleOutput.IsScrollable.get -> bool
+NClap.ConsoleInput.IConsoleOutput.ScrollContents(int lineCount) -> void
+NClap.ConsoleInput.IConsoleOutput.SetCursorPosition(int left, int top) -> bool
+NClap.ConsoleInput.IConsoleOutput.WindowHeight.get -> int
+NClap.ConsoleInput.IConsoleOutput.WindowHeight.set -> void
+NClap.ConsoleInput.IConsoleOutput.WindowWidth.get -> int
+NClap.ConsoleInput.IConsoleOutput.WindowWidth.set -> void
+NClap.ConsoleInput.IConsoleOutput.Write(NClap.Utilities.ColoredString text) -> void
+NClap.ConsoleInput.IConsoleOutput.Write(string text) -> void
+NClap.ConsoleInput.IConsoleOutput.WriteLine(string text) -> void
+NClap.ConsoleInput.IConsoleReader
+NClap.ConsoleInput.IConsoleReader.CommentCharacter.get -> char?
+NClap.ConsoleInput.IConsoleReader.CommentCharacter.set -> void
+NClap.ConsoleInput.IConsoleReader.ConsoleInput.get -> NClap.ConsoleInput.IConsoleInput
+NClap.ConsoleInput.IConsoleReader.ConsoleOutput.get -> NClap.ConsoleInput.IConsoleOutput
+NClap.ConsoleInput.IConsoleReader.KeyBindingSet.get -> NClap.ConsoleInput.IReadOnlyConsoleKeyBindingSet
+NClap.ConsoleInput.IConsoleReader.LineInput.get -> NClap.ConsoleInput.IConsoleLineInput
+NClap.ConsoleInput.IConsoleReader.ReadLine() -> string
+NClap.ConsoleInput.IReadOnlyConsoleKeyBindingSet
+NClap.ConsoleInput.ITokenCompleter
+NClap.ConsoleInput.ITokenCompleter.GetCompletions(System.Collections.Generic.IEnumerable<string> tokens, int tokenIndex) -> System.Collections.Generic.IEnumerable<string>
+NClap.ErrorReporter
+NClap.Exceptions.InternalInvariantBrokenException
+NClap.Exceptions.InternalInvariantBrokenException.InternalInvariantBrokenException() -> void
+NClap.Exceptions.InternalInvariantBrokenException.InternalInvariantBrokenException(string message) -> void
+NClap.Exceptions.InternalInvariantBrokenException.InternalInvariantBrokenException(string message, System.Exception innerException) -> void
+NClap.Exceptions.InvalidArgumentSetException
+NClap.Exceptions.InvalidArgumentSetException.ArgumentSetType.get -> System.Type
+NClap.Exceptions.InvalidArgumentSetException.InnerMessage.get -> string
+NClap.Exceptions.InvalidArgumentSetException.InnerMessage.set -> void
+NClap.Exceptions.InvalidArgumentSetException.InvalidArgumentSetException() -> void
+NClap.Exceptions.InvalidArgumentSetException.InvalidArgumentSetException(System.Type argumentSetType) -> void
+NClap.Exceptions.InvalidArgumentSetException.InvalidArgumentSetException(System.Type argumentSetType, string message) -> void
+NClap.Exceptions.InvalidArgumentSetException.InvalidArgumentSetException(System.Type argumentSetType, string message, System.Exception innerException) -> void
+NClap.Exceptions.InvalidArgumentSetException.InvalidArgumentSetException(string message) -> void
+NClap.Exceptions.InvalidArgumentSetException.InvalidArgumentSetException(string message, System.Exception innerException) -> void
+NClap.Exceptions.InvalidCommandException
+NClap.Exceptions.InvalidCommandException.InvalidCommandException() -> void
+NClap.Exceptions.InvalidCommandException.InvalidCommandException(System.Type commandType, System.Reflection.MemberInfo commandValue, string message) -> void
+NClap.Exceptions.InvalidCommandException.InvalidCommandException(System.Type commandType, System.Reflection.MemberInfo commandValue, string message, System.Exception innerException) -> void
+NClap.Exceptions.InvalidCommandException.InvalidCommandException(string message) -> void
+NClap.Exceptions.InvalidCommandException.InvalidCommandException(string message, System.Exception innerException) -> void
+NClap.Help.ArgumentDefaultValueHelpMode
+NClap.Help.ArgumentDefaultValueHelpMode.AppendToDescription = 2 -> NClap.Help.ArgumentDefaultValueHelpMode
+NClap.Help.ArgumentDefaultValueHelpMode.Omit = 0 -> NClap.Help.ArgumentDefaultValueHelpMode
+NClap.Help.ArgumentDefaultValueHelpMode.PrependToDescription = 1 -> NClap.Help.ArgumentDefaultValueHelpMode
+NClap.Help.ArgumentEnumValueHelpFlags
+NClap.Help.ArgumentEnumValueHelpFlags.None = 0 -> NClap.Help.ArgumentEnumValueHelpFlags
+NClap.Help.ArgumentEnumValueHelpFlags.SingleSummaryOfAllCommandEnums = 2 -> NClap.Help.ArgumentEnumValueHelpFlags
+NClap.Help.ArgumentEnumValueHelpFlags.SingleSummaryOfEnumsWithMultipleUses = 1 -> NClap.Help.ArgumentEnumValueHelpFlags
+NClap.Help.ArgumentEnumValueHelpOptions
+NClap.Help.ArgumentEnumValueHelpOptions.ArgumentEnumValueHelpOptions() -> void
+NClap.Help.ArgumentEnumValueHelpOptions.Flags.get -> NClap.Help.ArgumentEnumValueHelpFlags
+NClap.Help.ArgumentEnumValueHelpOptions.Flags.set -> void
+NClap.Help.ArgumentGroupingMode
+NClap.Help.ArgumentGroupingMode.RequiredVersusOptional = 0 -> NClap.Help.ArgumentGroupingMode
+NClap.Help.ArgumentHelpLayout
+NClap.Help.ArgumentHelpLayout.ArgumentHelpLayout() -> void
+NClap.Help.ArgumentHelpOptions
+NClap.Help.ArgumentHelpOptions.ArgumentHelpOptions() -> void
+NClap.Help.ArgumentHelpOptions.ArgumentNameColor.get -> NClap.Utilities.TextColor
+NClap.Help.ArgumentHelpOptions.ArgumentNameColor.set -> void
+NClap.Help.ArgumentHelpOptions.BlankLinesBetweenArguments.get -> int
+NClap.Help.ArgumentHelpOptions.BlankLinesBetweenArguments.set -> void
+NClap.Help.ArgumentHelpOptions.DeepClone() -> NClap.Help.ArgumentHelpOptions
+NClap.Help.ArgumentHelpOptions.DefaultValue.get -> NClap.Help.ArgumentDefaultValueHelpMode
+NClap.Help.ArgumentHelpOptions.DefaultValue.set -> void
+NClap.Help.ArgumentHelpOptions.GroupingMode.get -> NClap.Help.ArgumentGroupingMode
+NClap.Help.ArgumentHelpOptions.GroupingMode.set -> void
+NClap.Help.ArgumentHelpOptions.HangingIndentWidth.get -> int
+NClap.Help.ArgumentHelpOptions.HangingIndentWidth.set -> void
+NClap.Help.ArgumentHelpOptions.IncludeDescription.get -> bool
+NClap.Help.ArgumentHelpOptions.IncludeDescription.set -> void
+NClap.Help.ArgumentHelpOptions.IncludePositionalArgumentTypes.get -> bool
+NClap.Help.ArgumentHelpOptions.IncludePositionalArgumentTypes.set -> void
+NClap.Help.ArgumentHelpOptions.Layout.get -> NClap.Help.ArgumentHelpLayout
+NClap.Help.ArgumentHelpOptions.Layout.set -> void
+NClap.Help.ArgumentHelpOptions.MetadataColor.get -> NClap.Utilities.TextColor
+NClap.Help.ArgumentHelpOptions.MetadataColor.set -> void
+NClap.Help.ArgumentHelpOptions.OptionalArguments.get -> NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentHelpOptions.OptionalArguments.set -> void
+NClap.Help.ArgumentHelpOptions.Ordering.get -> NClap.Help.ArgumentSortOrder
+NClap.Help.ArgumentHelpOptions.Ordering.set -> void
+NClap.Help.ArgumentHelpOptions.RequiredArguments.get -> NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentHelpOptions.RequiredArguments.set -> void
+NClap.Help.ArgumentHelpOptions.ShortName.get -> NClap.Help.ArgumentShortNameHelpMode
+NClap.Help.ArgumentHelpOptions.ShortName.set -> void
+NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentMetadataHelpOptions.ArgumentMetadataHelpOptions() -> void
+NClap.Help.ArgumentMetadataHelpOptions.ArgumentMetadataHelpOptions(NClap.Help.ArgumentMetadataHelpOptions other) -> void
+NClap.Help.ArgumentMetadataHelpOptions.BlockIndent.get -> int?
+NClap.Help.ArgumentMetadataHelpOptions.BlockIndent.set -> void
+NClap.Help.ArgumentMetadataHelpOptions.Color.get -> NClap.Utilities.TextColor
+NClap.Help.ArgumentMetadataHelpOptions.Color.set -> void
+NClap.Help.ArgumentMetadataHelpOptions.HangingIndent.get -> int?
+NClap.Help.ArgumentMetadataHelpOptions.HangingIndent.set -> void
+NClap.Help.ArgumentMetadataHelpOptions.HeaderTitle.get -> string
+NClap.Help.ArgumentMetadataHelpOptions.HeaderTitle.set -> void
+NClap.Help.ArgumentMetadataHelpOptions.Include.get -> bool
+NClap.Help.ArgumentMetadataHelpOptions.Include.set -> void
+NClap.Help.ArgumentSetHelpOptions
+NClap.Help.ArgumentSetHelpOptions.ArgumentSetHelpOptions() -> void
+NClap.Help.ArgumentSetHelpOptions.Arguments.get -> NClap.Help.ArgumentHelpOptions
+NClap.Help.ArgumentSetHelpOptions.Arguments.set -> void
+NClap.Help.ArgumentSetHelpOptions.BlankLinesBetweenSections.get -> int
+NClap.Help.ArgumentSetHelpOptions.BlankLinesBetweenSections.set -> void
+NClap.Help.ArgumentSetHelpOptions.DeepClone() -> NClap.Help.ArgumentSetHelpOptions
+NClap.Help.ArgumentSetHelpOptions.Description.get -> NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentSetHelpOptions.Description.set -> void
+NClap.Help.ArgumentSetHelpOptions.EnumValues.get -> NClap.Help.ArgumentEnumValueHelpOptions
+NClap.Help.ArgumentSetHelpOptions.EnumValues.set -> void
+NClap.Help.ArgumentSetHelpOptions.Examples.get -> NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentSetHelpOptions.Examples.set -> void
+NClap.Help.ArgumentSetHelpOptions.Logo.get -> NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentSetHelpOptions.Logo.set -> void
+NClap.Help.ArgumentSetHelpOptions.MaxWidth.get -> int?
+NClap.Help.ArgumentSetHelpOptions.MaxWidth.set -> void
+NClap.Help.ArgumentSetHelpOptions.Name.get -> string
+NClap.Help.ArgumentSetHelpOptions.Name.set -> void
+NClap.Help.ArgumentSetHelpOptions.SectionEntryBlockIndentWidth.get -> int
+NClap.Help.ArgumentSetHelpOptions.SectionEntryBlockIndentWidth.set -> void
+NClap.Help.ArgumentSetHelpOptions.SectionEntryHangingIndentWidth.get -> int
+NClap.Help.ArgumentSetHelpOptions.SectionEntryHangingIndentWidth.set -> void
+NClap.Help.ArgumentSetHelpOptions.SectionHeaders.get -> NClap.Help.ArgumentMetadataHelpOptions
+NClap.Help.ArgumentSetHelpOptions.SectionHeaders.set -> void
+NClap.Help.ArgumentSetHelpOptions.Syntax.get -> NClap.Help.ArgumentSyntaxHelpOptions
+NClap.Help.ArgumentSetHelpOptions.Syntax.set -> void
+NClap.Help.ArgumentSetHelpOptions.UseColor.get -> bool
+NClap.Help.ArgumentSetHelpOptions.UseColor.set -> void
+NClap.Help.ArgumentSetHelpOptionsExtensions
+NClap.Help.ArgumentShortNameHelpMode
+NClap.Help.ArgumentShortNameHelpMode.AppendToDescription = 2 -> NClap.Help.ArgumentShortNameHelpMode
+NClap.Help.ArgumentShortNameHelpMode.IncludeWithLongName = 1 -> NClap.Help.ArgumentShortNameHelpMode
+NClap.Help.ArgumentShortNameHelpMode.Omit = 0 -> NClap.Help.ArgumentShortNameHelpMode
+NClap.Help.ArgumentSortOrder
+NClap.Help.ArgumentSortOrder.Lexicographic = 0 -> NClap.Help.ArgumentSortOrder
+NClap.Help.ArgumentSyntaxHelpOptions
+NClap.Help.ArgumentSyntaxHelpOptions.ArgumentSyntaxHelpOptions() -> void
+NClap.Help.ArgumentSyntaxHelpOptions.CommandNameColor.get -> NClap.Utilities.TextColor
+NClap.Help.ArgumentSyntaxHelpOptions.CommandNameColor.set -> void
+NClap.Help.OneColumnArgumentHelpLayout
+NClap.Help.OneColumnArgumentHelpLayout.OneColumnArgumentHelpLayout() -> void
+NClap.Help.TwoColumnArgumentHelpLayout
+NClap.Help.TwoColumnArgumentHelpLayout.ColumnWidths.get -> int?[]
+NClap.Help.TwoColumnArgumentHelpLayout.DefaultColumnSeparator.get -> string
+NClap.Help.TwoColumnArgumentHelpLayout.DefaultColumnSeparator.set -> void
+NClap.Help.TwoColumnArgumentHelpLayout.FirstLineColumnSeparator.get -> string
+NClap.Help.TwoColumnArgumentHelpLayout.FirstLineColumnSeparator.set -> void
+NClap.Help.TwoColumnArgumentHelpLayout.TwoColumnArgumentHelpLayout() -> void
+NClap.IFileSystemReader
+NClap.IFileSystemReader.DirectoryExists(string path) -> bool
+NClap.IFileSystemReader.EnumerateFileSystemEntries(string directoryPath, string filePattern) -> System.Collections.Generic.IEnumerable<string>
+NClap.IFileSystemReader.FileExists(string path) -> bool
+NClap.IFileSystemReader.GetLines(string filePath) -> System.Collections.Generic.IEnumerable<string>
+NClap.Metadata.ArgumentBaseAttribute
+NClap.Metadata.ArgumentBaseAttribute.AllowEmpty.get -> bool
+NClap.Metadata.ArgumentBaseAttribute.AllowEmpty.set -> void
+NClap.Metadata.ArgumentBaseAttribute.ArgumentBaseAttribute(NClap.Metadata.ArgumentFlags flags) -> void
+NClap.Metadata.ArgumentBaseAttribute.Completer.get -> System.Type
+NClap.Metadata.ArgumentBaseAttribute.Completer.set -> void
+NClap.Metadata.ArgumentBaseAttribute.ConflictsWith.get -> string[]
+NClap.Metadata.ArgumentBaseAttribute.ConflictsWith.set -> void
+NClap.Metadata.ArgumentBaseAttribute.DefaultValue.get -> object
+NClap.Metadata.ArgumentBaseAttribute.DefaultValue.set -> void
+NClap.Metadata.ArgumentBaseAttribute.Description.get -> string
+NClap.Metadata.ArgumentBaseAttribute.Description.set -> void
+NClap.Metadata.ArgumentBaseAttribute.DynamicDefaultValue.get -> bool
+NClap.Metadata.ArgumentBaseAttribute.DynamicDefaultValue.set -> void
+NClap.Metadata.ArgumentBaseAttribute.ElementSeparators.get -> string[]
+NClap.Metadata.ArgumentBaseAttribute.ElementSeparators.set -> void
+NClap.Metadata.ArgumentBaseAttribute.Flags.get -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentBaseAttribute.Formatter.get -> System.Type
+NClap.Metadata.ArgumentBaseAttribute.Formatter.set -> void
+NClap.Metadata.ArgumentBaseAttribute.Hidden.get -> bool
+NClap.Metadata.ArgumentBaseAttribute.Hidden.set -> void
+NClap.Metadata.ArgumentBaseAttribute.LongName.get -> string
+NClap.Metadata.ArgumentBaseAttribute.LongName.set -> void
+NClap.Metadata.ArgumentBaseAttribute.NumberOptions.get -> NClap.Metadata.NumberOptions
+NClap.Metadata.ArgumentBaseAttribute.NumberOptions.set -> void
+NClap.Metadata.ArgumentBaseAttribute.Parser.get -> System.Type
+NClap.Metadata.ArgumentBaseAttribute.Parser.set -> void
+NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.AtLeastOnce = NClap.Metadata.ArgumentFlags.Required | NClap.Metadata.ArgumentFlags.Multiple -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.AtMostOnce = 0 -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.Multiple = 2 -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.MultipleUnique = NClap.Metadata.ArgumentFlags.Multiple | NClap.Metadata.ArgumentFlags.Unique -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.Optional = 16 -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.Required = 1 -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.RestOfLine = 8 -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentFlags.Unique = 4 -> NClap.Metadata.ArgumentFlags
+NClap.Metadata.ArgumentGroupAttribute
+NClap.Metadata.ArgumentGroupAttribute.ArgumentGroupAttribute() -> void
+NClap.Metadata.ArgumentNameGenerationFlags
+NClap.Metadata.ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames = 1 -> NClap.Metadata.ArgumentNameGenerationFlags
+NClap.Metadata.ArgumentNameGenerationFlags.PreferLowerCaseForShortNames = 2 -> NClap.Metadata.ArgumentNameGenerationFlags
+NClap.Metadata.ArgumentNameGenerationFlags.UseOriginalCodeSymbol = 0 -> NClap.Metadata.ArgumentNameGenerationFlags
+NClap.Metadata.ArgumentSetAttribute
+NClap.Metadata.ArgumentSetAttribute.AllowElidingSeparatorAfterShortName.get -> bool
+NClap.Metadata.ArgumentSetAttribute.AllowElidingSeparatorAfterShortName.set -> void
+NClap.Metadata.ArgumentSetAttribute.AllowMultipleShortNamesInOneToken.get -> bool
+NClap.Metadata.ArgumentSetAttribute.AllowMultipleShortNamesInOneToken.set -> void
+NClap.Metadata.ArgumentSetAttribute.AllowNamedArgumentValueAsSucceedingToken.get -> bool
+NClap.Metadata.ArgumentSetAttribute.AllowNamedArgumentValueAsSucceedingToken.set -> void
+NClap.Metadata.ArgumentSetAttribute.AnswerFileArgumentPrefix.get -> string
+NClap.Metadata.ArgumentSetAttribute.AnswerFileArgumentPrefix.set -> void
+NClap.Metadata.ArgumentSetAttribute.ArgumentSetAttribute() -> void
+NClap.Metadata.ArgumentSetAttribute.ArgumentValueSeparators.get -> char[]
+NClap.Metadata.ArgumentSetAttribute.ArgumentValueSeparators.set -> void
+NClap.Metadata.ArgumentSetAttribute.CaseSensitive.get -> bool
+NClap.Metadata.ArgumentSetAttribute.CaseSensitive.set -> void
+NClap.Metadata.ArgumentSetAttribute.Description.get -> string
+NClap.Metadata.ArgumentSetAttribute.Description.set -> void
+NClap.Metadata.ArgumentSetAttribute.Examples.get -> string[]
+NClap.Metadata.ArgumentSetAttribute.Examples.set -> void
+NClap.Metadata.ArgumentSetAttribute.Logo.get -> object
+NClap.Metadata.ArgumentSetAttribute.Logo.set -> void
+NClap.Metadata.ArgumentSetAttribute.LogoString.get -> NClap.Utilities.ColoredMultistring
+NClap.Metadata.ArgumentSetAttribute.NameGenerationFlags.get -> NClap.Metadata.ArgumentNameGenerationFlags
+NClap.Metadata.ArgumentSetAttribute.NameGenerationFlags.set -> void
+NClap.Metadata.ArgumentSetAttribute.NamedArgumentPrefixes.get -> string[]
+NClap.Metadata.ArgumentSetAttribute.NamedArgumentPrefixes.set -> void
+NClap.Metadata.ArgumentSetAttribute.PreferNamedArgumentValueAsSucceedingToken.get -> bool
+NClap.Metadata.ArgumentSetAttribute.PreferNamedArgumentValueAsSucceedingToken.set -> void
+NClap.Metadata.ArgumentSetAttribute.PublicMembersAreNamedArguments.get -> bool
+NClap.Metadata.ArgumentSetAttribute.PublicMembersAreNamedArguments.set -> void
+NClap.Metadata.ArgumentSetAttribute.ShortNameArgumentPrefixes.get -> string[]
+NClap.Metadata.ArgumentSetAttribute.ShortNameArgumentPrefixes.set -> void
+NClap.Metadata.ArgumentSetAttribute.ShortNamesAreOneCharacterLong.get -> bool
+NClap.Metadata.ArgumentSetAttribute.Style.get -> NClap.Metadata.ArgumentSetStyle
+NClap.Metadata.ArgumentSetAttribute.Style.set -> void
+NClap.Metadata.ArgumentSetStyle
+NClap.Metadata.ArgumentSetStyle.GetOpt = 3 -> NClap.Metadata.ArgumentSetStyle
+NClap.Metadata.ArgumentSetStyle.PowerShell = 2 -> NClap.Metadata.ArgumentSetStyle
+NClap.Metadata.ArgumentSetStyle.Unspecified = 0 -> NClap.Metadata.ArgumentSetStyle
+NClap.Metadata.ArgumentSetStyle.WindowsCommandLine = 1 -> NClap.Metadata.ArgumentSetStyle
+NClap.Metadata.ArgumentTypeAttribute
+NClap.Metadata.ArgumentTypeAttribute.ArgumentTypeAttribute() -> void
+NClap.Metadata.ArgumentTypeAttribute.DisplayName.get -> string
+NClap.Metadata.ArgumentTypeAttribute.DisplayName.set -> void
+NClap.Metadata.ArgumentValidationAttribute
+NClap.Metadata.ArgumentValidationAttribute.ArgumentValidationAttribute() -> void
+NClap.Metadata.ArgumentValidationContext
+NClap.Metadata.ArgumentValidationContext.ArgumentValidationContext(NClap.IFileSystemReader fileSystemReader) -> void
+NClap.Metadata.ArgumentValidationContext.FileSystemReader.get -> NClap.IFileSystemReader
+NClap.Metadata.ArgumentValueAttribute
+NClap.Metadata.ArgumentValueAttribute.ArgumentValueAttribute() -> void
+NClap.Metadata.ArgumentValueAttribute.Description.get -> string
+NClap.Metadata.ArgumentValueAttribute.Description.set -> void
+NClap.Metadata.ArgumentValueAttribute.Flags.get -> NClap.Metadata.ArgumentValueFlags
+NClap.Metadata.ArgumentValueAttribute.Flags.set -> void
+NClap.Metadata.ArgumentValueAttribute.LongName.get -> string
+NClap.Metadata.ArgumentValueAttribute.LongName.set -> void
+NClap.Metadata.ArgumentValueAttribute.ShortName.get -> string
+NClap.Metadata.ArgumentValueAttribute.ShortName.set -> void
+NClap.Metadata.ArgumentValueFlags
+NClap.Metadata.ArgumentValueFlags.Disallowed = 1 -> NClap.Metadata.ArgumentValueFlags
+NClap.Metadata.ArgumentValueFlags.Hidden = 2 -> NClap.Metadata.ArgumentValueFlags
+NClap.Metadata.ArgumentValueFlags.None = 0 -> NClap.Metadata.ArgumentValueFlags
+NClap.Metadata.Command
+NClap.Metadata.Command.Command() -> void
+NClap.Metadata.CommandAttribute
+NClap.Metadata.CommandAttribute.CommandAttribute() -> void
+NClap.Metadata.CommandAttribute.CommandAttribute(System.Type implementingType) -> void
+NClap.Metadata.CommandGroup<TCommandType>
+NClap.Metadata.CommandGroup<TCommandType>.CommandGroup() -> void
+NClap.Metadata.CommandGroup<TCommandType>.CommandGroup(TCommandType selection, object parentObject) -> void
+NClap.Metadata.CommandGroup<TCommandType>.Execute() -> NClap.Metadata.CommandResult
+NClap.Metadata.CommandGroup<TCommandType>.GetDestinationObject() -> object
+NClap.Metadata.CommandGroup<TCommandType>.GetTypeDefiningArguments() -> System.Type
+NClap.Metadata.CommandGroup<TCommandType>.HasSelection.get -> bool
+NClap.Metadata.CommandGroup<TCommandType>.Help.get -> bool
+NClap.Metadata.CommandGroup<TCommandType>.Help.set -> void
+NClap.Metadata.CommandGroup<TCommandType>.InstantiatedCommand.get -> NClap.Metadata.ICommand
+NClap.Metadata.CommandGroup<TCommandType>.Selection.get -> TCommandType?
+NClap.Metadata.CommandGroup<TCommandType>.Selection.set -> void
+NClap.Metadata.CommandResult
+NClap.Metadata.CommandResult.RuntimeFailure = 3 -> NClap.Metadata.CommandResult
+NClap.Metadata.CommandResult.Success = 0 -> NClap.Metadata.CommandResult
+NClap.Metadata.CommandResult.Terminate = 1 -> NClap.Metadata.CommandResult
+NClap.Metadata.CommandResult.UsageError = 2 -> NClap.Metadata.CommandResult
+NClap.Metadata.ExitCommand
+NClap.Metadata.ExitCommand.ExitCommand() -> void
+NClap.Metadata.FileSystemPathValidationAttribute
+NClap.Metadata.FileSystemPathValidationAttribute.FileSystemPathValidationAttribute() -> void
+NClap.Metadata.HelpArgumentsBase
+NClap.Metadata.HelpArgumentsBase.Help.get -> bool
+NClap.Metadata.HelpArgumentsBase.Help.set -> void
+NClap.Metadata.HelpArgumentsBase.HelpArgumentsBase() -> void
+NClap.Metadata.HelpCommand
+NClap.Metadata.HelpCommandAttribute
+NClap.Metadata.HelpCommandAttribute.HelpCommandAttribute() -> void
+NClap.Metadata.IArgumentSetWithHelp
+NClap.Metadata.IArgumentSetWithHelp.Help.get -> bool
+NClap.Metadata.IArgumentSetWithHelp.Help.set -> void
+NClap.Metadata.ICommand
+NClap.Metadata.ICommand.ExecuteAsync(System.Threading.CancellationToken cancel) -> System.Threading.Tasks.Task<NClap.Metadata.CommandResult>
+NClap.Metadata.ICommandGroup
+NClap.Metadata.ICommandGroup.HasSelection.get -> bool
+NClap.Metadata.ICommandGroup.InstantiatedCommand.get -> NClap.Metadata.ICommand
+NClap.Metadata.ICommandGroup.Selection.get -> object
+NClap.Metadata.IntegerComparisonValidationAttribute
+NClap.Metadata.IntegerComparisonValidationAttribute.IntegerComparisonValidationAttribute(object target) -> void
+NClap.Metadata.IntegerComparisonValidationAttribute.Target.get -> object
+NClap.Metadata.IntegerValidationAttribute
+NClap.Metadata.IntegerValidationAttribute.IntegerValidationAttribute() -> void
+NClap.Metadata.MustBeGreaterThanAttribute
+NClap.Metadata.MustBeGreaterThanAttribute.MustBeGreaterThanAttribute(object target) -> void
+NClap.Metadata.MustBeGreaterThanOrEqualToAttribute
+NClap.Metadata.MustBeGreaterThanOrEqualToAttribute.MustBeGreaterThanOrEqualToAttribute(object target) -> void
+NClap.Metadata.MustBeLessThanAttribute
+NClap.Metadata.MustBeLessThanAttribute.MustBeLessThanAttribute(object target) -> void
+NClap.Metadata.MustBeLessThanOrEqualToAttribute
+NClap.Metadata.MustBeLessThanOrEqualToAttribute.MustBeLessThanOrEqualToAttribute(object target) -> void
+NClap.Metadata.MustExistAttribute
+NClap.Metadata.MustExistAttribute.Exists.get -> NClap.Metadata.PathExists
+NClap.Metadata.MustExistAttribute.MustExistAttribute(NClap.Metadata.PathExists exists) -> void
+NClap.Metadata.MustMatchRegexAttribute
+NClap.Metadata.MustMatchRegexAttribute.MustMatchRegexAttribute(string pattern) -> void
+NClap.Metadata.MustMatchRegexAttribute.Options.get -> System.Text.RegularExpressions.RegexOptions
+NClap.Metadata.MustMatchRegexAttribute.Options.set -> void
+NClap.Metadata.MustMatchRegexAttribute.Pattern.get -> string
+NClap.Metadata.MustNotBeAttribute
+NClap.Metadata.MustNotBeAttribute.MustNotBeAttribute(object value) -> void
+NClap.Metadata.MustNotBeAttribute.Value.get -> object
+NClap.Metadata.MustNotBeEmptyAttribute
+NClap.Metadata.MustNotBeEmptyAttribute.MustNotBeEmptyAttribute() -> void
+NClap.Metadata.MustNotExistAttribute
+NClap.Metadata.MustNotExistAttribute.MustNotExistAttribute() -> void
+NClap.Metadata.MustNotMatchRegexAttribute
+NClap.Metadata.MustNotMatchRegexAttribute.MustNotMatchRegexAttribute(string pattern) -> void
+NClap.Metadata.MustNotMatchRegexAttribute.Options.get -> System.Text.RegularExpressions.RegexOptions
+NClap.Metadata.MustNotMatchRegexAttribute.Options.set -> void
+NClap.Metadata.MustNotMatchRegexAttribute.Pattern.get -> string
+NClap.Metadata.NamedArgumentAttribute
+NClap.Metadata.NamedArgumentAttribute.NamedArgumentAttribute() -> void
+NClap.Metadata.NamedArgumentAttribute.NamedArgumentAttribute(NClap.Metadata.ArgumentFlags flags) -> void
+NClap.Metadata.NamedArgumentAttribute.ShortName.get -> string
+NClap.Metadata.NamedArgumentAttribute.ShortName.set -> void
+NClap.Metadata.NumberOptions
+NClap.Metadata.NumberOptions.AllowBinaryMetricUnitSuffix = 2 -> NClap.Metadata.NumberOptions
+NClap.Metadata.NumberOptions.AllowMetricUnitSuffix = 1 -> NClap.Metadata.NumberOptions
+NClap.Metadata.NumberOptions.None = 0 -> NClap.Metadata.NumberOptions
+NClap.Metadata.PathExists
+NClap.Metadata.PathExists.AsDirectory = 2 -> NClap.Metadata.PathExists
+NClap.Metadata.PathExists.AsFile = 1 -> NClap.Metadata.PathExists
+NClap.Metadata.PathExists.AsFileOrDirectory = NClap.Metadata.PathExists.AsFile | NClap.Metadata.PathExists.AsDirectory -> NClap.Metadata.PathExists
+NClap.Metadata.PositionalArgumentAttribute
+NClap.Metadata.PositionalArgumentAttribute.Position.get -> int
+NClap.Metadata.PositionalArgumentAttribute.Position.set -> void
+NClap.Metadata.PositionalArgumentAttribute.PositionalArgumentAttribute() -> void
+NClap.Metadata.PositionalArgumentAttribute.PositionalArgumentAttribute(NClap.Metadata.ArgumentFlags flags) -> void
+NClap.Metadata.StringValidationAttribute
+NClap.Metadata.StringValidationAttribute.StringValidationAttribute() -> void
+NClap.Metadata.SynchronousCommand
+NClap.Metadata.SynchronousCommand.SynchronousCommand() -> void
+NClap.Metadata.UnimplementedCommand
+NClap.Metadata.UnimplementedCommand.UnimplementedCommand() -> void
+NClap.Parser.ArgumentDefinition
+NClap.Parser.ArgumentDefinition.AddConflictingArgument(NClap.Parser.ArgumentDefinition arg) -> void
+NClap.Parser.ArgumentDefinition.AllowMultiple.get -> bool
+NClap.Parser.ArgumentDefinition.ArgumentDefinition(System.Reflection.MemberInfo member, NClap.Metadata.ArgumentBaseAttribute attribute, NClap.Parser.ArgumentSetDefinition argSet, object defaultValue = null, NClap.Parser.ArgumentDefinition containingArgument = null) -> void
+NClap.Parser.ArgumentDefinition.ArgumentType.get -> NClap.Types.IArgumentType
+NClap.Parser.ArgumentDefinition.Attribute.get -> NClap.Metadata.ArgumentBaseAttribute
+NClap.Parser.ArgumentDefinition.ClearShortName() -> void
+NClap.Parser.ArgumentDefinition.CollectionArgumentType.get -> NClap.Types.ICollectionArgumentType
+NClap.Parser.ArgumentDefinition.ConflictingArgs.get -> System.Collections.Generic.IEnumerable<NClap.Parser.ArgumentDefinition>
+NClap.Parser.ArgumentDefinition.ContainingArgument.get -> NClap.Parser.ArgumentDefinition
+NClap.Parser.ArgumentDefinition.ContainingSet.get -> NClap.Parser.ArgumentSetDefinition
+NClap.Parser.ArgumentDefinition.DefaultValue.get -> object
+NClap.Parser.ArgumentDefinition.EffectiveDefaultValue.get -> object
+NClap.Parser.ArgumentDefinition.ExplicitShortName.get -> bool
+NClap.Parser.ArgumentDefinition.FixedDestination.get -> object
+NClap.Parser.ArgumentDefinition.Format(object value, bool suppressArgNames = false) -> System.Collections.Generic.IEnumerable<string>
+NClap.Parser.ArgumentDefinition.GetName(NClap.Parser.ArgumentNameType nameType) -> string
+NClap.Parser.ArgumentDefinition.GetSyntaxSummary(bool detailed = true) -> string
+NClap.Parser.ArgumentDefinition.GetValue(object containingValue) -> object
+NClap.Parser.ArgumentDefinition.HasDefaultValue.get -> bool
+NClap.Parser.ArgumentDefinition.Hidden.get -> bool
+NClap.Parser.ArgumentDefinition.IsCollection.get -> bool
+NClap.Parser.ArgumentDefinition.IsPositional.get -> bool
+NClap.Parser.ArgumentDefinition.IsRequired.get -> bool
+NClap.Parser.ArgumentDefinition.LongName.get -> string
+NClap.Parser.ArgumentDefinition.Member.get -> NClap.Utilities.IMutableMemberInfo
+NClap.Parser.ArgumentDefinition.RequiresOptionArgument.get -> bool
+NClap.Parser.ArgumentDefinition.ShortName.get -> string
+NClap.Parser.ArgumentDefinition.TakesRestOfLine.get -> bool
+NClap.Parser.ArgumentDefinition.Unique.get -> bool
+NClap.Parser.ArgumentDefinition.ValidationAttributes.get -> System.Collections.Generic.IReadOnlyList<NClap.Metadata.ArgumentValidationAttribute>
+NClap.Parser.ArgumentDefinition.ValueType.get -> NClap.Types.IArgumentType
+NClap.Parser.ArgumentNameType
+NClap.Parser.ArgumentNameType.LongName = 1 -> NClap.Parser.ArgumentNameType
+NClap.Parser.ArgumentNameType.ShortName = 0 -> NClap.Parser.ArgumentNameType
+NClap.Parser.ArgumentSetDefinition
+NClap.Parser.ArgumentSetDefinition.Add(NClap.Parser.ArgumentDefinition arg) -> void
+NClap.Parser.ArgumentSetDefinition.Add(System.Collections.Generic.IEnumerable<NClap.Parser.ArgumentDefinition> args) -> void
+NClap.Parser.ArgumentSetDefinition.AddAuxiliaryAttribute(NClap.Metadata.ArgumentSetAttribute attrib) -> void
+NClap.Parser.ArgumentSetDefinition.AllArguments.get -> System.Collections.Generic.IEnumerable<NClap.Parser.ArgumentDefinition>
+NClap.Parser.ArgumentSetDefinition.ArgumentSetDefinition(NClap.Metadata.ArgumentSetAttribute setAttribute = null) -> void
+NClap.Parser.ArgumentSetDefinition.Attribute.get -> NClap.Metadata.ArgumentSetAttribute
+NClap.Parser.ArgumentSetDefinition.DeepClone() -> NClap.Parser.ArgumentSetDefinition
+NClap.Parser.ArgumentSetDefinition.GetAllArgumentNames() -> System.Collections.Generic.IEnumerable<string>
+NClap.Parser.ArgumentSetDefinition.GetArgumentNames(NClap.Parser.ArgumentNameType nameType) -> System.Collections.Generic.IEnumerable<string>
+NClap.Parser.ArgumentSetDefinition.NamedArguments.get -> System.Collections.Generic.IEnumerable<NClap.Parser.ArgumentDefinition>
+NClap.Parser.ArgumentSetDefinition.PositionalArguments.get -> System.Collections.Generic.IEnumerable<NClap.Parser.ArgumentDefinition>
+NClap.Parser.ArgumentSetDefinition.TryGetNamedArgument(NClap.Parser.ArgumentNameType nameType, string name, out NClap.Parser.ArgumentDefinition arg) -> bool
+NClap.Parser.ArgumentSetDefinition.TryGetPositionalArgument(int position, out NClap.Parser.ArgumentDefinition arg) -> bool
+NClap.Repl.ILoopClient
+NClap.Repl.ILoopClient.DisplayPrompt() -> void
+NClap.Repl.ILoopClient.EndOfLineCommentCharacter.get -> char?
+NClap.Repl.ILoopClient.OnError(string message) -> void
+NClap.Repl.ILoopClient.Prompt.get -> string
+NClap.Repl.ILoopClient.Prompt.set -> void
+NClap.Repl.ILoopClient.ReadLine() -> string
+NClap.Repl.ILoopClient.TokenCompleter.get -> NClap.ConsoleInput.ITokenCompleter
+NClap.Repl.ILoopClient.TokenCompleter.set -> void
+NClap.Repl.Loop
+NClap.Repl.Loop.Execute() -> void
+NClap.Repl.Loop.ExecuteOnce() -> NClap.Metadata.CommandResult
+NClap.Repl.Loop.Loop(System.Type commandType, NClap.Repl.ILoopClient loopClient, NClap.Metadata.ArgumentSetAttribute argSetAttribute = null) -> void
+NClap.Repl.Loop.Loop(System.Type commandType, NClap.Repl.LoopInputOutputParameters parameters = null, NClap.Metadata.ArgumentSetAttribute argSetAttribute = null) -> void
+NClap.Repl.LoopInputOutputParameters
+NClap.Repl.LoopInputOutputParameters.ConsoleInput.get -> NClap.ConsoleInput.IConsoleInput
+NClap.Repl.LoopInputOutputParameters.ConsoleInput.set -> void
+NClap.Repl.LoopInputOutputParameters.ConsoleOutput.get -> NClap.ConsoleInput.IConsoleOutput
+NClap.Repl.LoopInputOutputParameters.ConsoleOutput.set -> void
+NClap.Repl.LoopInputOutputParameters.EndOfLineCommentCharacter.get -> char?
+NClap.Repl.LoopInputOutputParameters.EndOfLineCommentCharacter.set -> void
+NClap.Repl.LoopInputOutputParameters.KeyBindingSet.get -> NClap.ConsoleInput.IReadOnlyConsoleKeyBindingSet
+NClap.Repl.LoopInputOutputParameters.KeyBindingSet.set -> void
+NClap.Repl.LoopInputOutputParameters.LineInput.get -> NClap.ConsoleInput.IConsoleLineInput
+NClap.Repl.LoopInputOutputParameters.LineInput.set -> void
+NClap.Repl.LoopInputOutputParameters.LoopInputOutputParameters() -> void
+NClap.Repl.LoopInputOutputParameters.Prompt.get -> NClap.Utilities.ColoredString?
+NClap.Repl.LoopInputOutputParameters.Prompt.set -> void
+NClap.Types.ArgumentCompletionContext
+NClap.Types.ArgumentCompletionContext.ArgumentCompletionContext() -> void
+NClap.Types.ArgumentCompletionContext.CaseSensitive.get -> bool
+NClap.Types.ArgumentCompletionContext.CaseSensitive.set -> void
+NClap.Types.ArgumentCompletionContext.InProgressParsedObject.get -> object
+NClap.Types.ArgumentCompletionContext.InProgressParsedObject.set -> void
+NClap.Types.ArgumentCompletionContext.ParseContext.get -> NClap.Types.ArgumentParseContext
+NClap.Types.ArgumentCompletionContext.ParseContext.set -> void
+NClap.Types.ArgumentCompletionContext.TokenIndex.get -> int
+NClap.Types.ArgumentCompletionContext.TokenIndex.set -> void
+NClap.Types.ArgumentCompletionContext.Tokens.get -> System.Collections.Generic.IReadOnlyList<string>
+NClap.Types.ArgumentCompletionContext.Tokens.set -> void
+NClap.Types.ArgumentParseContext
+NClap.Types.ArgumentParseContext.AllowEmpty.get -> bool
+NClap.Types.ArgumentParseContext.AllowEmpty.set -> void
+NClap.Types.ArgumentParseContext.ArgumentParseContext() -> void
+NClap.Types.ArgumentParseContext.CaseSensitive.get -> bool
+NClap.Types.ArgumentParseContext.CaseSensitive.set -> void
+NClap.Types.ArgumentParseContext.ContainingObject.get -> object
+NClap.Types.ArgumentParseContext.ContainingObject.set -> void
+NClap.Types.ArgumentParseContext.ElementSeparators.get -> System.Collections.Generic.IReadOnlyList<string>
+NClap.Types.ArgumentParseContext.ElementSeparators.set -> void
+NClap.Types.ArgumentParseContext.FileSystemReader.get -> NClap.IFileSystemReader
+NClap.Types.ArgumentParseContext.FileSystemReader.set -> void
+NClap.Types.ArgumentParseContext.NumberOptions.get -> NClap.Metadata.NumberOptions
+NClap.Types.ArgumentParseContext.NumberOptions.set -> void
+NClap.Types.ArgumentParseContext.ParserContext.get -> object
+NClap.Types.ArgumentParseContext.ParserContext.set -> void
+NClap.Types.ArgumentType
+NClap.Types.ArgumentTypeExtension
+NClap.Types.ArgumentTypeExtension.ArgumentTypeExtension(NClap.Types.IArgumentType innerType, NClap.Types.IStringParser parser = null, NClap.Types.IObjectFormatter formatter = null, NClap.Types.IStringCompleter completer = null) -> void
+NClap.Types.ArgumentTypeExtension.ArgumentTypeExtension(System.Type type, NClap.Types.IStringParser parser = null, NClap.Types.IObjectFormatter formatter = null, NClap.Types.IStringCompleter completer = null) -> void
+NClap.Types.ArgumentTypeExtension.InnerType.get -> NClap.Types.IArgumentType
+NClap.Types.CustomArgumentTypeBase
+NClap.Types.CustomArgumentTypeBase.CustomArgumentTypeBase() -> void
+NClap.Types.CustomArgumentTypeBase.DisplayName.get -> string
+NClap.Types.CustomArgumentTypeBase.Type.get -> System.Type
+NClap.Types.FileSystemPath
+NClap.Types.FileSystemPath.Equals(NClap.Types.FileSystemPath other) -> bool
+NClap.Types.FileSystemPath.FileSystemPath(string path) -> void
+NClap.Types.FileSystemPath.FileSystemPath(string path, bool expandEnvironmentVariables) -> void
+NClap.Types.FileSystemPath.FileSystemPath(string path, bool expandEnvironmentVariables, string rootPathForRelativePaths) -> void
+NClap.Types.FileSystemPath.OriginalPath.get -> string
+NClap.Types.FileSystemPath.Path.get -> string
+NClap.Types.IArgumentType
+NClap.Types.IArgumentType.DependentTypes.get -> System.Collections.Generic.IEnumerable<NClap.Types.IArgumentType>
+NClap.Types.IArgumentType.DisplayName.get -> string
+NClap.Types.IArgumentType.SyntaxSummary.get -> string
+NClap.Types.IArgumentType.Type.get -> System.Type
+NClap.Types.IArgumentValue
+NClap.Types.IArgumentValue.Description.get -> string
+NClap.Types.IArgumentValue.Disallowed.get -> bool
+NClap.Types.IArgumentValue.DisplayName.get -> string
+NClap.Types.IArgumentValue.Hidden.get -> bool
+NClap.Types.IArgumentValue.LongName.get -> string
+NClap.Types.IArgumentValue.ShortName.get -> string
+NClap.Types.IArgumentValue.Value.get -> object
+NClap.Types.ICollectionArgumentType
+NClap.Types.ICollectionArgumentType.ElementType.get -> NClap.Types.IArgumentType
+NClap.Types.ICollectionArgumentType.ToCollection(System.Collections.IEnumerable objects) -> object
+NClap.Types.ICollectionArgumentType.ToEnumerable(object collection) -> System.Collections.IEnumerable
+NClap.Types.IEnumArgumentType
+NClap.Types.IEnumArgumentType.GetValues() -> System.Collections.Generic.IEnumerable<NClap.Types.IArgumentValue>
+NClap.Types.IEnumArgumentType.TryGetValue(object value, out NClap.Types.IArgumentValue argValue) -> bool
+NClap.Types.IObjectFormatter
+NClap.Types.IObjectFormatter.Format(object value) -> string
+NClap.Types.IStringCompleter
+NClap.Types.IStringCompleter.GetCompletions(NClap.Types.ArgumentCompletionContext context, string valueToComplete) -> System.Collections.Generic.IEnumerable<string>
+NClap.Types.IStringParser
+NClap.Types.IStringParser.TryParse(NClap.Types.ArgumentParseContext context, string stringToParse, out object value) -> bool
+NClap.Utilities.ColoredMultistring
+NClap.Utilities.ColoredMultistring.ColoredMultistring(NClap.Utilities.ColoredString value) -> void
+NClap.Utilities.ColoredMultistring.ColoredMultistring(System.Collections.Generic.IEnumerable<NClap.Utilities.ColoredString> values) -> void
+NClap.Utilities.ColoredMultistring.Content.get -> System.Collections.Generic.IReadOnlyList<NClap.Utilities.ColoredString>
+NClap.Utilities.ColoredMultistring.CreateNewBuilder() -> NClap.Utilities.IStringBuilder
+NClap.Utilities.ColoredMultistring.IsEmpty() -> bool
+NClap.Utilities.ColoredMultistring.LastIndexOfAny(char[] chars, int startIndex, int count) -> int
+NClap.Utilities.ColoredMultistring.Length.get -> int
+NClap.Utilities.ColoredMultistring.Replace(string pattern, string replacement) -> NClap.Utilities.IString
+NClap.Utilities.ColoredMultistring.Split(char separator, System.StringSplitOptions options = System.StringSplitOptions.None) -> System.Collections.Generic.IEnumerable<NClap.Utilities.IString>
+NClap.Utilities.ColoredMultistring.Substring(int startIndex, int length) -> NClap.Utilities.IString
+NClap.Utilities.ColoredMultistring.TrimEnd() -> NClap.Utilities.IString
+NClap.Utilities.ColoredMultistring.this[int index].get -> char
+NClap.Utilities.ColoredMultistringBuilder
+NClap.Utilities.ColoredMultistringBuilder.Append(NClap.Utilities.ColoredMultistring value) -> void
+NClap.Utilities.ColoredMultistringBuilder.Append(NClap.Utilities.ColoredString value) -> void
+NClap.Utilities.ColoredMultistringBuilder.Append(NClap.Utilities.IString s) -> void
+NClap.Utilities.ColoredMultistringBuilder.Append(System.Collections.Generic.IEnumerable<NClap.Utilities.ColoredMultistring> values) -> void
+NClap.Utilities.ColoredMultistringBuilder.Append(System.Collections.Generic.IEnumerable<NClap.Utilities.ColoredString> values) -> void
+NClap.Utilities.ColoredMultistringBuilder.Append(char c, int count) -> void
+NClap.Utilities.ColoredMultistringBuilder.Append(string s) -> void
+NClap.Utilities.ColoredMultistringBuilder.AppendLine() -> void
+NClap.Utilities.ColoredMultistringBuilder.AppendLine(NClap.Utilities.ColoredMultistring value) -> void
+NClap.Utilities.ColoredMultistringBuilder.AppendLine(NClap.Utilities.ColoredString value) -> void
+NClap.Utilities.ColoredMultistringBuilder.AppendLine(System.Collections.Generic.IEnumerable<NClap.Utilities.ColoredMultistring> values) -> void
+NClap.Utilities.ColoredMultistringBuilder.AppendLine(System.Collections.Generic.IEnumerable<NClap.Utilities.ColoredString> values) -> void
+NClap.Utilities.ColoredMultistringBuilder.Clear() -> void
+NClap.Utilities.ColoredMultistringBuilder.ColoredMultistringBuilder() -> void
+NClap.Utilities.ColoredMultistringBuilder.CopyTo(int startingIndex, char[] buffer, int outputOffset, int count) -> void
+NClap.Utilities.ColoredMultistringBuilder.Generate() -> NClap.Utilities.IString
+NClap.Utilities.ColoredMultistringBuilder.Insert(int index, NClap.Utilities.ColoredString s) -> void
+NClap.Utilities.ColoredMultistringBuilder.Insert(int index, char c) -> void
+NClap.Utilities.ColoredMultistringBuilder.Insert(int index, string s) -> void
+NClap.Utilities.ColoredMultistringBuilder.Length.get -> int
+NClap.Utilities.ColoredMultistringBuilder.Remove(int index, int count) -> void
+NClap.Utilities.ColoredMultistringBuilder.ToMultistring() -> NClap.Utilities.ColoredMultistring
+NClap.Utilities.ColoredMultistringBuilder.Truncate(int newLength) -> void
+NClap.Utilities.ColoredMultistringBuilder.this[int index].get -> char
+NClap.Utilities.ColoredMultistringBuilder.this[int index].set -> void
+NClap.Utilities.ColoredString
+NClap.Utilities.ColoredString.BackgroundColor.get -> System.ConsoleColor?
+NClap.Utilities.ColoredString.ColoredString(string content) -> void
+NClap.Utilities.ColoredString.ColoredString(string content, NClap.Utilities.TextColor color) -> void
+NClap.Utilities.ColoredString.ColoredString(string content, NClap.Utilities.TextColor? color) -> void
+NClap.Utilities.ColoredString.ColoredString(string content, System.ConsoleColor? foregroundColor) -> void
+NClap.Utilities.ColoredString.ColoredString(string content, System.ConsoleColor? foregroundColor, System.ConsoleColor? backgroundColor) -> void
+NClap.Utilities.ColoredString.Content.get -> string
+NClap.Utilities.ColoredString.Equals(NClap.Utilities.ColoredString other) -> bool
+NClap.Utilities.ColoredString.Equals(NClap.Utilities.ColoredString value, System.StringComparison comparisonType) -> bool
+NClap.Utilities.ColoredString.ForegroundColor.get -> System.ConsoleColor?
+NClap.Utilities.ColoredString.IsEmpty() -> bool
+NClap.Utilities.ColoredString.IsSameColorAs(NClap.Utilities.ColoredString value) -> bool
+NClap.Utilities.ColoredString.Length.get -> int
+NClap.Utilities.ColoredString.this[int index].get -> char
+NClap.Utilities.ColoredStringBuilder
+NClap.Utilities.ColoredStringBuilder.ColoredStringBuilder() -> void
+NClap.Utilities.ColoredStringExtensionMethods
+NClap.Utilities.FluentBuilder<TState>
+NClap.Utilities.FluentBuilder<TState>.AddTransformer(System.Action<TState> transformer) -> void
+NClap.Utilities.FluentBuilder<TState>.Apply() -> TState
+NClap.Utilities.FluentBuilder<TState>.FluentBuilder(TState startingState) -> void
+NClap.Utilities.IDeepCloneable<T>
+NClap.Utilities.IDeepCloneable<T>.DeepClone() -> T
+NClap.Utilities.IMutableMemberInfo
+NClap.Utilities.IMutableMemberInfo.GetValue(object containingObject) -> object
+NClap.Utilities.IMutableMemberInfo.IsReadable.get -> bool
+NClap.Utilities.IMutableMemberInfo.IsWritable.get -> bool
+NClap.Utilities.IMutableMemberInfo.MemberInfo.get -> System.Reflection.MemberInfo
+NClap.Utilities.IMutableMemberInfo.MemberType.get -> System.Type
+NClap.Utilities.IMutableMemberInfo.SetValue(object containingObject, object value) -> void
+NClap.Utilities.IString
+NClap.Utilities.IString.CreateNewBuilder() -> NClap.Utilities.IStringBuilder
+NClap.Utilities.IString.LastIndexOfAny(char[] chars, int startIndex, int count) -> int
+NClap.Utilities.IString.Length.get -> int
+NClap.Utilities.IString.Replace(string pattern, string replacement) -> NClap.Utilities.IString
+NClap.Utilities.IString.Split(char separator, System.StringSplitOptions options = System.StringSplitOptions.None) -> System.Collections.Generic.IEnumerable<NClap.Utilities.IString>
+NClap.Utilities.IString.Substring(int startIndex, int length) -> NClap.Utilities.IString
+NClap.Utilities.IString.TrimEnd() -> NClap.Utilities.IString
+NClap.Utilities.IString.this[int index].get -> char
+NClap.Utilities.IStringBuilder
+NClap.Utilities.IStringBuilder.Append(NClap.Utilities.IString s) -> void
+NClap.Utilities.IStringBuilder.Append(char c, int count) -> void
+NClap.Utilities.IStringBuilder.Append(string s) -> void
+NClap.Utilities.IStringBuilder.Clear() -> void
+NClap.Utilities.IStringBuilder.CopyTo(int startingIndex, char[] buffer, int outputOffset, int count) -> void
+NClap.Utilities.IStringBuilder.Generate() -> NClap.Utilities.IString
+NClap.Utilities.IStringBuilder.Insert(int index, char c) -> void
+NClap.Utilities.IStringBuilder.Insert(int index, string s) -> void
+NClap.Utilities.IStringBuilder.Length.get -> int
+NClap.Utilities.IStringBuilder.Remove(int index, int count) -> void
+NClap.Utilities.IStringBuilder.Truncate(int newLength) -> void
+NClap.Utilities.IStringBuilder.this[int index].get -> char
+NClap.Utilities.IStringBuilder.this[int index].set -> void
+NClap.Utilities.Substring
+NClap.Utilities.Substring.Base.get -> string
+NClap.Utilities.Substring.Contains(System.Func<char, bool> func) -> bool
+NClap.Utilities.Substring.Contains(char value) -> bool
+NClap.Utilities.Substring.EndingOffset.get -> int
+NClap.Utilities.Substring.Equals(NClap.Utilities.Substring other) -> bool
+NClap.Utilities.Substring.IndexOf(char value) -> int
+NClap.Utilities.Substring.Length.get -> int
+NClap.Utilities.Substring.StartingOffset.get -> int
+NClap.Utilities.Substring.Substring(NClap.Utilities.Substring substring, int startingOffset) -> void
+NClap.Utilities.Substring.Substring(NClap.Utilities.Substring substring, int startingOffset, int length) -> void
+NClap.Utilities.Substring.Substring(string value, int startingOffset) -> void
+NClap.Utilities.Substring.Substring(string value, int startingOffset, int length) -> void
+NClap.Utilities.TextColor
+NClap.Utilities.TextColor.Background.get -> System.ConsoleColor?
+NClap.Utilities.TextColor.Background.set -> void
+NClap.Utilities.TextColor.Equals(NClap.Utilities.TextColor other) -> bool
+NClap.Utilities.TextColor.Foreground.get -> System.ConsoleColor?
+NClap.Utilities.TextColor.Foreground.set -> void
+NClap.Utilities.TextColor.TextColor() -> void
+NClap.Utilities.Token
+NClap.Utilities.Token.Contents.get -> NClap.Utilities.Substring
+NClap.Utilities.Token.EndsWithQuote.get -> bool
+NClap.Utilities.Token.Equals(NClap.Utilities.Token other) -> bool
+NClap.Utilities.Token.InnerEndingOffset.get -> int
+NClap.Utilities.Token.InnerLength.get -> int
+NClap.Utilities.Token.InnerStartingOffset.get -> int
+NClap.Utilities.Token.OuterEndingOffset.get -> int
+NClap.Utilities.Token.OuterLength.get -> int
+NClap.Utilities.Token.OuterStartingOffset.get -> int
+NClap.Utilities.Token.StartsWithQuote.get -> bool
+NClap.Utilities.Token.Token(NClap.Utilities.Substring contents) -> void
+NClap.Utilities.Token.Token(NClap.Utilities.Substring contents, bool startsWithQuote, bool endsWithQuote) -> void
+abstract NClap.Help.ArgumentHelpLayout.DeepClone() -> NClap.Help.ArgumentHelpLayout
+abstract NClap.Metadata.ArgumentValidationAttribute.AcceptsType(NClap.Types.IArgumentType type) -> bool
+abstract NClap.Metadata.ArgumentValidationAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+abstract NClap.Metadata.SynchronousCommand.Execute() -> NClap.Metadata.CommandResult
+abstract NClap.Types.CustomArgumentTypeBase.TryParse(NClap.Types.ArgumentParseContext context, string stringToParse, out object value) -> bool
+const NClap.Help.ArgumentSetHelpOptions.DefaultBlockIndent = 4 -> int
+const NClap.Help.ArgumentSetHelpOptions.DefaultHangingIndent = 4 -> int
+const NClap.Help.ArgumentSetHelpOptions.DefaultMaxWidth = 80 -> int
+override NClap.Exceptions.InvalidArgumentSetException.Message.get -> string
+override NClap.Help.ArgumentEnumValueHelpOptions.DeepClone() -> NClap.Help.ArgumentMetadataHelpOptions
+override NClap.Help.ArgumentSyntaxHelpOptions.DeepClone() -> NClap.Help.ArgumentMetadataHelpOptions
+override NClap.Help.OneColumnArgumentHelpLayout.DeepClone() -> NClap.Help.ArgumentHelpLayout
+override NClap.Help.TwoColumnArgumentHelpLayout.DeepClone() -> NClap.Help.ArgumentHelpLayout
+override NClap.Metadata.CommandGroup<TCommandType>.ExecuteAsync(System.Threading.CancellationToken cancel) -> System.Threading.Tasks.Task<NClap.Metadata.CommandResult>
+override NClap.Metadata.ExitCommand.Execute() -> NClap.Metadata.CommandResult
+override NClap.Metadata.HelpCommandAttribute.GetImplementingType(System.Type commandType) -> System.Type
+override NClap.Metadata.MustBeGreaterThanAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustBeGreaterThanOrEqualToAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustBeLessThanAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustBeLessThanOrEqualToAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustExistAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustMatchRegexAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustNotBeAttribute.AcceptsType(NClap.Types.IArgumentType type) -> bool
+override NClap.Metadata.MustNotBeAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustNotBeEmptyAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustNotExistAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.MustNotMatchRegexAttribute.TryValidate(NClap.Metadata.ArgumentValidationContext context, object value, out string reason) -> bool
+override NClap.Metadata.SynchronousCommand.ExecuteAsync(System.Threading.CancellationToken cancel) -> System.Threading.Tasks.Task<NClap.Metadata.CommandResult>
+override NClap.Metadata.UnimplementedCommand.Execute() -> NClap.Metadata.CommandResult
+override NClap.Parser.ArgumentDefinition.ToString() -> string
+override NClap.Types.FileSystemPath.Equals(object obj) -> bool
+override NClap.Types.FileSystemPath.GetHashCode() -> int
+override NClap.Types.FileSystemPath.ToString() -> string
+override NClap.Utilities.ColoredMultistring.ToString() -> string
+override NClap.Utilities.ColoredMultistringBuilder.ToString() -> string
+override NClap.Utilities.ColoredString.Equals(object obj) -> bool
+override NClap.Utilities.ColoredString.GetHashCode() -> int
+override NClap.Utilities.ColoredString.ToString() -> string
+override NClap.Utilities.Substring.Equals(object obj) -> bool
+override NClap.Utilities.Substring.GetHashCode() -> int
+override NClap.Utilities.Substring.ToString() -> string
+override NClap.Utilities.TextColor.Equals(object obj) -> bool
+override NClap.Utilities.TextColor.GetHashCode() -> int
+override NClap.Utilities.Token.Equals(object obj) -> bool
+override NClap.Utilities.Token.GetHashCode() -> int
+override NClap.Utilities.Token.ToString() -> string
+override sealed NClap.Metadata.FileSystemPathValidationAttribute.AcceptsType(NClap.Types.IArgumentType type) -> bool
+override sealed NClap.Metadata.IntegerValidationAttribute.AcceptsType(NClap.Types.IArgumentType type) -> bool
+override sealed NClap.Metadata.StringValidationAttribute.AcceptsType(NClap.Types.IArgumentType type) -> bool
+readonly NClap.Types.ArgumentTypeExtension.Completer -> NClap.Types.IStringCompleter
+readonly NClap.Types.ArgumentTypeExtension.Formatter -> NClap.Types.IObjectFormatter
+readonly NClap.Types.ArgumentTypeExtension.Parser -> NClap.Types.IStringParser
+static NClap.CommandLineParser.DefaultReporter.get -> NClap.ErrorReporter
+static NClap.CommandLineParser.Format<T>(T value) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetCompletions(System.Type type, System.Collections.Generic.IEnumerable<string> tokens, int indexOfTokenToComplete) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetCompletions(System.Type type, System.Collections.Generic.IEnumerable<string> tokens, int indexOfTokenToComplete, NClap.CommandLineParserOptions options) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetCompletions(System.Type type, System.Collections.Generic.IEnumerable<string> tokens, int indexOfTokenToComplete, NClap.CommandLineParserOptions options, System.Func<object> destObjectFactory) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetLogo() -> string
+static NClap.CommandLineParser.GetUsageInfo(System.Type type, NClap.Help.ArgumentSetHelpOptions options = null, object defaultValues = null) -> NClap.Utilities.ColoredMultistring
+static NClap.CommandLineParser.TryParse<T>(System.Collections.Generic.IEnumerable<string> arguments, NClap.CommandLineParserOptions options, out T result) -> bool
+static NClap.CommandLineParser.TryParse<T>(System.Collections.Generic.IEnumerable<string> arguments, T destination, NClap.CommandLineParserOptions options) -> bool
+static NClap.CommandLineParser.TryParse<T>(System.Collections.Generic.IEnumerable<string> arguments, out T result) -> bool
+static NClap.CommandLineParserOptions.Quiet() -> NClap.CommandLineParserOptions
+static NClap.ConsoleInput.ConsoleKeyBindingSet.CreateDefaultSet() -> NClap.ConsoleInput.ConsoleKeyBindingSet
+static NClap.ConsoleInput.ConsoleKeyBindingSet.Default.get -> NClap.ConsoleInput.IReadOnlyConsoleKeyBindingSet
+static NClap.ConsoleInput.ConsoleUtilities.ReadLine() -> string
+static NClap.Help.ArgumentSetHelpOptionsExtensions.BlankLinesBetweenArguments(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, int blankLineCount = 1) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.Color(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, bool useColor) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.ColumnSeparator(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, string defaultSeparator, string firstLineSeparator = null) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.ColumnWidths(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, params int[] widths) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.DefaultValues(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, NClap.Help.ArgumentDefaultValueHelpMode mode) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.MaxWidth(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, int maxWidth) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.OneColumnLayout(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.ShortNames(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, NClap.Help.ArgumentShortNameHelpMode mode) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.TwoColumnLayout(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Help.ArgumentSetHelpOptionsExtensions.With(this NClap.Help.ArgumentSetHelpOptions options) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Metadata.HelpCommand.DefaultHelpOptions.get -> NClap.Help.ArgumentSetHelpOptions
+static NClap.Metadata.HelpCommand.DefaultHelpOptions.set -> void
+static NClap.Metadata.HelpCommand.OutputHandler.get -> System.Action<NClap.Utilities.ColoredMultistring>
+static NClap.Metadata.HelpCommand.OutputHandler.set -> void
+static NClap.Metadata.StringValidationAttribute.GetString(object value) -> string
+static NClap.Repl.Loop.CreateClient(NClap.Repl.LoopInputOutputParameters parameters) -> NClap.Repl.ILoopClient
+static NClap.Types.ArgumentParseContext.Default.get -> NClap.Types.ArgumentParseContext
+static NClap.Types.ArgumentType.Bool.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Boolean.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Byte.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Char.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.DateTime.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Decimal.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Double.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.FileSystemPath.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Float.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.GetType(System.Type type) -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Guid.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Int.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Int16.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Int32.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Int64.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Int8.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.IpAddress.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Long.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Regex.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.SByte.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Short.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Single.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.String.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.TimeSpan.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.TryGetType(System.Type type, out NClap.Types.IArgumentType argType) -> bool
+static NClap.Types.ArgumentType.UInt.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.UInt16.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.UInt32.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.UInt64.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.UInt8.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.ULong.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.UShort.get -> NClap.Types.IArgumentType
+static NClap.Types.ArgumentType.Uri.get -> NClap.Types.IArgumentType
+static NClap.Types.FileSystemPath.ArePathsCaseSensitive() -> bool
+static NClap.Types.FileSystemPath.FromString(string path) -> NClap.Types.FileSystemPath
+static NClap.Types.FileSystemPath.GetCompletions(NClap.Types.ArgumentCompletionContext context, string pathPrefix) -> System.Collections.Generic.IEnumerable<string>
+static NClap.Types.FileSystemPath.implicit operator NClap.Types.FileSystemPath(string path) -> NClap.Types.FileSystemPath
+static NClap.Types.FileSystemPath.implicit operator string(NClap.Types.FileSystemPath path) -> string
+static NClap.Utilities.ColoredMultistring.Empty.get -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredMultistring.FromString(string value) -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredMultistring.explicit operator NClap.Utilities.ColoredMultistring(NClap.Utilities.ColoredString value) -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredMultistring.explicit operator NClap.Utilities.ColoredMultistring(string value) -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredMultistring.explicit operator string(NClap.Utilities.ColoredMultistring value) -> string
+static NClap.Utilities.ColoredMultistring.operator +(NClap.Utilities.ColoredMultistring prefix, NClap.Utilities.ColoredMultistring suffix) -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredMultistring.operator +(NClap.Utilities.ColoredMultistring value, NClap.Utilities.ColoredString suffix) -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredMultistring.operator +(NClap.Utilities.ColoredString prefix, NClap.Utilities.ColoredMultistring value) -> NClap.Utilities.ColoredMultistring
+static NClap.Utilities.ColoredString.Empty.get -> NClap.Utilities.ColoredString
+static NClap.Utilities.ColoredString.FromString(string value) -> NClap.Utilities.ColoredString
+static NClap.Utilities.ColoredString.implicit operator NClap.Utilities.ColoredString(string value) -> NClap.Utilities.ColoredString
+static NClap.Utilities.ColoredString.implicit operator string(NClap.Utilities.ColoredString value) -> string
+static NClap.Utilities.ColoredString.operator !=(NClap.Utilities.ColoredString value, NClap.Utilities.ColoredString otherValue) -> bool
+static NClap.Utilities.ColoredString.operator ==(NClap.Utilities.ColoredString value, NClap.Utilities.ColoredString otherValue) -> bool
+static NClap.Utilities.ColoredStringExtensionMethods.Substring(this NClap.Utilities.ColoredString s, int startIndex) -> NClap.Utilities.ColoredString
+static NClap.Utilities.ColoredStringExtensionMethods.Substring(this NClap.Utilities.ColoredString s, int startIndex, int length) -> NClap.Utilities.ColoredString
+static NClap.Utilities.ColoredStringExtensionMethods.Transform(this NClap.Utilities.ColoredString s, System.Func<string, string> func) -> NClap.Utilities.ColoredString
+static NClap.Utilities.ColoredStringExtensionMethods.WithContent(this NClap.Utilities.ColoredString s, string newContent) -> NClap.Utilities.ColoredString
+static NClap.Utilities.FluentBuilder<TState>.implicit operator NClap.Utilities.FluentBuilder<TState>(TState state) -> NClap.Utilities.FluentBuilder<TState>
+static NClap.Utilities.FluentBuilder<TState>.implicit operator TState(NClap.Utilities.FluentBuilder<TState> builder) -> TState
+static NClap.Utilities.Substring.operator !=(NClap.Utilities.Substring value, NClap.Utilities.Substring otherValue) -> bool
+static NClap.Utilities.Substring.operator ==(NClap.Utilities.Substring value, NClap.Utilities.Substring otherValue) -> bool
+static NClap.Utilities.TextColor.operator !=(NClap.Utilities.TextColor left, NClap.Utilities.TextColor right) -> bool
+static NClap.Utilities.TextColor.operator ==(NClap.Utilities.TextColor left, NClap.Utilities.TextColor right) -> bool
+static NClap.Utilities.Token.operator !=(NClap.Utilities.Token value, NClap.Utilities.Token otherValue) -> bool
+static NClap.Utilities.Token.operator ==(NClap.Utilities.Token value, NClap.Utilities.Token otherValue) -> bool
+virtual NClap.Help.ArgumentMetadataHelpOptions.DeepClone() -> NClap.Help.ArgumentMetadataHelpOptions
+virtual NClap.Metadata.Command.ExecuteAsync(System.Threading.CancellationToken cancel) -> System.Threading.Tasks.Task<NClap.Metadata.CommandResult>
+virtual NClap.Metadata.CommandAttribute.GetImplementingType(System.Type commandType) -> System.Type
+virtual NClap.Types.ArgumentTypeExtension.DependentTypes.get -> System.Collections.Generic.IEnumerable<NClap.Types.IArgumentType>
+virtual NClap.Types.ArgumentTypeExtension.DisplayName.get -> string
+virtual NClap.Types.ArgumentTypeExtension.Format(object value) -> string
+virtual NClap.Types.ArgumentTypeExtension.GetCompletions(NClap.Types.ArgumentCompletionContext context, string valueToComplete) -> System.Collections.Generic.IEnumerable<string>
+virtual NClap.Types.ArgumentTypeExtension.SyntaxSummary.get -> string
+virtual NClap.Types.ArgumentTypeExtension.TryParse(NClap.Types.ArgumentParseContext context, string stringToParse, out object value) -> bool
+virtual NClap.Types.ArgumentTypeExtension.Type.get -> System.Type
+virtual NClap.Types.CustomArgumentTypeBase.DependentTypes.get -> System.Collections.Generic.IEnumerable<NClap.Types.IArgumentType>
+virtual NClap.Types.CustomArgumentTypeBase.Format(object value) -> string
+virtual NClap.Types.CustomArgumentTypeBase.GetCompletions(NClap.Types.ArgumentCompletionContext context, string valueToComplete) -> System.Collections.Generic.IEnumerable<string>
+virtual NClap.Types.CustomArgumentTypeBase.SyntaxSummary.get -> string

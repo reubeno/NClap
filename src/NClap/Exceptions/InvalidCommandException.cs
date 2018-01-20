@@ -49,7 +49,7 @@ namespace NClap.Exceptions
         public InvalidCommandException(string message, Exception innerException) : this(null, null, message, innerException)
         {
         }
-        
+
         /// <summary>
         /// Standard constructor.
         /// </summary>

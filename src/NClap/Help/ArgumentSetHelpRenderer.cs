@@ -11,17 +11,58 @@ namespace NClap.Help
     /// <summary>
     /// Help formatter.
     /// </summary>
-    internal class ArgumentSetHelpRenderer
+    internal sealed class ArgumentSetHelpRenderer
     {
+        private static readonly ArgumentSetHelpSectionType[] DefaultSectionOrdering = new[]
+        {
+            ArgumentSetHelpSectionType.Logo,
+            ArgumentSetHelpSectionType.Syntax,
+            ArgumentSetHelpSectionType.ArgumentSetDescription,
+            ArgumentSetHelpSectionType.RequiredParameters,
+            ArgumentSetHelpSectionType.OptionalParameters,
+            ArgumentSetHelpSectionType.EnumValues,
+            ArgumentSetHelpSectionType.Examples
+        };
+
         private readonly ArgumentSetHelpOptions _options;
 
+        /// <summary>
+        /// Basic constructor.
+        /// </summary>
+        /// <param name="options">Help options.</param>
         public ArgumentSetHelpRenderer(ArgumentSetHelpOptions options)
         {
             _options = options;
         }
 
-        public ColoredMultistring Format(ArgumentSetUsageInfo info) =>
-            Format(GenerateSections(info));
+        /// <summary>
+        /// Renders the given usage information.
+        /// </summary>
+        /// <param name="info">Usage info.</param>
+        /// <returns>Rendered string output, ready for display.</returns>
+        public ColoredMultistring Format(ArgumentSetUsageInfo info)
+        {
+            var unorderedSections = GenerateSections(info);
+
+            var orderedSections = SortSections(unorderedSections, DefaultSectionOrdering);
+
+            return Format(orderedSections);
+        }
+
+        private static IEnumerable<Section> SortSections(IEnumerable<Section> sections, IEnumerable<ArgumentSetHelpSectionType> orderingKey)
+        {
+            var ordering = new Dictionary<ArgumentSetHelpSectionType, int>();
+            int i = 0;
+
+            foreach (var type in orderingKey.Concat(DefaultSectionOrdering))
+            {
+                if (ordering.ContainsKey(type)) continue;
+                ordering[type] = i++;
+            }
+
+            return sections.OrderBy(
+                s => ordering.ContainsKey(s.SectionType) ? ordering[s.SectionType] : i);
+        }
 
         private ColoredMultistring Format(IEnumerable<Section> sections)
         {
@@ -84,7 +125,7 @@ namespace NClap.Help
             if (_options.Logo?.Include ?? false &&
                 info.Logo != null && !info.Logo.IsEmpty())
             {
-                sections.Add(new Section(_options, _options.Logo, info.Logo));
+                sections.Add(new Section(ArgumentSetHelpSectionType.Logo, _options, _options.Logo, info.Logo));
             }
 
             // Append basic usage info.
@@ -100,12 +141,12 @@ namespace NClap.Help
 
                 basicSyntax.Add(info.GetBasicSyntax(includeOptionalParameters: true));
 
-                sections.Add(new Section(_options, _options.Syntax, new[] { new ColoredMultistring(basicSyntax) }));
+                sections.Add(new Section(ArgumentSetHelpSectionType.Syntax, _options, _options.Syntax, new[] { new ColoredMultistring(basicSyntax) }));
             }
 
             if ((_options.Description?.Include ?? false) && !string.IsNullOrEmpty(info.Description))
             {
-                sections.Add(new Section(_options, _options.Description, info.Description));
+                sections.Add(new Section(ArgumentSetHelpSectionType.ArgumentSetDescription, _options, _options.Description, info.Description));
             }
 
             // If needed, get help info for enum values.
@@ -123,7 +164,7 @@ namespace NClap.Help
                 var entries = GetAndFormatParameterEntries(_options.Arguments.RequiredArguments, info.RequiredParameters, info, inlineDocumented).ToList();
                 if (entries.Count > 0)
                 {
-                    sections.Add(new Section(_options, _options.Arguments.RequiredArguments, entries));
+                    sections.Add(new Section(ArgumentSetHelpSectionType.RequiredParameters, _options, _options.Arguments.RequiredArguments, entries));
                 }
             }
 
@@ -134,7 +175,7 @@ namespace NClap.Help
                 var entries = GetAndFormatParameterEntries(_options.Arguments.OptionalArguments, info.OptionalParameters, info, inlineDocumented).ToList();
                 if (entries.Count > 0)
                 {
-                    sections.Add(new Section(_options, _options.Arguments.OptionalArguments, entries));
+                    sections.Add(new Section(ArgumentSetHelpSectionType.OptionalParameters, _options, _options.Arguments.OptionalArguments, entries));
                 }
             }
 
@@ -149,7 +190,7 @@ namespace NClap.Help
                     var enumValueEntries = GetEnumValueEntries(maxWidth, enumType).ToList();
                     if (enumValueEntries.Count > 0)
                     {
-                        sections.Add(new Section(_options,
+                        sections.Add(new Section(ArgumentSetHelpSectionType.EnumValues, _options,
                             _options.EnumValues,
                             enumValueEntries,
                             name: string.Format(Strings.UsageInfoEnumValueHeaderFormat, enumType.DisplayName)));
@@ -160,36 +201,88 @@ namespace NClap.Help
             // If present, append "EXAMPLES" section.
             if ((_options.Examples?.Include ?? false) && info.Examples.Any())
             {
-                sections.Add(new Section(_options, _options.Examples, info.Examples));
+                sections.Add(new Section(ArgumentSetHelpSectionType.Examples, _options, _options.Examples, info.Examples));
             }
 
             return sections;
         }
 
-        private static void GetEnumsToDocument(ArgumentSetUsageInfo setInfo,
+        /// <summary>
+        /// Find all enum types that need to be documented, and sort out whether they
+        /// should be documented inline in their usage sites or coalesced into a
+        /// toplevel section.
+        /// </summary>
+        /// <param name="setInfo">Argument set usage info.</param>
+        /// <param name="inlineDocumented">Receives a dictionary of inline-documented
+        /// enum types.</param>
+        /// <param name="separatelyDocumented">Receives an enumeration of enum types
+        /// that should be separately documented.</param>
+        private void GetEnumsToDocument(ArgumentSetUsageInfo setInfo,
             out IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumented,
             out IEnumerable<IEnumArgumentType> separatelyDocumented)
         {
+            // Find all enum types in the full type graph of the argument set.
             var enumTypeMap = GetAllArgumentTypeMap(setInfo, t => t is IEnumArgumentType);
 
+            // Construct a dictionary for us to register inline-documented types.
             var id = new Dictionary<ArgumentUsageInfo, List<IEnumArgumentType>>();
-            inlineDocumented = id;
 
-            foreach (var pair in enumTypeMap.Where(e => e.Value.Count == 1))
+            // Construct a list for us to register separately-documented types.
+            var sd = new List<IEnumArgumentType>();
+
+            // Look through all enum types.
+            foreach (var pair in enumTypeMap)
             {
-                var newKey = pair.Value.Single();
-                if (!id.TryGetValue(newKey, out List<IEnumArgumentType> types))
+                var enumType = (IEnumArgumentType)pair.Key;
+
+                // Figure out how many times it shows up.
+                var instanceCount = pair.Value.Count;
+
+                // Skip any types that somehow show up multiple times.
+                if (instanceCount == 0) continue;
+
+                // Decide whether to separately document; we start with the assumption
+                // that we *won't* separately document.
+                bool shouldSeparatelyDocument = false;
+
+                // If we've been asked to unify the summary of enums with multiple references,
+                // then check the instance count.
+                if (_options.EnumValues.Flags.HasFlag(ArgumentEnumValueHelpFlags.SingleSummaryOfEnumsWithMultipleUses) &&
+                    instanceCount > 1)
                 {
-                    types = new List<IEnumArgumentType>();
-                    id[newKey] = types;
+                    shouldSeparatelyDocument = true;
                 }
 
-                types.Add((IEnumArgumentType)pair.Key);
+                // If we've been asked to unify the summary of command enums, then check if this
+                // enum is a command enum.
+                if (_options.EnumValues.Flags.HasFlag(ArgumentEnumValueHelpFlags.SingleSummaryOfAllCommandEnums) &&
+                    ArgumentUsageInfo.IsCommandEnum(enumType.Type))
+                {
+                    shouldSeparatelyDocument = true;
+                }
+
+                // If we're separately documenting, then add it into that list.
+                if (shouldSeparatelyDocument)
+                {
+                    sd.Add(enumType);
+                }
+
+                // Otherwise, add it to the inline-documented map.
+                else
+                {
+                    var newKey = pair.Value.Single();
+                    if (!id.TryGetValue(newKey, out List<IEnumArgumentType> types))
+                    {
+                        types = new List<IEnumArgumentType>();
+                        id[newKey] = types;
+                    }
+
+                    types.Add(enumType);
+                }
             }
 
-            separatelyDocumented = enumTypeMap
-                .Where(e => e.Value.Count > 1)
-                .Select(e => (IEnumArgumentType)e.Key);
+            inlineDocumented = id;
+            separatelyDocumented = sd;
         }
 
         private IEnumerable<ColoredMultistring> GetEnumValueEntries(
@@ -241,8 +334,6 @@ namespace NClap.Help
                 descBuilder.Append(new ColoredString(value.ShortName, _options.Arguments?.ArgumentNameColor));
                 descBuilder.Append("]");
             }
-
-            var desc = descBuilder.ToMultistring();
 
             return new ParameterEntry
             {
@@ -329,8 +420,11 @@ namespace NClap.Help
 
             if (_options.Arguments.BlankLinesBetweenArguments > 0)
             {
-                var insertion = new[] { new ColoredMultistring(
-                        Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                var insertion = new[]
+                {
+                    new ColoredMultistring(
+                        Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments))
+                };
 
                 formatted = formatted.InsertBetween(insertion);
             }
@@ -358,8 +452,11 @@ namespace NClap.Help
                 {
                     if (_options.Arguments.BlankLinesBetweenArguments > 0)
                     {
-                        var insertion = new[] { new ColoredMultistring(
-                            Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                        var insertion = new[]
+                        {
+                            new ColoredMultistring(
+                                Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments))
+                        };
 
                         composed = composed.Concat(insertion);
                     }
@@ -416,7 +513,7 @@ namespace NClap.Help
             }
 
             if (columnWidths[0] == 0) columnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[1];
-            if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length- columnWidths[0];
+            if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[0];
 
             return entriesList.Select(e =>
             {
@@ -464,8 +561,11 @@ namespace NClap.Help
                 {
                     if (_options.Arguments.BlankLinesBetweenArguments > 0)
                     {
-                        var insertion = new[] { new ColoredMultistring(
-                            Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments)) };
+                        var insertion = new[]
+                        {
+                            new ColoredMultistring(
+                                Enumerable.Repeat(new ColoredString(Environment.NewLine), _options.Arguments.BlankLinesBetweenArguments))
+                        };
 
                         lines = lines.Concat(insertion);
                     }
@@ -492,11 +592,11 @@ namespace NClap.Help
                 // N.B. Special-case parent command groups that are already selected (i.e. skip them).
                 if (i.IsSelectedCommand())
                 {
-                    return null;
+                    return new None();
                 }
 
-                return FormatParameterEntry(currentMaxWidth, i, setInfo, enumTypes);
-            }).Where(e => e != null);
+                return Some.Of(FormatParameterEntry(currentMaxWidth, i, setInfo, enumTypes));
+            }).WhereHasValue();
 
         private ParameterEntry FormatParameterEntry(
             int currentMaxWidth,
@@ -512,7 +612,7 @@ namespace NClap.Help
                     e => GetEnumValueEntries(currentMaxWidth - _options.SectionEntryHangingIndentWidth, e))
                     .ToList();
 
-                if (enumValueEntries.Count == 0) 
+                if (enumValueEntries.Count == 0)
                 {
                     enumValueEntries = null;
                 }
@@ -649,39 +749,42 @@ namespace NClap.Help
             public bool Equals(IArgumentType x, IArgumentType y) =>
                 x.Type.GetTypeInfo().GUID == y.Type.GetTypeInfo().GUID;
 
-            public int GetHashCode(IArgumentType value) =>
-                value.Type.GetTypeInfo().GUID.GetHashCode();
+            public int GetHashCode(IArgumentType obj) =>
+                obj.Type.GetTypeInfo().GUID.GetHashCode();
         }
 
         private sealed class Section
         {
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredMultistring> entries, string name = null)
+            public Section(ArgumentSetHelpSectionType type, ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredMultistring> entries, string name = null)
             {
+                SectionType = type;
                 Entries = entries.ToList();
                 Name = name ?? itemOptions.HeaderTitle;
                 BodyIndentWidth = itemOptions.BlockIndent.GetValueOrDefault(options.SectionEntryBlockIndentWidth);
                 HangingIndentWidth = itemOptions.HangingIndent.GetValueOrDefault(options.SectionEntryHangingIndentWidth);
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredMultistring entry) :
-                this(options, itemOptions, new[] { entry })
+            public Section(ArgumentSetHelpSectionType type, ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredMultistring entry)
+                : this(type, options, itemOptions, new[] { entry })
             {
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredString> entries) :
-                this(options, itemOptions, entries.Select(e => (ColoredMultistring)e))
+            public Section(ArgumentSetHelpSectionType type, ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<ColoredString> entries)
+                : this(type, options, itemOptions, entries.Select(e => (ColoredMultistring)e))
             {
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<string> entries) :
-                this(options, itemOptions, entries.Select(e => (ColoredString)e))
+            public Section(ArgumentSetHelpSectionType type, ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, IEnumerable<string> entries)
+                : this(type, options, itemOptions, entries.Select(e => (ColoredString)e))
             {
             }
 
-            public Section(ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredString entry) :
-                this(options, itemOptions, new[] { entry })
+            public Section(ArgumentSetHelpSectionType type, ArgumentSetHelpOptions options, ArgumentMetadataHelpOptions itemOptions, ColoredString entry)
+                : this(type, options, itemOptions, new[] { entry })
             {
             }
+
+            public ArgumentSetHelpSectionType SectionType { get; }
 
             public int BodyIndentWidth { get; set; }
 

@@ -7,7 +7,7 @@ namespace NClap.Types
     /// </summary>
     internal class StringArgumentType : ArgumentTypeBase
     {
-        private static readonly StringArgumentType s_instance = new StringArgumentType();
+        private static readonly StringArgumentType Instance = new StringArgumentType();
 
         /// <summary>
         /// Primary constructor.
@@ -25,7 +25,7 @@ namespace NClap.Types
         /// Public factory method.
         /// </summary>
         /// <returns>A constructed object.</returns>
-        public static StringArgumentType Create() => s_instance;
+        public static StringArgumentType Create() => Instance;
 
         /// <summary>
         /// Parses the provided string.  Throws an exception if the string

@@ -14,18 +14,9 @@
         }
 
         /// <summary>
-        /// Deeply cloning constructor.
-        /// </summary>
-        /// <param name="other">Template for clone.</param>
-        private OneColumnArgumentHelpLayout(OneColumnArgumentHelpLayout other) : base(other)
-        {
-        }
-
-        /// <summary>
         /// Create a separate clone of this object.
         /// </summary>
         /// <returns>Clone.</returns>
-        public override ArgumentHelpLayout DeepClone() =>
-            new OneColumnArgumentHelpLayout(this);
+        public override ArgumentHelpLayout DeepClone() => new OneColumnArgumentHelpLayout();
     }
 }

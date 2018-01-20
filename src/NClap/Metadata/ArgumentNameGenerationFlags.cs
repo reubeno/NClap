@@ -9,7 +9,7 @@ namespace NClap.Metadata
     public enum ArgumentNameGenerationFlags
     {
         /// <summary>
-        /// Use the code symbol commandatim.
+        /// Use the code symbol verbatim.
         /// </summary>
         UseOriginalCodeSymbol = 0x0,
 

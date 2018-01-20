@@ -9,7 +9,7 @@
         /// The command completed successfully.
         /// </summary>
         Success,
-        
+
         /// <summary>
         /// The command requested the termination of the caller.
         /// </summary>

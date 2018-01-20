@@ -160,7 +160,7 @@ namespace NClap.ConsoleInput
 
             _buffer.CopyTo(sourceIndex, buffer, destinationIndex, count);
         }
-        
+
         /// <summary>
         /// Clears the entire buffer.
         /// </summary>
@@ -200,7 +200,7 @@ namespace NClap.ConsoleInput
         /// the string value provided contains more characters than fit in the
         /// remainder of the string.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">Replacement string.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/>
         /// is null.</exception>
         public void Replace(string value)

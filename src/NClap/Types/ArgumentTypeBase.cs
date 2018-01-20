@@ -39,7 +39,7 @@ namespace NClap.Types
         /// <summary>
         /// The Type object associated with values described by this interface.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
+        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods", Justification = "[Legacy]")]
         public Type Type { get; }
 
         /// <summary>
@@ -57,7 +57,6 @@ namespace NClap.Types
         /// <param name="value">On success, receives the parsed value; null
         /// otherwise.</param>
         /// <returns>True on success; false otherwise.</returns>
-        [SuppressMessage("Design", "CC0004:Catch block cannot be empty")]
         public bool TryParse(ArgumentParseContext context, string stringToParse, out object value)
         {
             if (stringToParse == null)
@@ -157,9 +156,21 @@ namespace NClap.Types
         protected static IEnumerable<string> SelectCompletions(ArgumentCompletionContext context, string valueToComplete, IEnumerable<object> candidates) =>
             SelectCompletions(context, valueToComplete, candidates.Select(candidate => candidate.ToString()));
 
+        /// <summary>
+        /// Constructs a string comparer appropriate for use in matching string completions
+        /// for values of this type (i.e. with appropriate case sensitivity).
+        /// </summary>
+        /// <param name="context">Completion context.</param>
+        /// <returns>String comparer.</returns>
         protected static StringComparer GetStringComparer(ArgumentCompletionContext context) =>
             context.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
+        /// <summary>
+        /// Constructs a string comparison policy appropriate for use in matching string completions
+        /// for values of this type (i.e. with appropriate case sensitivity).
+        /// </summary>
+        /// <param name="context">Completion context.</param>
+        /// <returns>String comparison value.</returns>
         protected static StringComparison GetStringComparison(ArgumentCompletionContext context) =>
             context.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
     }

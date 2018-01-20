@@ -15,15 +15,9 @@ namespace NClap.Parser
     /// </summary>
     internal partial class ArgumentSetParser
     {
-        private class ArgumentAndValue
-        {
-            public ArgumentDefinition Arg { get; set; }
-            public string Value { get; set; }
-        }
-
         // Constants.
-        private readonly static ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
+        private static readonly ConsoleColor? ErrorForegroundColor = ConsoleColor.Yellow;
 
         private readonly Dictionary<ArgumentDefinition, ArgumentParser> _stateByArg =
             new Dictionary<ArgumentDefinition, ArgumentParser>();
@@ -33,6 +27,8 @@ namespace NClap.Parser
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="argSet">Argument set to create parser for.</param>
+        /// <param name="options">Parser options.</param>
         public ArgumentSetParser(ArgumentSetDefinition argSet, CommandLineParserOptions options)
         {
             if (argSet == null)
@@ -84,6 +80,13 @@ namespace NClap.Parser
             return parser.SeenValue;
         }
 
+        /// <summary>
+        /// Tries to parse the given list of tokens.
+        /// </summary>
+        /// <param name="args">Argument tokens to parse.</param>
+        /// <param name="destination">Destination object to store the parsed values.
+        /// May be null.</param>
+        /// <returns>Result of the parsing.</returns>
         public ArgumentSetParseResult ParseArgumentList(IEnumerable<string> args, object destination)
         {
             Debug.Assert(args != null);
@@ -100,6 +103,18 @@ namespace NClap.Parser
             return Finalize(destination);
         }
 
+        /// <summary>
+        /// Generates possible completions for the indicated argument token.
+        /// </summary>
+        /// <param name="tokens">Full list of tokens in context.</param>
+        /// <param name="indexOfTokenToComplete">0-based index of token
+        /// to complete; must either reference valid token in <paramref name="tokens"/>
+        /// or the index of the next token that would follow the provided
+        /// tokens.</param>
+        /// <param name="destObjectFactory">Optionally provides a function
+        /// that may be used to instantiate an object of the destination
+        /// parse output type.</param>
+        /// <returns>Possible completions for the token.</returns>
         public IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete, Func<object> destObjectFactory)
         {
             Func<IEnumerable<string>> emptyCompletions = Enumerable.Empty<string>;
@@ -308,6 +323,11 @@ namespace NClap.Parser
             return result;
         }
 
+        /// <summary>
+        /// Tries to finalize parsing to the given output object.
+        /// </summary>
+        /// <param name="destination">Output object.</param>
+        /// <returns>Parse result.</returns>
         public ArgumentSetParseResult Finalize(object destination)
         {
             var result = ArgumentSetParseResult.Ready;
@@ -364,6 +384,7 @@ namespace NClap.Parser
             {
                 result = TryParseNamedArgument(argument, longNameArgumentPrefix, ArgumentNameType.LongName, out parsedArgs);
             }
+
             if (result.IsUnknown && shortNameArgumentPrefix != null)
             {
                 result = TryParseNamedArgument(argument, shortNameArgumentPrefix, ArgumentNameType.ShortName, out parsedArgs);
@@ -395,6 +416,8 @@ namespace NClap.Parser
                 ReportUnrecognizedArgument(result, argument);
                 return result;
             }
+
+            Debug.Assert(parsedArgs != null);
 
             foreach (var parsedArg in parsedArgs)
             {
@@ -584,11 +607,14 @@ namespace NClap.Parser
                     return ArgumentSetParseResult.UnknownNamedArgument(namedArgType, options);
                 }
 
-                parsedArgs = new[] { new ArgumentAndValue
+                parsedArgs = new[]
                 {
-                    Arg = arg,
-                    Value = optionArgument
-                } };
+                    new ArgumentAndValue
+                    {
+                        Arg = arg,
+                        Value = optionArgument
+                    }
+                };
             }
 
             // If the last named argument we saw in this token required an
@@ -806,6 +832,13 @@ namespace NClap.Parser
         /// <summary>
         /// Valid argument name terminators for this argument set.
         /// </summary>
-        private IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
+        private static IEnumerable<char> ArgumentNameTerminators => new[] { '+', '-' };
+
+        private class ArgumentAndValue
+        {
+            public ArgumentDefinition Arg { get; set; }
+
+            public string Value { get; set; }
+        }
     }
 }

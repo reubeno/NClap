@@ -24,11 +24,6 @@ namespace NClap
     public static class CommandLineParser
     {
         /// <summary>
-        /// Retrieves the current console's width in characters.
-        /// </summary>
-        internal static Func<int> GetConsoleWidth { get; set; } = () => Console.WindowWidth;
-
-        /// <summary>
         /// Default console width in characters.
         /// </summary>
         private const int DefaultConsoleWidth = 80;
@@ -36,7 +31,7 @@ namespace NClap
         /// <summary>
         /// Default <see cref="ErrorReporter" /> used by this class.
         /// </summary>
-        public static ErrorReporter DefaultReporter { get; } = BasicConsoleInputAndOutput.Default.Write;
+        public static ErrorReporter DefaultReporter { get; } = BasicConsole.Default.Write;
 
         /// <summary>
         /// Tries to parse the given string arguments into a new instance of <typeparamref name="T"/>.
@@ -46,7 +41,8 @@ namespace NClap
         /// <param name="arguments">The string arguments to parse.</param>
         /// <param name="result">On success, returns the constructed result object.</param>
         /// <returns>True on success; false otherwise.</returns>
-        public static bool TryParse<T>(IEnumerable<string> arguments, out T result) where T : class, new() =>
+        public static bool TryParse<T>(IEnumerable<string> arguments, out T result)
+            where T : class, new() =>
             TryParse(arguments, null, out result);
 
         /// <summary>
@@ -99,6 +95,17 @@ namespace NClap
             return TryParse(argSet, arguments, options, destination);
         }
 
+        /// <summary>
+        /// Tries to parse the given string arguments into the provided instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the destination object.</typeparam>
+        /// <param name="argSet">Definition of the argument set to be parsing.</param>
+        /// <param name="arguments">The string arguments to parse.</param>
+        /// <param name="options">Options describing how to parse.</param>
+        /// <param name="destination">The object to parse into.</param>
+        /// <returns>True on success; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="arguments"/> or
+        /// <paramref name="destination" /> is null.</exception>
         internal static bool TryParse<T>(ArgumentSetDefinition argSet, IEnumerable<string> arguments, CommandLineParserOptions options, T destination)
         {
             if (options == null) options = new CommandLineParserOptions();
@@ -278,6 +285,15 @@ namespace NClap
         internal static IEnumerable<Token> Tokenize(string line, CommandLineTokenizerOptions options = CommandLineTokenizerOptions.None) =>
             StringUtilities.Tokenize(line, options.HasFlag(CommandLineTokenizerOptions.AllowPartialInput));
 
+        /// <summary>
+        /// Returns a usage string for command line argument parsing.
+        /// </summary>
+        /// <param name="argSet">Definition of argument set.</param>
+        /// <param name="options">Options for generating usage info.</param>
+        /// <param name="destination">Optionally provides an object with
+        /// default values.</param>
+        /// <returns>Printable string containing a user friendly description of
+        /// command line arguments.</returns>
         internal static ColoredMultistring GetUsageInfo(
             ArgumentSetDefinition argSet,
             ArgumentSetHelpOptions options = null,
@@ -340,7 +356,7 @@ namespace NClap
 
             try
             {
-                columns = GetConsoleWidth?.Invoke() ?? DefaultConsoleWidth;
+                columns = BasicConsole.Default.WindowWidth;
             }
             catch (IOException)
             {

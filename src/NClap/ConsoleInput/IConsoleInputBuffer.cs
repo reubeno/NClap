@@ -125,7 +125,7 @@ namespace NClap.ConsoleInput
         /// the string value provided contains more characters than fit in the
         /// remainder of the string.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">Replacement value.</param>
         void Replace(string value);
 
         /// <summary>

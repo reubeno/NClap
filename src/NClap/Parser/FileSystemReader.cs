@@ -16,12 +16,12 @@ namespace NClap.Parser
         /// Public factory method.
         /// </summary>
         /// <returns>A file system reader instance.</returns>
-        public static FileSystemReader Create() => s_instance;
+        public static FileSystemReader Create() => Instance;
 
         /// <summary>
         /// Singleton instance of this class.
         /// </summary>
-        private static readonly FileSystemReader s_instance = new FileSystemReader();
+        private static readonly FileSystemReader Instance = new FileSystemReader();
 
         /// <summary>
         /// Checks if the path exists as a file.

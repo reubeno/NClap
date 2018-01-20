@@ -30,7 +30,8 @@ namespace NClap.Utilities
         /// <param name="considerParameterlessConstructor">True to consider
         /// parameterless constructors; false to ignore them.</param>
         /// <returns>The wrapped function.</returns>
-        public static Func<T> GetConstructor<T>(this Type type, IEnumerable<object> possibleArgs, bool considerParameterlessConstructor) where T : class
+        public static Func<T> GetConstructor<T>(this Type type, IEnumerable<object> possibleArgs, bool considerParameterlessConstructor)
+            where T : class
         {
             // Make sure types are compatible, first and foremost.
             if (!typeof(T).GetTypeInfo().IsAssignableFrom(type))

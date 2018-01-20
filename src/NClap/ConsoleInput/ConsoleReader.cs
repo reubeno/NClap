@@ -26,8 +26,8 @@ namespace NClap.ConsoleInput
         /// Default bindings are used if this parameter is null.</param>
         public ConsoleReader(IConsoleLineInput lineInput = null, IConsoleInput consoleInput = null, IConsoleOutput consoleOutput = null, IReadOnlyConsoleKeyBindingSet keyBindingSet = null)
         {
-            ConsoleInput = consoleInput ?? BasicConsoleInputAndOutput.Default;
-            ConsoleOutput = consoleOutput ?? BasicConsoleInputAndOutput.Default;
+            ConsoleInput = consoleInput ?? BasicConsole.Default;
+            ConsoleOutput = consoleOutput ?? BasicConsole.Default;
             KeyBindingSet = keyBindingSet ?? ConsoleKeyBindingSet.Default;
             LineInput = lineInput ?? new ConsoleLineInput(ConsoleOutput, new ConsoleInputBuffer(), new ConsoleHistory());
 
@@ -128,6 +128,12 @@ namespace NClap.ConsoleInput
             }
         }
 
+        /// <summary>
+        /// Interprets the given key press info by mapping it to an operation
+        /// and applying that operation.
+        /// </summary>
+        /// <param name="key">Key press info.</param>
+        /// <returns>Result of the operation.</returns>
         internal ConsoleInputOperationResult ProcessKey(ConsoleKeyInfo key)
         {
             if (!KeyBindingSet.TryGetValue(key, out ConsoleInputOperation op))
@@ -142,6 +148,12 @@ namespace NClap.ConsoleInput
             return result;
         }
 
+        /// <summary>
+        /// Applies the given console input operation.
+        /// </summary>
+        /// <param name="op">Operation.</param>
+        /// <param name="key">Key press info.</param>
+        /// <returns>Result of the operation.</returns>
         internal ConsoleInputOperationResult Process(ConsoleInputOperation op, ConsoleKeyInfo key)
         {
             var result = ConsoleInputOperationResult.Normal;
@@ -168,6 +180,7 @@ namespace NClap.ConsoleInput
                         ConsoleOutput.WriteLine(string.Empty);
                         result = ConsoleInputOperationResult.EndOfInputStream;
                     }
+
                     break;
                 case ConsoleInputOperation.BeginningOfLine:
                     LineInput.MoveCursorToStart();
@@ -244,6 +257,7 @@ namespace NClap.ConsoleInput
 
                         return ConsoleInputOperationResult.EndOfInputLine;
                     }
+
                     break;
                 case ConsoleInputOperation.TabInsert:
                     ProcessCharacterKey('\t');
@@ -257,26 +271,26 @@ namespace NClap.ConsoleInput
                 //
 
                 case ConsoleInputOperation.CompleteTokenNext:
-                {
-                    var lastOpWasCompleteToken =
-                        _lastOp.HasValue &&
-                        ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
-                            (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
+                    {
+                        var lastOpWasCompleteToken =
+                            _lastOp.HasValue &&
+                            ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
+                                (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
 
-                    ProcessTabKeyPress(false, lastOpWasCompleteToken);
-                    break;
-                }
+                        ProcessTabKeyPress(false, lastOpWasCompleteToken);
+                        break;
+                    }
 
                 case ConsoleInputOperation.CompleteTokenPrevious:
-                {
-                    var lastOpWasCompleteToken =
-                        _lastOp.HasValue &&
-                        ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
-                            (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
+                    {
+                        var lastOpWasCompleteToken =
+                            _lastOp.HasValue &&
+                            ((_lastOp.Value == ConsoleInputOperation.CompleteTokenNext) ||
+                                (_lastOp.Value == ConsoleInputOperation.CompleteTokenPrevious));
 
-                    ProcessTabKeyPress(true, lastOpWasCompleteToken);
-                    break;
-                }
+                        ProcessTabKeyPress(true, lastOpWasCompleteToken);
+                        break;
+                    }
 
                 case ConsoleInputOperation.DeletePreviousChar:
                     LineInput.DeletePrecedingChar();
@@ -332,6 +346,11 @@ namespace NClap.ConsoleInput
             return result;
         }
 
+        /// <summary>
+        /// Capitalizes the initial character of the given string.
+        /// </summary>
+        /// <param name="value">Input value.</param>
+        /// <returns>Capitalized result string.</returns>
         internal static string Capitalize(string value)
         {
             if (string.IsNullOrEmpty(value))

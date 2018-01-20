@@ -41,8 +41,8 @@ namespace NClap.Types
         /// <param name="completer">Optionally provides an override
         /// implementation of the base argument type's string completer
         /// implementation.</param>
-        public ArgumentTypeExtension(Type type, IStringParser parser = null, IObjectFormatter formatter = null, IStringCompleter completer = null) :
-            this(ArgumentType.GetType(type), parser, formatter, completer)
+        public ArgumentTypeExtension(Type type, IStringParser parser = null, IObjectFormatter formatter = null, IStringCompleter completer = null)
+            : this(ArgumentType.GetType(type), parser, formatter, completer)
         {
         }
 
@@ -80,7 +80,7 @@ namespace NClap.Types
         /// <summary>
         /// The Type object associated with values described by this interface.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
+        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods", Justification = "[Legacy]")]
         public virtual Type Type => InnerType.Type;
 
         /// <summary>

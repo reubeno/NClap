@@ -20,7 +20,7 @@ namespace NClap.Types
         /// <summary>
         /// The Type object associated with values described by this interface.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
+        [SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods", Justification = "[Legacy]")]
         Type Type { get; }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace NClap.Utilities
         /// </summary>
         /// <param name="index">0-based index into the builder.</param>
         /// <returns>The character at the specified index.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "[Legacy]")]
         public char this[int index]
         {
             get
@@ -118,7 +118,7 @@ namespace NClap.Utilities
         /// <summary>
         /// Converts the current contents of the builder to a bare string.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The bare string.</returns>
         public override string ToString() => string.Concat(_pieces);
 
         /// <summary>
