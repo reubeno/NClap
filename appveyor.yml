@@ -37,7 +37,7 @@ environment:
 
 install:
   - choco install opencover.portable
-  - choco install codecov
+  # - choco install codecov
   - choco install gitversion -pre -y
   - cmd: dotnet restore src\NClap.sln
   - ps: gitversion /l console /output buildserver
@@ -65,7 +65,10 @@ test_script:
   - ps: OpenCover.Console.exe -oldstyle -register:user "-target:vstest.console.exe" "-targetargs:src\Tests\UnitTests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
 
 after_test:
-  - ps: codecov -f coverage_$env:CONFIGURATION.xml
+  - ps: |
+      (New-Object System.Net.WebClient).DownloadFile("https://github.com/codecov/codecov-exe/releases/download/1.0.3/Codecov.zip", (Join-Path $pwd "Codecov.zip")) # Download Codecov.zip from github release.
+      Expand-Archive .\Codecov.zip -DestinationPath . # UnZip the file.
+  - ps: .\Codecov\codecov.exe -f coverage_$env:CONFIGURATION.xml
 
 #---------------------------------#
 #      artifacts configuration    #
