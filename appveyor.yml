@@ -62,7 +62,7 @@ build:
 #---------------------------------#
 
 test_script:
-  - ps: OpenCover.Console.exe -oldstyle -register:user "-target:C:\Program Files\dotnet\dotnet.exe" "-targetargs:test --framework net461 src\Tests\UnitTests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
+  - ps: OpenCover.Console.exe -oldstyle -register:user "-target:vstest.console.exe" "-targetargs:src\Tests\UnitTests\bin\$env:CONFIGURATION\net461\NClap.Tests.dll /logger:Appveyor" -skipautoprops "-filter:+[NClap]*" -output:coverage_$env:CONFIGURATION.xml
 
 after_test:
   - ps: codecov -f coverage_$env:CONFIGURATION.xml
