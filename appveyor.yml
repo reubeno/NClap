@@ -4,7 +4,6 @@
 
 # branches to build
 branches:
-  # whitelist
   only:
     - master
 
@@ -32,16 +31,13 @@ configuration:
   - Release
   - Debug
 
-environment:
-  EnableNuGetPackageRestore: true
-
 install:
   - choco install opencover.portable
   # - choco install codecov
   - choco install gitversion -pre -y
   - cmd: dotnet restore src\NClap.sln
   - ps: gitversion /l console /output buildserver
-  - ps: appveyor UpdateBuild -Version $env:GitVersion_FullSemVer
+  - ps: appveyor UpdateBuild -Version $env:GitVersion_FullSemVer.{build}
 
 dotnet_csproj:
   patch: true
