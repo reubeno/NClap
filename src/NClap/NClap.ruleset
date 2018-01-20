@@ -53,15 +53,19 @@
     <Rule Id="SA1515" Action="None" />
     <!-- SA1623: Property summary documentation should match accessors -->
     <Rule Id="SA1623" Action="None" />
-    <!-- SA1624: Property summary documentation should omit set accessor with restricted access -->
-    <Rule Id="SA1624" Action="None" />
-    <!-- SA1625: Element documentation must not be copied and pasted -->
-    <Rule Id="SA1625" Action="None" />
     <!-- SA1633: File should have header -->
     <Rule Id="SA1633" Action="None" />
     <!-- SA1642: Constructor summary documentation should begin with standard text -->
     <Rule Id="SA1642" Action="None" />
     <!-- SA1649: File name should match first type name. -->
     <Rule Id="SA1649" Action="None" />
+
+    <!-- TODO: These below throw analyzer-time internal exceptions -->
+    <!-- SA0002: StyleCop JSON settings file could not be loaded -->
+    <Rule Id="SA0002" Action="None" />
+    <!-- SA1624: Property summary documentation should omit set accessor with restricted access -->
+    <Rule Id="SA1624" Action="None" />
+    <!-- SA1625: Element documentation must not be copied and pasted -->
+    <Rule Id="SA1625" Action="None" />
 </Rules>
 </RuleSet>
