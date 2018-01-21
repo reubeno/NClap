@@ -1,6 +1,6 @@
-﻿using NClap.Exceptions;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
+using NClap.Exceptions;
 
 namespace NClap.Utilities
 {

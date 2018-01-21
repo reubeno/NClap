@@ -19,7 +19,20 @@ namespace NClap.Exceptions
         }
 
         /// <summary>
-        /// Standard constructor.
+        /// Constructor.
+        /// </summary>
+        /// <param name="commandType">Command type.</param>
+        /// <param name="commandValue">Command value.</param>
+        /// <param name="message">Message.</param>
+        [Obsolete("This constructor will be removed from a future release.", true)]
+        public InvalidCommandException(Type commandType, MemberInfo commandValue, string message) : base(message)
+        {
+            _commandType = commandType;
+            _commandValue = commandValue;
+        }
+
+        /// <summary>
+        /// Constructor.
         /// </summary>
         /// <param name="commandType">Command type.</param>
         /// <param name="commandValue">Command value.</param>
