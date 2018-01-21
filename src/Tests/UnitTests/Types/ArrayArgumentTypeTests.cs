@@ -29,7 +29,7 @@ namespace NClap.Tests.Types
         }
 
         [TestMethod]
-        public void GetCompletions()
+        public void GetCompletionsWithValidSeparators()
         {
             var type = (ArrayArgumentType)ArgumentType.GetType(typeof(bool[]));
             var c = new ArgumentCompletionContext { ParseContext = ArgumentParseContext.Default };
@@ -39,6 +39,25 @@ namespace NClap.Tests.Types
             type.GetCompletions(c, "False,f").Should().Equal("False,False");
             type.GetCompletions(c, "33,f").Should().Equal("33,False");
             type.GetCompletions(c, "True,False,").Should().Equal("True,False,False", "True,False,True");
+        }
+
+        [TestMethod]
+        public void GetCompletionsWithoutValidSeparators()
+        {
+            var type = (ArrayArgumentType)ArgumentType.GetType(typeof(bool[]));
+            var c = new ArgumentCompletionContext
+            {
+                ParseContext = new ArgumentParseContext
+                {
+                    ElementSeparators = Array.Empty<string>()
+                }
+            };
+
+            type.GetCompletions(c, "Tr").Should().Equal("True");
+            type.GetCompletions(c, string.Empty).Should().Equal("False", "True");
+            type.GetCompletions(c, "False,f").Should().BeEmpty();
+            type.GetCompletions(c, "33,f").Should().BeEmpty();
+            type.GetCompletions(c, "True,False,").Should().BeEmpty();
         }
     }
 }

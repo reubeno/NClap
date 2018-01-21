@@ -105,7 +105,6 @@ namespace NClap.Parser
                 argList = argList.Concat(GetAllFieldsAndProperties(type, includeNonPublicMembers: false)
                     .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>() == null)
                     .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, argSet, fixedDestination, containingArgument)));
             }
 
@@ -121,17 +120,6 @@ namespace NClap.Parser
             if (argAttrib != null)
             {
                 descriptors = descriptors.Concat(new[] { CreateArgumentDescriptor(member, argAttrib, defaultValues, argSet, fixedDestination, containingArgument) });
-            }
-
-            var groupAttrib = member.MemberInfo.GetSingleAttribute<ArgumentGroupAttribute>();
-            if (groupAttrib != null)
-            {
-                // TODO: investigate defaultValues
-                descriptors = descriptors.Concat(GetArgumentDescriptors(member.MemberType,
-                    argSet,
-                    /*defaultValues=*/null,
-                    fixedDestination,
-                    containingArgument));
             }
 
             return descriptors;

@@ -79,4 +79,10 @@
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
   
+  <Target Name="DisableStyleCop" BeforeTargets="CoreCompile" Condition=" '$(NCrunch)' != '' ">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

@@ -56,5 +56,14 @@ namespace NClap.Tests.Types
             var completions = CommandLineParser.GetCompletions(typeof(TestArguments), new[] { "|a|" }, 0);
             completions.Should().Equal("|a|", "|ABC|");
         }
+
+        [TestMethod]
+        public void TestThatDependentTypesFromInnerTypeAreReturned()
+        {
+            var innerType = typeof(List<string>);
+            var innerArgType = ArgumentType.GetType(innerType);
+            var type = new ArgumentTypeExtension(innerType);
+            type.DependentTypes.Should().Equal(innerArgType.DependentTypes);
+        }
     }
 }

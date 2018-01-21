@@ -73,22 +73,10 @@ namespace NClap.Parser
         }
 
         /// <summary>
-        /// Adds info for a parameter.
-        /// </summary>
-        /// <param name="info">Info to add.</param>
-        public void AddParameter(ArgumentUsageInfo info) => _allParameters.Add(info);
-
-        /// <summary>
         /// Adds info for 0 or more parameters.
         /// </summary>
         /// <param name="info">Info to add.</param>
         public void AddParameters(IEnumerable<ArgumentUsageInfo> info) => _allParameters.AddRange(info);
-
-        /// <summary>
-        /// Adds an example.
-        /// </summary>
-        /// <param name="example">Example to add.</param>
-        public void AddExample(string example) => _examples.Add(example);
 
         /// <summary>
         /// Adds 0 or more examples.

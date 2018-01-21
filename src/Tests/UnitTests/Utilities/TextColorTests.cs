@@ -16,6 +16,8 @@ namespace NClap.Tests.Utilities
             var tc2 = new TextColor();
 
             tc1.Equals(tc2).Should().BeTrue();
+            tc1.Equals((object)tc2).Should().BeTrue();
+
             (tc1 == tc2).Should().BeTrue();
             (tc1 != tc2).Should().BeFalse();
         }
@@ -28,6 +30,8 @@ namespace NClap.Tests.Utilities
             var tc2 = new TextColor { Foreground = ConsoleColor.Blue, Background = bgColor };
 
             tc1.Equals(tc2).Should().BeFalse();
+            tc1.Equals((object)tc2).Should().BeFalse();
+
             (tc1 == tc2).Should().BeFalse();
             (tc1 != tc2).Should().BeTrue();
         }
@@ -40,6 +44,8 @@ namespace NClap.Tests.Utilities
             var tc2 = new TextColor { Foreground = fgColor, Background = ConsoleColor.Blue };
 
             tc1.Equals(tc2).Should().BeFalse();
+            tc1.Equals((object)tc2).Should().BeFalse();
+
             (tc1 == tc2).Should().BeFalse();
             (tc1 != tc2).Should().BeTrue();
         }
@@ -50,8 +56,9 @@ namespace NClap.Tests.Utilities
             var tc = new TextColor { Foreground = Any.Enum<ConsoleColor>(), Background = Any.Enum<ConsoleColor>() };
 
             tc.Equals(tc).Should().BeTrue();
+            tc.Equals((object)tc).Should().BeTrue();
 
-            #pragma warning disable CS1718 // Comparison made to same variable
+        #pragma warning disable CS1718 // Comparison made to same variable
             (tc == tc).Should().BeTrue();
             (tc != tc).Should().BeFalse();
 #pragma warning restore CS1718 // Comparison made to same variable

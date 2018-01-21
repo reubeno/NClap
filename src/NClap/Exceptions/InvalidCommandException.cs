@@ -34,16 +34,6 @@ namespace NClap.Exceptions
         /// <summary>
         /// Standard constructor.
         /// </summary>
-        /// <param name="commandType">Command type.</param>
-        /// <param name="commandValue">Command value.</param>
-        /// <param name="message">Message.</param>
-        public InvalidCommandException(Type commandType, MemberInfo commandValue, string message) : this(commandType, commandValue, message, null)
-        {
-        }
-
-        /// <summary>
-        /// Standard constructor.
-        /// </summary>
         /// <param name="message">Message.</param>
         /// <param name="innerException">Inner exception.</param>
         public InvalidCommandException(string message, Exception innerException) : this(null, null, message, innerException)
