@@ -49,7 +49,7 @@ namespace NClap.Tests.Utilities
             provider.CustomAttributes.ReturnsForAnyArgs(fooProp.CustomAttributes);
 
             var attribs = AttributeUtilities.GetAttributes<NamedArgumentAttribute>(provider).ToList();
-            attribs.Should().HaveCount(1);
+            attribs.Should().ContainSingle();
             attribs[0].Should().BeOfType<NamedArgumentAttribute>();
             attribs[0].LongName.Should().Be("LongerFoo");
         }

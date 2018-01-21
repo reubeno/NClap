@@ -3,10 +3,10 @@
 namespace NClap.Metadata
 {
     /// <summary>
-    /// Attribute for objects that group arguments, and which should be
-    /// included when parsing the containing object.
+    /// Unused.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [Obsolete("This attribute is not supported and will be removed from a future release.", true)]
     public sealed class ArgumentGroupAttribute : Attribute
     {
     }

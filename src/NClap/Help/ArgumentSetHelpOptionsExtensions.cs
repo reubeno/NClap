@@ -6,7 +6,7 @@ namespace NClap.Help
     /// <summary>
     /// Extension methods for interacting with <see cref="ArgumentSetHelpOptions"/>.
     /// </summary>
-    public static partial class ArgumentSetHelpOptionsExtensions
+    public static class ArgumentSetHelpOptionsExtensions
     {
         /// <summary>
         /// Construct a fluent builder from options.

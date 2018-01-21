@@ -13,7 +13,7 @@ namespace NClap.Parser
     /// <summary>
     /// Encapsulates the state of an in-progress parse of an argument set.
     /// </summary>
-    internal partial class ArgumentSetParser
+    internal sealed class ArgumentSetParser
     {
         // Constants.
         private const string ArgumentAnswerFileCommentLinePrefix = "#";
@@ -252,13 +252,7 @@ namespace NClap.Parser
             }
             else
             {
-                ArgumentParser parent = null;
-                if (arg.ContainingArgument != null)
-                {
-                    _stateByArg.TryGetValue(arg.ContainingArgument, out parent);
-                }
-
-                parser = _stateByArg[arg] = new ArgumentParser(ArgumentSet, arg, _options, destination, parent);
+                parser = _stateByArg[arg] = new ArgumentParser(ArgumentSet, arg, _options, destination);
             }
 
             return parser;

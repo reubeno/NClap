@@ -27,16 +27,13 @@ namespace NClap.Parser
         /// <param name="options">General options for parsing this argument set.</param>
         /// <param name="destination">The destination object into which the parsed result should go,
         /// if so desired; null otherwise to parse without saving results.</param>
-        /// <param name="parent">Optionally provides a "parent" parser to this object, for the
-        /// case of nested arguments.</param>
         public ArgumentParser(ArgumentSetDefinition argSet, ArgumentDefinition arg, CommandLineParserOptions options,
-            object destination = null, ArgumentParser parent = null)
+            object destination = null)
         {
             ArgumentSet = argSet ?? throw new ArgumentNullException(nameof(argSet));
             Argument = arg ?? throw new ArgumentNullException(nameof(arg));
             Reporter = options?.Reporter ?? (s => { });
             DestinationObject = arg.FixedDestination ?? destination;
-            Parent = parent;
             ParseContext = CreateParseContext(Argument, ArgumentSet.Attribute, options, DestinationObject);
 
             if (Argument.IsCollection)
@@ -75,11 +72,6 @@ namespace NClap.Parser
         /// stored. May not be present.
         /// </summary>
         public object DestinationObject { get; }
-
-        /// <summary>
-        /// Parent parser. May not be present.
-        /// </summary>
-        public ArgumentParser Parent { get; }
 
         /// <summary>
         /// State variable indicating whether this argument has been seen in

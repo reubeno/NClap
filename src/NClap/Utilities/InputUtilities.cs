@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using NClap.Exceptions;
 
 namespace NClap.Utilities
 {
@@ -171,8 +172,7 @@ namespace NClap.Utilities
                         case ConsoleKey.D8: c = '*'; break;
                         case ConsoleKey.D9: c = '('; break;
                         case ConsoleKey.D0: c = ')'; break;
-                        default:
-                            return Array.Empty<char>();
+                        default: throw new InternalInvariantBrokenException();
                     }
                 }
                 else

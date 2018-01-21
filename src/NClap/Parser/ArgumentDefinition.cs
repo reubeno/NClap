@@ -56,12 +56,9 @@ namespace NClap.Parser
             object fixedDestination = null,
             ArgumentDefinition containingArgument = null)
         {
-            Debug.Assert(attribute != null);
-            Debug.Assert(member != null);
-
-            Member = member;
-            Attribute = attribute;
-            ContainingSet = argSet;
+            Member = member ?? throw new ArgumentNullException(nameof(member));
+            Attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
+            ContainingSet = argSet ?? throw new ArgumentNullException(nameof(argSet));
             ContainingArgument = containingArgument;
             FixedDestination = fixedDestination;
             IsPositional = attribute is PositionalArgumentAttribute;
@@ -250,7 +247,7 @@ namespace NClap.Parser
         /// <summary>
         /// String summary of object.
         /// </summary>
-        /// <returns>String.    </returns>
+        /// <returns>String.</returns>
         public override string ToString() => GetSyntaxSummary(detailed: true);
 
         /// <summary>

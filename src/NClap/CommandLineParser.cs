@@ -24,11 +24,6 @@ namespace NClap
     public static class CommandLineParser
     {
         /// <summary>
-        /// Default console width in characters.
-        /// </summary>
-        private const int DefaultConsoleWidth = 80;
-
-        /// <summary>
         /// Default <see cref="ErrorReporter" /> used by this class.
         /// </summary>
         public static ErrorReporter DefaultReporter { get; } = BasicConsole.Default.Write;
@@ -352,19 +347,8 @@ namespace NClap
 
         private static int GetCurrentConsoleWidth()
         {
-            int columns;
-
-            try
-            {
-                columns = BasicConsole.Default.WindowWidth;
-            }
-            catch (IOException)
-            {
-                // If can't determine the console's width, then default it.
-                columns = DefaultConsoleWidth;
-            }
-
             // N.B. Leave room so that we don't cycle over to next line.
+            var columns = BasicConsole.Default.WindowWidth;
             if (columns > 0)
             {
                 --columns;

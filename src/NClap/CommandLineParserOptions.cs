@@ -23,7 +23,7 @@ namespace NClap
         private CommandLineParserOptions(CommandLineParserOptions other)
         {
             DisplayUsageInfoOnError = other.DisplayUsageInfoOnError;
-            HelpOptions = other.HelpOptions.DeepClone();
+            HelpOptions = other.HelpOptions?.DeepClone();
             Reporter = other.Reporter;
             FileSystemReader = other.FileSystemReader;
             Context = other.Context;
