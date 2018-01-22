@@ -40,12 +40,23 @@ namespace NClap.Tests.ConsoleInput.Windows
         }
 
         [TestMethod]
-        public void TestThatScrollingPositiveLinesDoesNotThrow()
+        public void TestThatScrollingPositiveLinesEitherSucceedsOrThrowsNotSupportedException()
         {
             if (!IsTestApplicable) return;
 
             var console = new WindowsConsole();
-            console.Invoking(c => c.ScrollContents(1)).Should().NotThrow();
+
+            try
+            {
+                console.ScrollContents(1);
+            }
+            catch (NotSupportedException)
+            {
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [TestMethod]

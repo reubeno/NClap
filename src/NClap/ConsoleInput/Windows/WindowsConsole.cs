@@ -54,14 +54,15 @@ namespace NClap.ConsoleInput.Windows
             };
 
             var handle = NativeMethods.GetStdHandle(NativeMethods.StandardHandleType.Output);
-            if (handle == IntPtr.Zero || handle == new IntPtr(-1))
-            {
-                return;
-            }
-
             if (!NativeMethods.ScrollConsoleScreenBuffer(handle, ref scrollRect, ref clipRect, destOrigin, ref fill))
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                var lastError = Marshal.GetLastWin32Error();
+                if (lastError == (int)NativeMethods.Error.InvalidHandle)
+                {
+                    throw new NotSupportedException();
+                }
+
+                throw new Win32Exception(lastError);
             }
 
             CursorTop -= lineCount;

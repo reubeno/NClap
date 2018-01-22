@@ -11,6 +11,17 @@ namespace NClap.ConsoleInput.Windows
     internal static class NativeMethods
     {
         /// <summary>
+        /// Win32 error.
+        /// </summary>
+        public enum Error
+        {
+            /// <summary>
+            /// An operation was attempted against an invalid handle.
+            /// </summary>
+            InvalidHandle = 6
+        }
+
+        /// <summary>
         /// Enumeration to encapsulate the possible arguments to <see cref="GetStdHandle"/>.
         /// </summary>
         public enum StandardHandleType
