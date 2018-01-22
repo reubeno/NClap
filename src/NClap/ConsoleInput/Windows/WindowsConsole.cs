@@ -54,7 +54,7 @@ namespace NClap.ConsoleInput.Windows
             };
 
             var handle = NativeMethods.GetStdHandle(NativeMethods.StandardHandleType.Output);
-            if (handle == IntPtr.Zero)
+            if (handle == IntPtr.Zero || handle == new IntPtr(-1))
             {
                 return;
             }
