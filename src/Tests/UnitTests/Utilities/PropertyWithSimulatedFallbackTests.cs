@@ -9,6 +9,22 @@ namespace NClap.Tests.Utilities
     public class PropertyWithSimulatedFallbackTests
     {
         [TestMethod]
+        public void TestThatExceptionThrownWhenDefaultValueIsInvalid()
+        {
+            Action a = () =>
+            {
+                var prop = new PropertyWithSimulatedFallback<int>(
+                    () => throw new NotImplementedException(),
+                    value => throw new NotImplementedException(),
+                    ex => true,
+                    initialFallbackValue: Any.NegativeInt(),
+                    fallbackValidator: value => value > 0);
+            };
+
+            a.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
         public void TestThatRetrievalWorksWhenGetterSupportsIt()
         {
             var anyInt = Any.Int();
@@ -70,6 +86,21 @@ namespace NClap.Tests.Utilities
 
             prop.Value = anyInt;
             prop.Value.Should().Be(anyInt);
+        }
+
+        [TestMethod]
+        public void TestThatStoringThrowsWhenInputValueDoesNotPassValidation()
+        {
+            var prop = new PropertyWithSimulatedFallback<int>(
+                () => throw new NotSupportedException(),
+                value => throw new NotSupportedException(),
+                ex => true,
+                fallbackValidator: value => value >= 0);
+
+            prop.Invoking(p => p.Value = Any.NegativeInt())
+                .Should().Throw<ArgumentOutOfRangeException>();
+
+            prop.Value.Should().Be(default(int));
         }
     }
 }

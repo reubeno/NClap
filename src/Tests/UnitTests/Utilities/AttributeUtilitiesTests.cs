@@ -33,7 +33,7 @@ namespace NClap.Tests.Utilities
         {
             var method = this.GetType().GetTypeInfo().GetMember(nameof(MethodWithAttributeYieldsAttribute))[0];
             var attribs = AttributeUtilities.GetAttributes<TestMethodAttribute>(method).ToList();
-            attribs.Should().HaveCount(1);
+            attribs.Should().ContainSingle();
             attribs[0].Should().BeOfType<TestMethodAttribute>();
         }
 

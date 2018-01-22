@@ -19,7 +19,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates the "use color or not" preference.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="useColor">true to use color; false otherwise.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> Color(this FluentBuilder<ArgumentSetHelpOptions> builder, bool useColor)
@@ -31,7 +31,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates the maximum width.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="maxWidth">Maximum width.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> MaxWidth(this FluentBuilder<ArgumentSetHelpOptions> builder, int maxWidth)
@@ -41,9 +41,21 @@ namespace NClap.Help
         }
 
         /// <summary>
+        /// Update enum value help flags.
+        /// </summary>
+        /// <param name="builder">Options builder.</param>
+        /// <param name="flags">New flags.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> EnumValueFlags(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentEnumValueHelpFlags flags)
+        {
+            builder.AddTransformer(options => options.EnumValues.Flags = flags);
+            return builder;
+        }
+
+        /// <summary>
         /// Updates help options to add blank lines between adjacent arguments.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="blankLineCount">Count of blank lines to add.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> BlankLinesBetweenArguments(this FluentBuilder<ArgumentSetHelpOptions> builder, int blankLineCount = 1)
@@ -55,7 +67,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates default mode for display of arguments' default values.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="mode">Desired mode.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> DefaultValues(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentDefaultValueHelpMode mode)
@@ -67,7 +79,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates default mode for display of arguments' short names.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="mode">Desired mode.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ShortNames(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentShortNameHelpMode mode)
@@ -79,7 +91,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates help options to use a one-column layout.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> OneColumnLayout(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
@@ -90,7 +102,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates help options to use a two-column layout.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> TwoColumnLayout(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
@@ -101,7 +113,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates help options to use the given column widths.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="widths">Column widths.</param>
         /// <returns>The updated options.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ColumnWidths(this FluentBuilder<ArgumentSetHelpOptions> builder, params int[] widths)
@@ -130,7 +142,7 @@ namespace NClap.Help
         /// <summary>
         /// Updates help options to use the given column widths.
         /// </summary>
-        /// <param name="builder">Options builders.</param>
+        /// <param name="builder">Options builder.</param>
         /// <param name="defaultSeparator">Default separator to use.</param>
         /// <param name="firstLineSeparator">Separator to use only on first line,
         /// or null to have default used on first line as well.</param>

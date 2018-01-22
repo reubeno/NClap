@@ -1,0 +1,1 @@
+static NClap.Help.ArgumentSetHelpOptionsExtensions.EnumValueFlags(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, NClap.Help.ArgumentEnumValueHelpFlags flags) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>

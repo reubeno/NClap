@@ -88,6 +88,7 @@ namespace NClap.Parser
         /// false indicates that a failure occurred.</returns>
         public bool TryFinalize(IFileSystemReader fileSystemReader)
         {
+            // If we haven't seen a value for this argument, then fill in the default.
             if (!SeenValue && Argument.HasDefaultValue)
             {
                 if (!TryValidateValue(Argument.DefaultValue, new ArgumentValidationContext(fileSystemReader)))
@@ -101,8 +102,7 @@ namespace NClap.Parser
                 }
             }
 
-            // For RestOfLine arguments, null means not seen, 0-length array means argument was given
-            // but the rest of the line was empty, longer array contains rest of the line.
+            // If this is a collection, then create the collection.
             if (Argument.IsCollection && (SeenValue || !Argument.TakesRestOfLine) && (DestinationObject != null))
             {
                 if (!TryCreateCollection(Argument.CollectionArgumentType, CollectionValues, out object collection))
@@ -221,21 +221,19 @@ namespace NClap.Parser
                 {
                     CollectionValues.Add(arg);
                 }
-
-                return true;
             }
             else if (IsObjectPresent(DestinationObject))
             {
                 var restOfLineAsList = restOfLine.ToList();
-                return TrySetValue(
-                    DestinationObject,
+                if (!TrySetValue(DestinationObject,
                     CreateCommandLine(restOfLineAsList),
-                    string.Join(" ", restOfLineAsList));
+                    string.Join(" ", restOfLineAsList)))
+                {
+                    return false;
+                }
             }
-            else
-            {
-                return true;
-            }
+
+            return true;
         }
 
         /// <summary>

@@ -26,7 +26,8 @@ namespace NClap.ConsoleInput.Windows
         /// occurs.</exception>
         public override void ScrollContents(int lineCount)
         {
-            var handle = NativeMethods.GetStdHandle(NativeMethods.StandardHandleType.Output);
+            if (lineCount < 0) throw new ArgumentOutOfRangeException(nameof(lineCount));
+            if (lineCount == 0) return;
 
             var fill = new NativeMethods.CharInfo
             {
@@ -52,6 +53,12 @@ namespace NClap.ConsoleInput.Windows
                 Bottom = (short)(BufferHeight - 1)
             };
 
+            var handle = NativeMethods.GetStdHandle(NativeMethods.StandardHandleType.Output);
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+
             if (!NativeMethods.ScrollConsoleScreenBuffer(handle, ref scrollRect, ref clipRect, destOrigin, ref fill))
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -66,42 +73,42 @@ namespace NClap.ConsoleInput.Windows
         /// </summary>
         /// <param name="color">The color to translate.</param>
         /// <returns>The translated native attributes.</returns>
-        private static NativeMethods.CharAttributes TranslateBackgroundColor(ConsoleColor color)
+        internal static NativeMethods.CharAttributes TranslateBackgroundColor(ConsoleColor color)
         {
             switch (color)
             {
                 case ConsoleColor.Black:
-                    return NativeMethods.CharAttributes.None;
+                    return NativeMethods.CharAttributes.BackgroundBlack;
                 case ConsoleColor.DarkBlue:
-                    return NativeMethods.CharAttributes.BackgroundBlue;
+                    return NativeMethods.CharAttributes.BackgroundDarkBlue;
                 case ConsoleColor.DarkGreen:
-                    return NativeMethods.CharAttributes.BackgroundGreen;
+                    return NativeMethods.CharAttributes.BackgroundDarkGreen;
                 case ConsoleColor.DarkCyan:
-                    return NativeMethods.CharAttributes.BackgroundCyan;
+                    return NativeMethods.CharAttributes.BackgroundDarkCyan;
                 case ConsoleColor.DarkRed:
-                    return NativeMethods.CharAttributes.BackgroundRed;
+                    return NativeMethods.CharAttributes.BackgroundDarkRed;
                 case ConsoleColor.DarkMagenta:
-                    return NativeMethods.CharAttributes.BackgroundMagenta;
+                    return NativeMethods.CharAttributes.BackgroundDarkMagenta;
                 case ConsoleColor.DarkYellow:
-                    return NativeMethods.CharAttributes.BackgroundYellow;
+                    return NativeMethods.CharAttributes.BackgroundDarkYellow;
                 case ConsoleColor.Gray:
-                    return NativeMethods.CharAttributes.BackgroundWhite;
+                    return NativeMethods.CharAttributes.BackgroundGray;
                 case ConsoleColor.DarkGray:
-                    return NativeMethods.CharAttributes.BackgroundWhite;
+                    return NativeMethods.CharAttributes.BackgroundDarkGray;
                 case ConsoleColor.Blue:
-                    return NativeMethods.CharAttributes.BackgroundIntenseBlue;
+                    return NativeMethods.CharAttributes.BackgroundBlue;
                 case ConsoleColor.Green:
-                    return NativeMethods.CharAttributes.BackgroundIntenseGreen;
+                    return NativeMethods.CharAttributes.BackgroundGreen;
                 case ConsoleColor.Cyan:
-                    return NativeMethods.CharAttributes.BackgroundIntenseCyan;
+                    return NativeMethods.CharAttributes.BackgroundCyan;
                 case ConsoleColor.Red:
-                    return NativeMethods.CharAttributes.BackgroundIntenseRed;
+                    return NativeMethods.CharAttributes.BackgroundRed;
                 case ConsoleColor.Magenta:
-                    return NativeMethods.CharAttributes.BackgroundIntenseMagenta;
+                    return NativeMethods.CharAttributes.BackgroundMagenta;
                 case ConsoleColor.Yellow:
-                    return NativeMethods.CharAttributes.BackgroundIntenseYellow;
+                    return NativeMethods.CharAttributes.BackgroundYellow;
                 case ConsoleColor.White:
-                    return NativeMethods.CharAttributes.BackgroundIntenseWhite;
+                    return NativeMethods.CharAttributes.BackgroundWhite;
                 default:
                     return NativeMethods.CharAttributes.None;
             }

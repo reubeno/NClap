@@ -44,7 +44,10 @@ namespace NClap.Tests.Parser
         {
         }
 
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine, Examples = new[] { "SimpleArgs /mu=4" })]
+        [ArgumentSet(
+            Style = ArgumentSetStyle.WindowsCommandLine,
+            Logo = "My logo",
+            Examples = new[] { "SimpleArgs /mu=4" })]
         class SimpleArguments : HelpArgumentsBase
         {
             [NamedArgument(ArgumentFlags.AtMostOnce, Description = "Some boolean")]
@@ -112,6 +115,28 @@ namespace NClap.Tests.Parser
         {
             [NamedArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
             public string AllArguments;
+        }
+
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
+        class AllArgumentsAsUnsettableNamedArgumentString
+        {
+            [NamedArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
+            public string AllArguments
+            {
+                get => string.Empty;
+                set => throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
+        class AllArgumentsAsUnsettablePositionalArgumentString
+        {
+            [PositionalArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
+            public string AllArguments
+            {
+                get => string.Empty;
+                set => throw new ArgumentOutOfRangeException();
+            }
         }
 
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
@@ -369,6 +394,17 @@ namespace NClap.Tests.Parser
         }
 
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
+        class ListPropertyThatThrowsArguments
+        {
+            [NamedArgument(ArgumentFlags.Multiple, LongName = "Value")]
+            public List<string> Values
+            {
+                get => null;
+                set => throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class CustomPropertyArguments
         {
             private string _value;
@@ -524,6 +560,36 @@ namespace NClap.Tests.Parser
             private int PrivateValue { get; set; }
         }
 
+        class InvalidLayout : ArgumentHelpLayout
+        {
+            public override ArgumentHelpLayout DeepClone() => new InvalidLayout();
+        }
+
+        enum EmptyEnum
+        {
+        }
+
+        enum EffectivelyEmptyEnum
+        {
+            [ArgumentValue(Flags = ArgumentValueFlags.Disallowed)]
+            DisallowedValue
+        }
+
+        class ArgumentsWithEmptyEnum
+        {
+            [NamedArgument]
+            public EmptyEnum Value { get; set; }
+
+            [NamedArgument]
+            public EmptyEnum OtherValue { get; set; }
+
+            [NamedArgument]
+            public EffectivelyEmptyEnum OtherOtherValue { get; set; }
+
+            [NamedArgument]
+            public EffectivelyEmptyEnum OtherOtherOtherValue { get; set; }
+        }
+
 #pragma warning restore 0649
 
         [TestMethod]
@@ -555,37 +621,90 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
-        public void GetUsageStringWorks()
+        public void GetUsageStringWorksWithNoArguments()
         {
-            //
-            // Try a few variations.
-            //
-
             GetUsageStringWorks(new NoArguments());
+        }
 
+        [TestMethod]
+        public void GetUsageStringWorksWithSimpleArguments()
+        {
             GetUsageStringWorks(new SimpleArguments());
+        }
+
+        [TestMethod]
+        public void GetUsageStringWorksWithNewlyConstructedOptions()
+        {
 
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions());
+        }
 
+        [TestMethod]
+        public void GetUsageStringWorksWithNoColor()
+        {
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
                 .With()
                 .Color(false));
+        }
 
+        [TestMethod]
+        public void GetUsageStringWorksWithOneColumnLayout()
+        {
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
                 .With()
                 .OneColumnLayout());
+        }
 
+        [TestMethod]
+        public void GetUsageStringWorksWithInterestingLayout()
+        {
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
                 .With()
                 .TwoColumnLayout()
                 .BlankLinesBetweenArguments()
                 .ShortNames(ArgumentShortNameHelpMode.IncludeWithLongName)
                 .DefaultValues(ArgumentDefaultValueHelpMode.PrependToDescription));
+        }
 
+        [TestMethod]
+        public void GetUsageStringWorksWithMultipleSkippedBlankLines()
+        {
             GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
                 .With()
                 .BlankLinesBetweenArguments(2));
+        }
 
+        [TestMethod]
+        public void GetUsageStringWorksWithEmptyEnumAndNoneEnumFlags()
+        {
+            GetUsageStringWorks(new ArgumentsWithEmptyEnum(), options: new ArgumentSetHelpOptions()
+                .With()
+                .OneColumnLayout()
+                .EnumValueFlags(ArgumentEnumValueHelpFlags.None));
+
+            GetUsageStringWorks(new ArgumentsWithEmptyEnum(), options: new ArgumentSetHelpOptions()
+                .With()
+                .TwoColumnLayout()
+                .EnumValueFlags(ArgumentEnumValueHelpFlags.None));
+        }
+
+        [TestMethod]
+        public void GetUsageStringWorksWithEmptyEnumAndCoalescedEnums()
+        {
+            GetUsageStringWorks(new ArgumentsWithEmptyEnum(), options: new ArgumentSetHelpOptions()
+                .With()
+                .OneColumnLayout()
+                .EnumValueFlags(ArgumentEnumValueHelpFlags.SingleSummaryOfEnumsWithMultipleUses));
+
+            GetUsageStringWorks(new ArgumentsWithEmptyEnum(), options: new ArgumentSetHelpOptions()
+                .With()
+                .TwoColumnLayout()
+                .EnumValueFlags(ArgumentEnumValueHelpFlags.SingleSummaryOfEnumsWithMultipleUses));
+        }
+
+        [TestMethod]
+        public void GetUsageStringWorksWithPositionalArguments()
+        {
             GetUsageStringWorks(new PositionalArguments());
         }
 
@@ -613,6 +732,10 @@ namespace NClap.Tests.Parser
             helpOptions = helpOptions
                 .With()
                 .ColumnSeparator(" ", "-----");
+            a.Should().Throw<NotSupportedException>();
+
+            // Invalid layout.
+            helpOptions.Arguments.Layout = new InvalidLayout();
             a.Should().Throw<NotSupportedException>();
         }
 
@@ -644,14 +767,22 @@ namespace NClap.Tests.Parser
 
             var usageStr = CommandLineParser.GetUsageInfo(
                 typeof(T), widerOptions, args).ToString();
-            usageStr.Should().NotBeNullOrWhiteSpace();
+            AssertThatUsageInfoSeemsSane(usageStr, widerOptions.MaxWidth.Value);
 
             var narrowOptions = options?.DeepClone() ?? new ArgumentSetHelpOptions();
-            narrowOptions.MaxWidth = 60;
+            narrowOptions.MaxWidth = 20;
 
             var narrowUsageStr = CommandLineParser.GetUsageInfo(
                 typeof(T), narrowOptions, args).ToString();
-            narrowUsageStr.Should().NotBeNullOrWhiteSpace();
+            AssertThatUsageInfoSeemsSane(usageStr, widerOptions.MaxWidth.Value);
+        }
+
+        private static void AssertThatUsageInfoSeemsSane(string value, int maxWidth)
+        {
+            value.Should().NotBeNullOrEmpty();
+
+            var lines = value.Replace("\r", string.Empty).Split('\n');
+            lines.Should().NotContain(line => line.Length > maxWidth);
         }
 
         [TestMethod]
@@ -673,7 +804,7 @@ namespace NClap.Tests.Parser
             TryParseWithUsage(new[] { "foo", "bar" }, args).Should().BeTrue();
             args.Args.Should().NotBeNull();
             args.Args.Length.Should().Be(2);
-            args.Args[0].Should().Be("foo");
+            args.Args.Should().HaveElementAt(0, "foo");
             args.Args[1].Should().Be("bar");
 
             CommandLineParser.Format(args).Should().Equal("foo", "bar");
@@ -813,14 +944,28 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
+        public void RestOfLineAsOneUnsettableNamedString()
+        {
+            var args = new AllArgumentsAsUnsettableNamedArgumentString();
+            TryParse(new[] { "/AllArguments:foo", "bar" }, args).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void RestOfLineAsOneUnsettablePositionalString()
+        {
+            var args = new AllArgumentsAsUnsettablePositionalArgumentString();
+            TryParse(new[] { "foo", "bar" }, args).Should().BeFalse();
+        }
+
+        [TestMethod]
         public void RestOfLineAsArrayContainingQuestionMark()
         {
             var args = new AllArgumentsAsArray();
             TryParse(new[] { "foo", "/?" }, args).Should().BeTrue();
             args.AllArguments.Should().NotBeNull();
             args.AllArguments.Length.Should().Be(2);
-            args.AllArguments[0].Should().Be("foo");
-            args.AllArguments[1].Should().Be("/?");
+            args.AllArguments.Should().HaveElementAt(0, "foo");
+            args.AllArguments.Should().HaveElementAt(1, "/?");
         }
 
         [TestMethod]
@@ -838,9 +983,9 @@ namespace NClap.Tests.Parser
             TryParse(new[] { "foo", "-bar+", "/foo=baz" }, args).Should().BeTrue();
             args.AllArguments.Should().NotBeNull();
             args.AllArguments.Length.Should().Be(3);
-            args.AllArguments[0].Should().Be("foo");
-            args.AllArguments[1].Should().Be("-bar+");
-            args.AllArguments[2].Should().Be("/foo=baz");
+            args.AllArguments.Should().HaveElementAt(0, "foo");
+            args.AllArguments.Should().HaveElementAt(1, "-bar+");
+            args.AllArguments.Should().HaveElementAt(2, "/foo=baz");
         }
 
         [TestMethod]
@@ -1109,8 +1254,8 @@ namespace NClap.Tests.Parser
             var args = new ListArguments();
             TryParse(new[] { "/value=a", "/value=b" }, args).Should().Be(true);
 
-            args.Values[0].Should().Be("a");
-            args.Values[1].Should().Be("b");
+            args.Values.Should().HaveElementAt(0, "a");
+            args.Values.Should().HaveElementAt(1, "b");
         }
 
         [TestMethod]
@@ -1128,8 +1273,15 @@ namespace NClap.Tests.Parser
             var args = new ListPropertyArguments();
             TryParse(new[] { "/value=a", "/value=b" }, args).Should().BeTrue();
 
-            args.Values[0].Should().Be("a");
-            args.Values[1].Should().Be("b");
+            args.Values.Should().HaveElementAt(0, "a");
+            args.Values.Should().HaveElementAt(1, "b");
+        }
+
+        [TestMethod]
+        public void TestThatStringListPropertyThatThrowsDoesNotParse()
+        {
+            var args = new ListPropertyThatThrowsArguments();
+            TryParse(new[] { "/value=a", "/value=b" }, args).Should().BeFalse();
         }
 
         [TestMethod]

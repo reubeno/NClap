@@ -57,6 +57,15 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
+        public void TestThatPropertyUpdateNoOpIsOkay()
+        {
+            var con = BasicConsole.Default;
+
+            con.Invoking(c => c.CursorVisible = c.CursorVisible).Should().NotThrow();
+            con.Invoking(c => c.TreatControlCAsInput = c.TreatControlCAsInput).Should().NotThrow();
+        }
+
+        [TestMethod]
         public void TestThatBaseImplementationIsNotScrollable()
         {
             var con = BasicConsole.BaseInstance;
@@ -94,6 +103,37 @@ namespace NClap.Tests.ConsoleInput
 
             con.CursorLeft.Should().Be(cursor.Left);
             con.CursorTop.Should().Be(cursor.Top);
+        }
+
+        [TestMethod]
+        public void TestThatExceptionThrownWhenSettingInvalidCursorSize()
+        {
+            var con = BasicConsole.Default;
+            con.Invoking(c => c.CursorSize = -1).Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void TestThatExceptionThrownWhenSettingInvalidCursorPosition()
+        {
+            var con = BasicConsole.Default;
+            con.Invoking(c => c.CursorLeft = -1).Should().Throw<ArgumentOutOfRangeException>();
+            con.Invoking(c => c.CursorTop = -1).Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void TestThatExceptionThrownWhenSettingInvalidWindowDimensions()
+        {
+            var con = BasicConsole.Default;
+            con.Invoking(c => c.WindowWidth = -1).Should().Throw<ArgumentOutOfRangeException>();
+            con.Invoking(c => c.WindowHeight = -1).Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void TestThatExceptionThrownWhenSettingInvalidBufferDimensions()
+        {
+            var con = BasicConsole.Default;
+            con.Invoking(c => c.BufferWidth = -1).Should().Throw<ArgumentOutOfRangeException>();
+            con.Invoking(c => c.BufferHeight = -1).Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]

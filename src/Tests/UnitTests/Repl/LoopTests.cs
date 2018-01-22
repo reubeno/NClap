@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.ConsoleInput;
+using NClap.Help;
 using NClap.Metadata;
 using NClap.Repl;
 using NClap.Tests.ConsoleInput;
@@ -172,6 +173,10 @@ namespace NClap.Tests.Repl
         [TestMethod]
         public void GetHelp()
         {
+            HelpCommand.DefaultHelpOptions = HelpCommand.DefaultHelpOptions
+                .With()
+                .TwoColumnLayout();
+
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("Help", "Help help", "Help exit", (string)null);
 

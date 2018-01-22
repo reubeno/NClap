@@ -23,14 +23,14 @@ namespace NClap.Tests.Utilities
     [TestClass]
     public class ColoredMultistringBuilderTests
     {
-        private static readonly Random random = new Random();
+        private readonly HashSet<TextColor> colorsUsed = new HashSet<TextColor>();
 
         private const string anyString = "TesT";
         private const char anyChar = 'x';
 
         private static readonly string[] anyArrayOfMultipleStrings = new[]
         {
-            "Hello", ", world", "!"
+            "Hello", ": world", "!"
         };
 
         private ColoredString[] anyArrayOfMultipleColoredStrings;
@@ -39,7 +39,7 @@ namespace NClap.Tests.Utilities
         public void Initialize()
         {
             anyArrayOfMultipleColoredStrings = anyArrayOfMultipleStrings.Select(
-                s => CreateColoredString(s)).ToArray();
+                s => AnyColoredString(s)).ToArray();
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestAppendingOnePieceToEmptyBuilderYieldsBackCopyOfPiece()
         {
-            var anyCs = CreateColoredString();
+            var anyCs = AnyColoredString();
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(anyCs);
@@ -251,8 +251,8 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestTruncationTrimsContentFromLastPiece()
         {
-            var anyFirstCs = CreateColoredString("ab");
-            var anySecondCs = CreateColoredString("cde");
+            var anyFirstCs = AnyColoredString("ab");
+            var anySecondCs = AnyColoredString("cde");
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(new[] { anyFirstCs, anySecondCs });
@@ -260,14 +260,14 @@ namespace NClap.Tests.Utilities
             builder.Truncate(3);
             builder.ShouldProduce(
                 anyFirstCs,
-                new ColoredString("c", anySecondCs.ForegroundColor, anySecondCs.BackgroundColor));
+                anySecondCs.WithContent("c"));
         }
 
         [TestMethod]
         public void TestIndexOperationRetrievesCorrectCharacter()
         {
-            var anyFirstString = CreateColoredString("abc");
-            var anySecondString = CreateColoredString("def");
+            var anyFirstString = AnyColoredString("abc");
+            var anySecondString = AnyColoredString("def");
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(new ColoredString[] { anyFirstString, anySecondString });
@@ -288,8 +288,8 @@ namespace NClap.Tests.Utilities
         {
             const char anyUpdatedChar = 'Y';
 
-            var anyFirstString = CreateColoredString("abc");
-            var anySecondString = CreateColoredString("defg");
+            var anyFirstString = AnyColoredString("abc");
+            var anySecondString = AnyColoredString("defg");
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(new ColoredString[] { anyFirstString, anySecondString });
@@ -298,8 +298,8 @@ namespace NClap.Tests.Utilities
             builder[6] = anyUpdatedChar;
 
             builder.ShouldProduce(
-                new ColoredString("Ybc", anyFirstString.ForegroundColor, anyFirstString.BackgroundColor),
-                new ColoredString("defY", anySecondString.ForegroundColor, anySecondString.BackgroundColor));
+                anyFirstString.WithContent("Ybc"),
+                anySecondString.WithContent("defY"));
         }
 
         [TestMethod]
@@ -327,7 +327,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestIndexGetOperationThrowsOnTooLargeIndex()
         {
-            var anyColoredString = CreateColoredString();
+            var anyColoredString = AnyColoredString();
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(anyColoredString);
@@ -339,7 +339,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestIndexSetOperationThrowsOnTooLargeIndex()
         {
-            var anyColoredString = CreateColoredString();
+            var anyColoredString = AnyColoredString();
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(anyColoredString);
@@ -361,7 +361,7 @@ namespace NClap.Tests.Utilities
             }
 
             builder.CopyTo(1, buffer, 3, 5);
-            buffer.Should().Equal(new[] { ' ', ' ', ' ', 'e', 'l', 'l', 'o', ',', });
+            buffer.Should().Equal(new[] { ' ', ' ', ' ', 'e', 'l', 'l', 'o', ':', });
         }
 
         [TestMethod]
@@ -431,7 +431,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestCharInsertionInMiddleOfPieceWithDifferentColor()
         {
-            var cs = CreateColoredString("abc");
+            var cs = AnyColoredString("abc");
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(cs);
@@ -439,9 +439,9 @@ namespace NClap.Tests.Utilities
             builder.Insert(1, 'x');
 
             builder.ShouldProduce(
-                new ColoredString("a", cs.ForegroundColor, cs.BackgroundColor),
+                cs.WithContent("a"),
                 new ColoredString("x"),
-                new ColoredString("bc", cs.ForegroundColor, cs.BackgroundColor));
+                cs.WithContent("bc"));
         }
 
         [TestMethod]
@@ -485,7 +485,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestStringInsertionInMiddleOfPieceWithDifferentColor()
         {
-            var cs = CreateColoredString("abc");
+            var cs = AnyColoredString("abc");
 
             var builder = new ColoredMultistringBuilder();
             builder.Append(cs);
@@ -616,27 +616,22 @@ namespace NClap.Tests.Utilities
                 piece.ForegroundColor, piece.BackgroundColor));
         }
 
-        private static ColoredString CreateColoredString(string strContent = null)
+        private ColoredString AnyColoredString(string strContent = null)
         {
-            ConsoleColor? anyFgColor = AnyConsoleColor();
-            ConsoleColor? anyBgColor = AnyConsoleColor();
+            TextColor tc;
 
-            return new ColoredString(
-                strContent ?? anyString,
-                anyFgColor,
-                anyBgColor);
+            do
+            {
+                tc = new TextColor
+                {
+                    Foreground = Any.Enum<ConsoleColor>(),
+                    Background = Any.Enum<ConsoleColor>()
+                };
+            } while (colorsUsed.Contains(tc));
+
+            colorsUsed.Add(tc);
+
+            return new ColoredString(strContent ?? anyString, tc);
         }
-
-        private static ConsoleColor AnyConsoleColor() => AnyOfEnum<ConsoleColor>();
-
-        private static T AnyOfEnum<T>() where T : struct
-        {
-            var values = typeof(T).GetTypeInfo().GetEnumValues();
-            var index = AnyNonNegativeIntegerLessThan(values.Length);
-            return (T)values.GetValue(index);
-        }
-
-        private static int AnyNonNegativeIntegerLessThan(int exclusiveUpperBound) =>
-            random.Next(exclusiveUpperBound);
     }
 }

@@ -65,5 +65,13 @@ namespace NClap.Tests.Types
             values[0].LongName.Should().Be(nameof(TestEnum2.SomeOtherValue));
             values[1].LongName.Should().Be(nameof(TestEnum1.SomeValue));
         }
+
+        [TestMethod]
+        public void TestThatMergedEnumTypeCannotParseIntegerLiteral()
+        {
+            var argType = new MergedEnumArgumentType(new[] { typeof(TestEnum1), typeof(TestEnum2) });
+            argType.TryParse(ArgumentParseContext.Default, "0", out object parsedValue)
+                .Should().BeFalse();
+        }
     }
 }
