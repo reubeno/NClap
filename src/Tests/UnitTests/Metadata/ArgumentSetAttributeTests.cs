@@ -70,6 +70,9 @@ namespace NClap.Tests.Metadata
         {
             [NamedArgument(ShortName = "v")]
             public int Value { get; set; }
+
+            [NamedArgument(ShortName = "o")]
+            public bool OtherValue { get; set; }
         }
 
         [ArgumentSet(
@@ -207,6 +210,8 @@ namespace NClap.Tests.Metadata
             args.Value1.Should().BeTrue();
             args.Value2.Should().BeTrue();
 
+            TryParse(new[] { "/xf" }, args).Should().BeFalse();
+
             TryParse(new[] { "/xz" }, args).Should().BeFalse();
         }
 
@@ -222,6 +227,8 @@ namespace NClap.Tests.Metadata
             args.Value.Should().Be(8);
 
             TryParse(new[] { "-v" }, args).Should().BeFalse();
+
+            TryParse(new[] { "/ov8" }, args).Should().BeFalse();
         }
 
         [TestMethod]
@@ -340,7 +347,7 @@ namespace NClap.Tests.Metadata
             {
                 Logo = new ColoredString("Test", ConsoleColor.Yellow)
             };
-            attrib.LogoString.Content.Should().HaveCount(1);
+            attrib.LogoString.Content.Should().ContainSingle();
             attrib.LogoString.Content[0].Content.Should().Be("Test");
             attrib.LogoString.Content[0].ForegroundColor.Should().Be(ConsoleColor.Yellow);
         }

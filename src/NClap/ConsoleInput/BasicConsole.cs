@@ -26,7 +26,8 @@ namespace NClap.ConsoleInput
 
         private readonly PropertyWithSimulatedFallback<int> _cursorSize = CreateProperty(
             () => Console.CursorSize, value => Console.CursorSize = value,
-            _defaultCursorSize);
+            _defaultCursorSize,
+            size => size >= 0 && size <= 100);
 
         private readonly PropertyWithSimulatedFallback<bool> _cursorVisible = CreateProperty(
             () => Console.CursorVisible, value => Console.CursorVisible = value,
@@ -34,35 +35,43 @@ namespace NClap.ConsoleInput
 
         private readonly PropertyWithSimulatedFallback<int> _cursorLeft = CreateProperty(
             () => Console.CursorLeft, value => Console.CursorLeft = value,
-            _defaultCursorLeft);
+            _defaultCursorLeft,
+            left => left >= 0);
 
         private readonly PropertyWithSimulatedFallback<int> _cursorTop = CreateProperty(
             () => Console.CursorTop, value => Console.CursorTop = value,
-            _defaultCursorTop);
+            _defaultCursorTop,
+            top => top >= 0);
 
         private readonly PropertyWithSimulatedFallback<int> _windowWidth = CreateProperty(
             () => Console.WindowWidth, value => Console.WindowWidth = value,
-            _defaultWidth);
+            _defaultWidth,
+            width => width > 0);
 
         private readonly PropertyWithSimulatedFallback<int> _windowHeight = CreateProperty(
             () => Console.WindowHeight, value => Console.WindowHeight = value,
-            _defaultHeight);
+            _defaultHeight,
+            height => height > 0);
 
         private readonly PropertyWithSimulatedFallback<int> _bufferWidth = CreateProperty(
             () => Console.BufferWidth, value => Console.BufferWidth = value,
-            _defaultWidth);
+            _defaultWidth,
+            width => width > 0);
 
         private readonly PropertyWithSimulatedFallback<int> _bufferHeight = CreateProperty(
             () => Console.BufferHeight, value => Console.BufferHeight = value,
-            _defaultHeight);
+            _defaultHeight,
+            height => height > 0);
 
         private readonly PropertyWithSimulatedFallback<ConsoleColor> _foregroundColor = CreateProperty(
             () => Console.ForegroundColor, value => Console.ForegroundColor = value,
-            _defaultForegroundColor);
+            _defaultForegroundColor,
+            color => color >= ConsoleColor.Black && color <= ConsoleColor.White);
 
         private readonly PropertyWithSimulatedFallback<ConsoleColor> _backgroundColor = CreateProperty(
             () => Console.BackgroundColor, value => Console.BackgroundColor = value,
-            _defaultBackgroundColor);
+            _defaultBackgroundColor,
+            color => color >= ConsoleColor.Black && color <= ConsoleColor.White);
 
         private readonly PropertyWithSimulatedFallback<bool> _treatControlCAsInput = CreateProperty(
             () => Console.TreatControlCAsInput, value => Console.TreatControlCAsInput = value,
@@ -326,11 +335,12 @@ namespace NClap.ConsoleInput
         private static bool IsExceptionAcceptable(Exception ex) =>
             ex is PlatformNotSupportedException || ex is IOException;
 
-        private static PropertyWithSimulatedFallback<T> CreateProperty<T>(Func<T> getter, Action<T> setter, T initialFallbackValue) =>
+        private static PropertyWithSimulatedFallback<T> CreateProperty<T>(Func<T> getter, Action<T> setter, T initialFallbackValue, Predicate<T> validator = null) =>
             new PropertyWithSimulatedFallback<T>(
                 getter,
                 setter,
                 IsExceptionAcceptable,
-                initialFallbackValue);
+                initialFallbackValue,
+                validator);
     }
 }

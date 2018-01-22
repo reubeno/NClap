@@ -73,7 +73,7 @@ namespace NClap.Tests.ConsoleInput
             lookupAction.Should().Throw<KeyNotFoundException>();
 
             var pairs = bindings.ToList();
-            pairs.Should().HaveCount(1);
+            pairs.Should().ContainSingle();
             pairs.Should().Equal(new KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>(keyInfo, op));
         }
 
@@ -133,7 +133,7 @@ namespace NClap.Tests.ConsoleInput
             bindings.Bind(anyKey, ConsoleModifiers.Control, oldOp);
             bindings.Bind(anyKey, ConsoleModifiers.Control, newOp);
 
-            bindings.Values.Should().HaveCount(1);
+            bindings.Values.Should().ContainSingle();
 
             var keyInfo = new ConsoleKeyInfo('\x04', anyKey, false, false, true);
             bindings[keyInfo].Should().Be(newOp);
@@ -150,7 +150,7 @@ namespace NClap.Tests.ConsoleInput
             bindings.BindWithIgnoredModifiers(anyKey, anyOp);
 
             // It's not enumerable.
-            bindings.Values.Should().HaveCount(0);
+            bindings.Values.Should().BeEmpty();
 
             // ...but it's retrievable.
             void ValidateItIsRetrievableWithModifier(ConsoleModifiers mods)

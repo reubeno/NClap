@@ -221,13 +221,18 @@ namespace NClap.Help
             out IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumented,
             out IEnumerable<IEnumArgumentType> separatelyDocumented)
         {
-            // Find all enum types in the full type graph of the argument set.
+            // Find all enum types in the full type graph of the argument set; this
+            // "type map" will map each unique enum type to the one or more arguments that
+            // reference it.
             var enumTypeMap = GetAllArgumentTypeMap(setInfo, t => t is IEnumArgumentType);
 
-            // Construct a dictionary for us to register inline-documented types.
+            // Construct a dictionary for us to register inline-documented types; it will
+            // map from argument to the list of enum types that should be inline documented
+            // with it.
             var id = new Dictionary<ArgumentUsageInfo, List<IEnumArgumentType>>();
 
-            // Construct a list for us to register separately-documented types.
+            // Construct a list for us to register separately-documented types; it should
+            // be a simple, unique list of enum types.
             var sd = new List<IEnumArgumentType>();
 
             // Look through all enum types.
@@ -270,14 +275,17 @@ namespace NClap.Help
                 // Otherwise, add it to the inline-documented map.
                 else
                 {
-                    var newKey = pair.Value.Single();
-                    if (!id.TryGetValue(newKey, out List<IEnumArgumentType> types))
+                    // Make sure to add it for each argument referencing it.
+                    foreach (var arg in pair.Value)
                     {
-                        types = new List<IEnumArgumentType>();
-                        id[newKey] = types;
-                    }
+                        if (!id.TryGetValue(arg, out List<IEnumArgumentType> types))
+                        {
+                            types = new List<IEnumArgumentType>();
+                            id[arg] = types;
+                        }
 
-                    types.Add(enumType);
+                        types.Add(enumType);
+                    }
                 }
             }
 
@@ -497,28 +505,36 @@ namespace NClap.Help
                 throw new NotSupportedException("Invalid column width 0.");
             }
 
-            var columnWidths = new int[2]
+            var specifiedWidths = new int[2]
             {
                 layout.ColumnWidths[0].GetValueOrDefault(0),
                 layout.ColumnWidths[1].GetValueOrDefault(0)
             };
 
-            if (columnWidths[0] == 0 && columnWidths[1] == 0)
+            var actualColumnWidths = new int[] { specifiedWidths[0], specifiedWidths[1] };
+
+            if (actualColumnWidths[0] == 0 && actualColumnWidths[1] == 0)
             {
-                columnWidths[0] = entriesList.Max(e => e.Syntax.Length);
-                if (columnWidths[0] > currentMaxWidth)
+                actualColumnWidths[0] = entriesList.Max(e => e.Syntax.Length);
+                if (actualColumnWidths[0] + layout.DefaultColumnSeparator.Length >= currentMaxWidth)
                 {
-                    columnWidths[0] = currentMaxWidth / 2;
+                    actualColumnWidths[0] = (currentMaxWidth - layout.DefaultColumnSeparator.Length) / 2;
                 }
             }
 
-            if (columnWidths[0] == 0) columnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[1];
-            if (columnWidths[1] == 0) columnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length - columnWidths[0];
+            if (actualColumnWidths[0] == 0) actualColumnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - actualColumnWidths[1];
+            if (actualColumnWidths[1] == 0) actualColumnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length - actualColumnWidths[0];
+
+            if (actualColumnWidths[0] <= 0 || actualColumnWidths[1] <= 0)
+            {
+                throw new NotSupportedException(
+                    $"Invalid actual column widths {actualColumnWidths[0]}, {actualColumnWidths[1]}; specified widths={specifiedWidths[0]},{specifiedWidths[1]}; current max width={currentMaxWidth}, column separator len={layout.DefaultColumnSeparator.Length}");
+            }
 
             return entriesList.Select(e =>
             {
-                var wrappedSyntaxLines = e.Syntax.Wrap(columnWidths[0]).Split('\n').ToList();
-                var wrappedDescLines = e.Description.Wrap(columnWidths[1]).Split('\n').ToList();
+                var wrappedSyntaxLines = e.Syntax.Wrap(actualColumnWidths[0]).Split('\n').ToList();
+                var wrappedDescLines = e.Description.Wrap(actualColumnWidths[1]).Split('\n').ToList();
 
                 var lineCount = Math.Max(wrappedSyntaxLines.Count, wrappedDescLines.Count);
                 while (wrappedSyntaxLines.Count < lineCount)
@@ -530,8 +546,8 @@ namespace NClap.Help
                     wrappedDescLines.Add(ColoredMultistring.Empty);
                 }
 
-                wrappedSyntaxLines = wrappedSyntaxLines.Select(line => RightPadWithSpace(line, columnWidths[0])).ToList();
-                wrappedDescLines = wrappedDescLines.Select(line => RightPadWithSpace(line, columnWidths[1])).ToList();
+                wrappedSyntaxLines = wrappedSyntaxLines.Select(line => RightPadWithSpace(line, actualColumnWidths[0])).ToList();
+                wrappedDescLines = wrappedDescLines.Select(line => RightPadWithSpace(line, actualColumnWidths[1])).ToList();
 
                 List<ColoredMultistring> linesList = new List<ColoredMultistring>();
                 for (var i = 0; i < wrappedSyntaxLines.Count; ++i)

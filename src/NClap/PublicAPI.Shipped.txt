@@ -952,3 +952,4 @@ virtual NClap.Types.CustomArgumentTypeBase.DependentTypes.get -> System.Collecti
 virtual NClap.Types.CustomArgumentTypeBase.Format(object value) -> string
 virtual NClap.Types.CustomArgumentTypeBase.GetCompletions(NClap.Types.ArgumentCompletionContext context, string valueToComplete) -> System.Collections.Generic.IEnumerable<string>
 virtual NClap.Types.CustomArgumentTypeBase.SyntaxSummary.get -> string
+static NClap.Help.ArgumentSetHelpOptionsExtensions.EnumValueFlags(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder, NClap.Help.ArgumentEnumValueHelpFlags flags) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>

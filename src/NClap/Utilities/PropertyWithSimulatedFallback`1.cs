@@ -13,6 +13,7 @@ namespace NClap.Utilities
         private readonly Func<T> _getter;
         private readonly Action<T> _setter;
         private readonly Predicate<Exception> _fallbackFilter;
+        private readonly Predicate<T> _fallbackValidator;
 
         private T _lastKnownValue;
 
@@ -28,13 +29,25 @@ namespace NClap.Utilities
         /// false, then this object will not catch the exception and it will be passed back
         /// up the stack.</param>
         /// <param name="initialFallbackValue">The default initial value to be used in fallback cases.</param>
+        /// <param name="fallbackValidator">Optionally provides a predicate to validate input values
+        /// in fallback cases.</param>
         public PropertyWithSimulatedFallback(
-            Func<T> getter, Action<T> setter, Predicate<Exception> fallbackFilter, T initialFallbackValue = default(T))
+            Func<T> getter, Action<T> setter,
+            Predicate<Exception> fallbackFilter,
+            T initialFallbackValue = default(T),
+            Predicate<T> fallbackValidator = null)
         {
             this._getter = getter;
             this._setter = setter;
             this._fallbackFilter = fallbackFilter;
             this._lastKnownValue = initialFallbackValue;
+            this._fallbackValidator = fallbackValidator ?? (value => true);
+
+            // Make sure the initial fallback value passes validation.
+            if (!this._fallbackValidator(initialFallbackValue))
+            {
+                throw new ArgumentOutOfRangeException(nameof(initialFallbackValue));
+            }
         }
 
         /// <summary>
@@ -56,6 +69,12 @@ namespace NClap.Utilities
 
             set
             {
+                // First validate the incoming value.
+                if (!_fallbackValidator(value))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
                 try
                 {
                     _setter(value);
@@ -65,6 +84,7 @@ namespace NClap.Utilities
                     // Nothing to do here.
                 }
 
+                // Only update the cached value if we got down here.
                 _lastKnownValue = value;
             }
         }

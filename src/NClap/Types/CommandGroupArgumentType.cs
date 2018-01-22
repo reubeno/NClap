@@ -43,12 +43,7 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            if (!ArgumentType.TryGetType(_commandTypeType, out IArgumentType commandArgType))
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
-
-            _commandArgType = (IEnumArgumentType)commandArgType;
+            _commandArgType = EnumArgumentType.Create(_commandTypeType);
         }
 
         /// <summary>

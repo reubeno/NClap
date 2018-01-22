@@ -17,11 +17,50 @@ namespace NClap.Tests.Parser
             public int MyValue { get; set; }
         }
 
+        private class TestClassWithField
+        {
+#pragma warning disable 0649 // Field is never assigned to, and will always have its default value
+            public int MyValue;
+#pragma warning restore 0649
+        }
+
+        private class TestClassWithEvent
+        {
+            public delegate void EventHandler();
+            public event EventHandler MyEvent;
+        }
+
         [TestMethod]
         public void TestThatExceptionThrownOnNullMember()
         {
             Action a = () => new ArgumentDefinition((MemberInfo)null, new NamedArgumentAttribute(), new ArgumentSetDefinition());
             a.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void TestThatArgumentDefinitionCanBeBackedByField()
+        {
+            var argSet = new ArgumentSetDefinition();
+
+            Action a = () => new ArgumentDefinition(
+                typeof(TestClassWithField).GetField(nameof(TestClassWithField.MyValue)),
+                new NamedArgumentAttribute(),
+                argSet);
+
+            a.Should().NotThrow();
+        }
+
+        [TestMethod]
+        public void TestThatArgumentDefinitionCannotBeBackedByEvent()
+        {
+            var argSet = new ArgumentSetDefinition();
+
+            Action a = () => new ArgumentDefinition(
+                typeof(TestClassWithEvent).GetEvent(nameof(TestClassWithEvent.MyEvent)),
+                new NamedArgumentAttribute(),
+                argSet);
+
+            a.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]

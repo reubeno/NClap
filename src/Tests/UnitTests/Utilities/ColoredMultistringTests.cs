@@ -13,7 +13,7 @@ namespace NClap.Tests.Utilities
         public void ConstructorCanTakeString()
         {
             var s = new ColoredMultistring("xyz");
-            s.Content.Should().HaveCount(1);
+            s.Content.Should().ContainSingle();
             s.Content[0].Content.Should().Be("xyz");
         }
 
@@ -95,7 +95,7 @@ namespace NClap.Tests.Utilities
             var s = CreateCMS("xy", "  ", "\t\t");
 
             var trimmed = (ColoredMultistring)s.TrimEnd();
-            trimmed.Content.Should().HaveCount(1);
+            trimmed.Content.Should().ContainSingle();
             trimmed.Content[0].Content.Should().Be("xy");
         }
 
@@ -105,7 +105,7 @@ namespace NClap.Tests.Utilities
             var s = CreateCMS("x yz \n");
 
             var trimmed = (ColoredMultistring)s.TrimEnd();
-            trimmed.Content.Should().HaveCount(1);
+            trimmed.Content.Should().ContainSingle();
             trimmed.Content[0].Content.Should().Be("x yz");
         }
 
@@ -115,7 +115,7 @@ namespace NClap.Tests.Utilities
             var s = CreateCMS("x yz \n", "\r\n");
 
             var trimmed = (ColoredMultistring)s.TrimEnd();
-            trimmed.Content.Should().HaveCount(1);
+            trimmed.Content.Should().ContainSingle();
             trimmed.Content[0].Content.Should().Be("x yz");
         }
 

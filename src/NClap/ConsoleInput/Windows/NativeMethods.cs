@@ -11,6 +11,17 @@ namespace NClap.ConsoleInput.Windows
     internal static class NativeMethods
     {
         /// <summary>
+        /// Win32 error.
+        /// </summary>
+        public enum Error
+        {
+            /// <summary>
+            /// An operation was attempted against an invalid handle.
+            /// </summary>
+            InvalidHandle = 6
+        }
+
+        /// <summary>
         /// Enumeration to encapsulate the possible arguments to <see cref="GetStdHandle"/>.
         /// </summary>
         public enum StandardHandleType
@@ -73,17 +84,17 @@ namespace NClap.ConsoleInput.Windows
             /// <summary>
             /// Foreground color is blue.
             /// </summary>
-            ForegroundBlue = 0x1,
+            ForegroundDarkBlue = 0x1,
 
             /// <summary>
             /// Foreground color is green.
             /// </summary>
-            ForegroundGreen = 0x2,
+            ForegroundDarkGreen = 0x2,
 
             /// <summary>
             /// Foreground color is red.
             /// </summary>
-            ForegroundRed = 0x4,
+            ForegroundDarkRed = 0x4,
 
             /// <summary>
             /// Foreground color is modified to be a more intense version of itself.
@@ -91,74 +102,84 @@ namespace NClap.ConsoleInput.Windows
             ForegroundIntensity = 0x8,
 
             /// <summary>
-            /// Foreground color is intense blue.
+            /// Foreground color is black.
             /// </summary>
-            ForegroundIntenseBlue = ForegroundBlue | ForegroundIntensity,
+            ForegroundBlack = None,
 
             /// <summary>
-            /// Foreground color is intense green.
+            /// Foreground color is dark gray.
             /// </summary>
-            ForegroundIntenseGreen = ForegroundGreen | ForegroundIntensity,
+            ForegroundDarkGray = ForegroundBlack | ForegroundIntensity,
 
             /// <summary>
-            /// Foreground color is intense red.
+            /// Foreground color is  blue.
             /// </summary>
-            ForegroundIntenseRed = ForegroundRed | ForegroundIntensity,
+            ForegroundBlue = ForegroundDarkBlue | ForegroundIntensity,
+
+            /// <summary>
+            /// Foreground color is  green.
+            /// </summary>
+            ForegroundGreen = ForegroundDarkGreen | ForegroundIntensity,
+
+            /// <summary>
+            /// Foreground color is  red.
+            /// </summary>
+            ForegroundRed = ForegroundDarkRed | ForegroundIntensity,
 
             /// <summary>
             /// Foreground color is cyan.
             /// </summary>
-            ForegroundCyan = ForegroundBlue | ForegroundGreen,
+            ForegroundDarkCyan = ForegroundDarkBlue | ForegroundDarkGreen,
 
             /// <summary>
-            /// Foreground color is intense cyan.
+            /// Foreground color is  cyan.
             /// </summary>
-            ForegroundIntenseCyan = ForegroundCyan | ForegroundIntensity,
+            ForegroundCyan = ForegroundDarkCyan | ForegroundIntensity,
 
             /// <summary>
             /// Foreground color is magenta.
             /// </summary>
-            ForegroundMagenta = ForegroundBlue | ForegroundRed,
+            ForegroundDarkMagenta = ForegroundDarkBlue | ForegroundDarkRed,
 
             /// <summary>
-            /// Foreground color is intense magenta.
+            /// Foreground color is  magenta.
             /// </summary>
-            ForegroundIntenseMagenta = ForegroundMagenta | ForegroundIntensity,
+            ForegroundMagenta = ForegroundDarkMagenta | ForegroundIntensity,
 
             /// <summary>
             /// Foreground color is yellow.
             /// </summary>
-            ForegroundYellow = ForegroundRed | ForegroundGreen,
+            ForegroundDarkYellow = ForegroundDarkRed | ForegroundDarkGreen,
 
             /// <summary>
-            /// Foreground color is intense yellow.
+            /// Foreground color is  yellow.
             /// </summary>
-            ForegroundIntenseYellow = ForegroundYellow | ForegroundIntensity,
+            ForegroundYellow = ForegroundDarkYellow | ForegroundIntensity,
+
+            /// <summary>
+            /// Foreground color is gray.
+            /// </summary>
+            ForegroundGray = ForegroundDarkRed | ForegroundDarkGreen | ForegroundDarkBlue,
 
             /// <summary>
             /// Foreground color is white.
             /// </summary>
-            ForegroundWhite = ForegroundRed | ForegroundGreen | ForegroundBlue,
-
-            /// <summary>
-            /// Foreground color is intense white.
-            /// </summary>
-            ForegroundIntenseWhite = ForegroundWhite | ForegroundIntensity,
+            ForegroundWhite = ForegroundGray | ForegroundIntensity,
 
             /// <summary>
             /// Background color is blue.
             /// </summary>
-            BackgroundBlue = 0x10,
+            BackgroundDarkBlue = 0x10,
 
             /// <summary>
             /// Background color is green.
             /// </summary>
-            BackgroundGreen = 0x20,
+            BackgroundDarkGreen = 0x20,
 
             /// <summary>
             /// Background color is red.
             /// </summary>
-            BackgroundRed = 0x40,
+            BackgroundDarkRed = 0x40,
 
             /// <summary>
             /// Background color is modified to be a more intense version of itself.
@@ -166,59 +187,69 @@ namespace NClap.ConsoleInput.Windows
             BackgroundIntensity = 0x80,
 
             /// <summary>
-            /// Background color is intense blue.
+            /// Background color is black.
             /// </summary>
-            BackgroundIntenseBlue = BackgroundBlue | BackgroundIntensity,
+            BackgroundBlack = None,
 
             /// <summary>
-            /// Background color is intense green.
+            /// Background color is dark gray.
             /// </summary>
-            BackgroundIntenseGreen = BackgroundGreen | BackgroundIntensity,
+            BackgroundDarkGray = BackgroundBlack | BackgroundIntensity,
 
             /// <summary>
-            /// Background color is intense red.
+            /// Background color is  blue.
             /// </summary>
-            BackgroundIntenseRed = BackgroundRed | BackgroundIntensity,
+            BackgroundBlue = BackgroundDarkBlue | BackgroundIntensity,
+
+            /// <summary>
+            /// Background color is  green.
+            /// </summary>
+            BackgroundGreen = BackgroundDarkGreen | BackgroundIntensity,
+
+            /// <summary>
+            /// Background color is  red.
+            /// </summary>
+            BackgroundRed = BackgroundDarkRed | BackgroundIntensity,
 
             /// <summary>
             /// Background color is cyan.
             /// </summary>
-            BackgroundCyan = BackgroundBlue | BackgroundGreen,
+            BackgroundDarkCyan = BackgroundDarkBlue | BackgroundDarkGreen,
 
             /// <summary>
-            /// Background color is intense cyan.
+            /// Background color is  cyan.
             /// </summary>
-            BackgroundIntenseCyan = BackgroundCyan | BackgroundIntensity,
+            BackgroundCyan = BackgroundDarkCyan | BackgroundIntensity,
 
             /// <summary>
             /// Background color is magenta.
             /// </summary>
-            BackgroundMagenta = BackgroundBlue | BackgroundRed,
+            BackgroundDarkMagenta = BackgroundDarkBlue | BackgroundDarkRed,
 
             /// <summary>
-            /// Background color is intense magenta.
+            /// Background color is  magenta.
             /// </summary>
-            BackgroundIntenseMagenta = BackgroundMagenta | BackgroundIntensity,
+            BackgroundMagenta = BackgroundDarkMagenta | BackgroundIntensity,
 
             /// <summary>
             /// Background color is yellow.
             /// </summary>
-            BackgroundYellow = BackgroundRed | BackgroundGreen,
+            BackgroundDarkYellow = BackgroundDarkRed | BackgroundDarkGreen,
 
             /// <summary>
-            /// Background color is intense yellow.
+            /// Background color is  yellow.
             /// </summary>
-            BackgroundIntenseYellow = BackgroundYellow | BackgroundIntensity,
+            BackgroundYellow = BackgroundDarkYellow | BackgroundIntensity,
+
+            /// <summary>
+            /// Background color is gray.
+            /// </summary>
+            BackgroundGray = BackgroundDarkRed | BackgroundDarkGreen | BackgroundDarkBlue,
 
             /// <summary>
             /// Background color is white.
             /// </summary>
-            BackgroundWhite = BackgroundRed | BackgroundGreen | BackgroundBlue,
-
-            /// <summary>
-            /// Background color is intense white.
-            /// </summary>
-            BackgroundIntenseWhite = BackgroundWhite | BackgroundIntensity,
+            BackgroundWhite = BackgroundGray | BackgroundIntensity,
 
             /// <summary>
             /// (unknown)

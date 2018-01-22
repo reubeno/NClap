@@ -41,11 +41,7 @@ namespace NClap.Types
                 throw new NotSupportedException(nameof(type));
             }
 
-            _underlyingIntegerType = underlyingArgType as IntegerArgumentType;
-            if (_underlyingIntegerType == null)
-            {
-                throw new InternalInvariantBrokenException();
-            }
+            _underlyingIntegerType = (IntegerArgumentType)underlyingArgType;
         }
 
         /// <summary>

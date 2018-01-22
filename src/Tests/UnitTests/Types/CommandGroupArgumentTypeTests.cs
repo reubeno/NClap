@@ -136,7 +136,7 @@ namespace NClap.Tests.Types
         public void TestThatDependentTypesAreCorrect()
         {
             var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
-            argType.DependentTypes.Should().HaveCount(1);
+            argType.DependentTypes.Should().ContainSingle();
 
             var dependentType = argType.DependentTypes.First();
             var enumType = dependentType.Should().BeAssignableTo<IEnumArgumentType>().Which;

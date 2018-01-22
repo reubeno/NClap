@@ -192,8 +192,8 @@ namespace NClap.Tests.Types
 
             var outList = (int[])outCollection;
             outList.Length.Should().Be(2);
-            outList[0].Should().Be(10);
-            outList[1].Should().Be(-1);
+            outList.Should().HaveElementAt(0, 10);
+            outList.Should().HaveElementAt(1, -1);
         }
 
         [TestMethod]
