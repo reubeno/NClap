@@ -73,7 +73,7 @@ namespace NClap.Types
         /// </summary>
         /// <param name="collection">Collection to enumerate.</param>
         /// <returns>The enumeration.</returns>
-        public override IEnumerable ToEnumerable(object collection) => (ICollection)collection;
+        public override IEnumerable ToEnumerable(object collection) => (IEnumerable)collection;
 
         /// <summary>
         /// Enumerates the objects contained within the provided collection;

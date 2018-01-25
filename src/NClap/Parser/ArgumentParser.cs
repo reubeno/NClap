@@ -177,8 +177,11 @@ namespace NClap.Parser
 
             if (Argument.IsCollection)
             {
+                var newValues = Argument.CollectionArgumentType.ToEnumerable(newValue).Cast<object>();
+
                 // Check for disallowed duplicate values in this argument.
-                if (Argument.Unique && CollectionValues.Contains(newValue))
+                if (Argument.Unique &&
+                    CollectionValues.Cast<object>().Intersect(newValues).Any())
                 {
                     ReportDuplicateArgumentValue(value);
 
@@ -187,7 +190,10 @@ namespace NClap.Parser
                 }
 
                 // Add the value to the collection.
-                CollectionValues.Add(newValue);
+                foreach (var newValueItem in newValues)
+                {
+                    CollectionValues.Add(newValueItem);
+                }
             }
             else if (IsObjectPresent(DestinationObject))
             {
@@ -337,7 +343,7 @@ namespace NClap.Parser
 
         private bool ParseValue(string stringData, out object value)
         {
-            if (Argument.ValueType.TryParse(ParseContext, stringData, out value))
+            if (Argument.ArgumentType.TryParse(ParseContext, stringData, out value))
             {
                 return true;
             }

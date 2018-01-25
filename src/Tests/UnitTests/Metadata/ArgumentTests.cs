@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using FluentAssertions;
@@ -271,6 +272,20 @@ namespace NClap.Tests.Metadata
             var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(ArgumentsWithUnsettableDefault));
             var state = new ArgumentParser(argSet, arg, new CommandLineParserOptions(), new ArgumentsWithUnsettableDefault());
             state.TryFinalize(FileSystemReader.Create()).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void StringArrayParsing()
+        {
+            var arg = GetArgument(typeof(StringArrayWithEmptyDefaultArguments));
+
+            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(StringArrayWithEmptyDefaultArguments));
+            var options = new CommandLineParserOptions();
+            var state = new ArgumentParser(argSet, arg, options, new StringArrayWithEmptyDefaultArguments());
+            var argSetParser = new ArgumentSetParser(argSet, options);
+            state.TryParseAndStore(argSetParser, "a,b,c", out var parsedValue).Should().BeTrue();
+            parsedValue.Should().BeAssignableTo<IEnumerable>();
+            (parsedValue as IEnumerable).Should().BeEquivalentTo(new[] { "a", "b", "c" });
         }
 
         [TestMethod]
