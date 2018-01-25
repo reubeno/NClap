@@ -83,7 +83,7 @@ namespace NClap.Tests.Parser
             [NamedArgument(ArgumentFlags.Multiple, ElementSeparators = new[] { "," })]
             public string[] MyStringArray;
 
-            [NamedArgument(ArgumentFlags.Multiple)]
+            [NamedArgument(ArgumentFlags.Multiple, ElementSeparators = new string[] { })]
             public string[] MyStringArrayWithoutSeparators;
 
             [NamedArgument(ArgumentFlags.AtMostOnce)]
@@ -1442,8 +1442,8 @@ namespace NClap.Tests.Parser
             var args = new SimpleArguments();
 
             TryParse(new[] { "/MyStringArrayWithoutSeparators=foo,bar" }, args).Should().BeTrue();
-            args.MyStringArray.Should().NotBeNull();
-            args.MyStringArray.Should().Equal("foo", "bar");
+            args.MyStringArrayWithoutSeparators.Should().NotBeNull();
+            args.MyStringArrayWithoutSeparators.Should().Equal("foo,bar");
         }
 
         [TestMethod]
