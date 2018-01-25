@@ -32,7 +32,7 @@ namespace NClap.Metadata
         /// <summary>
         /// Default element separators.
         /// </summary>
-        public static string[] DefaultElementSeparators { get; } = new[] { "," };
+        internal static string[] DefaultElementSeparators { get; } = new[] { "," };
 
         /// <summary>
         /// The error checking to be done on the argument.
