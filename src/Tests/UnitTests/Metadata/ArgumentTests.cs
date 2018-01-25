@@ -53,7 +53,7 @@ namespace NClap.Tests.Metadata
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         public class StringArrayWithEmptyDefaultArguments
         {
-            [NamedArgument(ArgumentFlags.Multiple, AllowEmpty = true, DefaultValue = new string[] {})]
+            [NamedArgument(ArgumentFlags.Multiple, AllowEmpty = true, DefaultValue = new string[] {}, ElementSeparators = new[] { "," })]
             public string[] Value;
         }
 

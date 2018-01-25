@@ -11,7 +11,7 @@ namespace NClap.Types
     public class ArgumentParseContext
     {
         private IFileSystemReader _fileSystemReader = Parser.FileSystemReader.Create();
-        private IReadOnlyList<string> _elementSeparators = new List<string> { "," };
+        private IReadOnlyList<string> _elementSeparators = Array.Empty<string>();
 
         /// <summary>
         /// The default context for parsing.

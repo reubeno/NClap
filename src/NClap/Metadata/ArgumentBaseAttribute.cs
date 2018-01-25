@@ -121,7 +121,7 @@ namespace NClap.Metadata
         /// same token.  Only relevant for parsing collection types, and
         /// ignored otherwise.
         /// </summary>
-        public string[] ElementSeparators { get; set; } = new[] { "," };
+        public string[] ElementSeparators { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Optionally provides a type that implements IStringParser, and which
