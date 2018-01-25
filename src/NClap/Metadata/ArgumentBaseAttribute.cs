@@ -30,6 +30,11 @@ namespace NClap.Metadata
         }
 
         /// <summary>
+        /// Default element separators.
+        /// </summary>
+        internal static string[] DefaultElementSeparators { get; } = new[] { "," };
+
+        /// <summary>
         /// The error checking to be done on the argument.
         /// </summary>
         public ArgumentFlags Flags { get; internal set; }
@@ -121,7 +126,7 @@ namespace NClap.Metadata
         /// same token.  Only relevant for parsing collection types, and
         /// ignored otherwise.
         /// </summary>
-        public string[] ElementSeparators { get; set; } = new[] { "," };
+        public string[] ElementSeparators { get; set; } = DefaultElementSeparators;
 
         /// <summary>
         /// Optionally provides a type that implements IStringParser, and which

@@ -80,8 +80,11 @@ namespace NClap.Tests.Parser
                 DefaultValue = MyBetterDocumentedEnum.TheOneAfterFirst)]
             public MyBetterDocumentedEnum MyDocumentedEnum;
 
-            [NamedArgument(ArgumentFlags.Multiple)]
+            [NamedArgument(ArgumentFlags.Multiple, ElementSeparators = new[] { "," })]
             public string[] MyStringArray;
+
+            [NamedArgument(ArgumentFlags.Multiple, ElementSeparators = new string[] { })]
+            public string[] MyStringArrayWithoutSeparators;
 
             [NamedArgument(ArgumentFlags.AtMostOnce)]
             public KeyValuePair<string, string> MyStringPair;
@@ -805,7 +808,7 @@ namespace NClap.Tests.Parser
             args.Args.Should().NotBeNull();
             args.Args.Length.Should().Be(2);
             args.Args.Should().HaveElementAt(0, "foo");
-            args.Args[1].Should().Be("bar");
+            args.Args.Should().HaveElementAt(1, "bar");
 
             CommandLineParser.Format(args).Should().Equal("foo", "bar");
         }
@@ -1411,6 +1414,36 @@ namespace NClap.Tests.Parser
 
             TryParse(new[] { "/Value=FlagOne|FlagTwo" }, args).Should().BeTrue();
             args.Value.Should().Be(MyFlagsEnum.FlagOne | MyFlagsEnum.FlagTwo);
+        }
+
+        [TestMethod]
+        public void StringArrayArgsWithSeparateTokens()
+        {
+            var args = new SimpleArguments();
+
+            TryParse(new[] { "/MyStringArray=foo", "/MyStringArray=bar" }, args).Should().BeTrue();
+            args.MyStringArray.Should().NotBeNull();
+            args.MyStringArray.Should().Equal("foo", "bar");
+        }
+
+        [TestMethod]
+        public void StringArrayArgsInSingleTokenWithAllowedSeparators()
+        {
+            var args = new SimpleArguments();
+
+            TryParse(new[] { "/MyStringArray=foo,bar" }, args).Should().BeTrue();
+            args.MyStringArray.Should().NotBeNull();
+            args.MyStringArray.Should().Equal("foo", "bar");
+        }
+
+        [TestMethod]
+        public void StringArrayArgsInSingleTokenWithoutAllowedSeparators()
+        {
+            var args = new SimpleArguments();
+
+            TryParse(new[] { "/MyStringArrayWithoutSeparators=foo,bar" }, args).Should().BeTrue();
+            args.MyStringArrayWithoutSeparators.Should().NotBeNull();
+            args.MyStringArrayWithoutSeparators.Should().Equal("foo,bar");
         }
 
         [TestMethod]
