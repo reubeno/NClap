@@ -37,7 +37,7 @@ namespace NClap.Tests.Parser
             Final
         }
 
-    #pragma warning disable 0649 // Field is never assigned to, and will always have its default value
+#pragma warning disable 0649 // Field is never assigned to, and will always have its default value
 
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class NoArguments
@@ -364,7 +364,7 @@ namespace NClap.Tests.Parser
             [PositionalArgument(ArgumentFlags.Required, Position = 1)]
             public int Value1;
 
-            [PositionalArgument(ArgumentFlags.Required, Position = 0)]
+            [PositionalArgument(ArgumentFlags.Required, Position = 0, AllowEmpty = true)]
             public string Value0;
         }
 
@@ -463,7 +463,7 @@ namespace NClap.Tests.Parser
         [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
         class UnknownConflictingArguments
         {
-            [NamedArgument(ArgumentFlags.AtMostOnce, ConflictsWith = new[] {"Foo"})]
+            [NamedArgument(ArgumentFlags.AtMostOnce, ConflictsWith = new[] { "Foo" })]
             public string Value;
         }
 
@@ -534,6 +534,16 @@ namespace NClap.Tests.Parser
             public bool Value;
         }
 
+        [ArgumentSet(Style = ArgumentSetStyle.GetOpt)]
+        class CanonicalToEndOfLineArguments
+        {
+            [NamedArgument(ArgumentFlags.Optional)]
+            public string Value { get; set; }
+
+            [NamedArgument(ArgumentFlags.Optional | ArgumentFlags.RestOfLine, LongName = "", ShortName = null)]
+            public List<string> FullLine { get; set; }
+        }
+
         [Flags]
         enum MyFlagsEnum
         {
@@ -561,6 +571,23 @@ namespace NClap.Tests.Parser
             protected int ProtectedValue { get; set; }
 
             private int PrivateValue { get; set; }
+        }
+
+        [ArgumentSet(
+            Style = ArgumentSetStyle.PowerShell,
+            ShortNameArgumentPrefixes = new[] { "-" },
+            NamedArgumentPrefixes = new[] {  "/" })]
+        class ArgumentsWithDifferentNamePrefixes
+        {
+            [NamedArgument]
+            public int Value { get; set; }
+        }
+
+        [ArgumentSet(Style = ArgumentSetStyle.GetOpt)]
+        class ArgumentsWithGetOptStyle
+        {
+            [NamedArgument]
+            public int Value { get; set; }
         }
 
         class InvalidLayout : ArgumentHelpLayout
@@ -914,6 +941,27 @@ namespace NClap.Tests.Parser
 
             var args2 = new SimpleArguments();
             TryParse(new[] { "unknown" }, args2).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void ZeroLengthOptionFailsToParse()
+        {
+            var args = new ArgumentsWithDifferentNamePrefixes();
+            TryParse(new[] { "/" }, args).Should().BeFalse();
+            TryParse(new[] { "-" }, args).Should().BeFalse();
+
+            var args2 = new ArgumentsWithGetOptStyle();
+            TryParse(new[] { "-" }, args2).Should().BeFalse();
+            TryParse(new[] { "--" }, args2).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void TestThatEmptyStringCanBeValidPositionalArgument()
+        {
+            var args = new PositionalArguments();
+            TryParse(new[] { string.Empty, "7" }, args).Should().BeTrue();
+            args.Value0.Should().Be(string.Empty);
+            args.Value1.Should().Be(7);
         }
 
         [TestMethod]
@@ -1399,6 +1447,22 @@ namespace NClap.Tests.Parser
             var args = new ZeroLengthLongNameArguments();
             Action parse = () => TryParse(Array.Empty<string>(), args);
             parse.Should().Throw<Exception>();
+        }
+
+        [TestMethod]
+        public void CanonicalToEndOfLine()
+        {
+            var args = new CanonicalToEndOfLineArguments();
+
+            // TODO: Not yet implemented.
+#if true
+            Action a = () => TryParse(new[] { "--value", "v", "--", "--value", "t" }, args);
+            a.Should().Throw<InvalidArgumentSetException>();
+#else
+            TryParse(new[] { "--value", "v", "--", "--value", "t" }, args).Should().BeTrue();
+            args.Value.Should().Be("v");
+            args.FullLine.Should().Equal("--value", "t");
+#endif
         }
 
         [TestMethod]

@@ -505,7 +505,7 @@ namespace NClap.Parser
             var endIndex = argument.IndexOfAny(ArgumentSet.Attribute.ArgumentValueSeparators, prefixLength);
 
             // Special case: check for '+' and '-' for booleans.
-            if (endIndex < 0 && argument.Length >= 2)
+            if (endIndex < 0 && argument.Length > argumentPrefix.Length)
             {
                 var lastArgumentChar = argument[argument.Length - 1];
                 if (ArgumentNameTerminators.Any(t => lastArgumentChar.Equals(t)))
@@ -588,6 +588,13 @@ namespace NClap.Parser
                         Arg = arg,
                         Value = lastChar ? optionArgument : null
                     });
+                }
+
+                // Special case: if no arguments were found, return an error.
+                if (args.Count == 0)
+                {
+                    parsedArgs = null;
+                    return ArgumentSetParseResult.FailedParsing;
                 }
 
                 parsedArgs = args;
