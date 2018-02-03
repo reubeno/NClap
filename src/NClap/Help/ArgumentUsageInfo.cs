@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using NClap.Metadata;
+using NClap.Parser;
 using NClap.Types;
 using NClap.Utilities;
 
-namespace NClap.Parser
+namespace NClap.Help
 {
     /// <summary>
     /// Describes help information for a command-line argument.
@@ -17,91 +18,89 @@ namespace NClap.Parser
         /// </summary>
         /// <param name="arg">Argument metadata.</param>
         /// <param name="currentValue">Current value.</param>
-        public ArgumentUsageInfo(ArgumentDefinition arg, object currentValue = null) : this(
-            syntax: arg.GetSyntaxSummary(detailed: false),
-            detailedSyntax: arg.GetSyntaxSummary(detailed: true),
-            description: arg.Attribute.Description,
-            required: arg.IsRequired,
-            shortName: arg.ShortName,
-            defaultValue: TryGetDefaultValueString(arg, onlyReturnExplicitDefaults: true),
-            argType: arg.ArgumentType,
-            currentValue: currentValue)
+        public ArgumentUsageInfo(ArgumentDefinition arg, object currentValue = null)
         {
-        }
-
-        /// <summary>
-        /// Constructor that directly takes all required info.
-        /// </summary>
-        /// <param name="syntax">Argument syntax.</param>
-        /// <param name="description">Argument description.</param>
-        /// <param name="required">True if the argument is required;
-        /// false if it's optional.</param>
-        /// <param name="shortName">Argument's short form.</param>
-        /// <param name="defaultValue">Argument's default value.</param>
-        /// <param name="detailedSyntax">Argument detailed syntax.</param>
-        /// <param name="argType">Argument type.</param>
-        /// <param name="currentValue">Current value.</param>
-        public ArgumentUsageInfo(
-            string syntax,
-            string description,
-            bool required,
-            string shortName = null,
-            string defaultValue = null,
-            string detailedSyntax = null,
-            IArgumentType argType = null,
-            object currentValue = null)
-        {
-            Syntax = syntax;
-            DetailedSyntax = detailedSyntax ?? syntax;
-            Description = description;
-            Required = required;
-            ShortName = shortName;
-            DefaultValue = defaultValue;
-            ArgumentType = argType;
+            Arg = arg;
             CurrentValue = currentValue;
         }
 
         /// <summary>
-        /// Syntax information.
+        /// Argument.
         /// </summary>
-        public string Syntax { get; }
+        public ArgumentDefinition Arg { get; }
 
         /// <summary>
-        /// Detailed syntax information.
+        /// Current value.
         /// </summary>
-        public string DetailedSyntax { get; }
+        public object CurrentValue { get; }
 
         /// <summary>
         /// Help information.
         /// </summary>
-        public string Description { get; }
+        public string Description => Arg.Attribute.Description;
 
         /// <summary>
         /// True if the argument is required; false otherwise.
         /// </summary>
-        public bool Required { get; }
+        public bool Required => Arg.IsRequired;
+
+        /// <summary>
+        /// True if the argument is positional; false otherwise.
+        /// </summary>
+        public bool IsPositional => Arg.IsPositional;
+
+        /// <summary>
+        /// Optionally indicates the argument's long name.
+        /// </summary>
+        public string LongName => Arg.LongName;
 
         /// <summary>
         /// Optionally indicates the argument's short name.
         /// </summary>
-        public string ShortName { get; }
+        public string ShortName => Arg.ShortName;
 
         /// <summary>
         /// Optionally indicates the argument's default value. Note that there
         /// may be a default value that's not indicated here, particularly if
         /// it was a defaulted default value.
         /// </summary>
-        public string DefaultValue { get; }
+        public string DefaultValue => TryGetDefaultValueString(Arg, onlyReturnExplicitDefaults: true);
 
         /// <summary>
         /// Type of the argument, if known; null otherwise.
         /// </summary>
-        public IArgumentType ArgumentType { get; }
+        public IArgumentType ArgumentType => Arg.ArgumentType;
 
         /// <summary>
-        /// Current value.
+        /// Gets the syntax for this argument.
         /// </summary>
-        public object CurrentValue { get; }
+        /// <param name="options">Options for generating the syntax.</param>
+        /// <param name="enumsDocumentedInline">true if enums will be documented
+        /// inline for this argument; false otherwise.</param>
+        /// <returns>Syntax.</returns>
+        public string GetSyntax(ArgumentHelpOptions options, bool enumsDocumentedInline = false)
+        {
+            var suppressTypeInfo = enumsDocumentedInline;
+
+            if (!options.IncludePositionalArgumentTypes && IsPositional)
+            {
+                suppressTypeInfo = true;
+            }
+
+            if (options.IncludeSyntaxWithArgumentEntry)
+            {
+                return SimplifyParameterSyntax(Arg.GetSyntaxSummary(detailed: !suppressTypeInfo));
+            }
+            else if (IsPositional)
+            {
+                return SimplifyParameterSyntax(Arg.GetSyntaxSummary(detailed: false));
+            }
+            else
+            {
+                return Arg.ContainingSet.Attribute.NamedArgumentPrefixes.First() +
+                    LongName;
+            }
+        }
 
         /// <summary>
         /// Checks if the argument is a selected command.
@@ -231,5 +230,15 @@ namespace NClap.Parser
             return type.GetTypeInfo().GetFields().Any(field =>
                 field.GetSingleAttribute<CommandAttribute>() != null);
         }
+
+        // We add logic here to trim out a single pair of enclosing
+        // square brackets if it's present -- it's just noisy here.
+        // The containing section already makes it sufficiently clear
+        // whether the parameter is required or optional.
+        //
+        // TODO: Make this logic more generic, and put it elsewhere.
+        private static string SimplifyParameterSyntax(string s) =>
+            s.TrimStart('[')
+             .TrimEnd(']', '*', '+');
     }
 }

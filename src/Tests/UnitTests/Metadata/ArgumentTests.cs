@@ -5,6 +5,7 @@ using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Exceptions;
+using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Utilities;

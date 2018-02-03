@@ -38,10 +38,13 @@ namespace NClap.Help
         /// <summary>
         /// Renders the given usage information.
         /// </summary>
-        /// <param name="info">Usage info.</param>
+        /// <param name="argSet">Argument set.</param>
+        /// <param name="destination">Destination object.</param>
         /// <returns>Rendered string output, ready for display.</returns>
-        public ColoredMultistring Format(ArgumentSetUsageInfo info)
+        public ColoredMultistring Format(ArgumentSetDefinition argSet, object destination)
         {
+            var info = new ArgumentSetUsageInfo(argSet, destination);
+
             var unorderedSections = GenerateSections(info);
 
             var orderedSections = SortSections(unorderedSections, DefaultSectionOrdering);
@@ -139,7 +142,7 @@ namespace NClap.Help
                     basicSyntax.Add(" ");
                 }
 
-                basicSyntax.Add(info.GetBasicSyntax(includeOptionalParameters: true));
+                basicSyntax.Add(info.GetBasicSyntax(_options.Syntax));
 
                 sections.Add(new Section(ArgumentSetHelpSectionType.Syntax, _options, _options.Syntax, new[] { new ColoredMultistring(basicSyntax) }));
             }
@@ -643,12 +646,9 @@ namespace NClap.Help
             };
         }
 
-        private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, bool suppressTypeInfo)
+        private ColoredMultistring FormatParameterSyntax(ArgumentUsageInfo info, ArgumentSetUsageInfo setInfo, bool enumsDocumentedInline)
         {
-            if (!_options.Arguments.IncludePositionalArgumentTypes) suppressTypeInfo = true;
-
-            var originalSyntax = suppressTypeInfo ? info.Syntax : info.DetailedSyntax;
-            var syntax = SimplifyParameterSyntax(originalSyntax);
+            var longNameSyntax = info.GetSyntax(_options.Arguments, enumsDocumentedInline);
 
             var formattedSyntax = new List<ColoredString>();
 
@@ -661,7 +661,7 @@ namespace NClap.Help
                 formattedSyntax.Add(", ");
             }
 
-            formattedSyntax.Add(new ColoredString(syntax, _options.Arguments?.ArgumentNameColor));
+            formattedSyntax.Add(new ColoredString(longNameSyntax, _options.Arguments?.ArgumentNameColor));
 
             return new ColoredMultistring(formattedSyntax);
         }
@@ -737,16 +737,6 @@ namespace NClap.Help
 
             return builder.ToMultistring();
         }
-
-        // We add logic here to trim out a single pair of enclosing
-        // square brackets if it's present -- it's just noisy here.
-        // The containing section already makes it sufficiently clear
-        // whether the parameter is required or optional.
-        //
-        // TODO: Make this logic more generic, and put it elsewhere.
-        private static string SimplifyParameterSyntax(string s) =>
-            s.TrimStart('[')
-             .TrimEnd(']', '*', '+');
 
         private static IString RightPadWithSpace(IString s, int length)
         {

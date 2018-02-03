@@ -33,6 +33,7 @@ namespace NClap.Help
             Ordering = other.Ordering;
             MetadataColor = other.MetadataColor;
             IncludePositionalArgumentTypes = other.IncludePositionalArgumentTypes;
+            IncludeSyntaxWithArgumentEntry = other.IncludeSyntaxWithArgumentEntry;
         }
 
         /// <summary>
@@ -113,6 +114,12 @@ namespace NClap.Help
         /// Whether or not to display the types of positional arguments.
         /// </summary>
         public bool IncludePositionalArgumentTypes { get; set; } = true;
+
+        /// <summary>
+        /// Whether or not to display argument syntax with the argument's
+        /// individual entry.
+        /// </summary>
+        internal bool IncludeSyntaxWithArgumentEntry { get; set; } = true;
 
         /// <summary>
         /// Creates a separate clone of this object.

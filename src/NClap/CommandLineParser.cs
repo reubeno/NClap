@@ -6,7 +6,6 @@ using NClap.ConsoleInput;
 using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
-using NClap.Types;
 using NClap.Utilities;
 
 namespace NClap
@@ -207,7 +206,7 @@ namespace NClap
             Type type,
             ArgumentSetHelpOptions options = null,
             object defaultValues = null) =>
-            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues), options);
+            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues), options, null);
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -290,8 +289,8 @@ namespace NClap
         /// command line arguments.</returns>
         internal static ColoredMultistring GetUsageInfo(
             ArgumentSetDefinition argSet,
-            ArgumentSetHelpOptions options = null,
-            object destination = null)
+            ArgumentSetHelpOptions options,
+            object destination)
         {
             // Default options.
             if (options == null)
@@ -302,46 +301,14 @@ namespace NClap
             // Default max width.
             if (!options.MaxWidth.HasValue)
             {
-                options = options.With()
-                    .MaxWidth(GetCurrentConsoleWidth());
+                options = options.With().MaxWidth(GetCurrentConsoleWidth());
             }
 
-            // Construct info for argument set.
-            var info = new ArgumentSetUsageInfo
-            {
-                Description = argSet.Attribute.Description,
-                DefaultShortNamePrefix = argSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault()
-            };
-
-            // Add parameters and examples.
-            info.AddParameters(GetArgumentUsageInfo(argSet, destination));
-            if (argSet.Attribute.Examples != null)
-            {
-                info.AddExamples(argSet.Attribute.Examples);
-            }
-
-            // Update logo, if one was provided.
-            if (argSet.Attribute.LogoString != null)
-            {
-                info.Logo = argSet.Attribute.LogoString;
-            }
-
-            // Update description, in case we have a selected command.
-            var lastSelectedCommand = info.AllParameters.LastOrDefault(parameter => parameter.IsSelectedCommand());
-            if (lastSelectedCommand != null &&
-                lastSelectedCommand.CurrentValue is ICommandGroup group &&
-                group.HasSelection &&
-                ArgumentType.TryGetType(group.Selection.GetType(), out IArgumentType argType) &&
-                argType is IEnumArgumentType enumArgType &&
-                enumArgType.TryGetValue(group.Selection, out IArgumentValue value) &&
-                !string.IsNullOrEmpty(value.Description))
-            {
-                info.Description = value.Description;
-            }
-
-            // Construct renderer and use it.
+            // Construct renderer.
             var renderer = new ArgumentSetHelpRenderer(options);
-            return renderer.Format(info);
+
+            // Render.
+            return renderer.Format(argSet, destination);
         }
 
         private static int GetCurrentConsoleWidth()
@@ -354,43 +321,6 @@ namespace NClap
             }
 
             return columns;
-        }
-
-        private static IEnumerable<ArgumentUsageInfo> GetArgumentUsageInfo(ArgumentSetDefinition argSet, object destination)
-        {
-            // Enumerate positional arguments first, in position order.
-            foreach (var arg in argSet.PositionalArguments.Where(a => !a.Hidden))
-            {
-                var currentValue = (destination != null) ? arg.GetValue(destination) : null;
-                yield return new ArgumentUsageInfo(arg, currentValue);
-            }
-
-            var stringComparer = argSet.Attribute.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
-
-            // Enumerate named arguments next, in case-insensitive sort order.
-            foreach (var arg in argSet.NamedArguments
-                                    .Where(a => !a.Hidden)
-                                    .OrderBy(a => a.LongName, stringComparer))
-            {
-                var currentValue = (destination != null) ? arg.GetValue(destination) : null;
-                yield return new ArgumentUsageInfo(arg, currentValue);
-            }
-
-            // Add an extra item for answer files, if that is supported on this
-            // argument set.
-            if (argSet.Attribute.AnswerFileArgumentPrefix != null)
-            {
-                var pseudoArgLongName = Strings.AnswerFileArgumentName;
-                if (argSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
-                {
-                    pseudoArgLongName = pseudoArgLongName.ToHyphenatedLowerCase();
-                }
-
-                yield return new ArgumentUsageInfo(
-                    $"[{argSet.Attribute.AnswerFileArgumentPrefix}<{pseudoArgLongName}>]*",
-                    Strings.AnswerFileArgumentDescription,
-                    required: false);
-            }
         }
 
         private static IEnumerable<ArgumentDefinition> OrderArgumentsByContainer(IEnumerable<ArgumentDefinition> args)
