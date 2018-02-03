@@ -26,10 +26,10 @@ namespace NClap.Tests.ConsoleInput
             con.CursorSize.Should().BeGreaterOrEqualTo(0).And.BeLessOrEqualTo(100);
             con.CursorLeft.Should().BeGreaterOrEqualTo(0);
             con.CursorTop.Should().BeGreaterOrEqualTo(0);
-            con.BufferWidth.Should().BeGreaterThan(0);
-            con.BufferHeight.Should().BeGreaterThan(0);
-            con.WindowWidth.Should().BeGreaterOrEqualTo(con.BufferWidth);
-            con.WindowHeight.Should().BeGreaterOrEqualTo(con.BufferHeight);
+            con.WindowWidth.Should().BeGreaterThan(0);
+            con.WindowHeight.Should().BeGreaterThan(0);
+            con.BufferWidth.Should().BeGreaterOrEqualTo(con.WindowWidth);
+            con.BufferHeight.Should().BeGreaterOrEqualTo(con.WindowHeight);
 
             con.Invoking(c => { var x = c.CursorVisible; }).Should().NotThrow();
             con.Invoking(c => { var x = c.TreatControlCAsInput; }).Should().NotThrow();
