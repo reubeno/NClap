@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using NClap.Utilities;
 
 namespace NClap.Help
@@ -79,7 +81,7 @@ namespace NClap.Help
         /// <summary>
         /// Name to use for argument set (i.e. first token in syntax).
         /// </summary>
-        public string Name { get; set; } = AssemblyUtilities.GetAssemblyFileName();
+        public string Name { get; set; } = GetDefaultAssemblyFileName();
 
         /// <summary>
         /// Options for section headers.
@@ -140,5 +142,11 @@ namespace NClap.Help
         /// </summary>
         /// <returns>Clone.</returns>
         public ArgumentSetHelpOptions DeepClone() => new ArgumentSetHelpOptions(this);
+
+        private static string GetDefaultAssemblyFileName()
+        {
+            var defaultAssembly = Assembly.GetEntryAssembly() ?? typeof(ArgumentSetHelpOptions).GetTypeInfo().Assembly;
+            return Path.GetFileName(defaultAssembly.Location);
+        }
     }
 }

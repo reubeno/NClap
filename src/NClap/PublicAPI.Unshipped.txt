@@ -1,0 +1,4 @@
+NClap.Metadata.ArgumentSetAttribute.ExpandLogo.get -> bool
+NClap.Metadata.ArgumentSetAttribute.ExpandLogo.set -> void
+NClap.Parser.ArgumentSetDefinition.DefaultAssembly.get -> System.Reflection.Assembly
+NClap.Parser.ArgumentSetDefinition.DefaultAssembly.set -> void

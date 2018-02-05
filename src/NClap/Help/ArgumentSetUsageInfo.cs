@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Types;
-using NClap.Utilities;
 
 namespace NClap.Help
 {
@@ -13,6 +13,11 @@ namespace NClap.Help
     /// </summary>
     internal sealed class ArgumentSetUsageInfo
     {
+        private const string DefaultLogoFormat =
+            "{$title} version {$version}" +
+            "{if $copyright then (\"\n\" + $copyright) else \"\"}" +
+            "\n";
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -89,8 +94,7 @@ namespace NClap.Help
         /// <summary>
         /// Logo to use.
         /// </summary>
-        public ColoredMultistring Logo =>
-            Set.Attribute.LogoString ?? ColoredMultistring.FromString(AssemblyUtilities.GetLogo());
+        public string Logo => GetLogo(Set);
 
         /// <summary>
         /// Preferred prefix for long named arguments, or null if no such prefix exists.
@@ -144,6 +148,46 @@ namespace NClap.Help
             });
 
             return string.Join(" ", syntax);
+        }
+
+        /// <summary>
+        /// Gets the default logo for the given argument set.
+        /// </summary>
+        /// <param name="set">Optionally provides the argument set to
+        /// get the logo for.</param>
+        /// <returns>The logo.</returns>
+        public static string GetLogo(ArgumentSetDefinition set = null)
+        {
+            string logo;
+            bool expand;
+
+            if (set?.Attribute.Logo != null)
+            {
+                logo = (string)set.Attribute.Logo;
+                expand = set.Attribute.ExpandLogo;
+            }
+            else
+            {
+                logo = DefaultLogoFormat;
+                expand = true;
+            }
+
+            if (expand)
+            {
+                var assembly = set?.DefaultAssembly ?? Assembly.GetEntryAssembly() ?? typeof(ArgumentSetUsageInfo).GetTypeInfo().Assembly;
+                var factory = new LogoFactory(assembly);
+
+                if (factory.TryExpand(logo, out string expandedLogo))
+                {
+                    logo = expandedLogo;
+                }
+                else
+                {
+                    logo = string.Empty;
+                }
+            }
+
+            return logo;
         }
     }
 }

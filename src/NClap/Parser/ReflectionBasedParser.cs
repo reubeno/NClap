@@ -82,6 +82,13 @@ namespace NClap.Parser
             {
                 argSet.AddAuxiliaryAttribute(auxiliaryAttrib);
             }
+
+            // If the argument set doesn't already have a default assembly associated
+            // with it, then fill that out.
+            if (argSet.DefaultAssembly == null)
+            {
+                argSet.DefaultAssembly = typeToReflectOn.GetTypeInfo().Assembly;
+            }
         }
 
         private static ArgumentSetAttribute GetSetAttributeOrDefault(Type typeToReflectOn) =>

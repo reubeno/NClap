@@ -126,7 +126,7 @@ namespace NClap.Help
             var sections = new List<Section>();
 
             if (_options.Logo?.Include ?? false &&
-                info.Logo != null && !info.Logo.IsEmpty())
+                info.Logo != null && !string.IsNullOrEmpty(info.Logo))
             {
                 sections.Add(new Section(ArgumentSetHelpSectionType.Logo, _options, _options.Logo, info.Logo));
             }

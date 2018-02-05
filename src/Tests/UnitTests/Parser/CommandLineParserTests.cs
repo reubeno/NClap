@@ -1560,7 +1560,7 @@ namespace NClap.Tests.Parser
         {
             var logo = CommandLineParser.GetLogo();
             logo.Should().NotBeNullOrWhiteSpace();
-            logo.Should().EndWith(Environment.NewLine);
+            logo.Should().EndWith("\n");
         }
 
         private static bool TryParseWithUsage<T>(IEnumerable<string> args, T dest, CommandLineParserOptions options = null) where T : class =>

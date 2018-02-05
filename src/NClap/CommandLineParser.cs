@@ -215,7 +215,7 @@ namespace NClap
         /// </summary>
         /// <returns>The logo string.</returns>
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "It's not appropriate")]
-        public static string GetLogo() => AssemblyUtilities.GetLogo();
+        public static string GetLogo() => ArgumentSetUsageInfo.GetLogo(null);
 
         /// <summary>
         /// Generate possible completions for the specified set of command-line

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Utilities;
@@ -78,6 +79,11 @@ namespace NClap.Parser
         /// The positional arguments in this set, in index order.
         /// </summary>
         public IEnumerable<ArgumentDefinition> PositionalArguments => _positionalArguments.Values;
+
+        /// <summary>
+        /// Optionally indicates the default assembly associated with this definition.
+        /// </summary>
+        public Assembly DefaultAssembly { get; set; }
 
         /// <summary>
         /// Enumerates all names of named arguments (of all name types).
