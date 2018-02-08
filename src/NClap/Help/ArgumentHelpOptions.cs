@@ -115,6 +115,11 @@ namespace NClap.Help
         public bool IncludePositionalArgumentTypes { get; set; } = true;
 
         /// <summary>
+        /// Whether or not to display type info and syntax for named argument values.
+        /// </summary>
+        public bool IncludeNamedArgumentValueSyntax { get; set; } = true;
+
+        /// <summary>
         /// Creates a separate clone of this object.
         /// </summary>
         /// <returns>Clone.</returns>

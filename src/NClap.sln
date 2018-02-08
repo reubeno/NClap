@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{56524B7F
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		..\GitVersion.yml = ..\GitVersion.yml
+		NClap\PublicAPI.Shipped.txt = NClap\PublicAPI.Shipped.txt
+		NClap\PublicAPI.Unshipped.txt = NClap\PublicAPI.Unshipped.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{77079178-A7A6-422C-83B7-8C2449DC46BA}"
@@ -28,7 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{77079178-A
 		..\docs\Usage.md = ..\docs\Usage.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NClap.DocValidation", "Tests\DocValidation\NClap.DocValidation.csproj", "{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NClap.DocValidation", "Tests\DocValidation\NClap.DocValidation.csproj", "{B9E6C83C-09E9-4C31-A2F5-CC3E39B699B6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C3ED7E97-9DB5-4035-A371-0D2B3DC3496D} = {C3ED7E97-9DB5-4035-A371-0D2B3DC3496D}
 	EndProjectSection
@@ -43,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultilevelCommandApp", "Sam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelpApp", "Samples\HelpApp\HelpApp.csproj", "{CA7FB0D4-1476-480A-8CDA-21C9BB756CF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergedCommandApp", "Samples\MergedCommandApp\MergedCommandApp.csproj", "{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MergedCommandApp", "Samples\MergedCommandApp\MergedCommandApp.csproj", "{5AEA5BB4-37B1-464C-B1FD-E1989F0A480E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

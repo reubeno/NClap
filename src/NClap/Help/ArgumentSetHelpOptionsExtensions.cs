@@ -17,6 +17,61 @@ namespace NClap.Help
             new FluentBuilder<ArgumentSetHelpOptions>(options);
 
         /// <summary>
+        /// Removes the logo section from the output.
+        /// </summary>
+        /// <param name="builder">Options builder.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> NoLogo(this FluentBuilder<ArgumentSetHelpOptions> builder)
+        {
+            builder.AddTransformer(options => options.Logo.Include = false);
+            return builder;
+        }
+
+        /// <summary>
+        /// Removes the description section from the output.
+        /// </summary>
+        /// <param name="builder">Options builder.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> NoDescription(this FluentBuilder<ArgumentSetHelpOptions> builder)
+        {
+            builder.AddTransformer(options => options.Description.Include = false);
+            return builder;
+        }
+
+        /// <summary>
+        /// Removes the basic syntax summary section from the output.
+        /// </summary>
+        /// <param name="builder">Options builder.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> NoSyntaxSummary(this FluentBuilder<ArgumentSetHelpOptions> builder)
+        {
+            builder.AddTransformer(options => options.Syntax.Include = false);
+            return builder;
+        }
+
+        /// <summary>
+        /// Removes the enum values sections from the output.
+        /// </summary>
+        /// <param name="builder">Options builder.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> NoEnumValues(this FluentBuilder<ArgumentSetHelpOptions> builder)
+        {
+            builder.AddTransformer(options => options.EnumValues.Include = false);
+            return builder;
+        }
+
+        /// <summary>
+        /// Removes the examples section from the output.
+        /// </summary>
+        /// <param name="builder">Options builder.</param>
+        /// <returns>The updated options.</returns>
+        public static FluentBuilder<ArgumentSetHelpOptions> NoExamples(this FluentBuilder<ArgumentSetHelpOptions> builder)
+        {
+            builder.AddTransformer(options => options.Examples.Include = false);
+            return builder;
+        }
+
+        /// <summary>
         /// Updates the "use color or not" preference.
         /// </summary>
         /// <param name="builder">Options builder.</param>

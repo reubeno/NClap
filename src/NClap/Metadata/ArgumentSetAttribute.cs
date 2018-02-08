@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using NClap.Utilities;
@@ -18,7 +19,7 @@ namespace NClap.Metadata
         private char[] _argumentValueSeparators;
         private bool _allowMultipleShortNamesInOneToken;
         private bool _allowElidingSeparatorAfterShortName;
-        private ColoredMultistring _logoMultistring;
+        private string _logo;
 
         /// <summary>
         /// Default constructor.
@@ -266,38 +267,35 @@ namespace NClap.Metadata
 
         /// <summary>
         /// Optionally provides logo text to be displayed at the top of help
-        /// output. Expected to be a <see cref="string"/>,
-        /// <see cref="ColoredMultistring"/>, or <see cref="ColoredString"/>.
+        /// output. Expected to be a <see cref="string"/>.
         /// </summary>
         public object Logo
         {
-            get => _logoMultistring;
+            get => _logo;
 
             set
             {
-                if (value is string s)
-                {
-                    _logoMultistring = new ColoredMultistring(new[] { new ColoredString(s) });
-                }
-                else if (value is ColoredString cs)
-                {
-                    _logoMultistring = new ColoredMultistring(new[] { cs });
-                }
-                else if (value is ColoredMultistring cms)
-                {
-                    _logoMultistring = cms;
-                }
-                else
+                if (value != null && !(value is string))
                 {
                     throw new ArgumentOutOfRangeException(nameof(value));
                 }
+
+                _logo = (string)value;
             }
         }
 
         /// <summary>
-        /// The logo, as a correctly typed object.
+        /// The logo, as a <see cref="ColoredMultistring"/>.
         /// </summary>
-        public ColoredMultistring LogoString => (ColoredMultistring)Logo;
+        [Obsolete("This property is no longer implemented and will always return null.")]
+        [SuppressMessage("Microsoft.Performance", "CA1822", Justification = "[Legacy]")]
+        public ColoredMultistring LogoString => null;
+
+        /// <summary>
+        /// Whether or not <see cref="Logo"/> is a format string that should
+        /// be expanded.
+        /// </summary>
+        public bool ExpandLogo { get; set; }
 
         /// <summary>
         /// True for names to be case sensitive; false for them to be case

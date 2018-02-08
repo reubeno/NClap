@@ -337,38 +337,30 @@ namespace NClap.Tests.Metadata
         public void LogoIsSettableWithString()
         {
             var attrib = new ArgumentSetAttribute { Logo = "Test" };
-            attrib.LogoString.ToString().Should().Be("Test");
+            attrib.Logo.Should().BeOfType<string>().And.Be("Test");
         }
 
         [TestMethod]
-        public void LogoIsSettableWithColoredString()
+        public void LogoIsNotSettableWithColoredString()
         {
-            var attrib = new ArgumentSetAttribute
-            {
-                Logo = new ColoredString("Test", ConsoleColor.Yellow)
-            };
-            attrib.LogoString.Content.Should().ContainSingle();
-            attrib.LogoString.Content[0].Content.Should().Be("Test");
-            attrib.LogoString.Content[0].ForegroundColor.Should().Be(ConsoleColor.Yellow);
+            var attrib = new ArgumentSetAttribute();
+
+            Action a = () => attrib.Logo = new ColoredString("Test", ConsoleColor.Yellow);
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]
-        public void LogoIsSettableWithColoredMultistring()
+        public void LogoIsNotSettableWithColoredMultistring()
         {
-            var attrib = new ArgumentSetAttribute
-            {
-                Logo = new ColoredMultistring(new[]
-                {
-                    new ColoredString("Test", ConsoleColor.Yellow),
-                    new ColoredString("String", null, ConsoleColor.Cyan)
-                })
-            };
+            var attrib = new ArgumentSetAttribute();
 
-            attrib.LogoString.Content.Should().HaveCount(2);
-            attrib.LogoString.Content[0].Content.Should().Be("Test");
-            attrib.LogoString.Content[0].ForegroundColor.Should().Be(ConsoleColor.Yellow);
-            attrib.LogoString.Content[1].Content.Should().Be("String");
-            attrib.LogoString.Content[1].BackgroundColor.Should().Be(ConsoleColor.Cyan);
+            Action a = () => attrib.Logo = new ColoredMultistring(new[]
+            {
+                new ColoredString("Test", ConsoleColor.Yellow),
+                new ColoredString("String", null, ConsoleColor.Cyan)
+            });
+
+            a.Should().Throw<ArgumentOutOfRangeException>();
         }
 
         [TestMethod]

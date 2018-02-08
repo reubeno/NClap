@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using NClap.Metadata;
+using NClap.Parser;
 using NClap.Types;
 using NClap.Utilities;
 
-namespace NClap.Parser
+namespace NClap.Help
 {
     /// <summary>
     /// Describes help information for a command-line argument.
@@ -17,91 +19,191 @@ namespace NClap.Parser
         /// </summary>
         /// <param name="arg">Argument metadata.</param>
         /// <param name="currentValue">Current value.</param>
-        public ArgumentUsageInfo(ArgumentDefinition arg, object currentValue = null) : this(
-            syntax: arg.GetSyntaxSummary(detailed: false),
-            detailedSyntax: arg.GetSyntaxSummary(detailed: true),
-            description: arg.Attribute.Description,
-            required: arg.IsRequired,
-            shortName: arg.ShortName,
-            defaultValue: TryGetDefaultValueString(arg, onlyReturnExplicitDefaults: true),
-            argType: arg.ArgumentType,
-            currentValue: currentValue)
+        public ArgumentUsageInfo(ArgumentDefinition arg, object currentValue = null)
         {
-        }
-
-        /// <summary>
-        /// Constructor that directly takes all required info.
-        /// </summary>
-        /// <param name="syntax">Argument syntax.</param>
-        /// <param name="description">Argument description.</param>
-        /// <param name="required">True if the argument is required;
-        /// false if it's optional.</param>
-        /// <param name="shortName">Argument's short form.</param>
-        /// <param name="defaultValue">Argument's default value.</param>
-        /// <param name="detailedSyntax">Argument detailed syntax.</param>
-        /// <param name="argType">Argument type.</param>
-        /// <param name="currentValue">Current value.</param>
-        public ArgumentUsageInfo(
-            string syntax,
-            string description,
-            bool required,
-            string shortName = null,
-            string defaultValue = null,
-            string detailedSyntax = null,
-            IArgumentType argType = null,
-            object currentValue = null)
-        {
-            Syntax = syntax;
-            DetailedSyntax = detailedSyntax ?? syntax;
-            Description = description;
-            Required = required;
-            ShortName = shortName;
-            DefaultValue = defaultValue;
-            ArgumentType = argType;
+            Arg = arg;
             CurrentValue = currentValue;
         }
 
         /// <summary>
-        /// Syntax information.
+        /// Argument.
         /// </summary>
-        public string Syntax { get; }
+        public ArgumentDefinition Arg { get; }
 
         /// <summary>
-        /// Detailed syntax information.
+        /// Current value.
         /// </summary>
-        public string DetailedSyntax { get; }
+        public object CurrentValue { get; }
 
         /// <summary>
         /// Help information.
         /// </summary>
-        public string Description { get; }
+        public string Description => Arg.Attribute.Description;
 
         /// <summary>
         /// True if the argument is required; false otherwise.
         /// </summary>
-        public bool Required { get; }
+        public bool IsRequired => Arg.IsRequired;
+
+        /// <summary>
+        /// True if the argument is positional; false otherwise.
+        /// </summary>
+        public bool IsPositional => Arg.IsPositional;
+
+        /// <summary>
+        /// Optionally indicates the argument's long name.
+        /// </summary>
+        public string LongName => Arg.LongName;
 
         /// <summary>
         /// Optionally indicates the argument's short name.
         /// </summary>
-        public string ShortName { get; }
+        public string ShortName => Arg.ShortName;
 
         /// <summary>
         /// Optionally indicates the argument's default value. Note that there
         /// may be a default value that's not indicated here, particularly if
         /// it was a defaulted default value.
         /// </summary>
-        public string DefaultValue { get; }
+        public string DefaultValue => TryGetDefaultValueString(Arg, onlyReturnExplicitDefaults: true);
 
         /// <summary>
         /// Type of the argument, if known; null otherwise.
         /// </summary>
-        public IArgumentType ArgumentType { get; }
+        public IArgumentType ArgumentType => Arg.ArgumentType;
 
         /// <summary>
-        /// Current value.
+        /// Generates syntax help information for this argument.
         /// </summary>
-        public object CurrentValue { get; }
+        /// <param name="flags">Flags describing the format of the summary.</param>
+        /// <returns>The help content in string form.</returns>
+        public string GetSyntaxSummary(ArgumentSyntaxFlags flags = ArgumentSyntaxFlags.Default)
+        {
+            var builder = new StringBuilder();
+
+            if (flags.HasFlag(ArgumentSyntaxFlags.DistinguishOptionalArguments) && !IsRequired)
+            {
+                builder.Append("[");
+            }
+
+            if (IsPositional)
+            {
+                builder.Append("<");
+                builder.Append(LongName);
+                builder.Append(">");
+
+                if (flags.HasFlag(ArgumentSyntaxFlags.IndicatePositionalArgumentType))
+                {
+                    builder.Append(" : ");
+                    builder.Append(GetTypeSyntaxSummary());
+                }
+
+                if (Arg.TakesRestOfLine)
+                {
+                    builder.Append("...");
+                }
+            }
+            else
+            {
+                if ((Arg.ContainingSet.Attribute.NamedArgumentPrefixes.Length < 1) ||
+                    (Arg.ContainingSet.Attribute.ArgumentValueSeparators.Length < 1))
+                {
+                    throw new NotSupportedException();
+                }
+
+                builder.Append(Arg.ContainingSet.Attribute.NamedArgumentPrefixes[0]);
+                builder.Append(LongName);
+
+                var includeValueSyntax = flags.HasFlag(ArgumentSyntaxFlags.IncludeValueSyntax);
+
+                // We special-case bool arguments (switches) whose default value
+                // is false; in such cases, we can get away with a shorter
+                // syntax help that just indicates how to flip the switch on.
+                if (includeValueSyntax && ArgumentType.Type == typeof(bool) && !((bool)Arg.EffectiveDefaultValue))
+                {
+                    includeValueSyntax = false;
+                }
+
+                if (includeValueSyntax)
+                {
+                    // Decide if the argument type supports empty strings.
+                    var supportsEmptyStrings = Arg.IsEmptyStringValid();
+
+                    if (flags.HasFlag(ArgumentSyntaxFlags.IndicateArgumentsThatAcceptEmptyString) && supportsEmptyStrings)
+                    {
+                        builder.Append("[");
+                    }
+
+                    if (Arg.ContainingSet.Attribute.AllowNamedArgumentValueAsSucceedingToken &&
+                        Arg.ContainingSet.Attribute.PreferNamedArgumentValueAsSucceedingToken)
+                    {
+                        builder.Append(" ");
+                    }
+                    else
+                    {
+                        builder.Append(Arg.ContainingSet.Attribute.ArgumentValueSeparators[0]);
+                    }
+
+                    // We use a special hard-coded syntax if this argument consumes
+                    // the rest of the line.
+                    if (Arg.TakesRestOfLine)
+                    {
+                        builder.Append("<...>");
+                    }
+                    else
+                    {
+                        builder.Append(GetTypeSyntaxSummary());
+                    }
+
+                    if (flags.HasFlag(ArgumentSyntaxFlags.IndicateArgumentsThatAcceptEmptyString) && supportsEmptyStrings)
+                    {
+                        builder.Append("]");
+                    }
+                }
+            }
+
+            if (flags.HasFlag(ArgumentSyntaxFlags.DistinguishOptionalArguments) && !IsRequired)
+            {
+                builder.Append("]");
+            }
+
+            if (flags.HasFlag(ArgumentSyntaxFlags.IndicateCardinality) && Arg.AllowMultiple)
+            {
+                builder.Append(IsRequired ? "+" : "*");
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Gets the syntax for this argument.
+        /// </summary>
+        /// <param name="options">Options for generating the syntax.</param>
+        /// <param name="enumsDocumentedInline">true if enums will be documented
+        /// inline for this argument; false otherwise.</param>
+        /// <returns>Syntax.</returns>
+        public string GetSyntax(ArgumentHelpOptions options, bool enumsDocumentedInline = false)
+        {
+            var includeTypeInfo = true;
+
+            if (IsPositional && (!options.IncludePositionalArgumentTypes || enumsDocumentedInline))
+            {
+                includeTypeInfo = false;
+            }
+
+            if (!IsPositional && !options.IncludeNamedArgumentValueSyntax)
+            {
+                includeTypeInfo = false;
+            }
+
+            var flags = ArgumentSyntaxFlags.None;
+            if (includeTypeInfo)
+            {
+                flags |= ArgumentSyntaxFlags.IncludeValueSyntax | ArgumentSyntaxFlags.IndicatePositionalArgumentType;
+            }
+
+            return GetSyntaxSummary(flags);
+        }
 
         /// <summary>
         /// Checks if the argument is a selected command.
@@ -230,6 +332,17 @@ namespace NClap.Parser
             // command attribute.
             return type.GetTypeInfo().GetFields().Any(field =>
                 field.GetSingleAttribute<CommandAttribute>() != null);
+        }
+
+        private string GetTypeSyntaxSummary()
+        {
+            var summary = Arg.ArgumentType.SyntaxSummary;
+            if (Arg.ContainingSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
+            {
+                summary = summary.ToHyphenatedLowerCase();
+            }
+
+            return summary;
         }
     }
 }

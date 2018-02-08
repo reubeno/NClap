@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
 using System;
@@ -79,7 +80,8 @@ namespace NClap.Tests.Parser
                 PreferNamedArgumentValueAsSucceedingToken = true
             });
 
-            argDef.GetSyntaxSummary().Should().Be("--my-value <int>");
+            var usage = new ArgumentUsageInfo(argDef);
+            usage.GetSyntaxSummary().Should().Be("--my-value <int>");
         }
 
         [TestMethod]

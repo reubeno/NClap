@@ -1,11 +1,12 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using System.Reflection;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Help;
 using NClap.Metadata;
 using NClap.Parser;
-using System.Linq;
-using System.Reflection;
 
-namespace NClap.Tests.Parser
+namespace NClap.Tests.Help
 {
     [TestClass]
     public class ArgumentUsageInfoTests
@@ -16,14 +17,6 @@ namespace NClap.Tests.Parser
         private class TestArguments<T>
         {
             public T Value { get; set; }
-        }
-
-        [TestMethod]
-        public void BasicUsage()
-        {
-            var help = new ArgumentUsageInfo(anySyntax, anyDescription, false);
-            help.Syntax.Should().Be(anySyntax);
-            help.Description.Should().Be(anyDescription);
         }
 
         [TestMethod]

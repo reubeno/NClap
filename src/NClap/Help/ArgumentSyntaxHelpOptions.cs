@@ -21,12 +21,19 @@ namespace NClap.Help
         private ArgumentSyntaxHelpOptions(ArgumentSyntaxHelpOptions other) : base(other)
         {
             CommandNameColor = other.CommandNameColor;
+            IncludeOptionalArguments = other.IncludeOptionalArguments;
         }
 
         /// <summary>
         /// Color of the command name.
         /// </summary>
         public TextColor CommandNameColor { get; set; }
+
+        /// <summary>
+        /// True to include optional arguments in syntax summary; false to
+        /// exclude them.
+        /// </summary>
+        internal bool IncludeOptionalArguments { get; set; } = true;
 
         /// <summary>
         /// Create a separate clone of this object.

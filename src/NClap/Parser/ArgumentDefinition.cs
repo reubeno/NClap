@@ -248,7 +248,7 @@ namespace NClap.Parser
         /// String summary of object.
         /// </summary>
         /// <returns>String.</returns>
-        public override string ToString() => GetSyntaxSummary(detailed: true);
+        public override string ToString() => base.ToString();
 
         /// <summary>
         /// Registers an Argument that conflicts with the one described by this
@@ -306,99 +306,10 @@ namespace NClap.Parser
         /// including full argument type information; false to return abridged
         /// information.</param>
         /// <returns>The help content in string form.</returns>
-        public string GetSyntaxSummary(bool detailed = true)
-        {
-            var builder = new StringBuilder();
-
-            if (!IsRequired)
-            {
-                builder.Append("[");
-            }
-
-            if (IsPositional)
-            {
-                builder.Append("<");
-                builder.Append(LongName);
-                builder.Append(">");
-
-                if (detailed)
-                {
-                    builder.Append(" : ");
-                    builder.Append(GetTypeSyntaxSummary());
-                }
-
-                if (TakesRestOfLine)
-                {
-                    builder.Append("...");
-                }
-            }
-            else
-            {
-                if ((ContainingSet.Attribute.NamedArgumentPrefixes.Length < 1) ||
-                    (ContainingSet.Attribute.ArgumentValueSeparators.Length < 1))
-                {
-                    throw new NotSupportedException();
-                }
-
-                builder.Append(ContainingSet.Attribute.NamedArgumentPrefixes[0]);
-                builder.Append(LongName);
-
-                // We use a special hard-coded syntax if this argument consumes
-                // the rest of the line.
-                if (TakesRestOfLine)
-                {
-                    builder.Append("=<...>");
-                }
-
-                // We special-case bool arguments (switches) whose default value
-                // is false; in such cases, we can get away with a shorter
-                // syntax help that just indicates how to flip the switch on.
-                else if ((ArgumentType.Type == typeof(bool)) && !((bool)EffectiveDefaultValue))
-                {
-                    // Nothing to do.
-                }
-
-                // Otherwise, spell out the full syntax.
-                else
-                {
-                    // Decide if the argument type supports empty strings.
-                    var supportsEmptyStrings = IsEmptyStringValid();
-                    if (supportsEmptyStrings)
-                    {
-                        builder.Append("[");
-                    }
-
-                    if (ContainingSet.Attribute.AllowNamedArgumentValueAsSucceedingToken &&
-                        ContainingSet.Attribute.PreferNamedArgumentValueAsSucceedingToken)
-                    {
-                        builder.Append(" ");
-                    }
-                    else
-                    {
-                        builder.Append(ContainingSet.Attribute.ArgumentValueSeparators[0]);
-                    }
-
-                    builder.Append(GetTypeSyntaxSummary());
-
-                    if (supportsEmptyStrings)
-                    {
-                        builder.Append("]");
-                    }
-                }
-            }
-
-            if (!IsRequired)
-            {
-                builder.Append("]");
-            }
-
-            if (AllowMultiple)
-            {
-                builder.Append(IsRequired ? "+" : "*");
-            }
-
-            return builder.ToString();
-        }
+        [Obsolete("This method is no longer implemented and will be removed from future releases.")]
+#pragma warning disable CA1822 // Mark members as static
+        public string GetSyntaxSummary(bool detailed = true) => string.Empty;
+#pragma warning restore CA1822 // Mark members as static
 
         /// <summary>
         /// Retrieves the value associated with this argument in the provided
@@ -565,7 +476,11 @@ namespace NClap.Parser
             return argAttrib?.ShortName != null;
         }
 
-        private bool IsEmptyStringValid()
+        /// <summary>
+        /// Checks if the empty string is a valid value for this argument.
+        /// </summary>
+        /// <returns>true if it is valid; false otherwise.</returns>
+        internal bool IsEmptyStringValid()
         {
             var parseState = new ArgumentParser(ContainingSet, this, CommandLineParserOptions.Quiet(), /*destination=*/null);
 
@@ -608,17 +523,6 @@ namespace NClap.Parser
                 default:
                     throw new NotSupportedException();
             }
-        }
-
-        private string GetTypeSyntaxSummary()
-        {
-            var summary = ArgumentType.SyntaxSummary;
-            if (ContainingSet.Attribute.NameGenerationFlags.HasFlag(ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames))
-            {
-                summary = summary.ToHyphenatedLowerCase();
-            }
-
-            return summary;
         }
     }
 }

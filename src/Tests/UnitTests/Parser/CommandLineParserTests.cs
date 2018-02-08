@@ -739,6 +739,30 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
+        public void GetUsageStringWorksWithMissingSections()
+        {
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoDescription());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoLogo());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoExamples());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoSyntaxSummary());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoEnumValues());
+        }
+
+        [TestMethod]
         public void GetUsageInfoThrowsOnInvalidConfigurations()
         {
             ArgumentSetHelpOptions helpOptions = new ArgumentSetHelpOptions();
@@ -1560,7 +1584,7 @@ namespace NClap.Tests.Parser
         {
             var logo = CommandLineParser.GetLogo();
             logo.Should().NotBeNullOrWhiteSpace();
-            logo.Should().EndWith(Environment.NewLine);
+            logo.Should().EndWith("\n");
         }
 
         private static bool TryParseWithUsage<T>(IEnumerable<string> args, T dest, CommandLineParserOptions options = null) where T : class =>

@@ -2,7 +2,7 @@
   "profiles": {
     "MultilevelCommandApp": {
       "commandName": "Project",
-      "commandLineArgs": "config -Policy:Ephemeral set"
+      "commandLineArgs": "--help"
     }
   }
 }
