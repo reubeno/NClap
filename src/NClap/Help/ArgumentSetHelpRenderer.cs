@@ -160,25 +160,48 @@ namespace NClap.Help
                 GetEnumsToDocument(info, out inlineDocumented, out separatelyDocumented);
             }
 
-            // If desired (and present), append "REQUIRED PARAMETERS" section.
-            if ((_options.Arguments?.RequiredArguments?.Include ?? false) &&
-                info.RequiredParameters.Any())
+            // Process parameters sections.
+            var includeRequiredArgs = _options.Arguments?.RequiredArguments?.Include ?? false;
+            var includeOptionalArgs = _options.Arguments?.OptionalArguments?.Include ?? false;
+            if (includeRequiredArgs || includeOptionalArgs)
             {
-                var entries = GetAndFormatParameterEntries(_options.Arguments.RequiredArguments, info.RequiredParameters, info, inlineDocumented).ToList();
-                if (entries.Count > 0)
+                var argBlockIndentWidth = 0;
+                if (includeRequiredArgs)
                 {
-                    sections.Add(new Section(ArgumentSetHelpSectionType.RequiredParameters, _options, _options.Arguments.RequiredArguments, entries));
+                    argBlockIndentWidth = Math.Max(argBlockIndentWidth, _options.Arguments.RequiredArguments.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth));
                 }
-            }
 
-            // If desired (and present), append "OPTIONAL PARAMETERS" section.
-            if ((_options.Arguments?.OptionalArguments?.Include ?? false) &&
-                info.OptionalParameters.Any())
-            {
-                var entries = GetAndFormatParameterEntries(_options.Arguments.OptionalArguments, info.OptionalParameters, info, inlineDocumented).ToList();
-                if (entries.Count > 0)
+                if (includeOptionalArgs)
                 {
-                    sections.Add(new Section(ArgumentSetHelpSectionType.OptionalParameters, _options, _options.Arguments.OptionalArguments, entries));
+                    argBlockIndentWidth = Math.Max(argBlockIndentWidth, _options.Arguments.OptionalArguments.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth));
+                }
+
+                var currentMaxWidth =
+                    _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth) - argBlockIndentWidth;
+
+                var requiredEntries = includeRequiredArgs ?
+                    (IReadOnlyList<ParameterEntry>)GetParameterEntries(currentMaxWidth, info.RequiredParameters, info, inlineDocumented).ToList() :
+                    Array.Empty<ParameterEntry>();
+
+                var optionalEntries = includeOptionalArgs ?
+                    (IReadOnlyList<ParameterEntry>)GetParameterEntries(currentMaxWidth, info.OptionalParameters, info, inlineDocumented).ToList() :
+                    Array.Empty<ParameterEntry>();
+
+                if (requiredEntries.Count + optionalEntries.Count > 0)
+                {
+                    var maxLengthOfParameterSyntax = requiredEntries.Concat(optionalEntries).Max(e => e.Syntax.Length);
+
+                    if (requiredEntries.Count > 0)
+                    {
+                        var formattedEntries = FormatParameterEntries(currentMaxWidth, requiredEntries, maxLengthOfParameterSyntax).ToList();
+                        sections.Add(new Section(ArgumentSetHelpSectionType.RequiredParameters, _options, _options.Arguments.RequiredArguments, formattedEntries));
+                    }
+
+                    if (optionalEntries.Count > 0)
+                    {
+                        var formattedEntries = FormatParameterEntries(currentMaxWidth, optionalEntries, maxLengthOfParameterSyntax).ToList();
+                        sections.Add(new Section(ArgumentSetHelpSectionType.OptionalParameters, _options, _options.Arguments.OptionalArguments, formattedEntries));
+                    }
                 }
             }
 
@@ -312,8 +335,9 @@ namespace NClap.Help
             }
             else
             {
-                var entries = values.Select(GetEnumValueInfo);
-                return FormatParameterEntries(currentMaxWidth, entries);
+                var entries = values.Select(GetEnumValueInfo).ToList();
+                var maxLengthOfParameterSyntax = entries.Count > 0 ? entries.Max(e => e.Syntax.Length) : 0;
+                return FormatParameterEntries(currentMaxWidth, entries, maxLengthOfParameterSyntax);
             }
         }
 
@@ -398,22 +422,10 @@ namespace NClap.Help
             return map;
         }
 
-        private IEnumerable<ColoredMultistring> GetAndFormatParameterEntries(
-            ArgumentMetadataHelpOptions itemOptions,
-            IEnumerable<ArgumentUsageInfo> info,
-            ArgumentSetUsageInfo setInfo,
-            IReadOnlyDictionary<ArgumentUsageInfo, List<IEnumArgumentType>> inlineDocumentedEnums)
-        {
-            var currentMaxWidth = _options.MaxWidth.GetValueOrDefault(ArgumentSetHelpOptions.DefaultMaxWidth);
-            currentMaxWidth -= itemOptions.BlockIndent.GetValueOrDefault(_options.SectionEntryBlockIndentWidth);
-
-            var entries = GetParameterEntries(currentMaxWidth, info, setInfo, inlineDocumentedEnums);
-            return FormatParameterEntries(currentMaxWidth, entries);
-        }
-
         private IEnumerable<ColoredMultistring> FormatParameterEntries(
             int currentMaxWidth,
-            IEnumerable<ParameterEntry> entries)
+            IReadOnlyList<ParameterEntry> entries,
+            int maxLengthOfParameterSyntax)
         {
             IEnumerable<IEnumerable<ColoredMultistring>> formatted;
             if (_options.Arguments.Layout is OneColumnArgumentHelpLayout)
@@ -422,7 +434,7 @@ namespace NClap.Help
             }
             else if (_options.Arguments.Layout is TwoColumnArgumentHelpLayout layout)
             {
-                formatted = FormatParameterEntriesInTwoColumns(currentMaxWidth, layout, entries);
+                formatted = FormatParameterEntriesInTwoColumns(currentMaxWidth, layout, entries, maxLengthOfParameterSyntax);
             }
             else
             {
@@ -444,7 +456,7 @@ namespace NClap.Help
         }
 
         private IEnumerable<IEnumerable<ColoredMultistring>> FormatParameterEntriesInOneColumn(
-            IEnumerable<ParameterEntry> entries) =>
+            IReadOnlyList<ParameterEntry> entries) =>
             entries.Select(e =>
             {
                 var builder = new ColoredMultistringBuilder();
@@ -483,7 +495,8 @@ namespace NClap.Help
         private IEnumerable<IEnumerable<ColoredMultistring>> FormatParameterEntriesInTwoColumns(
             int currentMaxWidth,
             TwoColumnArgumentHelpLayout layout,
-            IEnumerable<ParameterEntry> entries)
+            IReadOnlyList<ParameterEntry> entries,
+            int maxLengthOfParameterSyntax)
         {
             var entriesList = entries.ToList();
             if (entriesList.Count == 0)
@@ -518,7 +531,7 @@ namespace NClap.Help
 
             if (actualColumnWidths[0] == 0 && actualColumnWidths[1] == 0)
             {
-                actualColumnWidths[0] = entriesList.Max(e => e.Syntax.Length);
+                actualColumnWidths[0] = maxLengthOfParameterSyntax;
                 if (actualColumnWidths[0] + layout.DefaultColumnSeparator.Length >= currentMaxWidth)
                 {
                     actualColumnWidths[0] = (currentMaxWidth - layout.DefaultColumnSeparator.Length) / 2;

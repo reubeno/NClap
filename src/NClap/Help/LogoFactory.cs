@@ -19,7 +19,7 @@ namespace NClap.Help
         /// <param name="assembly">Assembly for which logos will be generated.</param>
         public LogoFactory(Assembly assembly)
         {
-            _assembly = assembly;
+            _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
         }
 
         /// <summary>

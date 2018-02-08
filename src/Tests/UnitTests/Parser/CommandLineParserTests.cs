@@ -739,6 +739,30 @@ namespace NClap.Tests.Parser
         }
 
         [TestMethod]
+        public void GetUsageStringWorksWithMissingSections()
+        {
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoDescription());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoLogo());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoExamples());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoSyntaxSummary());
+
+            GetUsageStringWorks(new SimpleArguments(), options: new ArgumentSetHelpOptions()
+                .With()
+                .NoEnumValues());
+        }
+
+        [TestMethod]
         public void GetUsageInfoThrowsOnInvalidConfigurations()
         {
             ArgumentSetHelpOptions helpOptions = new ArgumentSetHelpOptions();

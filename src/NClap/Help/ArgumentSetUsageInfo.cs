@@ -114,12 +114,12 @@ namespace NClap.Help
         /// <summary>
         /// Usage information for required parameters only.
         /// </summary>
-        public IEnumerable<ArgumentUsageInfo> RequiredParameters => AllParameters.Where(p => p.Required);
+        public IEnumerable<ArgumentUsageInfo> RequiredParameters => AllParameters.Where(p => p.IsRequired);
 
         /// <summary>
         /// Usage information for optional parameters only.
         /// </summary>
-        public IEnumerable<ArgumentUsageInfo> OptionalParameters => AllParameters.Where(p => !p.Required);
+        public IEnumerable<ArgumentUsageInfo> OptionalParameters => AllParameters.Where(p => !p.IsRequired);
 
         /// <summary>
         /// Examples.
@@ -144,7 +144,7 @@ namespace NClap.Help
                     return arg.ArgumentType.Format(arg.CurrentValue);
                 }
 
-                return arg.Arg.GetSyntaxSummary(detailed: false);
+                return arg.GetSyntaxSummary();
             });
 
             return string.Join(" ", syntax);

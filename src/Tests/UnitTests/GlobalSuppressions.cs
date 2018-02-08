@@ -6,6 +6,9 @@
 //
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 [assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "[Legacy]")]
 [assembly: SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "[Legacy]")]
+
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

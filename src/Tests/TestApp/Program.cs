@@ -1,4 +1,5 @@
 ﻿using System;
+using NClap.Help;
 
 namespace NClap.TestApp
 {
@@ -6,7 +7,14 @@ namespace NClap.TestApp
     {
         private static int Main(string[] args)
         {
-            if (!CommandLineParser.TryParse(args, out ProgramArguments programArgs))
+            var options = new CommandLineParserOptions
+            {
+                HelpOptions = new ArgumentSetHelpOptions()
+                    .With()
+                    .TwoColumnLayout()
+            };
+
+            if (!CommandLineParser.TryParse(args, options, out ProgramArguments programArgs))
             {
                 return -1;
             }

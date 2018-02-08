@@ -83,7 +83,7 @@ namespace NClap.Parser
         /// <summary>
         /// Optionally indicates the default assembly associated with this definition.
         /// </summary>
-        public Assembly DefaultAssembly { get; set; }
+        internal Assembly DefaultAssembly { get; set; }
 
         /// <summary>
         /// Enumerates all names of named arguments (of all name types).
