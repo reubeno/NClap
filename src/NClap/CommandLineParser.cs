@@ -214,7 +214,6 @@ namespace NClap
         /// be found.
         /// </summary>
         /// <returns>The logo string.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "It's not appropriate")]
         public static string GetLogo() => ArgumentSetUsageInfo.GetLogo(null);
 
         /// <summary>

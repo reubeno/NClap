@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NClap.Parser;
@@ -498,11 +499,7 @@ namespace NClap.Help
             IReadOnlyList<ParameterEntry> entries,
             int maxLengthOfParameterSyntax)
         {
-            var entriesList = entries.ToList();
-            if (entriesList.Count == 0)
-            {
-                return Enumerable.Empty<IEnumerable<ColoredMultistring>>();
-            }
+            Debug.Assert(entries.Count > 0);
 
             if (layout.FirstLineColumnSeparator != null && layout.DefaultColumnSeparator != null &&
                 layout.FirstLineColumnSeparator.Length != layout.DefaultColumnSeparator.Length)
@@ -547,7 +544,7 @@ namespace NClap.Help
                     $"Invalid actual column widths {actualColumnWidths[0]}, {actualColumnWidths[1]}; specified widths={specifiedWidths[0]},{specifiedWidths[1]}; current max width={currentMaxWidth}, column separator len={layout.DefaultColumnSeparator.Length}");
             }
 
-            return entriesList.Select(e =>
+            return entries.Select(e =>
             {
                 var wrappedSyntaxLines = e.Syntax.Wrap(actualColumnWidths[0]).Split('\n').ToList();
                 var wrappedDescLines = e.Description.Wrap(actualColumnWidths[1]).Split('\n').ToList();

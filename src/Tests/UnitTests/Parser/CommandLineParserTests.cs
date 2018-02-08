@@ -775,6 +775,13 @@ namespace NClap.Tests.Parser
                 .ColumnWidths(0, 0);
             a.Should().Throw<NotSupportedException>();
 
+            // At least one column width is negative.
+            helpOptions = helpOptions
+                .With()
+                .TwoColumnLayout()
+                .ColumnWidths(Any.NegativeInt(), 10);
+            a.Should().Throw<NotSupportedException>();
+
             // Columns don't fit in total width.
             helpOptions = helpOptions
                 .With()

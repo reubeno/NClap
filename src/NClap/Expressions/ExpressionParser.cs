@@ -498,6 +498,8 @@ namespace NClap.Expressions
 
         private void StartSpeculation()
         {
+            // To avoid failing with a StackOverflowException in the event of a logic
+            // error, we detect having a deeper stack than we should ever see.
             if (_olderStates.Count > MaxStateDepth)
             {
                 throw new InternalInvariantBrokenException();
