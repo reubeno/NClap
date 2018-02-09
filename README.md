@@ -25,7 +25,4 @@ We welcome contributions of all kinds, whether it be submitting pull requests or
 
 For code contributions, we follow the standard [Github workflow](https://guides.github.com/introduction/flow/).
 
-## Code of conduct
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact 
-[opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+Please also see our [Code of Conduct](CODE_OF_CONDUCT.md)
