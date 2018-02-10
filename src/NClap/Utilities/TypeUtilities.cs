@@ -16,9 +16,11 @@ namespace NClap.Utilities
         /// <param name="type">First type.</param>
         /// <param name="otherType">Second type.</param>
         /// <returns>True if the two types are effectively the same.</returns>
-        public static bool IsEffectivelySameAs(this Type type, Type otherType) =>
-            type.GetTypeInfo().GUID == otherType.GetTypeInfo().GUID &&
-            type.AssemblyQualifiedName.Equals(otherType.AssemblyQualifiedName, StringComparison.Ordinal);
+        public static bool IsEffectivelySameAs(this Type type, Type otherType)
+        {
+            return type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.AssemblyQualifiedName != null && (type.GetTypeInfo().GUID == otherType.GetTypeInfo().GUID &&
+                                                                                                                                                                                                                                                                                                                                                                                  type.AssemblyQualifiedName.Equals(otherType.AssemblyQualifiedName, StringComparison.Ordinal))))))))));
+        }
 
         /// <summary>
         /// Retrieves a function that invokes the constructor of the given type that takes 0 or more
@@ -40,7 +42,8 @@ namespace NClap.Utilities
             }
 
             // Compute a map of all types that we might support in the constructor.
-            Dictionary<Type, object> objectMap = possibleArgs.SelectMany(a =>
+            var enumerable = possibleArgs as object[] ?? possibleArgs.ToArray();
+            Dictionary<Type, object> objectMap = enumerable.SelectMany(a =>
                     GetAllUsableTypes(a).Select(usableType => new { Type = usableType, Value = a }))
                 .ToDictionary(item => item.Type, item => item.Value);
 
@@ -62,7 +65,7 @@ namespace NClap.Utilities
             {
                 throw new NotSupportedException(
                     $"Type '{type.FullName}' does not contain any compatible constructors; " + Environment.NewLine +
-                    $"  types of possible arguments include: {{{string.Join(", ", possibleArgs.Select(a => a.GetType().Name))}}}" + Environment.NewLine +
+                    $"  types of possible arguments include: {{{string.Join(", ", enumerable.Select(a => a.GetType().Name))}}}" + Environment.NewLine +
                     $"  types of constructors: {string.Join(", ", allConstructors.Select(c => c.ToString()))}");
             }
             else if (compatibleConstructors.Count > 1)

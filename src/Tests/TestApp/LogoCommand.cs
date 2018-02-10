@@ -7,10 +7,10 @@ namespace NClap.TestApp
     {
         public override CommandResult Execute()
         {
-            Console.WriteLine("Logo:");
-            Console.WriteLine("---------------------------");
+            Console.WriteLine(@"Logo:");
+            Console.WriteLine(@"---------------------------");
             Console.Write(CommandLineParser.GetLogo());
-            Console.WriteLine("---------------------------");
+            Console.WriteLine(@"---------------------------");
 
             return CommandResult.Success;
         }

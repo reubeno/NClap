@@ -184,7 +184,7 @@ namespace NClap.Metadata
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(value), $"Unknown style: {value}");
+                    throw new ArgumentOutOfRangeException(nameof(value), $@"Unknown style: {value}");
                 }
             }
         }

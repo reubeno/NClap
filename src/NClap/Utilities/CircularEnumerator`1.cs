@@ -47,7 +47,7 @@ namespace NClap.Utilities
                 throw new InvalidOperationException();
             }
 
-            return Values[CursorIndex.Value];
+            if (CursorIndex != null) return Values[CursorIndex.Value];
         }
 
         /// <summary>

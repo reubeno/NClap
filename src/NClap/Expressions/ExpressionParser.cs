@@ -198,7 +198,7 @@ namespace NClap.Expressions
         {
             StartSpeculation();
 
-            Maybe<Expression> left = new None();
+            Maybe<Expression> left;
             Maybe<Expression> right = new None();
 
             var result =
@@ -224,7 +224,7 @@ namespace NClap.Expressions
         {
             StartSpeculation();
 
-            Maybe<Operator> op = new None();
+            Maybe<Operator> op;
             Maybe<Expression> operand = new None();
 
             var result =

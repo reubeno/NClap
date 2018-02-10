@@ -55,7 +55,7 @@ namespace NClap.ConsoleInput
         /// <returns>True on success; false if the movement could not be made.
         /// </returns>
         public bool MoveCursor(SeekOrigin origin, int offsetFromOrigin) =>
-            MoveCursor(origin, offsetFromOrigin, out int offsetFromPreviousPosition);
+            MoveCursor(origin, offsetFromOrigin, out int _);
 
         /// <summary>
         /// Move the cursor.

@@ -61,7 +61,6 @@ namespace NClap.Expressions
                 case Operator.ConvertToLowerCase:
                     value = operand.ToLower();
                     return true;
-                case Operator.Unspecified:
                 default:
                     throw new InternalInvariantBrokenException();
             }

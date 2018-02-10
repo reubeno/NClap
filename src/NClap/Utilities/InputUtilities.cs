@@ -202,18 +202,18 @@ namespace NClap.Utilities
                 case ConsoleKey.Escape:
                 case ConsoleKey.Spacebar:
                 case ConsoleKey.Tab:
-                    return new char[] { (char)key };
+                    return new[] { (char)key };
 
                 case ConsoleKey.Multiply:
-                    return new char[] { '*' };
+                    return new[] { '*' };
                 case ConsoleKey.Add:
-                    return new char[] { '+' };
+                    return new[] { '+' };
                 case ConsoleKey.Subtract:
-                    return new char[] { '-' };
+                    return new[] { '-' };
                 case ConsoleKey.Decimal:
-                    return new char[] { '.' };
+                    return new[] { '.' };
                 case ConsoleKey.Divide:
-                    return new char[] { '/' };
+                    return new[] { '/' };
 
                 case ConsoleKey.OemComma:
                     return modifiers.HasFlag(ConsoleModifiers.Shift) ? new[] { '<' } : new[] { ',' };

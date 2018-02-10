@@ -24,10 +24,7 @@ namespace NClap.Types
         public IFileSystemReader FileSystemReader
         {
             get => _fileSystemReader;
-            set
-            {
-                _fileSystemReader = value ?? Parser.FileSystemReader.Create();
-            }
+            set => _fileSystemReader = value ?? Parser.FileSystemReader.Create();
         }
 
         /// <summary>

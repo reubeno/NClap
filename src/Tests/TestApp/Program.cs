@@ -20,7 +20,7 @@ namespace NClap.TestApp
             }
 
             var result = programArgs.Command.Execute();
-            Console.WriteLine($"Result: {result}");
+            Console.WriteLine($@"Result: {result}");
 
             return 0;
         }

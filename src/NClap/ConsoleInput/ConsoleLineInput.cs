@@ -646,7 +646,6 @@ namespace NClap.ConsoleInput
                 // Update console state.
                 cursorLeft = ConsoleOutput.CursorLeft;
                 cursorTop = ConsoleOutput.CursorTop;
-                cursorOffset = (cursorTop * bufferWidth) + cursorLeft;
             }
 
             // Allocate a fresh buffer so we can concatenate some chars on the end.

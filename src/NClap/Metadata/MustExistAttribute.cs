@@ -69,7 +69,7 @@ namespace NClap.Metadata
 
             if (Exists.HasFlag(PathExists.AsFile))
             {
-                exists = exists || context.FileSystemReader.FileExists(path);
+                exists = context.FileSystemReader.FileExists(path);
             }
 
             if (Exists.HasFlag(PathExists.AsDirectory))
@@ -92,7 +92,6 @@ namespace NClap.Metadata
                 case PathExists.AsDirectory:
                     reasonMessage = Strings.DirectoryDoesNotExist;
                     break;
-                case PathExists.AsFileOrDirectory:
                 default:
                     reasonMessage = Strings.PathDoesNotExist;
                     break;

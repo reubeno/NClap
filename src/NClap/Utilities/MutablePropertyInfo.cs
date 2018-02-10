@@ -65,13 +65,13 @@ namespace NClap.Utilities
                 }
                 catch (TargetInvocationException ex)
                 {
-                    throw ex.InnerException;
+                    if (ex.InnerException != null) throw ex.InnerException;
                 }
             }
             catch (ArgumentException)
             {
                 // Try to convert the value?
-                if (!MemberType.TryConvertFrom(value, out object convertedValue))
+                if (!MemberType.TryConvertFrom(value, out var convertedValue))
                 {
                     throw;
                 }
@@ -82,7 +82,7 @@ namespace NClap.Utilities
                 }
                 catch (TargetInvocationException ex)
                 {
-                    throw ex.InnerException;
+                    if (ex.InnerException != null) throw ex.InnerException;
                 }
             }
         }
