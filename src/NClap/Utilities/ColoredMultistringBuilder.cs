@@ -35,7 +35,7 @@ namespace NClap.Utilities
 
             set
             {
-                var s = GetContainingPiece(index, out int offset);
+                var s = GetContainingPiece(index, out int _);
 
                 Remove(index, 1);
                 Insert(index, s.Transform(_ => new string(value, 1)));
@@ -244,7 +244,6 @@ namespace NClap.Utilities
 
             var pieceIndex = 0;
             var offset = 0;
-            ColoredString? lastPiece = null;
             while (pieceIndex < _pieces.Count)
             {
                 var piece = _pieces[pieceIndex];
@@ -309,7 +308,6 @@ namespace NClap.Utilities
                 }
 
                 offset += piece.Length;
-                lastPiece = piece;
                 ++pieceIndex;
             }
 

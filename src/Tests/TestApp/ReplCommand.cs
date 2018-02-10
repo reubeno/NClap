@@ -16,7 +16,7 @@ namespace NClap.TestApp
 
         public override CommandResult Execute()
         {
-            Console.WriteLine("Entering loop.");
+            Console.WriteLine(@"Entering loop.");
 
             var keyBindingSet = ConsoleKeyBindingSet.CreateDefaultSet();
             keyBindingSet.Bind('c', ConsoleModifiers.Control, ConsoleInputOperation.Abort);
@@ -34,7 +34,7 @@ namespace NClap.TestApp
 
             --_count;
 
-            Console.WriteLine("Exited loop.");
+            Console.WriteLine(@"Exited loop.");
 
             return CommandResult.Success;
         }

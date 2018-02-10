@@ -42,7 +42,7 @@ namespace NClap.Utilities
 
                 var matchingAttribs = attribs.Select(d =>
                 {
-                    var attribType = Type.GetType(d.AttributeType.FullName, /*throwIfNotFound=*/false, /*ignoreCase=*/false);
+                    var attribType = Type.GetType(d.AttributeType.FullName ?? throw new InvalidOperationException(), /*throwIfNotFound=*/false, /*ignoreCase=*/false);
                     if (attribType == null)
                     {
                         return new None();
@@ -60,26 +60,31 @@ namespace NClap.Utilities
                 {
                     var constructorParamTypes = attrib.Data.Constructor
                         .GetParameters()
-                        .Select(p => Type.GetType(p.ParameterType.FullName)).ToArray();
+                        .Select(p => Type.GetType(p.ParameterType.FullName ?? throw new InvalidOperationException())).ToArray();
                     var constructorArgs = attrib.Data.ConstructorArguments
                         .Select(a => a.Value)
                         .ToArray();
 
-                    var namedArgs = attrib.Data.NamedArguments
+                    var namedArgs = (attrib.Data.NamedArguments ?? throw new InvalidOperationException())
                         .Select(a => new { MemberName = a.MemberName, Value = a.TypedValue.Value });
 
                     var constructor = attrib.Type.GetTypeInfo().GetConstructor(constructorParamTypes);
-                    var instance = constructor.Invoke(constructorArgs);
-
-                    foreach (var arg in namedArgs)
+                    if (constructor != null)
                     {
-                        var member = instance.GetType().GetTypeInfo().GetMember(arg.MemberName).First();
-                        var mutableMember = member.ToMutableMemberInfo();
+                        var instance = constructor.Invoke(constructorArgs);
 
-                        mutableMember.SetValue(instance, arg.Value);
+                        foreach (var arg in namedArgs)
+                        {
+                            var member = instance.GetType().GetTypeInfo().GetMember(arg.MemberName).First();
+                            var mutableMember = member.ToMutableMemberInfo();
+
+                            mutableMember.SetValue(instance, arg.Value);
+                        }
+
+                        return (T)instance;
                     }
 
-                    return (T)instance;
+                    return default(T);
                 });
             }
         }

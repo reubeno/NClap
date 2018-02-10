@@ -8,11 +8,11 @@ namespace NClap.TestApp
     {
         public override CommandResult Execute()
         {
-            Console.WriteLine("Reading input line...");
+            Console.WriteLine(@"Reading input line...");
 
             var line = ConsoleUtilities.ReadLine();
 
-            Console.WriteLine($"Read: [{line}]");
+            Console.WriteLine($@"Read: [{line}]");
 
             return CommandResult.Success;
         }

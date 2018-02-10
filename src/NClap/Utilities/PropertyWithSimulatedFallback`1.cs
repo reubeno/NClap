@@ -37,14 +37,14 @@ namespace NClap.Utilities
             T initialFallbackValue = default(T),
             Predicate<T> fallbackValidator = null)
         {
-            this._getter = getter;
-            this._setter = setter;
-            this._fallbackFilter = fallbackFilter;
-            this._lastKnownValue = initialFallbackValue;
-            this._fallbackValidator = fallbackValidator ?? (value => true);
+            _getter = getter;
+            _setter = setter;
+            _fallbackFilter = fallbackFilter;
+            _lastKnownValue = initialFallbackValue;
+            _fallbackValidator = fallbackValidator ?? (value => true);
 
             // Make sure the initial fallback value passes validation.
-            if (!this._fallbackValidator(initialFallbackValue))
+            if (!_fallbackValidator(initialFallbackValue))
             {
                 throw new ArgumentOutOfRangeException(nameof(initialFallbackValue));
             }

@@ -239,7 +239,7 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>True if the key is bound; false otherwise.</returns>
-        public bool ContainsKey(ConsoleKeyInfo key) => TryGetValue(key, out ConsoleInputOperation op);
+        public bool ContainsKey(ConsoleKeyInfo key) => TryGetValue(key, out ConsoleInputOperation _);
 
         /// <summary>
         /// Find the operation mapped to the specified key press.
@@ -487,7 +487,7 @@ namespace NClap.ConsoleInput
             ConsoleModifiers modifiers,
             ConsoleInputOperation op)
         {
-            var key = GetKey(value, modifiers);
+            var key = GetKey(value);
 
             var keyInfo = new ConsoleKeyInfo(
                 value,
@@ -505,7 +505,7 @@ namespace NClap.ConsoleInput
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "modifiers", Justification = "[Legacy]")]
-        private static ConsoleKey GetKey(char value, ConsoleModifiers modifiers)
+        private static ConsoleKey GetKey(char value)
         {
             var c = char.ToUpperInvariant(value);
 
@@ -514,7 +514,7 @@ namespace NClap.ConsoleInput
                 return ConsoleKey.A + (c - 'A');
             }
 
-            return (ConsoleKey)0;
+            return 0;
         }
     }
 }

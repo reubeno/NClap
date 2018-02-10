@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -57,7 +56,7 @@ namespace NClap.Utilities
         public static object GetDefaultValue(this Type type) =>
             typeof(ReflectionUtilities).GetTypeInfo()
                                        .GetMethod(nameof(GetDefaultValue), Array.Empty<Type>())
-                                       .MakeGenericMethod(type).Invoke(null, null);
+                ?.MakeGenericMethod(type).Invoke(null, null);
 
         /// <summary>
         /// Wraps default(T) into a method.

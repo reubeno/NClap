@@ -125,8 +125,7 @@ namespace NClap.Help
         {
             var sections = new List<Section>();
 
-            if (_options.Logo?.Include ?? false &&
-                info.Logo != null && !string.IsNullOrEmpty(info.Logo))
+            if (_options.Logo?.Include ?? false)
             {
                 sections.Add(new Section(ArgumentSetHelpSectionType.Logo, _options, _options.Logo, info.Logo));
             }
@@ -538,8 +537,15 @@ namespace NClap.Help
                 }
             }
 
-            if (actualColumnWidths[0] == 0) actualColumnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - actualColumnWidths[1];
-            if (actualColumnWidths[1] == 0) actualColumnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length - actualColumnWidths[0];
+            if (actualColumnWidths[0] == 0)
+            {
+                actualColumnWidths[0] = currentMaxWidth - layout.DefaultColumnSeparator.Length - actualColumnWidths[1];
+            }
+
+            if (actualColumnWidths[1] == 0)
+            {
+                actualColumnWidths[1] = currentMaxWidth - layout.DefaultColumnSeparator.Length - actualColumnWidths[0];
+            }
 
             if (actualColumnWidths[0] <= 0 || actualColumnWidths[1] <= 0)
             {
@@ -765,8 +771,10 @@ namespace NClap.Help
 
         private class ArgumentTypeComparer : IEqualityComparer<IArgumentType>
         {
-            public bool Equals(IArgumentType x, IArgumentType y) =>
-                x.Type.GetTypeInfo().GUID == y.Type.GetTypeInfo().GUID;
+            public bool Equals(IArgumentType x, IArgumentType y)
+            {
+                return y != null && (x != null && x.Type.GetTypeInfo().GUID == y.Type.GetTypeInfo().GUID);
+            }
 
             public int GetHashCode(IArgumentType obj) =>
                 obj.Type.GetTypeInfo().GUID.GetHashCode();

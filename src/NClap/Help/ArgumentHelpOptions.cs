@@ -69,7 +69,7 @@ namespace NClap.Help
         /// <summary>
         /// Number of lines left blank between two adjacent arguments.
         /// </summary>
-        public int BlankLinesBetweenArguments { get; set; } = 0;
+        public int BlankLinesBetweenArguments { get; set; }
 
         /// <summary>
         /// Include argument descriptions.
