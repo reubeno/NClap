@@ -62,24 +62,6 @@ namespace NClap {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Read response file for more options..
-        /// </summary>
-        internal static string AnswerFileArgumentDescription {
-            get {
-                return ResourceManager.GetString("AnswerFileArgumentDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to FilePath.
-        /// </summary>
-        internal static string AnswerFileArgumentName {
-            get {
-                return ResourceManager.GetString("AnswerFileArgumentName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Short name is too long: {0}.
         /// </summary>
         internal static string ArgumentShortNameTooLong {

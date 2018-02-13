@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NClap.Inspector": {
+      "commandName": "Project",
+      "commandLineArgs": "-assembly C:\\sources\\DevTools\\DeviceUtilities\\DeviceUtilitiesCli\\bin\\Debug\\net462\\dutil.exe -type DeviceUtilitiesCli.CliOptions.ProgramOptions docs"
+    }
+  }
+}

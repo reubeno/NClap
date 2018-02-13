@@ -393,15 +393,14 @@ namespace NClap.Parser
                 index + 1 < args.Count)
             {
                 var lastParsedArg = parsedArgs.GetLast();
-
                 Debug.Assert(lastParsedArg.Arg.RequiresOptionArgument);
-                Debug.Assert(!lastParsedArg.Arg.TakesRestOfLine);
                 Debug.Assert(string.IsNullOrEmpty(parsedArgs.GetLast().Value));
 
                 ++index;
                 ++argsConsumed;
 
                 lastParsedArg.Value = args[index];
+
                 result = ArgumentSetParseResult.Ready;
             }
 
@@ -426,7 +425,7 @@ namespace NClap.Parser
                         continue;
                     }
 
-                    argsConsumed = args.Count - index; // skip the rest of the line
+                    argsConsumed += args.Count - index; // skip the rest of the line
                 }
                 else
                 {
@@ -651,7 +650,7 @@ namespace NClap.Parser
                 var definingType = argProvider.GetTypeDefiningArguments();
                 if (definingType != null)
                 {
-                    ReflectionBasedParser.AddToArgumentSet(ArgumentSet, definingType,
+                    AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(ArgumentSet, definingType,
                         fixedDestination: argProvider.GetDestinationObject(),
                         containingArgument: state.Argument);
                 }

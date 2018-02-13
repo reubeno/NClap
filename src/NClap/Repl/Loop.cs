@@ -51,7 +51,7 @@ namespace NClap.Repl
             _client.TokenCompleter = new TokenCompleter(this);
 
             _commandType = ConstructCommandType(commandType, out _objectFactory);
-            _argSet = ReflectionBasedParser.CreateArgumentSet(_commandType, attribute: argSetAttribute);
+            _argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(_commandType, attribute: argSetAttribute);
         }
 
         /// <summary>

@@ -1,4 +1,7 @@
-﻿namespace NClap.Types
+﻿using System;
+using System.Collections.Generic;
+
+namespace NClap.Types
 {
     /// <summary>
     /// Interface for advertising a value as being parseable using this
@@ -42,5 +45,13 @@
         /// Description of this value, if it has one; null if it has none.
         /// </summary>
         string Description { get; }
+
+        /// <summary>
+        /// Get any attributes of the given type associated with the value.
+        /// </summary>
+        /// <typeparam name="T">Type of attribute to look for.</typeparam>
+        /// <returns>The attributes.</returns>
+        IEnumerable<T> GetAttributes<T>()
+            where T : Attribute;
     }
 }

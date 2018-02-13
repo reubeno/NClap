@@ -286,7 +286,7 @@ namespace NClap.Tests.Metadata
             arg.DefaultValue.Should().Be(true);
             arg.EffectiveDefaultValue.Should().Be(true);
 
-            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(ArgumentsWithUnsettableDefault));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(ArgumentsWithUnsettableDefault));
             var state = new ArgumentParser(argSet, arg, new CommandLineParserOptions(), new ArgumentsWithUnsettableDefault());
             state.TryFinalize(FileSystemReader.Create()).Should().BeFalse();
         }
@@ -296,7 +296,7 @@ namespace NClap.Tests.Metadata
         {
             var arg = GetArgument(typeof(StringArrayWithEmptyDefaultArguments));
 
-            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(StringArrayWithEmptyDefaultArguments));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(StringArrayWithEmptyDefaultArguments));
             var options = new CommandLineParserOptions();
             var state = new ArgumentParser(argSet, arg, options, new StringArrayWithEmptyDefaultArguments());
             var argSetParser = new ArgumentSetParser(argSet, options);
@@ -311,7 +311,7 @@ namespace NClap.Tests.Metadata
             var arg = GetArgument(typeof(ArgumentsWithUnsettableCollectionDefault));
             arg.DefaultValue.Should().BeOfType<string[]>();
 
-            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(ArgumentsWithUnsettableCollectionDefault));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(ArgumentsWithUnsettableCollectionDefault));
             var state = new ArgumentParser(argSet, arg, new CommandLineParserOptions(), new ArgumentsWithUnsettableCollectionDefault());
             state.TryFinalize(FileSystemReader.Create()).Should().BeFalse();
         }
@@ -382,7 +382,7 @@ namespace NClap.Tests.Metadata
                 setAttrib ?? new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine });
 
 
-            ReflectionBasedParser.AddToArgumentSet(argSet, type);
+            AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(argSet, type);
 
             return new ArgumentDefinition(
                 mutableMemberInfo,

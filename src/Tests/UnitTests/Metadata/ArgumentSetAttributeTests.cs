@@ -334,14 +334,14 @@ namespace NClap.Tests.Metadata
         }
 
         [TestMethod]
-        public void LogoIsSettableWithString()
+        public void TestThatLogoIsSettableWithString()
         {
             var attrib = new ArgumentSetAttribute { Logo = "Test" };
             attrib.Logo.Should().BeOfType<string>().And.Be("Test");
         }
 
         [TestMethod]
-        public void LogoIsNotSettableWithColoredString()
+        public void TestThatLogoIsNotSettableWithColoredString()
         {
             var attrib = new ArgumentSetAttribute();
 
@@ -350,7 +350,7 @@ namespace NClap.Tests.Metadata
         }
 
         [TestMethod]
-        public void LogoIsNotSettableWithColoredMultistring()
+        public void TestThatLogoIsNotSettableWithColoredMultistring()
         {
             var attrib = new ArgumentSetAttribute();
 
@@ -364,7 +364,7 @@ namespace NClap.Tests.Metadata
         }
 
         [TestMethod]
-        public void LogoThrowsOnUnsupportedTypes()
+        public void TestThatLogoThrowsOnUnsupportedTypes()
         {
             var attrib = new ArgumentSetAttribute();
 
@@ -373,7 +373,16 @@ namespace NClap.Tests.Metadata
         }
 
         [TestMethod]
-        public void CaseSensitivityFlagWorks()
+        public void TestThatLogoStringIsFixedToNull()
+        {
+            var attrib = new ArgumentSetAttribute();
+#pragma warning disable CS0618 // Type or member is obsolete
+            attrib.LogoString.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        [TestMethod]
+        public void TestThatCaseSensitivityFlagWorks()
         {
             var args = new CaseSensitiveArguments();
 

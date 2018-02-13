@@ -14,31 +14,100 @@ namespace NClap.Tests.Utilities
     {
         public bool PropertyWithNoAttributes { get; set; }
 
+        [ArgumentSet(
+            Description = "Hello",
+            Examples = new string[] { })]
         class TestClassWithAttributes
         {
-            [NamedArgument(ArgumentFlags.Required, LongName = "LongerFoo")]
+            [NamedArgument(
+                ArgumentFlags.Required,
+                LongName = "LongerFoo",
+                ConflictsWith = new[] { nameof(Bar) })]
             [MustNotBeEmpty]
             public string Foo { get; set; }
+
+            [NamedArgument]
+            public string Bar { get; set; }
         }
 
         [TestMethod]
-        public void PropertyWithNoAttributesYieldsNoAttributes()
+        public void TestThatPropertyWithNoAttributesYieldsNoAttributes()
         {
             var field = this.GetType().GetTypeInfo().GetMember(nameof(PropertyWithNoAttributes))[0];
             AttributeUtilities.GetAttributes<Attribute>(field).Should().BeEmpty();
+            AttributeUtilities.GetAttributesForReflectionOnlyType<Attribute>(field).Should().BeEmpty();
         }
 
         [TestMethod]
-        public void MethodWithAttributeYieldsAttribute()
+        public void TestThatPropertyWithoutMatchingAttributesYieldsNoAttributes()
         {
-            var method = this.GetType().GetTypeInfo().GetMember(nameof(MethodWithAttributeYieldsAttribute))[0];
-            var attribs = AttributeUtilities.GetAttributes<TestMethodAttribute>(method).ToList();
-            attribs.Should().ContainSingle();
-            attribs[0].Should().BeOfType<TestMethodAttribute>();
+            var property = typeof(TestClassWithAttributes).GetTypeInfo().GetMember(nameof(TestClassWithAttributes.Foo))[0];
+
+            AttributeUtilities.GetAttributes<ArgumentSetAttribute>(property).Should().BeEmpty();
+            AttributeUtilities.GetAttributesForReflectionOnlyType<ArgumentSetAttribute>(property).Should().BeEmpty();
         }
 
         [TestMethod]
-        public void CanRetrieveAttributeFromProviderThatFailsToReturnCustomAttribs()
+        public void TestThatPropertyWithAttributesYieldsAttributes()
+        {
+            var property = typeof(TestClassWithAttributes).GetTypeInfo().GetMember(nameof(TestClassWithAttributes.Foo))[0];
+
+            var attribsResults = new[]
+            {
+                AttributeUtilities.GetAttributes<NamedArgumentAttribute>(property),
+                AttributeUtilities.GetAttributesForReflectionOnlyType<NamedArgumentAttribute>(property)
+            };
+
+            foreach (var attribs in attribsResults)
+            {
+                attribs.Should().HaveCount(1);
+                var attrib = attribs.First();
+                attrib.Flags.Should().Be(ArgumentFlags.Required);
+                attrib.LongName.Should().Be("LongerFoo");
+                attrib.ConflictsWith.Should().Equal(new[] { "Bar" });
+            }
+        }
+
+        [TestMethod]
+        public void TestThatTypeWithAttributesYieldsAttributes()
+        {
+            var type = typeof(TestClassWithAttributes);
+
+            var attribsResults = new[]
+            {
+                AttributeUtilities.GetAttributes<ArgumentSetAttribute>(type),
+                AttributeUtilities.GetAttributesForReflectionOnlyType<ArgumentSetAttribute>(type)
+            };
+
+            foreach (var attribs in attribsResults)
+            {
+                attribs.Should().HaveCount(1);
+                var attrib = attribs.First();
+                attrib.Description.Should().Be("Hello");
+                attrib.Examples.Should().BeEmpty();
+            }
+        }
+
+        [TestMethod]
+        public void TestThatMethodWithAttributeYieldsAttribute()
+        {
+            var method = this.GetType().GetTypeInfo().GetMember(nameof(TestThatMethodWithAttributeYieldsAttribute))[0];
+
+            var attribsResults = new[]
+            {
+                AttributeUtilities.GetAttributes<TestMethodAttribute>(method).ToList(),
+                AttributeUtilities.GetAttributesForReflectionOnlyType<TestMethodAttribute>(method).ToList(),
+            };
+
+            foreach (var attribs in attribsResults)
+            {
+                attribs.Should().ContainSingle();
+                attribs[0].Should().BeOfType<TestMethodAttribute>();
+            }
+        }
+
+        [TestMethod]
+        public void TestThatCanRetrieveAttributeFromProviderThatFailsToReturnCustomAttribs()
         {
             var fooProp = typeof(TestClassWithAttributes).GetTypeInfo().GetProperty(nameof(TestClassWithAttributes.Foo));
             fooProp.Should().NotBeNull();
@@ -66,6 +135,9 @@ namespace NClap.Tests.Utilities
 
             Action a = () => AttributeUtilities.GetAttributes<NamedArgumentAttribute>(provider).ToList();
             a.Should().Throw<InvalidOperationException>();
+
+            a = () => AttributeUtilities.GetAttributesForReflectionOnlyType<NamedArgumentAttribute>(provider).ToList();
+            a.Should().Throw<NotSupportedException>();
         }
     }
 }

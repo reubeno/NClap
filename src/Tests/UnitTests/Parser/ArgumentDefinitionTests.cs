@@ -94,7 +94,7 @@ namespace NClap.Tests.Parser
 
         private ArgumentDefinition GetArgumentDefinition(ArgumentSetAttribute attrib = null)
         {
-            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(TestArguments), attrib);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(TestArguments), attrib);
             return argSet.AllArguments.Single();
         }
     }

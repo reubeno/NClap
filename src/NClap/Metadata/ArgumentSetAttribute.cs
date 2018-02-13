@@ -159,6 +159,7 @@ namespace NClap.Metadata
                     NamedArgumentPrefixes = new[] { "/", "-" };
                     ShortNameArgumentPrefixes = new[] { "/", "-" };
                     ArgumentValueSeparators = new[] { '=', ':' };
+                    PreferNamedArgumentValueAsSucceedingToken = false;
                     break;
 
                 case ArgumentSetStyle.PowerShell:
@@ -169,6 +170,7 @@ namespace NClap.Metadata
                     NamedArgumentPrefixes = new[] { "-" };
                     ShortNameArgumentPrefixes = new[] { "-" };
                     ArgumentValueSeparators = new[] { ':' };
+                    PreferNamedArgumentValueAsSucceedingToken = true;
                     break;
 
                 case ArgumentSetStyle.GetOpt:
@@ -181,6 +183,7 @@ namespace NClap.Metadata
                     NameGenerationFlags =
                         ArgumentNameGenerationFlags.GenerateHyphenatedLowerCaseLongNames |
                         ArgumentNameGenerationFlags.PreferLowerCaseForShortNames;
+                    PreferNamedArgumentValueAsSucceedingToken = false;
                     break;
 
                 default:
