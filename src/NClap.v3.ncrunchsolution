@@ -16,6 +16,8 @@
       <Value>Samples\MergedCommandApp\MergedCommandApp.csproj:net461</Value>
       <Value>Samples\MergedCommandApp\MergedCommandApp.csproj:netcoreapp2.0</Value>
       <Value>Tests\TestApp\NClap.TestApp.csproj:netcoreapp2.0</Value>
+      <Value>Tools\Inspector\NClap.Inspector.csproj:net461</Value>
+      <Value>Tools\Inspector\NClap.Inspector.csproj:netcoreapp2.0</Value>
     </MetricsExclusionList>
     <NUnit3Enabled>False</NUnit3Enabled>
     <SolutionConfigured>True</SolutionConfigured>

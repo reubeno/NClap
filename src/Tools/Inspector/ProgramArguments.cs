@@ -11,23 +11,27 @@ namespace NClap.Inspector
     {
         public enum CommandType
         {
-            [Command(typeof(CompleteCommand))]
+            [Command(typeof(CompleteCommand), Description = "Generate completions")]
             Complete,
 
-            [Command(typeof(DocsCommand))]
+            [Command(typeof(DocsCommand), Description = "Extract documentation")]
             Docs
         }
 
-        [NamedArgument(ArgumentFlags.Optional, LongName = "Verbose")]
+        [NamedArgument(ArgumentFlags.Optional, LongName = "Verbose",
+            Description = "Enable debug output")]
         public bool Verbose { get; set; }
 
-        [NamedArgument(ArgumentFlags.Optional, LongName = "Help")]
+        [NamedArgument(ArgumentFlags.Optional, LongName = "Help",
+            Description = "Display this help output")]
         public bool Help { get; set; }
 
-        [NamedArgument(ArgumentFlags.Required, LongName = "Assembly")]
+        [NamedArgument(ArgumentFlags.Required, LongName = "Assembly",
+            Description = "File path to the assembly to inspect")]
         public FileSystemPath AssemblyPath { get; set; }
 
-        [NamedArgument(ArgumentFlags.Required, LongName = "Type")]
+        [NamedArgument(ArgumentFlags.Required, LongName = "Type",
+            Description = "Name of the type to inspect in the specified assembly")]
         public string TypeName { get; set; }
 
         [PositionalArgument(ArgumentFlags.Required, Position = 0)]

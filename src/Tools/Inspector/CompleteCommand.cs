@@ -14,10 +14,12 @@ namespace NClap.Inspector
             _programArgs = programArgs;
         }
 
-        [NamedArgument(ArgumentFlags.Required, LongName = "ArgIndex")]
+        [NamedArgument(ArgumentFlags.Required, LongName = "ArgIndex",
+            Description = "0-based index of argument to complete")]
         public int IndexOfArgToComplete { get; set; }
 
-        [NamedArgument(ArgumentFlags.RestOfLine, LongName = "Args")]
+        [NamedArgument(ArgumentFlags.RestOfLine, LongName = "Args",
+            Description = "Command-line tokens")]
         public List<string> Arguments { get; set; } = new List<string>();
 
         public override CommandResult Execute()

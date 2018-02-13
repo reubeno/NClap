@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NClap.Metadata;
 using NClap.Utilities;
@@ -36,10 +37,9 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(fieldInfo));
             }
 
-            if (!TryGetArgumentValueAttribute(fieldInfo, out _attribute))
-            {
-                _attribute = new ArgumentValueAttribute();
-            }
+            _attribute =
+                GetAttributes<ArgumentValueAttribute>().SingleOrDefault() ??
+                new ArgumentValueAttribute();
         }
 
         /// <summary>
@@ -90,18 +90,6 @@ namespace NClap.Types
         /// <typeparam name="T">Type of attribute to look for.</typeparam>
         /// <returns>The attributes.</returns>
         public IEnumerable<T> GetAttributes<T>()
-            where T : Attribute
-        {
-            return _fieldInfo.GetAttributes<T>();
-        }
-
-        private static bool TryGetArgumentValueAttribute(FieldInfo fieldInfo, out ArgumentValueAttribute attribute)
-        {
-            // Look for an <see cref="ArgumentValueAttribute" /> attribute,
-            // which might further customize how we can parse strings into
-            // this value.
-            attribute = fieldInfo.GetSingleAttribute<ArgumentValueAttribute>(inherit: false);
-            return attribute != null;
-        }
+            where T : Attribute => _fieldInfo.GetAttributes<T>();
     }
 }
