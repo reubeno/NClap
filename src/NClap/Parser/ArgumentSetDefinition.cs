@@ -289,7 +289,7 @@ namespace NClap.Parser
 
             // Validate positional arguments.
             var lastIndex = -1;
-            var allArgsConsumed = namedArguments.Any(a => a.TakesRestOfLine);
+            var allArgsConsumed = false;
             foreach (var argument in positionalArguments)
             {
                 if (allArgsConsumed || (argument.Key != lastIndex + 1))

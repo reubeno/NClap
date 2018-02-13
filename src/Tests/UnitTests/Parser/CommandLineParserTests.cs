@@ -14,7 +14,7 @@ using NSubstitute;
 namespace NClap.Tests.Parser
 {
     /// <summary>
-    /// Tests for the CommandLineParser class.
+    /// Tests for the <see cref="CommandLineParser"/> class.
     /// </summary>
     [TestClass]
     public class CommandLineParserTests
@@ -113,7 +113,7 @@ namespace NClap.Tests.Parser
             public string RequiredArgument;
         }
 
-        [ArgumentSet(Style = ArgumentSetStyle.WindowsCommandLine)]
+        [ArgumentSet(Style = ArgumentSetStyle.PowerShell)]
         class AllArgumentsAsArgumentString
         {
             [NamedArgument(ArgumentFlags.Required | ArgumentFlags.RestOfLine)]
@@ -1019,10 +1019,20 @@ namespace NClap.Tests.Parser
         public void RestOfLineAsOneNamedString()
         {
             var args = new AllArgumentsAsArgumentString();
-            TryParse(new[] { "/AllArguments:foo", "bar" }, args).Should().BeTrue();
+            TryParse(new[] { "-AllArguments:foo", "bar" }, args).Should().BeTrue();
             args.AllArguments.Should().Be("foo bar");
 
-            CommandLineParser.Format(args).Should().Equal("/AllArguments=foo bar");
+            CommandLineParser.Format(args).Should().Equal("-AllArguments foo bar");
+        }
+
+        [TestMethod]
+        public void RestOfLineInSucceedingTokenAsOneNamedString()
+        {
+            var args = new AllArgumentsAsArgumentString();
+            TryParse(new[] { "-AllArguments", "foo", "bar" }, args).Should().BeTrue();
+            args.AllArguments.Should().Be("foo bar");
+
+            CommandLineParser.Format(args).Should().Equal("-AllArguments foo bar");
         }
 
         [TestMethod]
@@ -1075,7 +1085,7 @@ namespace NClap.Tests.Parser
         {
             var usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsArgumentString));
             usage.Should().NotBeNull();
-            usage.ToString().Should().Contain("/AllArguments=<...>");
+            usage.ToString().Should().Contain("-AllArguments <...>");
 
             usage = CommandLineParser.GetUsageInfo(typeof(AllArgumentsAsPositionalArgumentString));
             usage.Should().NotBeNull();

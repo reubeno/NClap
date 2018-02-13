@@ -32,7 +32,8 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            if (!type.GetGenericTypeDefinition().IsEffectivelySameAs(typeof(CommandGroup<>)))
+            if (!type.GetGenericTypeDefinition().IsEffectivelySameAs(typeof(CommandGroup<>)) &&
+                type.Name != "CommandGroup`1")
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }

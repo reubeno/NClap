@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -76,7 +77,21 @@ namespace NClap.Utilities
                         var member = instance.GetType().GetTypeInfo().GetMember(arg.MemberName).First();
                         var mutableMember = member.ToMutableMemberInfo();
 
-                        mutableMember.SetValue(instance, arg.Value);
+                        var value = arg.Value;
+                        if (value is ReadOnlyCollection<CustomAttributeTypedArgument> collection &&
+                            mutableMember.MemberType.IsArray)
+                        {
+                            var elementType = mutableMember.MemberType.GetElementType();
+                            var array = Array.CreateInstance(elementType, collection.Count);
+                            for (var i = 0; i < collection.Count; ++i)
+                            {
+                                array.SetValue(collection[i].Value, i);
+                            }
+
+                            value = array;
+                        }
+
+                        mutableMember.SetValue(instance, value);
                     }
 
                     return (T)instance;

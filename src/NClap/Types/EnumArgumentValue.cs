@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NClap.Metadata;
 using NClap.Utilities;
@@ -82,6 +83,17 @@ namespace NClap.Types
         /// Underlying field information.
         /// </summary>
         public FieldInfo ValueInfo => _fieldInfo;
+
+        /// <summary>
+        /// Get any attributes of the given type associated with the value.
+        /// </summary>
+        /// <typeparam name="T">Type of attribute to look for.</typeparam>
+        /// <returns>The attributes.</returns>
+        public IEnumerable<T> GetAttributes<T>()
+            where T : Attribute
+        {
+            return _fieldInfo.GetAttributes<T>();
+        }
 
         private static bool TryGetArgumentValueAttribute(FieldInfo fieldInfo, out ArgumentValueAttribute attribute)
         {

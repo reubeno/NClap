@@ -2,8 +2,12 @@ NClap.Help.ArgumentHelpOptions.IncludeNamedArgumentValueSyntax.get -> bool
 NClap.Help.ArgumentHelpOptions.IncludeNamedArgumentValueSyntax.set -> void
 NClap.Metadata.ArgumentSetAttribute.ExpandLogo.get -> bool
 NClap.Metadata.ArgumentSetAttribute.ExpandLogo.set -> void
+NClap.Parser.AttributeBasedArgumentDefinitionFactory
+NClap.Types.IArgumentValue.GetAttributes<T>() -> System.Collections.Generic.IEnumerable<T>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoDescription(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoEnumValues(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoExamples(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoLogo(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoSyntaxSummary(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
+static NClap.Parser.AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(NClap.Parser.ArgumentSetDefinition argSet, System.Type typeToReflectOn, object defaultValues = null, object fixedDestination = null, NClap.Parser.ArgumentDefinition containingArgument = null) -> void
+static NClap.Parser.AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(System.Type typeToReflectOn, NClap.Metadata.ArgumentSetAttribute attribute = null, object defaultValues = null, object fixedDestination = null) -> NClap.Parser.ArgumentSetDefinition

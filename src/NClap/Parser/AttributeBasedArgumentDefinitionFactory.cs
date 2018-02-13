@@ -13,7 +13,7 @@ namespace NClap.Parser
     /// Factory class useful for defining an argument set from reflecting on
     /// attributes associated with a type and its members.
     /// </summary>
-    internal static class ReflectionBasedParser
+    public static class AttributeBasedArgumentDefinitionFactory
     {
         /// <summary>
         /// Defines an argument set based on the reflection-based attributes

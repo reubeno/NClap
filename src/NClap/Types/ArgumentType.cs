@@ -306,7 +306,8 @@ namespace NClap.Types
                     argType = new KeyValuePairArgumentType(type);
                     return true;
                 }
-                else if (genericTy.IsEffectivelySameAs(typeof(CommandGroup<>)))
+                else if (genericTy.IsEffectivelySameAs(typeof(CommandGroup<>)) ||
+                         genericTy.Name == "CommandGroup`1")
                 {
                     argType = new CommandGroupArgumentType(type);
                     return true;

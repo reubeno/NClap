@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Types;
@@ -500,10 +499,21 @@ namespace NClap.Parser
                 return formattedValue;
             }
 
+            char separator;
+            if (ContainingSet.Attribute.AllowNamedArgumentValueAsSucceedingToken &&
+                ContainingSet.Attribute.PreferNamedArgumentValueAsSucceedingToken)
+            {
+                separator = ' ';
+            }
+            else
+            {
+                separator = ContainingSet.Attribute.ArgumentValueSeparators.FirstOrDefault();
+            }
+
             return string.Concat(
                 ContainingSet.Attribute.NamedArgumentPrefixes.FirstOrDefault() ?? string.Empty,
                 LongName,
-                ContainingSet.Attribute.ArgumentValueSeparators.FirstOrDefault(),
+                separator,
                 formattedValue);
         }
 

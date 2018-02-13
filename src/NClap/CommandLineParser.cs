@@ -55,7 +55,7 @@ namespace NClap
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
 
             var destination = new T();
-            var argSet = ReflectionBasedParser.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination);
 
             if (!TryParse(argSet, arguments, options, destination))
             {
@@ -84,7 +84,7 @@ namespace NClap
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
             if (destination == null) throw new ArgumentNullException(nameof(arguments));
 
-            var argSet = ReflectionBasedParser.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination);
             return TryParse(argSet, arguments, options, destination);
         }
 
@@ -167,7 +167,7 @@ namespace NClap
         /// <returns>The tokenized string.</returns>
         public static IEnumerable<string> Format<T>(T value)
         {
-            var argSet = ReflectionBasedParser.CreateArgumentSet(typeof(T));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(T));
 
             // N.B. We intentionally convert the arguments enumeration to a list,
             // as we're expecting to mutate it in the loop.
@@ -178,7 +178,7 @@ namespace NClap
                     var definingType = argProvider.GetTypeDefiningArguments();
                     if (definingType != null)
                     {
-                        ReflectionBasedParser.AddToArgumentSet(argSet, definingType,
+                        AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(argSet, definingType,
                             fixedDestination: argProvider.GetDestinationObject(),
                             containingArgument: arg);
                     }
@@ -206,7 +206,7 @@ namespace NClap
             Type type,
             ArgumentSetHelpOptions options = null,
             object defaultValues = null) =>
-            GetUsageInfo(ReflectionBasedParser.CreateArgumentSet(type, defaultValues: defaultValues), options, null);
+            GetUsageInfo(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type, defaultValues: defaultValues), options, null);
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -264,7 +264,7 @@ namespace NClap
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
-            var parser = new ArgumentSetParser(ReflectionBasedParser.CreateArgumentSet(type), options);
+            var parser = new ArgumentSetParser(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type), options);
             return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
         }
 
