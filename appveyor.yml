@@ -84,5 +84,5 @@ artifacts:
     name: NClap-Loose-Binaries
     
   # public inspector tool (all target frameworks)
-  - path 'src\Tools\Inspector\bin\$(Configuration)'
+  - path: 'src\Tools\Inspector\bin\$(Configuration)'
   - name: Inspector-Loose-Binaries
