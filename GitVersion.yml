@@ -1,4 +1,4 @@
-next-version: 2.2.1-beta0001
+next-version: 2.2.1
 branches:
   master:
     mode: ContinuousDelivery
