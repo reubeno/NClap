@@ -85,4 +85,4 @@ artifacts:
     
   # public inspector tool (all target frameworks)
   - path: 'src\Tools\Inspector\bin\$(Configuration)'
-  - name: Inspector-Loose-Binaries
+    name: Inspector-Loose-Binaries
