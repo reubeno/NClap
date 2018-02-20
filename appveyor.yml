@@ -73,12 +73,16 @@ artifacts:
 
   # publish coverage data
   - path: coverage_$(Configuration).xml
-    name: CodeCoverage
+    name: CodeCoverage-Data
 
   # publish NuGet packages
   - path: 'src\NClap\bin\$(Configuration)\*.nupkg'
-    name: Packages
+    name: NuGet-Packages
 
   # publish loose binaries (all target frameworks)
   - path: 'src\NClap\bin\$(Configuration)'
-    name: Binaries
+    name: NClap-Loose-Binaries
+    
+  # public inspector tool (all target frameworks)
+  - path 'src\Tools\Inspector\bin\$(Configuration)'
+  - name: Inspector-Loose-Binaries
