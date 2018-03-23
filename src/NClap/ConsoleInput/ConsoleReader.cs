@@ -1,4 +1,12 @@
-﻿using System;
+﻿// #define LOG_KEYS
+
+using System;
+
+#if LOG_KEYS
+using System.Collections.Generic;
+using System.Text;
+using NClap.Utilities;
+#endif
 
 namespace NClap.ConsoleInput
 {
@@ -7,6 +15,10 @@ namespace NClap.ConsoleInput
     /// </summary>
     internal class ConsoleReader : IConsoleReader
     {
+#if LOG_KEYS
+        private readonly ConsoleStatusBar _statusBar = new ConsoleStatusBar { Enabled = true };
+#endif
+
         private readonly int _defaultCursorSize;
 
         // Operation history
@@ -83,7 +95,7 @@ namespace NClap.ConsoleInput
                     // Grab a new key press event.
                     var key = ConsoleInput.ReadKey(true);
 
-#if VERBOSE
+#if LOG_KEYS
                     // Log information about the key press.
                     LogKey(key);
 #endif
@@ -391,90 +403,71 @@ namespace NClap.ConsoleInput
         private void UpdateCursorSize() =>
             ConsoleOutput.CursorSize = LineInput.InsertMode ? _defaultCursorSize : 100;
 
-#if false
+#if LOG_KEYS
         private void LogKey(ConsoleKeyInfo key)
         {
-            var x = ConsoleOutput.CursorLeft;
-            var y = ConsoleOutput.CursorTop;
+            var builder = new StringBuilder();
+            builder.AppendFormat("[Key: {{{0, -12}}}] ", key.Key);
 
-            var fgColor = ConsoleOutput.ForegroundColor;
-            var bgColor = ConsoleOutput.BackgroundColor;
-
-            try
+            if (char.IsControl(key.KeyChar))
             {
-                ConsoleOutput.SetCursorPosition(0, 0);
-                ConsoleOutput.ForegroundColor = ConsoleColor.Yellow;
-                ConsoleOutput.BackgroundColor = ConsoleColor.DarkBlue;
-
-                var builder = new StringBuilder();
-                builder.AppendFormat("[Key: {{{0, -12}}}] ", key.Key);
-
-                if (char.IsControl(key.KeyChar))
-                {
-                    builder.AppendFormat("[Char: 0x{0:X}] ", (int)key.KeyChar);
-                }
-                else if (key.KeyChar != (char)0)
-                {
-                    builder.AppendFormat("[Char: '{0}' : 0x{1:X}] ", key.KeyChar, (int)key.KeyChar);
-                }
-
-                var modifiers = (ConsoleModifiers)0;
-                var translationModifiers = (ConsoleModifiers)0;
-                var modifierNames = new List<string>();
-
-                if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
-                {
-                    modifiers |= ConsoleModifiers.Control;
-                    modifierNames.Add("Ctrl");
-                }
-
-                if (key.Modifiers.HasFlag(ConsoleModifiers.Alt))
-                {
-                    modifiers |= ConsoleModifiers.Alt;
-                    modifierNames.Add("Alt");
-                }
-
-                if (key.Modifiers.HasFlag(ConsoleModifiers.Shift))
-                {
-                    modifiers |= ConsoleModifiers.Shift;
-                    translationModifiers |= ConsoleModifiers.Shift;
-                }
-
-                var translatedToChars = false;
-                if (modifiers.HasFlag(ConsoleModifiers.Alt) || modifiers.HasFlag(ConsoleModifiers.Control))
-                {
-                    var chars = InputUtilities.GetChars(key.Key, translationModifiers);
-                    if (chars.Length > 0)
-                    {
-                        var charsAsString = new string(chars);
-                        builder.AppendFormat("[{0}+{1}]", string.Join("+", modifierNames), charsAsString);
-                        translatedToChars = true;
-                    }
-                }
-
-                if (!translatedToChars)
-                {
-                    if (key.Modifiers.HasFlag(ConsoleModifiers.Shift)) modifierNames.Add("Shift");
-
-                    if (modifierNames.Count > 0)
-                    {
-                        builder.AppendFormat("[{0}+{1}]", string.Join("+", modifierNames), key.Key);
-                    }
-                }
-
-                if (builder.Length < ConsoleOutput.BufferWidth)
-                {
-                    builder.Append(new string(' ', ConsoleOutput.BufferWidth - builder.Length));
-                }
-
-                ConsoleOutput.Write(builder.ToString());
+                builder.AppendFormat("[Char: 0x{0:X}] ", (int)key.KeyChar);
             }
-            finally
+            else if (key.KeyChar != (char)0)
             {
-                ConsoleOutput.ForegroundColor = fgColor;
-                ConsoleOutput.BackgroundColor = bgColor;
-                ConsoleOutput.SetCursorPosition(x, y);
+                builder.AppendFormat("[Char: '{0}' : 0x{1:X}] ", key.KeyChar, (int)key.KeyChar);
             }
+
+            var modifiers = (ConsoleModifiers)0;
+            var translationModifiers = (ConsoleModifiers)0;
+            var modifierNames = new List<string>();
+
+            if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
+            {
+                modifiers |= ConsoleModifiers.Control;
+                modifierNames.Add("Ctrl");
+            }
+
+            if (key.Modifiers.HasFlag(ConsoleModifiers.Alt))
+            {
+                modifiers |= ConsoleModifiers.Alt;
+                modifierNames.Add("Alt");
+            }
+
+            if (key.Modifiers.HasFlag(ConsoleModifiers.Shift))
+            {
+                modifiers |= ConsoleModifiers.Shift;
+                translationModifiers |= ConsoleModifiers.Shift;
+            }
+
+            var translatedToChars = false;
+            if (modifiers.HasFlag(ConsoleModifiers.Alt) || modifiers.HasFlag(ConsoleModifiers.Control))
+            {
+                var chars = InputUtilities.GetChars(key.Key, translationModifiers);
+                if (chars.Length > 0)
+                {
+                    var charsAsString = new string(chars);
+                    builder.AppendFormat("[{0}+{1}]", string.Join("+", modifierNames), charsAsString);
+                    translatedToChars = true;
+                }
+            }
+
+            if (!translatedToChars)
+            {
+                if (key.Modifiers.HasFlag(ConsoleModifiers.Shift)) modifierNames.Add("Shift");
+
+                if (modifierNames.Count > 0)
+                {
+                    builder.AppendFormat("[{0}+{1}]", string.Join("+", modifierNames), key.Key);
+                }
+            }
+
+            if (builder.Length < ConsoleOutput.BufferWidth)
+            {
+                builder.Append(new string(' ', ConsoleOutput.BufferWidth - builder.Length));
+            }
+
+            _statusBar.Set(builder.ToString());
         }
 #endif
     }
