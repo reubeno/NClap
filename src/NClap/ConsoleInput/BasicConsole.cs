@@ -225,8 +225,8 @@ namespace NClap.ConsoleInput
         {
             if (left < 0) return false;
             if (top < 0) return false;
-            if (left >= WindowWidth) return false;
-            if (top >= WindowHeight) return false;
+            if (left >= BufferWidth) return false;
+            if (top >= BufferHeight) return false;
 
             try
             {
