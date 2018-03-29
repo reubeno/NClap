@@ -65,13 +65,11 @@ namespace NClap.ConsoleInput
 
         private readonly PropertyWithSimulatedFallback<ConsoleColor> _foregroundColor = CreateProperty(
             () => Console.ForegroundColor, value => Console.ForegroundColor = value,
-            _defaultForegroundColor,
-            color => color >= ConsoleColor.Black && color <= ConsoleColor.White);
+            _defaultForegroundColor);
 
         private readonly PropertyWithSimulatedFallback<ConsoleColor> _backgroundColor = CreateProperty(
             () => Console.BackgroundColor, value => Console.BackgroundColor = value,
-            _defaultBackgroundColor,
-            color => color >= ConsoleColor.Black && color <= ConsoleColor.White);
+            _defaultBackgroundColor);
 
         private readonly PropertyWithSimulatedFallback<bool> _treatControlCAsInput = CreateProperty(
             () => Console.TreatControlCAsInput, value => Console.TreatControlCAsInput = value,

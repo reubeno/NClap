@@ -46,7 +46,7 @@ namespace NClap.Utilities
             // Make sure the initial fallback value passes validation.
             if (!this._fallbackValidator(initialFallbackValue))
             {
-                throw new ArgumentOutOfRangeException(nameof(initialFallbackValue));
+                throw new ArgumentOutOfRangeException(nameof(initialFallbackValue), $"Tried to set value to '{initialFallbackValue}', but failed validation.");
             }
         }
 
@@ -72,7 +72,7 @@ namespace NClap.Utilities
                 // First validate the incoming value.
                 if (!_fallbackValidator(value))
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value));
+                    throw new ArgumentOutOfRangeException(nameof(value), $"Tried to set value to '{value}', but failed validation.");
                 }
 
                 try
