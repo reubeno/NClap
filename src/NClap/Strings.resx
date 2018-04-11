@@ -216,6 +216,9 @@ Reason:
   <data name="PossibleArgumentValues" xml:space="preserve">
     <value>Possible argument values include: {0}.</value>
   </data>
+  <data name="PossibleIntendedNamedArgument" xml:space="preserve">
+    <value>Did you mean {0}?</value>
+  </data>
   <data name="PossibleIntendedNamedArguments" xml:space="preserve">
     <value>Did you mean one of: {0}?</value>
   </data>

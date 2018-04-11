@@ -353,6 +353,15 @@ namespace NClap {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Did you mean {0}?.
+        /// </summary>
+        internal static string PossibleIntendedNamedArgument {
+            get {
+                return ResourceManager.GetString("PossibleIntendedNamedArgument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Did you mean one of: {0}?.
         /// </summary>
         internal static string PossibleIntendedNamedArguments {
