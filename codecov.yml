@@ -1,0 +1,9 @@
+coverage:
+  precision: 1
+  round: down
+  status:
+    patch:
+      default:
+        enabled: True
+        target: 0%
+        threshold: 2%
