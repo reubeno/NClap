@@ -11,8 +11,7 @@
 namespace NClap {
     using System;
     using System.Reflection;
-
-
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -349,6 +348,15 @@ namespace NClap {
         internal static string PossibleArgumentValues {
             get {
                 return ResourceManager.GetString("PossibleArgumentValues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Did you mean {0}?.
+        /// </summary>
+        internal static string PossibleIntendedNamedArgument {
+            get {
+                return ResourceManager.GetString("PossibleIntendedNamedArgument", resourceCulture);
             }
         }
         

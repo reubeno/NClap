@@ -672,10 +672,10 @@ namespace NClap.Parser
                     if (!string.IsNullOrEmpty(result.NamedArg))
                     {
                         var possibleArgs = GetSimilarNamedArguments(result.NamedArgType, result.NamedArg).ToList();
-                        if (possibleArgs.Count > 0)
+                        if (possibleArgs.Any())
                         {
                             ReportLine(
-                                "  " + Strings.PossibleIntendedNamedArguments,
+                                "  " + (possibleArgs.Count == 1 ? Strings.PossibleIntendedNamedArgument : Strings.PossibleIntendedNamedArguments),
                                 string.Join(", ", possibleArgs.Select(a => "'" + a + "'")));
                         }
                     }
