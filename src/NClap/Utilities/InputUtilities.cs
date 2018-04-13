@@ -172,7 +172,7 @@ namespace NClap.Utilities
                         case ConsoleKey.D8: c = '*'; break;
                         case ConsoleKey.D9: c = '('; break;
                         case ConsoleKey.D0: c = ')'; break;
-                        default: throw new InternalInvariantBrokenException();
+                        default: throw new InternalInvariantBrokenException("Unexpected D key");
                     }
                 }
                 else

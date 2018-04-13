@@ -98,12 +98,12 @@ namespace NClap.Exceptions
         public string InnerMessage { get; set; }
 
         /// <summary>
-        /// If present, indicates the problematic argument.
+        /// If present, indicates a problematic argument.
         /// </summary>
         internal ArgumentDefinition Argument { get; }
 
         /// <summary>
-        /// If present, indicates the problematic member of the argument set.
+        /// If present, indicates a problematic member of the argument set.
         /// </summary>
         internal IMutableMemberInfo MemberInfo { get; }
 

@@ -92,7 +92,7 @@ namespace NClap.Types
             var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { _commandTypeType, typeof(object) });
             if (commandGroupConstructor == null)
             {
-                throw new InternalInvariantBrokenException();
+                throw new InternalInvariantBrokenException("Constructor not found in CommandGroup class");
             }
 
             return commandGroupConstructor.Invoke(new[] { selection, context.ContainingObject });

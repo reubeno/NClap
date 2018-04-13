@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using NClap.Exceptions;
 using NClap.Utilities;
 
 namespace NClap.Metadata
@@ -17,8 +19,6 @@ namespace NClap.Metadata
         private string[] _namedArgumentPrefixes;
         private string[] _shortNameArgumentPrefixes;
         private char[] _argumentValueSeparators;
-        private bool _allowMultipleShortNamesInOneToken;
-        private bool _allowElidingSeparatorAfterShortName;
         private string _logo;
 
         /// <summary>
@@ -77,21 +77,7 @@ namespace NClap.Metadata
         public string[] NamedArgumentPrefixes
         {
             get => _namedArgumentPrefixes;
-
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                if (AllowMultipleShortNamesInOneToken && value.Overlaps(ShortNameArgumentPrefixes))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                }
-
-                _namedArgumentPrefixes = value;
-            }
+            set => _namedArgumentPrefixes = value ?? Array.Empty<string>();
         }
 
         /// <summary>
@@ -103,21 +89,7 @@ namespace NClap.Metadata
         public string[] ShortNameArgumentPrefixes
         {
             get => _shortNameArgumentPrefixes;
-
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                if (AllowMultipleShortNamesInOneToken && value.Overlaps(NamedArgumentPrefixes))
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                }
-
-                _shortNameArgumentPrefixes = value;
-            }
+            set => _shortNameArgumentPrefixes = value ?? Array.Empty<string>();
         }
 
         /// <summary>
@@ -129,12 +101,7 @@ namespace NClap.Metadata
         public char[] ArgumentValueSeparators
         {
             get => _argumentValueSeparators;
-
-            set
-            {
-                if (value == null) throw new ArgumentNullException(nameof(value));
-                _argumentValueSeparators = value;
-            }
+            set => _argumentValueSeparators = value ?? Array.Empty<char>();
         }
 
         /// <summary>
@@ -223,21 +190,7 @@ namespace NClap.Metadata
         /// long. Enabling this behavior will fail if any of these conditions
         /// are not true.
         /// </summary>
-        public bool AllowMultipleShortNamesInOneToken
-        {
-            get => _allowMultipleShortNamesInOneToken;
-
-            set
-            {
-                if (value && _namedArgumentPrefixes.Overlaps(_shortNameArgumentPrefixes))
-                {
-                    throw new NotSupportedException(
-                        $"Cannot enable {nameof(AllowMultipleShortNamesInOneToken)}; long name prefixes are not disjoint from short name prefixes (e.g. {string.Join(" ", _namedArgumentPrefixes.Intersect(_shortNameArgumentPrefixes))}).");
-                }
-
-                _allowMultipleShortNamesInOneToken = value;
-            }
-        }
+        public bool AllowMultipleShortNamesInOneToken { get; set; }
 
         /// <summary>
         /// True to indicate that a short-name argument's value may be present in
@@ -245,21 +198,7 @@ namespace NClap.Metadata
         /// it; false to indicate that it must be part of the same token. This
         /// behavior requires that short names be only one character long.
         /// </summary>
-        public bool AllowElidingSeparatorAfterShortName
-        {
-            get => _allowElidingSeparatorAfterShortName;
-
-            set
-            {
-                if (value && _namedArgumentPrefixes.Overlaps(_shortNameArgumentPrefixes))
-                {
-                    throw new NotSupportedException(
-                        $"Cannot enable {nameof(AllowElidingSeparatorAfterShortName)}; long name prefixes are not disjoint from short name prefixes (e.g. {string.Join(" ", _namedArgumentPrefixes.Intersect(_shortNameArgumentPrefixes))}).");
-                }
-
-                _allowElidingSeparatorAfterShortName = value;
-            }
-        }
+        public bool AllowElidingSeparatorAfterShortName { get; set; }
 
         /// <summary>
         /// Indicates whether short names of named arguments are constrained to
@@ -305,5 +244,39 @@ namespace NClap.Metadata
         /// insensitive.
         /// </summary>
         public bool CaseSensitive { get; set; }
+
+        /// <summary>
+        /// Validate that this object's properties, when considered as a whole,
+        /// are valid. This is exposed as a separate operation, and not checked
+        /// as part of property implementations to provide better diagnostics
+        /// and to delay validation until all property changes have been made
+        /// by the calling application.
+        /// </summary>
+        internal void Validate()
+        {
+            var problems = new List<string>();
+
+            // Validate name prefixes.
+            if (NamedArgumentPrefixes.Overlaps(ShortNameArgumentPrefixes))
+            {
+                if (AllowMultipleShortNamesInOneToken)
+                {
+                    problems.Add($"Cannot enable {nameof(AllowMultipleShortNamesInOneToken)}; long name prefixes are not disjoint from short name prefixes (e.g. {string.Join(" ", NamedArgumentPrefixes.Intersect(ShortNameArgumentPrefixes))}).");
+                }
+
+                if (AllowElidingSeparatorAfterShortName)
+                {
+                    problems.Add($"Cannot enable {nameof(AllowElidingSeparatorAfterShortName)}; long name prefixes are not disjoint from short name prefixes (e.g. {string.Join(" ", NamedArgumentPrefixes.Intersect(ShortNameArgumentPrefixes))}).");
+                }
+            }
+
+            // Throw exception if we found multiple problems.
+            if (problems.Count > 0)
+            {
+                throw new InvalidArgumentSetException($"Invalid {nameof(ArgumentSetAttribute)} specified for argument set:" +
+                    Environment.NewLine +
+                    string.Join(Environment.NewLine, problems));
+            }
+        }
     }
 }

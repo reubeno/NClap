@@ -462,13 +462,13 @@ namespace NClap.Expressions
 
         private char ConsumeChar()
         {
-            if (AtEnd) throw new InternalInvariantBrokenException();
+            if (AtEnd) throw new InternalInvariantBrokenException("Cannot indiscriminately consume character at end of string");
             return _content[_state.Cursor++];
         }
 
         private char Peek()
         {
-            if (AtEnd) throw new InternalInvariantBrokenException();
+            if (AtEnd) throw new InternalInvariantBrokenException("Cannot peek character at end of string");
             return _content[_state.Cursor];
         }
 
@@ -502,7 +502,7 @@ namespace NClap.Expressions
             // error, we detect having a deeper stack than we should ever see.
             if (_olderStates.Count > MaxStateDepth)
             {
-                throw new InternalInvariantBrokenException();
+                throw new InternalInvariantBrokenException("Stack overflow encountered");
             }
 
             _olderStates.Push(_state);

@@ -29,6 +29,11 @@ namespace NClap.ConsoleInput.Windows
             if (lineCount < 0) throw new ArgumentOutOfRangeException(nameof(lineCount));
             if (lineCount == 0) return;
 
+            if (CursorTop - lineCount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lineCount));
+            }
+
             var fill = new NativeMethods.CharInfo
             {
                 UnicodeChar = ' ',
