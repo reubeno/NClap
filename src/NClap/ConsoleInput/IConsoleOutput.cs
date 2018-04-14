@@ -87,7 +87,7 @@ namespace NClap.ConsoleInput
         void ScrollContents(int lineCount);
 
         /// <summary>
-        /// Clears the console without moving the cursor.
+        /// Clears the console and moves the cursor to the top-left corner.
         /// </summary>
         void Clear();
 

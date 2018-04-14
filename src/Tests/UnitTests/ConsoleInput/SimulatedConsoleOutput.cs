@@ -180,7 +180,7 @@ namespace NClap.Tests.ConsoleInput
         }
 
         /// <summary>
-        /// Clears the console without moving the cursor.
+        /// Clears the console and moves the cursor to the top-left corner.
         /// </summary>
         public void Clear()
         {
@@ -188,6 +188,8 @@ namespace NClap.Tests.ConsoleInput
             {
                 _buffer[index] = '\0';
             }
+
+            SetCursorPosition(0, 0);
         }
 
         /// <summary>

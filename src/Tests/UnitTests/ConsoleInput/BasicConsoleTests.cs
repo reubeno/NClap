@@ -94,18 +94,6 @@ namespace NClap.Tests.ConsoleInput
         }
 
         [TestMethod]
-        public void TestThatClearDoesNotMoveCursor()
-        {
-            var con = BasicConsole.Default;
-            var cursor = new { Left = con.CursorLeft, Top = con.CursorTop };
-
-            con.Clear();
-
-            con.CursorLeft.Should().Be(cursor.Left);
-            con.CursorTop.Should().Be(cursor.Top);
-        }
-
-        [TestMethod]
         public void TestThatExceptionThrownWhenSettingInvalidCursorSize()
         {
             var con = BasicConsole.Default;
