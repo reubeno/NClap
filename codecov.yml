@@ -2,6 +2,11 @@ coverage:
   precision: 1
   round: down
   status:
+    project:
+      default:
+        enabled: True
+        target: 90%
+        threshold: 2%
     patch:
       default:
         enabled: True
