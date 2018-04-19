@@ -35,7 +35,9 @@ namespace NClap.Parser
         public ArgumentSetDefinition(ArgumentSetAttribute setAttribute = null)
         {
             // Save off set attributes; if none were provided, construct some defaults.
+            // Make sure to validate the attributes.
             Attribute = setAttribute ?? new ArgumentSetAttribute();
+            Attribute.Validate();
 
             // Set up private fields dependent on the ArgumentSetAttribute.
             _namedArgumentsByName = new Dictionary<string, ArgumentDefinition>(StringComparerToUse);
@@ -188,8 +190,11 @@ namespace NClap.Parser
         /// Adds an auxiliary argument set attribute.
         /// </summary>
         /// <param name="attrib">Attribute to add.</param>
-        public void AddAuxiliaryAttribute(ArgumentSetAttribute attrib) =>
+        public void AddAuxiliaryAttribute(ArgumentSetAttribute attrib)
+        {
+            attrib.Validate();
             _auxiliaryAttributes.Add(attrib);
+        }
 
         /// <summary>
         /// Shallow clones this definition.

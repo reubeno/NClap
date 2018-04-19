@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Utilities;
 
@@ -106,23 +107,26 @@ namespace NClap.Tests.Metadata
 #pragma warning restore 0649
 
         [TestMethod]
-        public void InvalidPrefixes()
+        public void NullPrefixes()
         {
             var attribs = new ArgumentSetAttribute();
 
-            Action setPrefixes = () => attribs.NamedArgumentPrefixes = null;
-            setPrefixes.Should().Throw<ArgumentNullException>();
+            attribs.NamedArgumentPrefixes = null;
+            attribs.NamedArgumentPrefixes.Should().NotBeNull();
+            attribs.NamedArgumentPrefixes.Should().BeEmpty();
 
-            setPrefixes = () => attribs.ShortNameArgumentPrefixes = null;
-            setPrefixes.Should().Throw<ArgumentNullException>();
+            attribs.ShortNameArgumentPrefixes = null;
+            attribs.ShortNameArgumentPrefixes.Should().NotBeNull();
+            attribs.ShortNameArgumentPrefixes.Should().BeEmpty();
         }
 
         [TestMethod]
         public void InvalidSeparators()
         {
             var attribs = new ArgumentSetAttribute();
-            Action setSeparators = () => attribs.ArgumentValueSeparators = null;
-            setSeparators.Should().Throw<ArgumentNullException>();
+            attribs.ArgumentValueSeparators = null;
+            attribs.ArgumentValueSeparators.Should().NotBeNull();
+            attribs.ArgumentValueSeparators.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -256,9 +260,9 @@ namespace NClap.Tests.Metadata
 
             attrib.AllowMultipleShortNamesInOneToken = true;
             attrib.NamedArgumentPrefixes = new[] { "-", "/" };
+            attrib.ShortNameArgumentPrefixes = new[] { ":", "-" };
 
-            Action a = () => attrib.ShortNameArgumentPrefixes = new[] { ":", "-" };
-            a.Should().Throw<ArgumentOutOfRangeException>();
+            attrib.Invoking(a => a.Validate()).Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -272,9 +276,9 @@ namespace NClap.Tests.Metadata
 
             attrib.AllowMultipleShortNamesInOneToken = true;
             attrib.ShortNameArgumentPrefixes = new[] { "-", "/" };
+            attrib.NamedArgumentPrefixes = new[] { ":", "-" };
 
-            Action a = () => attrib.NamedArgumentPrefixes = new[] { ":", "-" };
-            a.Should().Throw<ArgumentOutOfRangeException>();
+            attrib.Invoking(a => a.Validate()).Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]
@@ -321,16 +325,23 @@ namespace NClap.Tests.Metadata
         }
 
         [TestMethod]
-        public void CertainOptionsAreUnsupportedIfNamedArgPrefixesOverlap()
+        public void TestThatMultipleShortNamesInOneTokenIsUnsupportedIfNamedArgPrefixesOverlap()
         {
             var attrib = new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine };
             attrib.NamedArgumentPrefixes.Overlaps(attrib.ShortNameArgumentPrefixes).Should().BeTrue();
 
-            Action a = () => attrib.AllowMultipleShortNamesInOneToken = true;
-            a.Should().Throw<NotSupportedException>();
+            attrib.AllowMultipleShortNamesInOneToken = true;
+            attrib.Invoking(a => a.Validate()).Should().Throw<InvalidArgumentSetException>();
+        }
 
-            a = () => attrib.AllowElidingSeparatorAfterShortName = true;
-            a.Should().Throw<NotSupportedException>();
+        [TestMethod]
+        public void TestThatAllowingElidingSeparatorAfterShortNameIsUnsupportedIfNamedArgPrefixesOverlap()
+        {
+            var attrib = new ArgumentSetAttribute { Style = ArgumentSetStyle.WindowsCommandLine };
+            attrib.NamedArgumentPrefixes.Overlaps(attrib.ShortNameArgumentPrefixes).Should().BeTrue();
+
+            attrib.AllowElidingSeparatorAfterShortName = true;
+            attrib.Invoking(a => a.Validate()).Should().Throw<InvalidArgumentSetException>();
         }
 
         [TestMethod]

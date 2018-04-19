@@ -257,7 +257,7 @@ namespace NClap.ConsoleInput
         public virtual void ScrollContents(int lineCount) => throw new NotSupportedException();
 
         /// <summary>
-        /// Clears the console without moving the cursor.
+        /// Clears the console and moves the cursor to the top-left corner.
         /// </summary>
         public void Clear()
         {

@@ -190,7 +190,6 @@ namespace NClap.ConsoleInput
         public void ClearScreen()
         {
             ConsoleOutput.Clear();
-            ConsoleOutput.SetCursorPosition(0, 0);
             DisplayInputLine();
         }
 

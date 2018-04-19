@@ -470,10 +470,10 @@ namespace NClap.ConsoleInput
             ConsoleModifiers modifiers,
             ConsoleInputOperation op)
         {
-            var c = GetChar(key, modifiers);
+            var c = InputUtilities.TryGetSingleChar(key, modifiers);
 
             var keyInfo = new ConsoleKeyInfo(
-                c,
+                c.GetValueOrDefault('\0'),
                 key,
                 modifiers.HasFlag(ConsoleModifiers.Shift),
                 modifiers.HasFlag(ConsoleModifiers.Alt),
@@ -487,7 +487,7 @@ namespace NClap.ConsoleInput
             ConsoleModifiers modifiers,
             ConsoleInputOperation op)
         {
-            var key = GetKey(value, modifiers);
+            var key = GetKey(value);
 
             var keyInfo = new ConsoleKeyInfo(
                 value,
@@ -499,13 +499,7 @@ namespace NClap.ConsoleInput
             return new KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>(keyInfo, op);
         }
 
-        private static char GetChar(ConsoleKey key, ConsoleModifiers modifiers)
-        {
-            return InputUtilities.TryGetSingleChar(key, modifiers).GetValueOrDefault('\0');
-        }
-
-        [SuppressMessage("Microsoft.Performance", "CA1801:ReviewUnusedParameters", MessageId = "modifiers", Justification = "[Legacy]")]
-        private static ConsoleKey GetKey(char value, ConsoleModifiers modifiers)
+        private static ConsoleKey GetKey(char value)
         {
             var c = char.ToUpperInvariant(value);
 

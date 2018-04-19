@@ -63,7 +63,7 @@ namespace NClap.Expressions
                     return true;
                 case Operator.Unspecified:
                 default:
-                    throw new InternalInvariantBrokenException();
+                    throw new InternalInvariantBrokenException("Unknown operator");
             }
         }
     }
