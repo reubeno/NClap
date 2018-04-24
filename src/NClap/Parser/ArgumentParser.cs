@@ -373,7 +373,7 @@ namespace NClap.Parser
             ReportLine(Strings.DuplicateArgument, Argument.LongName, value);
 
         private void ReportConflictingArgument(string value, ArgumentDefinition conflictingArg) =>
-            ReportLine(Strings.ConflictingArgument, Argument.LongName, value, conflictingArg.LongName);
+            ReportLine(Strings.ConflictingArgument, value, Argument.LongName, conflictingArg.LongName);
 
         private void ReportBadArgumentValue(string value, ArgumentException exception) =>
             ReportBadArgumentValue(value, exception.Message);
