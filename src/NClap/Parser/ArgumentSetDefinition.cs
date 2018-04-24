@@ -91,7 +91,26 @@ namespace NClap.Parser
         /// Enumerates all names of named arguments (of all name types).
         /// </summary>
         /// <returns>Enumeration.</returns>
-        public IEnumerable<string> GetAllArgumentNames() => _namedArgumentsByName.Keys;
+        public IEnumerable<string> GetAllArgumentNames() => GetAllArgumentNames(includeHiddenArguments: true);
+
+        /// <summary>
+        /// Enumerates all names of named arguments (of all name types), possibly excluding
+        /// hidden arguments.
+        /// </summary>
+        /// <param name="includeHiddenArguments">true to include names for hidden arguments; false to
+        /// exclude them.</param>
+        /// <returns>Enumeration.</returns>
+        internal IEnumerable<string> GetAllArgumentNames(bool includeHiddenArguments)
+        {
+            IEnumerable<KeyValuePair<string, ArgumentDefinition>> namePairs = _namedArgumentsByName;
+
+            if (!includeHiddenArguments)
+            {
+                namePairs = namePairs.Where(keyValue => !keyValue.Value.Hidden);
+            }
+
+            return namePairs.Select(keyValue => keyValue.Key);
+        }
 
         /// <summary>
         /// Enumerates named arguments of the given type.
