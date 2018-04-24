@@ -707,9 +707,9 @@ namespace NClap.Parser
                 }));
         }
 
-        private IEnumerable<string> GetSimilarNamedArguments(ArgumentNameType? type, string name)
+        private IEnumerable<string> GetSimilarNamedArguments(ArgumentNameType? type, string name, bool includeHiddenArguments = false)
         {
-            var candidates = ArgumentSet.GetAllArgumentNames();
+            var candidates = ArgumentSet.GetAllArgumentNames(includeHiddenArguments: includeHiddenArguments);
             var prefix = string.Empty;
 
             if (type.HasValue)

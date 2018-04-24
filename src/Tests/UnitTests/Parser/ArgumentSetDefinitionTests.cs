@@ -38,15 +38,18 @@ namespace NClap.Tests.Parser
             var set = DefineArgSet(new ArgumentBaseAttribute[]
                 {
                     new NamedArgumentAttribute { ShortName = "short", LongName = "foo" },
-                    new NamedArgumentAttribute { ShortName = "S", LongName = "LONG" }
+                    new NamedArgumentAttribute { ShortName = "S", LongName = "LONG" },
+                    new NamedArgumentAttribute { ShortName = "h", LongName = "Hidden", Hidden = true }
                 });
 
-            set.GetArgumentNames(ArgumentNameType.ShortName).Should().BeEquivalentTo("short", "S");
-            set.GetArgumentNames(ArgumentNameType.LongName).Should().BeEquivalentTo("foo", "LONG");
+            set.GetArgumentNames(ArgumentNameType.ShortName).Should().BeEquivalentTo("short", "S", "h");
+            set.GetArgumentNames(ArgumentNameType.LongName).Should().BeEquivalentTo("foo", "LONG", "Hidden");
             set.Invoking(s => s.GetArgumentNames((ArgumentNameType)0x1000))
                 .Should().Throw<ArgumentOutOfRangeException>();
 
-            set.GetAllArgumentNames().Should().BeEquivalentTo("short", "S", "foo", "LONG");
+            set.GetAllArgumentNames().Should().BeEquivalentTo("short", "S", "h", "foo", "LONG", "Hidden");
+            set.GetAllArgumentNames(includeHiddenArguments: true).Should().BeEquivalentTo("short", "S", "h", "foo", "LONG", "Hidden");
+            set.GetAllArgumentNames(includeHiddenArguments: false).Should().BeEquivalentTo("short", "S", "foo", "LONG");
         }
 
         private ArgumentDefinition DefineArg(ArgumentSetDefinition set, ArgumentBaseAttribute argAttrib) =>
