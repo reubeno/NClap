@@ -32,6 +32,15 @@ namespace NClap.Repl
         }
 
         /// <summary>
+        /// The loop prompt (with color).
+        /// </summary>
+        public ColoredString? PromptWithColor
+        {
+            get => Reader.LineInput.Prompt;
+            set => Reader.LineInput.Prompt = value.GetValueOrDefault(ColoredString.Empty);
+        }
+
+        /// <summary>
         /// The character that starts a comment.
         /// </summary>
         public char? EndOfLineCommentCharacter { get; set; }
