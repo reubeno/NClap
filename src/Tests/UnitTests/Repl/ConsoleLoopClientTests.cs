@@ -92,6 +92,30 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
+        public void TestThatColoredPromptsAreObserved()
+        {
+            var prompt = new ColoredString("[Prompt!] ", ConsoleColor.Cyan);
+
+            var reader = Substitute.For<IConsoleReader>();
+            var lineInput = Substitute.For<IConsoleLineInput>();
+
+            lineInput.Prompt = prompt;
+            reader.LineInput.Returns(lineInput);
+
+            var client = new ConsoleLoopClient(reader);
+            client.Prompt.Should().Be(prompt);
+
+            var newPrompt = new ColoredString("NewPrompt", ConsoleColor.Green);
+            client.PromptWithColor = newPrompt;
+            client.PromptWithColor.Should().Be(newPrompt);
+            client.Prompt.Should().Be(newPrompt.ToString());
+            lineInput.Prompt.Should().Be(newPrompt);
+
+            client.DisplayPrompt();
+            lineInput.Received(1).DisplayPrompt();
+        }
+
+        [TestMethod]
         public void TestThatReadLineWorksAsExpected()
         {
             const string lineText = "The line that was read.";

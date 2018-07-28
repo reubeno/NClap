@@ -1,4 +1,5 @@
 ﻿using NClap.ConsoleInput;
+using NClap.Utilities;
 
 namespace NClap.Repl
 {
@@ -8,9 +9,15 @@ namespace NClap.Repl
     public interface ILoopClient
     {
         /// <summary>
-        /// The loop prompt.
+        /// The loop prompt. If you wish to use a <see cref="ColoredString"/> as your
+        /// prompt, you should use the <see cref="PromptWithColor"/> property instead.
         /// </summary>
         string Prompt { get; set; }
+
+        /// <summary>
+        /// The loop prompt (with color).
+        /// </summary>
+        ColoredString? PromptWithColor { get; set; }
 
         /// <summary>
         /// The character that starts a comment.
