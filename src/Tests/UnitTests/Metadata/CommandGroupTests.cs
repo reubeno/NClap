@@ -49,21 +49,21 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void CannotConstructWithNonEnumCommandType()
         {
-            Action a = () => { var x = new CommandGroup<NonEnumValueType>(); };
+            Action a = () => { var x = new CommandGroup<NonEnumValueType>(null); };
             a.Should().Throw<NotSupportedException>();
         }
 
         [TestMethod]
         public void CanConstructWithNonEnumCommandType()
         {
-            Action a = () => { var group = new CommandGroup<CommandType>(); };
+            Action a = () => { var group = new CommandGroup<CommandType>(null); };
             a.Should().NotThrow<Exception>();
         }
 
         [TestMethod]
         public void CannotSelectEnumValueWithoutCommandAttribute()
         {
-            var group = new CommandGroup<CommandType>();
+            var group = new CommandGroup<CommandType>(null);
             Action a = () => { group.Selection = CommandType.NotACommandBecauseNoAttribute; };
             a.Should().Throw<InvalidCommandException>();
         }
@@ -71,7 +71,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void CannotSelectCommandWithoutImplementingType()
         {
-            var group = new CommandGroup<CommandType>();
+            var group = new CommandGroup<CommandType>(null);
             Action a = () => { group.Selection = CommandType.NotACommandBecauseNoImplementingType; };
             a.Should().Throw<InvalidCommandException>();
         }
@@ -79,7 +79,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void CannotSelectCommandWithoutParameterlessConstructor()
         {
-            var group = new CommandGroup<CommandType>();
+            var group = new CommandGroup<CommandType>(null);
             Action a = () => { group.Selection = CommandType.InvalidCommandBecauseTypeHasNoParameterlessConstructor; };
             a.Should().Throw<InvalidCommandException>();
         }
@@ -87,7 +87,7 @@ namespace NClap.Tests.Metadata
         [TestMethod]
         public void CannotSelectCommandWithoutICommandImplementingType()
         {
-            var group = new CommandGroup<CommandType>();
+            var group = new CommandGroup<CommandType>(null);
             Action a = () => { group.Selection = CommandType.InvalidCommandBecauseTypeIsNotICommand; };
             a.Should().Throw<InvalidCommandException>();
         }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using NClap.ConsoleInput;
 using NClap.Help;
-using NClap.Parser;
 using NClap.Utilities;
 
 namespace NClap.Metadata

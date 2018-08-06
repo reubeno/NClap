@@ -107,7 +107,7 @@ namespace NClap.Tests.Types
         {
             var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
 
-            var group = new CommandGroup<SimpleCommandType>();
+            var group = new CommandGroup<SimpleCommandType>(null);
             Action a = () => argType.Format(group);
 
             a.Should().Throw<ArgumentOutOfRangeException>();
@@ -117,7 +117,7 @@ namespace NClap.Tests.Types
         public void FormattingWorksOnSelection()
         {
             var argType = new CommandGroupArgumentType(typeof(CommandGroup<SimpleCommandType>));
-            var group = new CommandGroup<SimpleCommandType>
+            var group = new CommandGroup<SimpleCommandType>(null)
             {
                 Selection = SimpleCommandType.Nested
             };

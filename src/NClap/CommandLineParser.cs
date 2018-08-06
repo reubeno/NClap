@@ -101,7 +101,10 @@ namespace NClap
         /// <paramref name="destination" /> is null.</exception>
         internal static bool TryParse<T>(ArgumentSetDefinition argSet, IEnumerable<string> arguments, CommandLineParserOptions options, T destination)
         {
-            if (options == null) options = new CommandLineParserOptions();
+            if (options == null)
+            {
+                options = new CommandLineParserOptions();
+            }
 
             //
             // Buffer output to the reporter; suppress it if we find afterwards

@@ -197,6 +197,7 @@ namespace NClap.Parser
                 {
                     FileSystemReader = _options.FileSystemReader,
                     ParserContext = _options.Context,
+                    ServiceConfigurer = _options.ServiceConfigurer,
                     CaseSensitive = ArgumentSet.Attribute.CaseSensitive
                 };
 
@@ -393,7 +394,7 @@ namespace NClap.Parser
                 index + 1 < args.Count)
             {
                 var lastParsedArg = parsedArgs.GetLast();
-                Debug.Assert(lastParsedArg.Arg.RequiresOptionArgument);
+                Debug.Assert(lastParsedArg.Arg.RequiresOptionArgumentEx(_options));
                 Debug.Assert(string.IsNullOrEmpty(parsedArgs.GetLast().Value));
 
                 ++index;
@@ -565,7 +566,7 @@ namespace NClap.Parser
                     // short names and their option arguments, then try parsing the rest of
                     // this token as an option argument.
                     var lastChar = index == options.Length - 1;
-                    if (arg.RequiresOptionArgument &&
+                    if (arg.RequiresOptionArgumentEx(_options) &&
                         ArgumentSet.Attribute.AllowElidingSeparatorAfterShortName &&
                         optionArgument == null &&
                         !lastChar)
@@ -622,7 +623,7 @@ namespace NClap.Parser
             // so it can be used by the caller (e.g. in completion generation).
             var lastArg = parsedArgs.GetLastOrDefault();
             if (lastArg != null &&
-                lastArg.Arg.RequiresOptionArgument &&
+                lastArg.Arg.RequiresOptionArgumentEx(_options) &&
                 string.IsNullOrEmpty(lastArg.Value))
             {
                 return ArgumentSetParseResult.RequiresOptionArgument(lastArg.Arg);

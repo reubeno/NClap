@@ -263,7 +263,7 @@ namespace NClap.Types
             // Or possibly a type that directly implements IArgumentType itself.
             if (type.GetTypeInfo().GetInterfaces().Contains(typeof(IArgumentType)))
             {
-                var constructor = type.GetTypeInfo().GetConstructor(Array.Empty<Type>());
+                var constructor = type.GetParameterlessConstructor();
                 if (constructor == null)
                 {
                     argType = null;

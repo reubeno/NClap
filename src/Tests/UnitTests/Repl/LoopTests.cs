@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.ConsoleInput;
+using NClap.Exceptions;
 using NClap.Help;
 using NClap.Metadata;
 using NClap.Repl;
@@ -104,10 +105,13 @@ namespace NClap.Tests.Repl
         }
 
         [TestMethod]
-        public void TestThatConstructorThrowsOnICommandTypeWithNoParameterlessConstructor()
+        public void TestThatExecutionThrowsOnICommandTypeWithNoParameterlessConstructor()
         {
-            Action a = () => new Loop(typeof(NoConstructorCommand));
-            a.Should().Throw<NotSupportedException>();
+            var client = Substitute.For<ILoopClient>();
+            client.ReadLine().Returns(string.Empty, new string[] { null });
+
+            var loop = new Loop(typeof(NoConstructorCommand), client);
+            loop.Invoking(l => l.ExecuteOnce()).Should().Throw<InvalidCommandException>();
         }
 
         [TestMethod]

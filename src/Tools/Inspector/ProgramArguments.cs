@@ -26,6 +26,10 @@ namespace NClap.Inspector
             Description = "Display this help output")]
         public bool Help { get; set; }
 
+        [NamedArgument(ArgumentFlags.Optional, LongName = "Reflect",
+            Description = "Use reflection only for loading")]
+        public bool ReflectionOnly { get; set; }
+
         [NamedArgument(ArgumentFlags.Required, LongName = "Assembly",
             Description = "File path to the assembly to inspect")]
         public FileSystemPath AssemblyPath { get; set; }
@@ -71,7 +75,7 @@ namespace NClap.Inspector
                 return assembly;
             };
 
-            LoadedAssembly = Assembly.ReflectionOnlyLoadFrom(AssemblyPath);
+            LoadedAssembly = ReflectionOnly ? Assembly.ReflectionOnlyLoadFrom(AssemblyPath) : Assembly.LoadFrom(AssemblyPath);
             LoadedType = LoadedAssembly.GetType(TypeName);
             if (LoadedType == null)
             {

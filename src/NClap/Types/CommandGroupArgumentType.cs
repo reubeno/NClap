@@ -89,13 +89,25 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { _commandTypeType, typeof(object) });
+            var groupOptions = new CommandGroupOptions
+            {
+                ServiceConfigurer = context.ServiceConfigurer
+            };
+
+            var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { typeof(CommandGroupOptions), _commandTypeType, typeof(object) });
             if (commandGroupConstructor == null)
             {
                 throw new InternalInvariantBrokenException("Constructor not found in CommandGroup class");
             }
 
-            return commandGroupConstructor.Invoke(new[] { selection, context.ContainingObject });
+            try
+            {
+                return commandGroupConstructor.Invoke(new[] { groupOptions, selection, context.ContainingObject });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         /// <summary>

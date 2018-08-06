@@ -13,6 +13,20 @@ namespace NClap.Metadata
     internal class HelpCommand<TCommandType> : SynchronousCommand
         where TCommandType : struct
     {
+        private CommandLineParserOptions _options;
+        private ArgumentSetAttribute _argSetAttrib;
+
+        /// <summary>
+        /// Primary constructor.
+        /// </summary>
+        /// <param name="options">Parser options.</param>
+        /// <param name="argSetAttrib">Argument set attribute.</param>
+        public HelpCommand(CommandLineParserOptions options, ArgumentSetAttribute argSetAttrib)
+        {
+            _options = options?.DeepClone() ?? new CommandLineParserOptions();
+            _argSetAttrib = argSetAttrib;
+        }
+
         /// <summary>
         /// Arguments to get help for.
         /// </summary>
@@ -39,25 +53,26 @@ namespace NClap.Metadata
             return CommandResult.Success;
         }
 
-        private static void DisplayGeneralHelp(Action<ColoredMultistring> outputHandler)
+        private void DisplayGeneralHelp(Action<ColoredMultistring> outputHandler)
         {
             if (outputHandler == null) return;
 
-            var info = CommandLineParser.GetUsageInfo(
-                CommandGroupType,
-                HelpCommand.DefaultHelpOptions);
+            var info = CommandLineParser.GetUsageInfo(CreateArgSet(), HelpCommand.DefaultHelpOptions, null);
 
             outputHandler(info);
         }
 
-        private static void DisplayCommandHelp(Action<ColoredMultistring> outputHandler, IEnumerable<string> tokens)
+        private void DisplayCommandHelp(Action<ColoredMultistring> outputHandler, IEnumerable<string> tokens)
         {
             if (outputHandler == null) return;
 
-            var group = CreateCommandGroup();
-            var parser = new ArgumentSetParser(
-                AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(group.GetType()),
-                CommandLineParserOptions.Quiet());
+            var groupOptions = new CommandGroupOptions
+            {
+                ServiceConfigurer = _options.ServiceConfigurer
+            };
+
+            var group = new CommandGroup<TCommandType>(groupOptions);
+            var parser = new ArgumentSetParser(CreateArgSet(), _options.With().Quiet());
 
             parser.ParseTokens(tokens, group);
 
@@ -69,8 +84,7 @@ namespace NClap.Metadata
             outputHandler(info);
         }
 
-        private static object CreateCommandGroup() => new CommandGroup<TCommandType>();
-
-        private static Type CommandGroupType => typeof(CommandGroup<TCommandType>);
+        private ArgumentSetDefinition CreateArgSet() =>
+            AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(CommandGroup<TCommandType>), _argSetAttrib);
     }
 }

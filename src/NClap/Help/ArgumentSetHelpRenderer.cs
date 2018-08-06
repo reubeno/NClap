@@ -554,6 +554,7 @@ namespace NClap.Help
                 {
                     wrappedSyntaxLines.Add(ColoredMultistring.Empty);
                 }
+
                 while (wrappedDescLines.Count < lineCount)
                 {
                     wrappedDescLines.Add(ColoredMultistring.Empty);

@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using NClap.Exceptions;
+using NClap.Parser;
 using NClap.Types;
 using NClap.Utilities;
 
@@ -16,27 +17,58 @@ namespace NClap.Metadata
     public class CommandGroup<TCommandType> : Command, IArgumentProvider, ICommandGroup, IArgumentSetWithHelp
         where TCommandType : struct
     {
+        private readonly CommandGroupOptions _options;
         private readonly object _parentObject;
         private TCommandType? _selectedCommandType;
 
         /// <summary>
-        /// Default, parameterless constructor.
+        /// Parameterless constructor. Deprecated.
         /// </summary>
+        [Obsolete("Deprecated in favor of a constructor that takes options.")]
         public CommandGroup()
         {
             if (!typeof(TCommandType).GetTypeInfo().IsEnum)
             {
                 throw new NotSupportedException();
             }
+
+            _options = new CommandGroupOptions();
         }
 
         /// <summary>
         /// Basic constructor.
         /// </summary>
+        /// <param name="options">Options.</param>
+        public CommandGroup(CommandGroupOptions options)
+        {
+            if (!typeof(TCommandType).GetTypeInfo().IsEnum)
+            {
+                throw new NotSupportedException();
+            }
+
+            _options = options?.DeepClone() ?? new CommandGroupOptions();
+        }
+
+        /// <summary>
+        /// Basic constructor. No longer implemented.
+        /// </summary>
         /// <param name="selection">The selected command type.</param>
         /// <param name="parentObject">Optionally provides a reference to the
         /// object containing this command group.</param>
-        public CommandGroup(TCommandType selection, object parentObject) : this()
+        [Obsolete("Please use new overload with options.")]
+        public CommandGroup(TCommandType selection, object parentObject)
+        {
+            throw new NotImplementedException("This method is no longer implemented.");
+        }
+
+        /// <summary>
+        /// Basic constructor.
+        /// </summary>
+        /// <param name="options">Command group options.</param>
+        /// <param name="selection">The selected command type.</param>
+        /// <param name="parentObject">Optionally provides a reference to the
+        /// object containing this command group.</param>
+        public CommandGroup(CommandGroupOptions options, TCommandType selection, object parentObject) : this(options)
         {
             _parentObject = parentObject;
             Selection = selection;
@@ -146,25 +178,17 @@ namespace NClap.Metadata
                 throw new InvalidCommandException($"No implementing type found for command '{commandAttrib.LongName}' in type '{commandTypeType.DisplayName}'");
             }
 
-            var constructorArgs = new List<object> { selection };
-            if (_parentObject != null)
-            {
-                constructorArgs.Add(_parentObject);
-            }
+            var commandDef = new CommandDefinition(selection, implementingType);
 
-            Func<ICommand> constructorFunc;
-
-            try
+            return commandDef.Instantiate(services =>
             {
-                constructorFunc = implementingType.GetConstructor<ICommand>(constructorArgs,
-                    /*considerParameterlessConstructor=*/true);
-            }
-            catch (NotSupportedException ex)
-            {
-                throw new InvalidCommandException("No valid command constructor could be found.", ex);
-            }
+                _options.ServiceConfigurer?.Invoke(services);
 
-            return constructorFunc();
+                if (_parentObject != null)
+                {
+                    services.AddSingleton(_parentObject.GetType(), _parentObject);
+                }
+            });
         }
     }
 }

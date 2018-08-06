@@ -127,7 +127,8 @@ namespace NClap.Help
                 if (includeValueSyntax)
                 {
                     // Decide if the argument type supports empty strings.
-                    var supportsEmptyStrings = Arg.IsEmptyStringValid();
+                    // TODO: options threading
+                    var supportsEmptyStrings = Arg.IsEmptyStringValid(new CommandLineParserOptions());
 
                     if (flags.HasFlag(ArgumentSyntaxFlags.IndicateArgumentsThatAcceptEmptyString) && supportsEmptyStrings)
                     {

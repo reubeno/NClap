@@ -1,8 +1,7 @@
 {
   "profiles": {
     "MultilevelCommandApp": {
-      "commandName": "Project",
-      "commandLineArgs": "--help"
+      "commandName": "Project"
     }
   }
 }

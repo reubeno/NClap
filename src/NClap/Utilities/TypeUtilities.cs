@@ -21,6 +21,14 @@ namespace NClap.Utilities
             type.AssemblyQualifiedName.Equals(otherType.AssemblyQualifiedName, StringComparison.Ordinal);
 
         /// <summary>
+        /// Tries to retrieve a parameterless constructor for the given type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The constructor if found, or null if not found.</returns>
+        public static ConstructorInfo GetParameterlessConstructor(this Type type) =>
+            type.GetTypeInfo().GetConstructor(Array.Empty<Type>());
+
+        /// <summary>
         /// Retrieves a function that invokes the constructor of the given type that takes 0 or more
         /// of the possible arguments provided.
         /// </summary>

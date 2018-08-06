@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Types;
@@ -61,7 +62,7 @@ namespace NClap.Parser
             ContainingArgument = containingArgument;
             FixedDestination = fixedDestination;
             IsPositional = attribute is PositionalArgumentAttribute;
-            ArgumentType = Attribute.GetArgumentType(member.MemberType);
+            ArgumentType = GetArgumentType(Attribute, member, member.MemberType);
             CollectionArgumentType = AsCollectionType(ArgumentType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
             ValidationAttributes = GetValidationAttributes(ArgumentType, Member);
@@ -83,7 +84,7 @@ namespace NClap.Parser
                 // Nullable<T>) as the value type. Parsing an enum or int is the
                 // same as parsing an enum? or int?, for example, since null can
                 // only arise if the value was not provided at all.
-                ValueType = Attribute.GetArgumentType(nullableBase);
+                ValueType = GetArgumentType(Attribute, member, nullableBase);
             }
             else
             {
@@ -330,7 +331,15 @@ namespace NClap.Parser
         /// Checks whether this argument requires an option argument.
         /// </summary>
         /// <returns>true if it's required, false if it's optional.</returns>
-        public bool RequiresOptionArgument => !IsEmptyStringValid();
+        public bool RequiresOptionArgument => !IsEmptyStringValid(new CommandLineParserOptions());
+
+        /// <summary>
+        /// Checks whether this argument requires an option argument when
+        /// parsing with the given options.
+        /// </summary>
+        /// <param name="options">Parser options.</param>
+        /// <returns>true if it's required, false if it's optional.</returns>
+        internal bool RequiresOptionArgumentEx(CommandLineParserOptions options) => !IsEmptyStringValid(options);
 
         /// <summary>
         /// Clears the short name associated with this argument.
@@ -378,6 +387,7 @@ namespace NClap.Parser
 
         private static ICollectionArgumentType AsCollectionType(IArgumentType type)
         {
+            // TODO: This knowledge of ArgumentTypeExtension is undesirable.
             if (type is ArgumentTypeExtension extension)
             {
                 type = extension.InnerType;
@@ -478,10 +488,12 @@ namespace NClap.Parser
         /// <summary>
         /// Checks if the empty string is a valid value for this argument.
         /// </summary>
+        /// <param name="parserOptions">Parser options.</param>
         /// <returns>true if it is valid; false otherwise.</returns>
-        internal bool IsEmptyStringValid()
+        internal bool IsEmptyStringValid(CommandLineParserOptions parserOptions)
         {
-            var parseState = new ArgumentParser(ContainingSet, this, CommandLineParserOptions.Quiet(), /*destination=*/null);
+            var options = parserOptions.DeepClone().With().Quiet().Apply();
+            var parseState = new ArgumentParser(ContainingSet, this, options, /*destination=*/null);
 
             return ArgumentType.TryParse(parseState.ParseContext, string.Empty, out object parsedEmptyString) &&
             parseState.TryValidateValue(
@@ -533,6 +545,85 @@ namespace NClap.Parser
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        /// <summary>
+        /// Retrieves the <see cref="IArgumentType"/> type for the provided type.
+        /// </summary>
+        /// <param name="attrib">The argument attribute to use.</param>
+        /// <param name="memberInfo">Member info for the argument.</param>
+        /// <param name="type">The type to look up.</param>
+        /// <returns>The found type.</returns>
+        private static IArgumentType GetArgumentType(ArgumentBaseAttribute attrib, IMutableMemberInfo memberInfo, Type type)
+        {
+            // First try to retrieve the default IArgumentType implementation
+            // for this type, but don't fail if we can't find one.
+            Types.ArgumentType.TryGetType(type, out IArgumentType argType);
+
+            // If we don't have any overrides, then we already have the
+            // implementation we'll need (or it doesn't exist).
+            if (attrib.ArgumentType == null && attrib.Parser == null && attrib.Formatter == null && attrib.Completer == null)
+            {
+                if (argType == null)
+                {
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.TypeNotSupported, type.Name));
+                }
+
+                return argType;
+            }
+
+            var serviceCollection = new ServiceCollection()
+                .AddSingleton<Type>(type)
+                .AddSingleton<IMutableMemberInfo>(memberInfo);
+
+            if (attrib.Parser != null)
+            {
+                serviceCollection.AddTransient(typeof(IStringParser), attrib.Parser);
+            }
+
+            if (attrib.Formatter != null)
+            {
+                serviceCollection.AddTransient(typeof(IObjectFormatter), attrib.Formatter);
+            }
+
+            if (attrib.Completer != null)
+            {
+                serviceCollection.AddTransient(typeof(IStringCompleter), attrib.Completer);
+            }
+
+            if (attrib.ArgumentType != null)
+            {
+                if (argType != null)
+                {
+                    serviceCollection.AddSingleton<IArgumentType>(argType);
+                }
+
+                serviceCollection.AddTransient(typeof(object), attrib.ArgumentType);
+
+                argType = (IArgumentType)serviceCollection
+                    .BuildServiceProvider()
+                    .GetService<object>();
+            }
+
+            if (argType == null)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.TypeNotSupported, type.Name));
+            }
+
+            serviceCollection.AddSingleton<IArgumentType>(argType);
+
+            if (attrib.Parser == null && attrib.Formatter == null && attrib.Completer == null)
+            {
+                return argType;
+            }
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            var parser = provider.GetService<IStringParser>();
+            var formatter = provider.GetService<IObjectFormatter>();
+            var completer = provider.GetService<IStringCompleter>();
+
+            return new ArgumentTypeExtension(argType, parser, formatter, completer);
         }
     }
 }
