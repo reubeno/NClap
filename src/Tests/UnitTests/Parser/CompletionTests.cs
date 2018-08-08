@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -56,7 +57,7 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void TestThatGetCompletionsThrowsOnNullTokens()
         {
-            Action a = () => CommandLineParser.GetCompletions(typeof(SimpleArgs), null, 0);
+            Action a = () => CommandLineParser.GetCompletions(typeof(SimpleArgs), (IEnumerable<string>)null, 0);
             a.Should().Throw<ArgumentNullException>();
         }
 

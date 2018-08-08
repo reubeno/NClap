@@ -6,6 +6,8 @@ NClap.Parser.AttributeBasedArgumentDefinitionFactory
 NClap.Repl.ILoopClient.PromptWithColor.get -> NClap.Utilities.ColoredString?
 NClap.Repl.ILoopClient.PromptWithColor.set -> void
 NClap.Types.IArgumentValue.GetAttributes<T>() -> System.Collections.Generic.IEnumerable<T>
+static NClap.CommandLineParser.GetCompletions(System.Type type, string commandLineToComplete, int charIndexOfCursor) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetCompletions(System.Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, NClap.CommandLineParserOptions options) -> System.Collections.Generic.IEnumerable<string>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoDescription(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoEnumValues(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoExamples(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>

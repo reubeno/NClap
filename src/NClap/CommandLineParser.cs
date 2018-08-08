@@ -244,6 +244,63 @@ namespace NClap
             GetCompletions(type, tokens, indexOfTokenToComplete, options ?? CommandLineParserOptions.Quiet(), null /* object factory */);
 
         /// <summary>
+        /// Generate possible completions for the specified command line.
+        /// </summary>
+        /// <param name="type">Type of the parsed arguments object.</param>
+        /// <param name="commandLineToComplete">The command line to complete.</param>
+        /// <param name="charIndexOfCursor">Character index of the completion cursor.
+        /// </param>
+        /// <returns>The candidate completions for the specified token.
+        /// </returns>
+        public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor) =>
+            GetCompletions(type, commandLineToComplete, charIndexOfCursor, 0, null);
+
+        /// <summary>
+        /// Generate possible completions for the specified command line.
+        /// </summary>
+        /// <param name="type">Type of the parsed arguments object.</param>
+        /// <param name="commandLineToComplete">The command line to complete.</param>
+        /// <param name="charIndexOfCursor">Character index of the completion cursor.
+        /// </param>
+        /// <param name="tokensToSkip">Number of tokens to skip from start of command
+        /// line.</param>
+        /// <param name="options">Parsing options.</param>
+        /// <returns>The candidate completions for the specified token.
+        /// </returns>
+        public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, CommandLineParserOptions options)
+        {
+            if (charIndexOfCursor > commandLineToComplete.Length)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var tokens = Tokenize(commandLineToComplete, CommandLineTokenizerOptions.AllowPartialInput)
+                .ToList();
+
+            int index;
+            for (index = 0; index < tokens.Count; ++index)
+            {
+                var token = tokens[index];
+                if (charIndexOfCursor >= token.OuterStartingOffset &&
+                    charIndexOfCursor <= token.OuterEndingOffset)
+                {
+                    break;
+                }
+            }
+
+            if (index < tokensToSkip)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return GetCompletions(
+                type,
+                tokens.Skip(tokensToSkip).Select(t => t.ToString()),
+                index - tokensToSkip,
+                options);
+        }
+
+        /// <summary>
         /// Generate possible completions for the specified set of command-line
         /// tokens.
         /// </summary>
