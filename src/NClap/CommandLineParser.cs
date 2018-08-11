@@ -269,11 +269,6 @@ namespace NClap
         /// </returns>
         public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, CommandLineParserOptions options)
         {
-            if (charIndexOfCursor > commandLineToComplete.Length)
-            {
-                return Enumerable.Empty<string>();
-            }
-
             var tokens = Tokenize(commandLineToComplete, CommandLineTokenizerOptions.AllowPartialInput)
                 .ToList();
 

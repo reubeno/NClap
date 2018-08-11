@@ -32,11 +32,6 @@ namespace NClap.Inspector
                 Console.WriteLine($"Completing with cursor={CursorIndex} of command line: [{CommandLine}]");
             }
 
-            if (CursorIndex > CommandLine.Length)
-            {
-                CommandLine += new string(' ', CursorIndex - CommandLine.Length);
-            }
-
             foreach (var completion in CommandLineParser.GetCompletions(
                 _programArgs.LoadedType,
                 CommandLine,

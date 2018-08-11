@@ -90,7 +90,7 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            var constructorArgTypes = new[] { typeof(CommandGroupOptions), _commandTypeType, typeof(object) };
+            var constructorArgTypes = new[] { _commandTypeType, typeof(object) };
             var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(constructorArgTypes);
             if (commandGroupConstructor == null)
             {
