@@ -11,6 +11,9 @@ namespace NClap.ConsoleInput
     /// </summary>
     internal class TokenCompletionSet
     {
+        private const char QuoteChar = '\"';
+        private const string QuoteStr = "\"";
+
         private TokenCompletionSet(string inputText, Token originalToken, IReadOnlyList<string> completions)
         {
             Completions = completions;
@@ -89,14 +92,16 @@ namespace NClap.ConsoleInput
         /// <returns>The generated completions.</returns>
         private static IReadOnlyList<string> Create(string inputText, int cursorIndex, ITokenCompleter tokenCompleter, out int existingTokenStartIndex, out int existingTokenLength)
         {
+            const TokenizerOptions tokenizerOptions =
+                TokenizerOptions.AllowPartialInput |
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter;
+
             //
             // Try to parse the line.  If we fail to parse it, then just
             // return immediately.
             //
 
-            var tokens = CommandLineParser.Tokenize(
-                inputText,
-                CommandLineTokenizerOptions.AllowPartialInput).ToList();
+            var tokens = StringUtilities.Tokenize(inputText, tokenizerOptions).ToList();
 
             //
             // Figure out which token we're in
@@ -149,9 +154,9 @@ namespace NClap.ConsoleInput
             for (var j = 0; j < completions.Count; j++)
             {
                 var completion = completions[j];
-                if (!completion.StartsWith("\"", StringComparison.OrdinalIgnoreCase))
+                if (!completion.StartsWith(QuoteStr, StringComparison.OrdinalIgnoreCase))
                 {
-                    completions[j] = StringUtilities.QuoteIfNeeded(completions[j]);
+                    completions[j] = StringUtilities.QuoteIfNeeded(completions[j], QuoteChar);
                 }
             }
 
@@ -163,6 +168,6 @@ namespace NClap.ConsoleInput
         /// </summary>
         /// <param name="s">The input string.</param>
         /// <returns>The resulting processed string.</returns>
-        private static string RemoveQuotes(string s) => s.Replace("\"", string.Empty);
+        private static string RemoveQuotes(string s) => s.Replace(QuoteStr, string.Empty);
     }
 }

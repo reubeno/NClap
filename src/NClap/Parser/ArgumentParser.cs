@@ -432,6 +432,6 @@ namespace NClap.Parser
             (object)value != null;
 
         private static string CreateCommandLine(IEnumerable<string> arguments) =>
-            string.Join(" ", arguments.Select(StringUtilities.QuoteIfNeeded));
+            string.Join(" ", arguments.Select(a => StringUtilities.QuoteIfNeeded(a, '\"')));
     }
 }

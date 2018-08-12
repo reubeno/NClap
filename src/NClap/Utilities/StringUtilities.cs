@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using NClap.Parser;
 
 namespace NClap.Utilities
 {
@@ -217,9 +218,10 @@ namespace NClap.Utilities
         /// Quotes the provided string if it contains whitespace.
         /// </summary>
         /// <param name="value">String to conditionally quote.</param>
+        /// <param name="quoteChar">Quote character to use.</param>
         /// <returns>If the input string contains whitespace, the quoted version
         /// of the string; otherwise, the input string.</returns>
-        public static string QuoteIfNeeded(string value)
+        public static string QuoteIfNeeded(string value, char quoteChar = '\"')
         {
             if (!string.IsNullOrEmpty(value) &&
                 (value.IndexOfAny(new[] { ' ', '\t' }) < 0))
@@ -227,25 +229,16 @@ namespace NClap.Utilities
                 return value;
             }
 
-            return string.Concat("\"", value, "\"");
+            return quoteChar + value + quoteChar;
         }
 
         /// <summary>
         /// Tokenizes the provided input text line, observing quotes.
         /// </summary>
         /// <param name="line">Input line to parse.</param>
+        /// <param name="options">Options for tokenizing.</param>
         /// <returns>Enumeration of tokens.</returns>
-        public static IEnumerable<Token> Tokenize(string line) =>
-            Tokenize(line, false /* allow partial input? */);
-
-        /// <summary>
-        /// Tokenizes the provided input text line, observing quotes.
-        /// </summary>
-        /// <param name="line">Input line to parse.</param>
-        /// <param name="allowPartialInput">Allow the input line to be partial
-        /// (i.e. incomplete).</param>
-        /// <returns>Enumeration of tokens.</returns>
-        public static IEnumerable<Token> Tokenize(string line, bool allowPartialInput)
+        public static IEnumerable<Token> Tokenize(string line, TokenizerOptions options)
         {
             //
             // State variables.
@@ -255,9 +248,11 @@ namespace NClap.Utilities
             // character, regardless of whether we're still "inside" the quotes.
             var quoted = false;
 
-            // This should be true only if we're in a quoted token and we
-            // haven't yet seen the end quote character.
-            var inQuotes = false;
+            // This should be non-null only if we're in a quoted token and we
+            // haven't yet seen the end quote character.  When non-null, its
+            // value should be the specific quote character that opened the
+            // token.
+            char? inQuotes = null;
 
             // This should be true if an end quote was present in this token.
             // It would be false if "partial input" is allowed and the current
@@ -295,7 +290,7 @@ namespace NClap.Utilities
                     // all other tokens), and if we're not currently still
                     // inside the quotes of a quoted token, then this must
                     // be the end of the token.
-                    if (tokenStartIndex.HasValue && !inQuotes)
+                    if (tokenStartIndex.HasValue && !inQuotes.HasValue)
                     {
                         completeToken = true;
                         endQuotePresent = quoted;
@@ -306,7 +301,9 @@ namespace NClap.Utilities
                     // and we were told by our caller to allow partial input,
                     // then end the token here but make a note that we did
                     // *not* see the end quote for this last token.
-                    else if ((index == line.Length) && inQuotes && allowPartialInput)
+                    else if ((index == line.Length) &&
+                             inQuotes.HasValue &&
+                             options.HasFlag(TokenizerOptions.AllowPartialInput))
                     {
                         Debug.Assert(tokenStartIndex.HasValue);
                         completeToken = true;
@@ -330,7 +327,7 @@ namespace NClap.Utilities
                         tokenStartIndex = null;
                         tokenEndIndex = null;
                         quoted = false;
-                        inQuotes = false;
+                        inQuotes = null;
                         endQuotePresent = false;
                     }
                 }
@@ -339,16 +336,17 @@ namespace NClap.Utilities
                 // to decide whether the quote character marks the beginning
                 // or end of a quoted token, or if it's embedded in the middle
                 // of an unquoted token, or if it's errant.
-                else if (line[index] == '\"')
+                else if ((line[index] == '\"' && options.HasFlag(TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter)) ||
+                         (line[index] == '\'' && options.HasFlag(TokenizerOptions.HandleSingleQuoteAsTokenDelimiter)))
                 {
                     // If we're not in the midst of parsing a token, then this
                     // must be the start of a new token.  Update the parse state
                     // appropriately to reflect this.
                     if (!tokenStartIndex.HasValue)
                     {
-                        Debug.Assert(!inQuotes);
+                        Debug.Assert(!inQuotes.HasValue);
 
-                        inQuotes = true;
+                        inQuotes = line[index];
                         quoted = true;
                         tokenStartIndex = index + 1;
                     }
@@ -360,16 +358,26 @@ namespace NClap.Utilities
                     // a normal character embedded within the current token.
                     else if (quoted)
                     {
+                        Debug.Assert(inQuotes.HasValue);
+
+                        // If this quote character is different from the one
+                        // that opened this token, then we consider it a normal
+                        // character.
+                        if (inQuotes.Value != line[index])
+                        {
+                            // Nothing to do here.
+                        }
+
                         // If this quote character isn't the last in the
                         // input string, and if the character following this
                         // one is *not* a whitespace character, then we've
                         // encountered something wrong.  Unless we were told
                         // to allow "partial input" (i.e. ignore errors like
                         // these), we'll throw an exception.
-                        if ((index + 1 != line.Length) &&
-                            !char.IsWhiteSpace(line[index + 1]))
+                        else if ((index + 1 != line.Length) &&
+                                 !char.IsWhiteSpace(line[index + 1]))
                         {
-                            if (!allowPartialInput)
+                            if (!options.HasFlag(TokenizerOptions.AllowPartialInput))
                             {
                                 throw new ArgumentOutOfRangeException(nameof(line), Strings.TerminatingQuotesNotEndOfToken);
                             }
@@ -378,7 +386,7 @@ namespace NClap.Utilities
                         {
                             // Okay, this was the end quote for the token.
                             // Mark it as such.
-                            inQuotes = false;
+                            inQuotes = null;
                             endQuotePresent = true;
                             tokenEndIndex = index;
                         }
@@ -400,8 +408,8 @@ namespace NClap.Utilities
             // bogus.
             if (tokenStartIndex.HasValue)
             {
-                Debug.Assert(inQuotes);
-                Debug.Assert(!allowPartialInput);
+                Debug.Assert(inQuotes.HasValue);
+                Debug.Assert(!options.HasFlag(TokenizerOptions.AllowPartialInput));
 
                 throw new ArgumentOutOfRangeException(nameof(line), Strings.UnterminatedQuotes);
             }

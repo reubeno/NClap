@@ -12,10 +12,10 @@ namespace NClap.Inspector
             _programArgs = programArgs;
         }
 
-        [NamedArgument(ArgumentFlags.Optional, LongName = "SkipFirst",
-            Description = "Skip first token?",
-            DefaultValue = true)]
-        public bool SkipFirstToken { get; set; }
+        [NamedArgument(ArgumentFlags.Optional, LongName = "Skip",
+            Description = "Tokens to skip",
+            DefaultValue = 1)]
+        public int TokensToSkip { get; set; }
 
         [NamedArgument(ArgumentFlags.Required, LongName = "Cursor",
             Description = "0-based index of cursor")]
@@ -27,16 +27,20 @@ namespace NClap.Inspector
 
         public override CommandResult Execute()
         {
+            var verboseMessage = $"{Guid.NewGuid()}: Completing with skip={TokensToSkip} cursor={CursorIndex} of command line: [{CommandLine}]";
+
             if (_programArgs.Verbose)
             {
-                Console.WriteLine($"Completing with cursor={CursorIndex} of command line: [{CommandLine}]");
+                Console.WriteLine(verboseMessage);
             }
+
+            Console.Title = verboseMessage;
 
             foreach (var completion in CommandLineParser.GetCompletions(
                 _programArgs.LoadedType,
                 CommandLine,
                 CursorIndex,
-                tokensToSkip: 1,
+                tokensToSkip: this.TokensToSkip,
                 options: null))
             {
                 Console.WriteLine(completion);

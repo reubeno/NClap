@@ -269,8 +269,12 @@ namespace NClap
         /// </returns>
         public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, CommandLineParserOptions options)
         {
-            var tokens = Tokenize(commandLineToComplete, CommandLineTokenizerOptions.AllowPartialInput)
-                .ToList();
+            const TokenizerOptions tokenizerOptions =
+                TokenizerOptions.AllowPartialInput |
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter |
+                TokenizerOptions.HandleSingleQuoteAsTokenDelimiter;
+
+            var tokens = StringUtilities.Tokenize(commandLineToComplete, tokenizerOptions).ToList();
 
             int index;
             for (index = 0; index < tokens.Count; ++index)
@@ -319,15 +323,6 @@ namespace NClap
             var parser = new ArgumentSetParser(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type), options);
             return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
         }
-
-        /// <summary>
-        /// Tokenizes the provided input text line, observing quotes.
-        /// </summary>
-        /// <param name="line">Input line to parse.</param>
-        /// <param name="options">Options for tokenizing.</param>
-        /// <returns>Enumeration of tokens.</returns>
-        internal static IEnumerable<Token> Tokenize(string line, CommandLineTokenizerOptions options = CommandLineTokenizerOptions.None) =>
-            StringUtilities.Tokenize(line, options.HasFlag(CommandLineTokenizerOptions.AllowPartialInput));
 
         /// <summary>
         /// Returns a usage string for command line argument parsing.

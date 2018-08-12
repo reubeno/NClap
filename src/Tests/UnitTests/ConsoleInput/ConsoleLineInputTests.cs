@@ -1027,7 +1027,7 @@ namespace NClap.Tests.ConsoleInput
             input.Insert("a");
             input.MoveCursorToEnd();
 
-            var completionsAsText = string.Join(" ", completions.Select(StringUtilities.QuoteIfNeeded)) + " ";
+            var completionsAsText = string.Join(" ", completions.Select(c => StringUtilities.QuoteIfNeeded(c, '\"'))) + " ";
 
             input.ReplaceCurrentTokenWithAllCompletions();
 
