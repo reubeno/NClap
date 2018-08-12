@@ -28,13 +28,10 @@ namespace NClap.Inspector
         public override CommandResult Execute()
         {
             var verboseMessage = $"{Guid.NewGuid()}: Completing with skip={TokensToSkip} cursor={CursorIndex} of command line: [{CommandLine}]";
-
             if (_programArgs.Verbose)
             {
                 Console.WriteLine(verboseMessage);
             }
-
-            Console.Title = verboseMessage;
 
             foreach (var completion in CommandLineParser.GetCompletions(
                 _programArgs.LoadedType,
