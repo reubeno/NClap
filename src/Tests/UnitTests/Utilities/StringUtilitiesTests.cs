@@ -279,6 +279,34 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
+        public void TokenizeDoubleQuotedTokenWhenNotHandled()
+        {
+            var tokens = StringUtilities.Tokenize("\"hello world\"", TokenizerOptions.None)
+                .Select(t => t.Contents.ToString())
+                .Should().Equal("\"hello", "world\"");
+        }
+
+        [TestMethod]
+        public void TokenizeSingleQuotedToken()
+        {
+            var tokens = StringUtilities.Tokenize("'hello world'", TokenizerOptions.HandleSingleQuoteAsTokenDelimiter).ToArray();
+            tokens.Length.Should().Be(1);
+            tokens[0].Contents.Length.Should().Be("hello world".Length);
+            tokens[0].Contents.StartingOffset.Should().Be(1);
+            tokens[0].Contents.ToString().Should().Be("hello world");
+            tokens[0].StartsWithQuote.Should().BeTrue();
+            tokens[0].EndsWithQuote.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void TokenizeSingleQuotedTokenWhenNotHandled()
+        {
+            var tokens = StringUtilities.Tokenize("'hello world'", TokenizerOptions.None)
+                .Select(t => t.Contents.ToString())
+                .Should().Equal("'hello", "world'");
+        }
+
+        [TestMethod]
         public void TokenizingEmptyToken()
         {
             var tokens = StringUtilities.Tokenize("a \"\" b", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
@@ -379,6 +407,15 @@ namespace NClap.Tests.Utilities
             tokens[0].StartsWithQuote.Should().BeTrue();
             tokens[0].EndsWithQuote.Should().BeFalse();
             tokens[0].InnerLength.Should().Be("a\"b".Length);
+        }
+
+        [TestMethod]
+        public void TokenizingQuotedStringWithOtherQuoteInside()
+        {
+            var tokens = StringUtilities.Tokenize("'hello \"a b\" world'",
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter | TokenizerOptions.HandleSingleQuoteAsTokenDelimiter)
+                .Select(t => t.Contents.ToString())
+                .Should().Equal("hello \"a b\" world");
         }
 
         [TestMethod]

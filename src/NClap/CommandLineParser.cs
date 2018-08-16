@@ -259,7 +259,8 @@ namespace NClap
         /// Generate possible completions for the specified command line.
         /// </summary>
         /// <param name="type">Type of the parsed arguments object.</param>
-        /// <param name="commandLineToComplete">The command line to complete.</param>
+        /// <param name="commandLineToComplete">The command line to complete. Both single and double quote
+        /// characters are interpreted as denoting single tokens that may contain embedded whitespace.</param>
         /// <param name="charIndexOfCursor">Character index of the completion cursor.
         /// </param>
         /// <param name="tokensToSkip">Number of tokens to skip from start of command
