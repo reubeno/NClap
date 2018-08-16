@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "NClap.Inspector": {
-      "commandName": "Project",
-      "commandLineArgs": "completeline -assembly \"c:\\Program Files (x86)\\Microsoft Azure Sphere SDK\\Tools\\azsphere.exe\" -type Microsoft.Azure.Sphere.Tools.AzSphere.MainCommand -cursor 2  -commandline \"a foo\""
-    }
-  }
-}
