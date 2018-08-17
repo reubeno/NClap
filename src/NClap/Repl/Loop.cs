@@ -61,8 +61,14 @@ namespace NClap.Repl
             _options.ParserOptions.DisplayUsageInfoOnError = false;
             _options.ParserOptions.Reporter = error => _client.OnError(error.ToString().TrimEnd());
 
+            var inputConfigurer = _options.ParserOptions.ServiceConfigurer;
+            _options.ParserOptions.ServiceConfigurer = collection => ConfigureServices(collection, inputConfigurer);
+
             _commandType = ConstructCommandTypeFactory(commandType, out _objectFactory);
-            _argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(_commandType, attribute: argSetAttribute);
+            _argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                _commandType,
+                attribute: argSetAttribute,
+                serviceConfigurer: _options.ParserOptions.ServiceConfigurer);
         }
 
         /// <summary>
@@ -257,7 +263,7 @@ namespace NClap.Repl
                 {
                     var groupOptions = new CommandGroupOptions
                     {
-                        ServiceConfigurer = ConfigureServices
+                        ServiceConfigurer = _options.ParserOptions.ServiceConfigurer
                     };
 
                     return (ICommand)constructor.Invoke(new object[] { groupOptions });
@@ -276,20 +282,25 @@ namespace NClap.Repl
         private ICommand ConstructCommandType(Type commandType)
         {
             var commandDef = new CommandDefinition(null, commandType);
-            return commandDef.Instantiate(ConfigureServices);
+            return commandDef.Instantiate(_options.ParserOptions.ServiceConfigurer);
         }
 
-        private void ConfigureServices(IServiceCollection services)
+        private void ConfigureServices(IServiceCollection services, ServiceConfigurer inputConfigurer)
         {
-            _options?.ParserOptions?.ServiceConfigurer?.Invoke(services);
+            // Apply incoming configuration.
+            inputConfigurer?.Invoke(services);
 
-            var parserOptions = _options?.ParserOptions;
-            if (parserOptions != null)
-            {
-                services.AddSingleton(parserOptions);
-            }
+            // Register LoopOptions.
+            services.AddSingleton(_options);
 
+            // Register CommandLineParserOptions.
+            services.AddSingleton(_options.ParserOptions);
+
+            // Register ArgumentSetAttribute.
             services.AddSingleton(_argSet.Attribute);
+
+            // Register Loop.
+            services.AddSingleton(this);
         }
     }
 }

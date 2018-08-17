@@ -29,12 +29,16 @@ namespace NClap.Parser
         /// <param name="fixedDestination">Optionally provides a fixed object
         /// to store values to; regardless of the target object provided,
         /// parsed values will always be stored to this one.</param>
+        /// <param name="serviceConfigurer">Optionally provides a service
+        /// configurer.</param>
         /// <returns>Created argument set.</returns>
+        [CLSCompliant(false)]
         public static ArgumentSetDefinition CreateArgumentSet(
             Type typeToReflectOn,
             ArgumentSetAttribute attribute = null,
             object defaultValues = null,
-            object fixedDestination = null)
+            object fixedDestination = null,
+            ServiceConfigurer serviceConfigurer = null)
         {
             // Find high-level metadata for the argument set.
             var argSetAttrib = attribute ?? GetSetAttributeOrDefault(typeToReflectOn);
@@ -43,7 +47,12 @@ namespace NClap.Parser
             var argSet = new ArgumentSetDefinition(argSetAttrib);
 
             // Add arguments.
-            AddToArgumentSet(argSet, typeToReflectOn, defaultValues, fixedDestination);
+            AddToArgumentSet(
+                argSet,
+                typeToReflectOn,
+                defaultValues: defaultValues,
+                fixedDestination: fixedDestination,
+                serviceConfigurer: serviceConfigurer);
 
             return argSet;
         }
@@ -62,15 +71,25 @@ namespace NClap.Parser
         /// <param name="containingArgument">Optionally provides a reference
         /// to the definition of the argument that "contains" these arguments.
         /// </param>
+        /// <param name="serviceConfigurer">Optionally provides a service
+        /// configurer.</param>
+        [CLSCompliant(false)]
         public static void AddToArgumentSet(
             ArgumentSetDefinition argSet,
             Type typeToReflectOn,
             object defaultValues = null,
             object fixedDestination = null,
-            ArgumentDefinition containingArgument = null)
+            ArgumentDefinition containingArgument = null,
+            ServiceConfigurer serviceConfigurer = null)
         {
             // Extract argument descriptors from the defining type.
-            var args = GetArgumentDescriptors(typeToReflectOn, argSet, defaultValues, fixedDestination, containingArgument).ToList();
+            var args = GetArgumentDescriptors(
+                typeToReflectOn,
+                argSet,
+                defaultValues,
+                fixedDestination,
+                containingArgument,
+                serviceConfigurer).ToList();
 
             // Define the arguments.
             argSet.Add(args);
@@ -97,12 +116,12 @@ namespace NClap.Parser
         private static ArgumentSetAttribute TryGetSetAttribute(Type typeToReflectOn) =>
             typeToReflectOn.GetTypeInfo().GetSingleAttribute<ArgumentSetAttribute>();
 
-        private static IEnumerable<ArgumentDefinition> GetArgumentDescriptors(Type type, ArgumentSetDefinition argSet, object defaultValues, object fixedDestination, ArgumentDefinition containingArgument)
+        private static IEnumerable<ArgumentDefinition> GetArgumentDescriptors(Type type, ArgumentSetDefinition argSet, object defaultValues, object fixedDestination, ArgumentDefinition containingArgument, ServiceConfigurer serviceConfigurer)
         {
             // Find all fields and properties that have argument attributes on
             // them. For each that we find, capture information about them.
             var argList = GetAllFieldsAndProperties(type, includeNonPublicMembers: true)
-                .SelectMany(member => CreateArgumentDescriptorsIfApplicable(member, defaultValues, argSet, fixedDestination, containingArgument));
+                .SelectMany(member => CreateArgumentDescriptorsIfApplicable(member, defaultValues, argSet, fixedDestination, containingArgument, serviceConfigurer));
 
             // If the argument set attribute indicates that we should also
             // include un-attributed, public, writable members as named
@@ -112,21 +131,39 @@ namespace NClap.Parser
                 argList = argList.Concat(GetAllFieldsAndProperties(type, includeNonPublicMembers: false)
                     .Where(member => member.IsWritable)
                     .Where(member => member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>() == null)
-                    .Select(member => CreateArgumentDescriptor(member, new NamedArgumentAttribute(), defaultValues, argSet, fixedDestination, containingArgument)));
+                    .Select(member => CreateArgumentDescriptor(
+                        member,
+                        new NamedArgumentAttribute(),
+                        defaultValues,
+                        argSet,
+                        fixedDestination,
+                        containingArgument,
+                        serviceConfigurer)));
             }
 
             return argList;
         }
 
         private static IEnumerable<ArgumentDefinition> CreateArgumentDescriptorsIfApplicable(IMutableMemberInfo member, object defaultValues,
-            ArgumentSetDefinition argSet, object fixedDestination, ArgumentDefinition containingArgument)
+            ArgumentSetDefinition argSet, object fixedDestination, ArgumentDefinition containingArgument, ServiceConfigurer serviceConfigurer)
         {
             var descriptors = Enumerable.Empty<ArgumentDefinition>();
 
             var argAttrib = member.MemberInfo.GetSingleAttribute<ArgumentBaseAttribute>();
             if (argAttrib != null)
             {
-                descriptors = descriptors.Concat(new[] { CreateArgumentDescriptor(member, argAttrib, defaultValues, argSet, fixedDestination, containingArgument) });
+                descriptors = descriptors.Concat(
+                    new[]
+                    {
+                        CreateArgumentDescriptor(
+                            member,
+                            argAttrib,
+                            defaultValues,
+                            argSet,
+                            fixedDestination,
+                            containingArgument,
+                            serviceConfigurer)
+                    });
             }
 
             return descriptors;
@@ -138,7 +175,8 @@ namespace NClap.Parser
             object defaultValues,
             ArgumentSetDefinition argSet,
             object fixedDestination,
-            ArgumentDefinition containingArgument)
+            ArgumentDefinition containingArgument,
+            ServiceConfigurer serviceConfigurer)
         {
             if (!member.IsReadable || !member.IsWritable)
             {
@@ -157,7 +195,8 @@ namespace NClap.Parser
                 argSet,
                 defaultValue: defaultFieldValue,
                 fixedDestination: fixedDestination,
-                containingArgument: containingArgument);
+                containingArgument: containingArgument,
+                serviceConfigurer: serviceConfigurer);
         }
 
         private static IEnumerable<IMutableMemberInfo> GetAllFieldsAndProperties(Type type, bool includeNonPublicMembers)

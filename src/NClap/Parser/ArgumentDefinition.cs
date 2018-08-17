@@ -29,12 +29,15 @@ namespace NClap.Parser
         /// <param name="containingArgument">Optionally provides a reference
         /// to the definition of the argument that "contains" these arguments.
         /// </param>
+        /// <param name="serviceConfigurer">Optionally provides a service configurer.</param>
+        [CLSCompliant(false)]
         public ArgumentDefinition(MemberInfo member,
             ArgumentBaseAttribute attribute,
             ArgumentSetDefinition argSet,
             object defaultValue = null,
-            ArgumentDefinition containingArgument = null)
-            : this(GetMutableMemberInfo(member), attribute, argSet, defaultValue, /*fixedDestination=*/null, containingArgument)
+            ArgumentDefinition containingArgument = null,
+            ServiceConfigurer serviceConfigurer = null)
+            : this(GetMutableMemberInfo(member), attribute, argSet, defaultValue, /*fixedDestination=*/null, containingArgument, serviceConfigurer)
         {
         }
 
@@ -49,12 +52,14 @@ namespace NClap.Parser
         /// <param name="containingArgument">Optionally provides a reference
         /// to the definition of the argument that "contains" these arguments.
         /// </param>
+        /// <param name="serviceConfigurer">Optionally provides a service configurer.</param>
         internal ArgumentDefinition(IMutableMemberInfo member,
             ArgumentBaseAttribute attribute,
             ArgumentSetDefinition argSet,
             object defaultValue = null,
             object fixedDestination = null,
-            ArgumentDefinition containingArgument = null)
+            ArgumentDefinition containingArgument = null,
+            ServiceConfigurer serviceConfigurer = null)
         {
             Member = member ?? throw new ArgumentNullException(nameof(member));
             Attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
@@ -62,7 +67,7 @@ namespace NClap.Parser
             ContainingArgument = containingArgument;
             FixedDestination = fixedDestination;
             IsPositional = attribute is PositionalArgumentAttribute;
-            ArgumentType = GetArgumentType(Attribute, member, member.MemberType);
+            ArgumentType = GetArgumentType(Attribute, member, member.MemberType, serviceConfigurer);
             CollectionArgumentType = AsCollectionType(ArgumentType);
             HasDefaultValue = attribute.ExplicitDefaultValue || attribute.DynamicDefaultValue;
             ValidationAttributes = GetValidationAttributes(ArgumentType, Member);
@@ -84,7 +89,7 @@ namespace NClap.Parser
                 // Nullable<T>) as the value type. Parsing an enum or int is the
                 // same as parsing an enum? or int?, for example, since null can
                 // only arise if the value was not provided at all.
-                ValueType = GetArgumentType(Attribute, member, nullableBase);
+                ValueType = GetArgumentType(Attribute, member, nullableBase, serviceConfigurer);
             }
             else
             {
@@ -553,8 +558,9 @@ namespace NClap.Parser
         /// <param name="attrib">The argument attribute to use.</param>
         /// <param name="memberInfo">Member info for the argument.</param>
         /// <param name="type">The type to look up.</param>
+        /// <param name="configurer">Optionally provides service configurer.</param>
         /// <returns>The found type.</returns>
-        private static IArgumentType GetArgumentType(ArgumentBaseAttribute attrib, IMutableMemberInfo memberInfo, Type type)
+        private static IArgumentType GetArgumentType(ArgumentBaseAttribute attrib, IMutableMemberInfo memberInfo, Type type, ServiceConfigurer configurer)
         {
             // First try to retrieve the default IArgumentType implementation
             // for this type, but don't fail if we can't find one.
@@ -572,9 +578,12 @@ namespace NClap.Parser
                 return argType;
             }
 
-            var serviceCollection = new ServiceCollection()
-                .AddSingleton<Type>(type)
-                .AddSingleton<IMutableMemberInfo>(memberInfo);
+            var serviceCollection = new ServiceCollection();
+
+            configurer?.Invoke(serviceCollection);
+
+            serviceCollection.AddSingleton<Type>(type);
+            serviceCollection.AddSingleton<IMutableMemberInfo>(memberInfo);
 
             if (attrib.Parser != null)
             {

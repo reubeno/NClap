@@ -1,4 +1,6 @@
-﻿using NClap.Utilities;
+﻿using System;
+using NClap.Help;
+using NClap.Utilities;
 
 namespace NClap.Repl
 {
@@ -21,12 +23,25 @@ namespace NClap.Repl
         private LoopOptions(LoopOptions other)
         {
             ParserOptions = other.ParserOptions?.DeepClone();
+            HelpOutputHandler = other.HelpOutputHandler;
         }
 
         /// <summary>
-        /// Parser options.
+        /// Parser options; initialized with defaults.
         /// </summary>
-        public CommandLineParserOptions ParserOptions { get; set; } = new CommandLineParserOptions();
+        public CommandLineParserOptions ParserOptions { get; set; } = new CommandLineParserOptions
+        {
+            HelpOptions = new ArgumentSetHelpOptions
+            {
+                Logo = new ArgumentMetadataHelpOptions { Include = false },
+                Name = string.Empty
+            }
+        };
+
+        /// <summary>
+        /// The output handler for help/usage information.
+        /// </summary>
+        public Action<ColoredMultistring> HelpOutputHandler { get; set; }
 
         /// <summary>
         /// Creates a separate clone of this object.

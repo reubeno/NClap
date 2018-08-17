@@ -137,25 +137,25 @@ namespace NClap.Metadata
         internal Type ArgumentType { get; set; }
 
         /// <summary>
-        /// Optionally provides a type that implements IStringParser, and which
+        /// Optionally provides a type that implements <see cref="IStringParser"/>, and which
         /// should be used for parsing strings for this argument instead of the
-        /// default IArgumentType class associated with the field/property's
+        /// default <see cref="IArgumentType"/> class associated with the field/property's
         /// type.
         /// </summary>
         public Type Parser { get; set; }
 
         /// <summary>
-        /// Optionally provides a type that implements IObjectFormatter, and
+        /// Optionally provides a type that implements <see cref="IObjectFormatter"/>, and
         /// which should be used for formatting objects for this argument
-        /// instead of the default IArgumentType class associated with the
+        /// instead of the default <see cref="IArgumentType"/> class associated with the
         /// field/property's type.
         /// </summary>
         public Type Formatter { get; set; }
 
         /// <summary>
-        /// Optionally provides a type that implements IStringCompleter,
+        /// Optionally provides a type that implements <see cref="IStringCompleter"/>,
         /// and which should be used for generating string completions for this
-        /// argument instead of the default IArgumentType class associated with
+        /// argument instead of the default <see cref="IArgumentType"/> class associated with
         /// the field/property's type.
         /// </summary>
         public Type Completer { get; set; }

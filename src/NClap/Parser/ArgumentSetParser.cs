@@ -100,7 +100,7 @@ namespace NClap.Parser
             }
 
             // Finalize.
-            return Finalize(destination);
+            return Finalize(destination, result);
         }
 
         /// <summary>
@@ -150,10 +150,25 @@ namespace NClap.Parser
 
             // See if we're expecting this token to be an option argument; if
             // so, then we can generate completions based on that.
+            bool completeViaLastArg = false;
             if (parseResult.State == ArgumentSetParseResultType.RequiresOptionArgument &&
                 ArgumentSet.Attribute.AllowNamedArgumentValueAsSucceedingToken)
             {
-                var argParseState = new ArgumentParser(ArgumentSet, parseResult.Argument, _options, /*destination=*/null);
+                completeViaLastArg = true;
+            }
+
+            // See if we just finished parsing an argument that takes the rest
+            // of the line.
+            if (parseResult.LastSeenArg?.TakesRestOfLine ?? false)
+            {
+                completeViaLastArg = true;
+            }
+
+            // If we can complete via the last seen argument, then construct a parser
+            // around the argument and generate the completions.
+            if (completeViaLastArg)
+            {
+                var argParseState = new ArgumentParser(ArgumentSet, parseResult.LastSeenArg, _options, /*destination=*/null);
                 return argParseState.GetCompletions(
                     tokenList,
                     indexOfTokenToComplete,
@@ -301,17 +316,12 @@ namespace NClap.Parser
         /// <returns>Parse result.</returns>
         public ArgumentSetParseResult ParseTokens(IEnumerable<string> args, object destination)
         {
-            var result = ArgumentSetParseResult.Ready;
+            var result = ArgumentSetParseResult.Ready(null);
             IReadOnlyList<string> argsList = args.ToList();
 
             for (var index = 0; index < argsList.Count;)
             {
-                var currentResult = TryParseNextToken(argsList, index, destination, out int argsConsumed);
-                if (currentResult != ArgumentSetParseResult.Ready)
-                {
-                    result = currentResult;
-                }
-
+                result = TryParseNextToken(argsList, index, destination, out int argsConsumed);
                 index += argsConsumed;
             }
 
@@ -322,12 +332,12 @@ namespace NClap.Parser
         /// Tries to finalize parsing to the given output object.
         /// </summary>
         /// <param name="destination">Output object.</param>
+        /// <param name="parseResult">Parse result.</param>
         /// <returns>Parse result.</returns>
-        public ArgumentSetParseResult Finalize(object destination)
+        public ArgumentSetParseResult Finalize(object destination, ArgumentSetParseResult parseResult)
         {
-            var result = ArgumentSetParseResult.Ready;
-
             // Finalize all arguments: named args first, then positional default args.
+            var result = parseResult;
             foreach (var arg in ArgumentSet.NamedArguments.Concat(ArgumentSet.PositionalArguments))
             {
                 var argState = GetStateForArgument(arg, destination);
@@ -402,7 +412,7 @@ namespace NClap.Parser
 
                 lastParsedArg.Value = args[index];
 
-                result = ArgumentSetParseResult.Ready;
+                result = ArgumentSetParseResult.Ready(lastParsedArg.Arg);
             }
 
             if (!result.IsReady)
@@ -482,13 +492,13 @@ namespace NClap.Parser
                 }
 
                 argsConsumed = args.Count - index; // skip the rest of the line
-                return ArgumentSetParseResult.Ready;
+                return ArgumentSetParseResult.Ready(positionalArg);
             }
             else
             {
                 Debug.Assert(argument != null);
                 return TryParseAndStore(argState, argument)
-                    ? ArgumentSetParseResult.Ready : ArgumentSetParseResult.FailedParsing;
+                    ? ArgumentSetParseResult.Ready(positionalArg) : ArgumentSetParseResult.FailedParsing;
             }
         }
 
@@ -618,10 +628,12 @@ namespace NClap.Parser
                 };
             }
 
+            var lastArg = parsedArgs.GetLastOrDefault();
+            var lastArgTakesRestOfLine = lastArg?.Arg.TakesRestOfLine ?? false;
+
             // If the last named argument we saw in this token required an
             // option argument to go with it, then yield that information
             // so it can be used by the caller (e.g. in completion generation).
-            var lastArg = parsedArgs.GetLastOrDefault();
             if (lastArg != null &&
                 lastArg.Arg.RequiresOptionArgumentEx(_options) &&
                 string.IsNullOrEmpty(lastArg.Value))
@@ -629,7 +641,7 @@ namespace NClap.Parser
                 return ArgumentSetParseResult.RequiresOptionArgument(lastArg.Arg);
             }
 
-            return ArgumentSetParseResult.Ready;
+            return ArgumentSetParseResult.Ready(lastArg?.Arg);
         }
 
         private bool TryParseAndStore(ArgumentParser state, string value)
@@ -653,7 +665,8 @@ namespace NClap.Parser
                 {
                     AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(ArgumentSet, definingType,
                         fixedDestination: argProvider.GetDestinationObject(),
-                        containingArgument: state.Argument);
+                        containingArgument: state.Argument,
+                        serviceConfigurer: state.ParseContext.ServiceConfigurer);
                 }
             }
 

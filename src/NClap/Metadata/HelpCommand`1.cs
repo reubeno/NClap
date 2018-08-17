@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NClap.ConsoleInput;
 using NClap.Parser;
+using NClap.Repl;
 using NClap.Utilities;
 
 namespace NClap.Metadata
@@ -13,24 +14,26 @@ namespace NClap.Metadata
     internal class HelpCommand<TCommandType> : SynchronousCommand
         where TCommandType : struct
     {
-        private CommandLineParserOptions _options;
+        private LoopOptions _loopOptions;
+        private CommandLineParserOptions _parserOptions;
         private ArgumentSetAttribute _argSetAttrib;
 
         /// <summary>
         /// Primary constructor.
         /// </summary>
-        /// <param name="options">Parser options.</param>
+        /// <param name="loopOptions">Loop options.</param>
         /// <param name="argSetAttrib">Argument set attribute.</param>
-        public HelpCommand(CommandLineParserOptions options, ArgumentSetAttribute argSetAttrib)
+        public HelpCommand(LoopOptions loopOptions, ArgumentSetAttribute argSetAttrib)
         {
-            _options = options?.DeepClone() ?? new CommandLineParserOptions();
+            _loopOptions = loopOptions?.DeepClone() ?? new LoopOptions();
+            _parserOptions = _loopOptions.ParserOptions ?? new CommandLineParserOptions();
             _argSetAttrib = argSetAttrib;
         }
 
         /// <summary>
         /// Arguments to get help for.
         /// </summary>
-        [PositionalArgument(ArgumentFlags.RestOfLine, Position = 0)]
+        [PositionalArgument(ArgumentFlags.RestOfLine, Position = 0, Completer = typeof(HelpCommandArgumentCompleter))]
         public string[] Arguments { get; set; }
 
         /// <summary>
@@ -39,7 +42,7 @@ namespace NClap.Metadata
         /// <returns>Command result.</returns>
         public override CommandResult Execute()
         {
-            var outputHandler = HelpCommand.OutputHandler ?? BasicConsole.Default.Write;
+            var outputHandler = _loopOptions.HelpOutputHandler ?? BasicConsole.Default.Write;
 
             if (Arguments != null && Arguments.Length > 0)
             {
@@ -57,7 +60,10 @@ namespace NClap.Metadata
         {
             if (outputHandler == null) return;
 
-            var info = CommandLineParser.GetUsageInfo(CreateArgSet(), HelpCommand.DefaultHelpOptions, null);
+            var info = CommandLineParser.GetUsageInfo(
+                CreateArgSet(),
+                _parserOptions.HelpOptions,
+                null);
 
             outputHandler(info);
         }
@@ -68,23 +74,26 @@ namespace NClap.Metadata
 
             var groupOptions = new CommandGroupOptions
             {
-                ServiceConfigurer = _options.ServiceConfigurer
+                ServiceConfigurer = _parserOptions.ServiceConfigurer
             };
 
             var group = new CommandGroup<TCommandType>(groupOptions);
-            var parser = new ArgumentSetParser(CreateArgSet(), _options.With().Quiet());
+            var parser = new ArgumentSetParser(CreateArgSet(), _parserOptions.With().Quiet());
 
             parser.ParseTokens(tokens, group);
 
             var info = CommandLineParser.GetUsageInfo(
                 parser.ArgumentSet,
-                HelpCommand.DefaultHelpOptions,
+                _parserOptions.HelpOptions,
                 group);
 
             outputHandler(info);
         }
 
         private ArgumentSetDefinition CreateArgSet() =>
-            AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(CommandGroup<TCommandType>), _argSetAttrib);
+            AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                typeof(CommandGroup<TCommandType>),
+                _argSetAttrib,
+                serviceConfigurer: _parserOptions.ServiceConfigurer);
     }
 }

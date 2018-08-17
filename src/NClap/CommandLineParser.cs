@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NClap.ConsoleInput;
 using NClap.Help;
@@ -55,7 +54,7 @@ namespace NClap
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
 
             var destination = new T();
-            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination, serviceConfigurer: options?.ServiceConfigurer);
 
             if (!TryParse(argSet, arguments, options, destination))
             {
@@ -84,7 +83,7 @@ namespace NClap
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
             if (destination == null) throw new ArgumentNullException(nameof(arguments));
 
-            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination, serviceConfigurer: options?.ServiceConfigurer);
             return TryParse(argSet, arguments, options, destination);
         }
 
@@ -168,9 +167,18 @@ namespace NClap
         /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
         /// <param name="value">The parsed argument set.</param>
         /// <returns>The tokenized string.</returns>
-        public static IEnumerable<string> Format<T>(T value)
+        public static IEnumerable<string> Format<T>(T value) => Format(value, null);
+
+        /// <summary>
+        /// Formats a parsed set of arguments back into tokenized string form.
+        /// </summary>
+        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
+        /// <param name="value">The parsed argument set.</param>
+        /// <param name="options">Optionally provides parser options.</param>
+        /// <returns>The tokenized string.</returns>
+        public static IEnumerable<string> Format<T>(T value, CommandLineParserOptions options)
         {
-            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(T));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(T), serviceConfigurer: options?.ServiceConfigurer);
 
             // N.B. We intentionally convert the arguments enumeration to a list,
             // as we're expecting to mutate it in the loop.
@@ -183,7 +191,8 @@ namespace NClap
                     {
                         AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(argSet, definingType,
                             fixedDestination: argProvider.GetDestinationObject(),
-                            containingArgument: arg);
+                            containingArgument: arg,
+                            serviceConfigurer: options?.ServiceConfigurer);
                     }
                 }
             }
@@ -203,13 +212,20 @@ namespace NClap
         /// <param name="options">Options for generating usage info.</param>
         /// <param name="defaultValues">Optionally provides an object with
         /// default values.</param>
+        /// <param name="serviceConfigurer">Optionally provides a service
+        /// configurer to use.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
+        [CLSCompliant(false)]
         public static ColoredMultistring GetUsageInfo(
             Type type,
             ArgumentSetHelpOptions options = null,
-            object defaultValues = null) =>
-            GetUsageInfo(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type, defaultValues: defaultValues), options, null);
+            object defaultValues = null,
+            ServiceConfigurer serviceConfigurer = null)
+        {
+            // TODO SERVICE: we need to find the configurer somewhere.
+            return GetUsageInfo(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type, defaultValues: defaultValues, serviceConfigurer: serviceConfigurer), options, null);
+        }
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -267,7 +283,7 @@ namespace NClap
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
-            var parser = new ArgumentSetParser(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type), options);
+            var parser = new ArgumentSetParser(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type, serviceConfigurer: options?.ServiceConfigurer), options);
             return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
         }
 

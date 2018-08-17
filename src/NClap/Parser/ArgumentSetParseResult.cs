@@ -13,10 +13,18 @@ namespace NClap.Parser
         }
 
         /// <summary>
-        /// A singleton result for cases where parser is ready to parse more arguments.
+        /// Constructs a result for cases where parser is ready.
         /// </summary>
-        public static ArgumentSetParseResult Ready { get; } =
-            new ArgumentSetParseResult(ArgumentSetParseResultType.Ready);
+        /// <param name="lastParsedArg">If non-null, indicates the last argument
+        /// that was parsed.</param>
+        /// <returns>The result object. </returns>
+        public static ArgumentSetParseResult Ready(ArgumentDefinition lastParsedArg)
+        {
+            return new ArgumentSetParseResult(ArgumentSetParseResultType.Ready)
+            {
+                LastSeenArg = lastParsedArg
+            };
+        }
 
         /// <summary>
         /// Constructs a result for cases where parser has encountered an unknown named
@@ -70,7 +78,7 @@ namespace NClap.Parser
             if (arg == null) throw new ArgumentNullException(nameof(arg));
             return new ArgumentSetParseResult(ArgumentSetParseResultType.RequiresOptionArgument)
             {
-                Argument = arg
+                LastSeenArg = arg
             };
         }
 
@@ -82,7 +90,7 @@ namespace NClap.Parser
         /// <summary>
         /// Argument referred to by the state. Not applicable to all states.
         /// </summary>
-        public ArgumentDefinition Argument { get; private set; }
+        public ArgumentDefinition LastSeenArg { get; private set; }
 
         /// <summary>
         /// Named argument type referred to by the state. Not applicable to all states.

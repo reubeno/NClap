@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.ConsoleInput;
 using NClap.Exceptions;
@@ -49,6 +50,22 @@ namespace NClap.Tests.Repl
 
         class DoSomethingCommand : SynchronousCommand
         {
+            public override CommandResult Execute() => CommandResult.Success;
+        }
+
+        class InjectedObject
+        {
+        }
+
+        class InjectionCommand : SynchronousCommand
+        {
+            private readonly InjectedObject Value;
+
+            public InjectionCommand(InjectedObject value)
+            {
+                this.Value = value;
+            }
+
             public override CommandResult Execute() => CommandResult.Success;
         }
 
@@ -177,14 +194,19 @@ namespace NClap.Tests.Repl
         [TestMethod]
         public void GetHelp()
         {
-            HelpCommand.DefaultHelpOptions = HelpCommand.DefaultHelpOptions
-                .With()
-                .TwoColumnLayout();
+            var loopOptions = new LoopOptions
+            {
+                ParserOptions = new CommandLineParserOptions
+                {
+                    HelpOptions = new ArgumentSetHelpOptions().With()
+                        .TwoColumnLayout()
+                }
+            };
 
             var client = Substitute.For<ILoopClient>();
             client.ReadLine().Returns("Help", "Help help", "Help exit", (string)null);
 
-            new Loop(typeof(TestCommand), client).Execute();
+            new Loop(typeof(TestCommand), client, options: loopOptions).Execute();
         }
 
         [TestMethod]
@@ -275,6 +297,26 @@ namespace NClap.Tests.Repl
             };
 
             new Loop(typeof(OnlyExitableCommand), parameters).Execute();
+        }
+
+        [TestMethod]
+        public void TestThatCommandDependingOnInjectionCannotExecuteWithNoInjection()
+        {
+            var loop = new Loop(typeof(InjectionCommand));
+            loop.Invoking(l => l.Execute()).Should().Throw<InvalidCommandException>();
+        }
+
+        [TestMethod]
+        public void TestThatCommandDependingOnInjectionExecutesWithInjection()
+        {
+            var client = Substitute.For<ILoopClient>();
+            client.ReadLine().Returns(string.Empty, null);
+
+            var parserOptions = new CommandLineParserOptions().With()
+                .ConfigureServices(s => s.AddSingleton(new InjectedObject()));
+            var options = new LoopOptions { ParserOptions = parserOptions };
+            var loop = new Loop(typeof(InjectionCommand), client, options: options);
+            loop.Invoking(l => l.ExecuteOnce()).Should().NotThrow();
         }
     }
 }
