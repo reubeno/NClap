@@ -321,7 +321,12 @@ namespace NClap.Parser
 
             for (var index = 0; index < argsList.Count;)
             {
-                result = TryParseNextToken(argsList, index, destination, out int argsConsumed);
+                var currentResult = TryParseNextToken(argsList, index, destination, out int argsConsumed);
+                if (!currentResult.IsReady)
+                {
+                    result = currentResult;
+                }
+
                 index += argsConsumed;
             }
 

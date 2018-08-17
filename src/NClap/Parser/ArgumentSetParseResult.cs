@@ -108,6 +108,11 @@ namespace NClap.Parser
         public bool IsReady => State == ArgumentSetParseResultType.Ready;
 
         /// <summary>
+        /// Convenience property for checking if the parser is in a failed state.
+        /// </summary>
+        public bool IsFailed => !IsReady && State != ArgumentSetParseResultType.RequiresOptionArgument;
+
+        /// <summary>
         /// Convenience property for checking if the parser has encountered an unknown
         /// argument.
         /// </summary>
