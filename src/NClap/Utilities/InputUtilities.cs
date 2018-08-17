@@ -145,7 +145,6 @@ namespace NClap.Utilities
                 {
                     switch (key)
                     {
-                        case ConsoleKey.D2: return new[] { (char)0 };
                         case ConsoleKey.D6: return new[] { (char)30 };
                         case ConsoleKey.OemMinus: return new[] { (char)31 };
                     }

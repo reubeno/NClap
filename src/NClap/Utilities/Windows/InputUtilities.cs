@@ -22,6 +22,7 @@ namespace NClap.Utilities.Windows
 
             var result = NativeMethods.ToUnicode(virtKey, 0, GetKeyState(modifiers), output, output.Length, 0 /* flags */);
             if (result < 0) result = 0;
+            if (result == 1 && output[0] == '\0') result = 0;
 
             var relevantOutput = new char[result];
             Array.Copy(output, relevantOutput, result);
