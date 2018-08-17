@@ -30,7 +30,12 @@ namespace NClap.TestApp
                 EndOfLineCommentCharacter = '#'
             };
 
-            new Loop(typeof(MainCommandType), parameters).Execute();
+            var attrib = new ArgumentSetAttribute
+            {
+                Style = ArgumentSetStyle.GetOpt
+            };
+
+            new Loop(typeof(MainCommandType), parameters, attrib).Execute();
 
             --_count;
 

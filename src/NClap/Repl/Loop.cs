@@ -30,7 +30,6 @@ namespace NClap.Repl
                 _loop.GetCompletions(tokens, tokenIndex);
         }
 
-        private readonly Type _commandType;
         private readonly ArgumentSetDefinition _argSet;
         private readonly ILoopClient _client;
         private readonly LoopOptions _options;
@@ -64,9 +63,9 @@ namespace NClap.Repl
             var inputConfigurer = _options.ParserOptions.ServiceConfigurer;
             _options.ParserOptions.ServiceConfigurer = collection => ConfigureServices(collection, inputConfigurer);
 
-            _commandType = ConstructCommandTypeFactory(commandType, out _objectFactory);
+            var constructedType = ConstructCommandTypeFactory(commandType, out _objectFactory);
             _argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
-                _commandType,
+                constructedType,
                 attribute: argSetAttribute,
                 serviceConfigurer: _options.ParserOptions.ServiceConfigurer);
         }
@@ -178,7 +177,7 @@ namespace NClap.Repl
             quietOptions.Reporter = s => { };
 
             return CommandLineParser.GetCompletions(
-                _commandType,
+                _argSet,
                 tokens,
                 indexOfTokenToComplete,
                 quietOptions,

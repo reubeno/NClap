@@ -177,8 +177,8 @@ namespace NClap.Parser
             }
 
             // See if the token to complete appears to be a named argument.
-            var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete);
-            var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete);
+            var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete, allowIncompleteToken: true);
+            var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete, allowIncompleteToken: true);
 
             if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
             {
@@ -186,7 +186,8 @@ namespace NClap.Parser
 
                 if (longNameArgumentPrefix != null)
                 {
-                    var afterLongPrefix = tokenToComplete.Substring(longNameArgumentPrefix.Length);
+                    var prefixLen = Math.Min(longNameArgumentPrefix.Length, tokenToComplete.Length);
+                    var afterLongPrefix = tokenToComplete.Substring(prefixLen);
                     completions = completions.Concat(
                         GetNamedArgumentCompletions(ArgumentNameType.LongName, tokenList, indexOfTokenToComplete, afterLongPrefix, inProgressParsedObject)
                                .Select(completion => longNameArgumentPrefix + completion));
@@ -194,7 +195,8 @@ namespace NClap.Parser
 
                 if (shortNameArgumentPrefix != null)
                 {
-                    var afterShortPrefix = tokenToComplete.Substring(shortNameArgumentPrefix.Length);
+                    var prefixLen = Math.Min(shortNameArgumentPrefix.Length, tokenToComplete.Length);
+                    var afterShortPrefix = tokenToComplete.Substring(prefixLen);
                     completions = completions.Concat(
                         GetNamedArgumentCompletions(ArgumentNameType.ShortName, tokenList, indexOfTokenToComplete, afterShortPrefix, inProgressParsedObject)
                                .Select(completion => shortNameArgumentPrefix + completion));
@@ -796,19 +798,29 @@ namespace NClap.Parser
         /// Tries to find an 'long name argument prefix' in the provided token.
         /// </summary>
         /// <param name="arg">The token to inspect.</param>
+        /// <param name="allowIncompleteToken">Whether or not this function matches
+        /// incomplete tokens.</param>
         /// <returns>The matching prefix on success; null otherwise.</returns>
-        private string TryGetLongNameArgumentPrefix(string arg) =>
-            ArgumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault(
-                prefix => arg.StartsWith(prefix, StringComparisonToUse));
+        private string TryGetLongNameArgumentPrefix(string arg, bool allowIncompleteToken = false)
+        {
+            return ArgumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparisonToUse) ||
+                    (allowIncompleteToken && arg.Length > 0 && prefix.StartsWith(arg, StringComparisonToUse)));
+        }
 
         /// <summary>
         /// Tries to find an 'short name argument prefix' in the provided token.
         /// </summary>
         /// <param name="arg">The token to inspect.</param>
+        /// <param name="allowIncompleteToken">Whether or not this function matches
+        /// incomplete tokens.</param>
         /// <returns>The matching prefix on success; null otherwise.</returns>
-        private string TryGetShortNameArgumentPrefix(string arg) =>
-            ArgumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault(
-                prefix => arg.StartsWith(prefix, StringComparisonToUse));
+        private string TryGetShortNameArgumentPrefix(string arg, bool allowIncompleteToken = false)
+        {
+            return ArgumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparisonToUse) ||
+                    (allowIncompleteToken && arg.Length > 0 && prefix.StartsWith(arg, StringComparisonToUse)));
+        }
 
         /// <summary>
         /// Tries to find an 'answer file prefix' in the provided token.
