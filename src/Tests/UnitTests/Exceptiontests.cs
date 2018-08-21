@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NClap.Utilities;
 
 namespace NClap.Tests
 {
@@ -11,14 +12,14 @@ namespace NClap.Tests
         [TestMethod]
         public void TestThatClassHasParameterlessConstructorAndItDoesNotThrow()
         {
-            var constructor = Type.GetConstructor(Array.Empty<Type>());
+            var constructor = Type.GetParameterlessConstructor();
             constructor.Invoking(c => c.Invoke(Array.Empty<object>())).Should().NotThrow();
         }
 
         [TestMethod]
         public void TestThatParameterlessConstructorYieldsExceptionWithNonEmptyMessage()
         {
-            var ex = (T)Type.GetConstructor(Array.Empty<Type>()).Invoke(Array.Empty<object>());
+            var ex = (T)Type.GetParameterlessConstructor().Invoke(Array.Empty<object>());
             ex.Message.Should().NotBeNullOrWhiteSpace();
         }
 

@@ -100,7 +100,7 @@ namespace NClap.Parser
             }
 
             // Finalize.
-            return Finalize(destination);
+            return Finalize(destination, result);
         }
 
         /// <summary>
@@ -150,10 +150,25 @@ namespace NClap.Parser
 
             // See if we're expecting this token to be an option argument; if
             // so, then we can generate completions based on that.
+            bool completeViaLastArg = false;
             if (parseResult.State == ArgumentSetParseResultType.RequiresOptionArgument &&
                 ArgumentSet.Attribute.AllowNamedArgumentValueAsSucceedingToken)
             {
-                var argParseState = new ArgumentParser(ArgumentSet, parseResult.Argument, _options, /*destination=*/null);
+                completeViaLastArg = true;
+            }
+
+            // See if we just finished parsing an argument that takes the rest
+            // of the line.
+            if (parseResult.LastSeenArg?.TakesRestOfLine ?? false)
+            {
+                completeViaLastArg = true;
+            }
+
+            // If we can complete via the last seen argument, then construct a parser
+            // around the argument and generate the completions.
+            if (completeViaLastArg)
+            {
+                var argParseState = new ArgumentParser(ArgumentSet, parseResult.LastSeenArg, _options, /*destination=*/null);
                 return argParseState.GetCompletions(
                     tokenList,
                     indexOfTokenToComplete,
@@ -162,8 +177,8 @@ namespace NClap.Parser
             }
 
             // See if the token to complete appears to be a named argument.
-            var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete);
-            var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete);
+            var longNameArgumentPrefix = TryGetLongNameArgumentPrefix(tokenToComplete, allowIncompleteToken: true);
+            var shortNameArgumentPrefix = TryGetShortNameArgumentPrefix(tokenToComplete, allowIncompleteToken: true);
 
             if (longNameArgumentPrefix != null || shortNameArgumentPrefix != null)
             {
@@ -171,7 +186,8 @@ namespace NClap.Parser
 
                 if (longNameArgumentPrefix != null)
                 {
-                    var afterLongPrefix = tokenToComplete.Substring(longNameArgumentPrefix.Length);
+                    var prefixLen = Math.Min(longNameArgumentPrefix.Length, tokenToComplete.Length);
+                    var afterLongPrefix = tokenToComplete.Substring(prefixLen);
                     completions = completions.Concat(
                         GetNamedArgumentCompletions(ArgumentNameType.LongName, tokenList, indexOfTokenToComplete, afterLongPrefix, inProgressParsedObject)
                                .Select(completion => longNameArgumentPrefix + completion));
@@ -179,7 +195,8 @@ namespace NClap.Parser
 
                 if (shortNameArgumentPrefix != null)
                 {
-                    var afterShortPrefix = tokenToComplete.Substring(shortNameArgumentPrefix.Length);
+                    var prefixLen = Math.Min(shortNameArgumentPrefix.Length, tokenToComplete.Length);
+                    var afterShortPrefix = tokenToComplete.Substring(prefixLen);
                     completions = completions.Concat(
                         GetNamedArgumentCompletions(ArgumentNameType.ShortName, tokenList, indexOfTokenToComplete, afterShortPrefix, inProgressParsedObject)
                                .Select(completion => shortNameArgumentPrefix + completion));
@@ -197,6 +214,7 @@ namespace NClap.Parser
                 {
                     FileSystemReader = _options.FileSystemReader,
                     ParserContext = _options.Context,
+                    ServiceConfigurer = _options.ServiceConfigurer,
                     CaseSensitive = ArgumentSet.Attribute.CaseSensitive
                 };
 
@@ -300,13 +318,17 @@ namespace NClap.Parser
         /// <returns>Parse result.</returns>
         public ArgumentSetParseResult ParseTokens(IEnumerable<string> args, object destination)
         {
-            var result = ArgumentSetParseResult.Ready;
+            var result = ArgumentSetParseResult.Ready(null);
             IReadOnlyList<string> argsList = args.ToList();
 
             for (var index = 0; index < argsList.Count;)
             {
                 var currentResult = TryParseNextToken(argsList, index, destination, out int argsConsumed);
-                if (currentResult != ArgumentSetParseResult.Ready)
+                if (!currentResult.IsReady)
+                {
+                    result = currentResult;
+                }
+                else if (result.IsReady)
                 {
                     result = currentResult;
                 }
@@ -321,12 +343,12 @@ namespace NClap.Parser
         /// Tries to finalize parsing to the given output object.
         /// </summary>
         /// <param name="destination">Output object.</param>
+        /// <param name="parseResult">Parse result.</param>
         /// <returns>Parse result.</returns>
-        public ArgumentSetParseResult Finalize(object destination)
+        public ArgumentSetParseResult Finalize(object destination, ArgumentSetParseResult parseResult)
         {
-            var result = ArgumentSetParseResult.Ready;
-
             // Finalize all arguments: named args first, then positional default args.
+            var result = parseResult;
             foreach (var arg in ArgumentSet.NamedArguments.Concat(ArgumentSet.PositionalArguments))
             {
                 var argState = GetStateForArgument(arg, destination);
@@ -393,7 +415,7 @@ namespace NClap.Parser
                 index + 1 < args.Count)
             {
                 var lastParsedArg = parsedArgs.GetLast();
-                Debug.Assert(lastParsedArg.Arg.RequiresOptionArgument);
+                Debug.Assert(lastParsedArg.Arg.RequiresOptionArgumentEx(_options));
                 Debug.Assert(string.IsNullOrEmpty(parsedArgs.GetLast().Value));
 
                 ++index;
@@ -401,7 +423,7 @@ namespace NClap.Parser
 
                 lastParsedArg.Value = args[index];
 
-                result = ArgumentSetParseResult.Ready;
+                result = ArgumentSetParseResult.Ready(lastParsedArg.Arg);
             }
 
             if (!result.IsReady)
@@ -481,13 +503,13 @@ namespace NClap.Parser
                 }
 
                 argsConsumed = args.Count - index; // skip the rest of the line
-                return ArgumentSetParseResult.Ready;
+                return ArgumentSetParseResult.Ready(positionalArg);
             }
             else
             {
                 Debug.Assert(argument != null);
                 return TryParseAndStore(argState, argument)
-                    ? ArgumentSetParseResult.Ready : ArgumentSetParseResult.FailedParsing;
+                    ? ArgumentSetParseResult.Ready(positionalArg) : ArgumentSetParseResult.FailedParsing;
             }
         }
 
@@ -565,7 +587,7 @@ namespace NClap.Parser
                     // short names and their option arguments, then try parsing the rest of
                     // this token as an option argument.
                     var lastChar = index == options.Length - 1;
-                    if (arg.RequiresOptionArgument &&
+                    if (arg.RequiresOptionArgumentEx(_options) &&
                         ArgumentSet.Attribute.AllowElidingSeparatorAfterShortName &&
                         optionArgument == null &&
                         !lastChar)
@@ -617,18 +639,20 @@ namespace NClap.Parser
                 };
             }
 
+            var lastArg = parsedArgs.GetLastOrDefault();
+            var lastArgTakesRestOfLine = lastArg?.Arg.TakesRestOfLine ?? false;
+
             // If the last named argument we saw in this token required an
             // option argument to go with it, then yield that information
             // so it can be used by the caller (e.g. in completion generation).
-            var lastArg = parsedArgs.GetLastOrDefault();
             if (lastArg != null &&
-                lastArg.Arg.RequiresOptionArgument &&
+                lastArg.Arg.RequiresOptionArgumentEx(_options) &&
                 string.IsNullOrEmpty(lastArg.Value))
             {
                 return ArgumentSetParseResult.RequiresOptionArgument(lastArg.Arg);
             }
 
-            return ArgumentSetParseResult.Ready;
+            return ArgumentSetParseResult.Ready(lastArg?.Arg);
         }
 
         private bool TryParseAndStore(ArgumentParser state, string value)
@@ -652,7 +676,8 @@ namespace NClap.Parser
                 {
                     AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(ArgumentSet, definingType,
                         fixedDestination: argProvider.GetDestinationObject(),
-                        containingArgument: state.Argument);
+                        containingArgument: state.Argument,
+                        serviceConfigurer: state.ParseContext.ServiceConfigurer);
                 }
             }
 
@@ -777,19 +802,29 @@ namespace NClap.Parser
         /// Tries to find an 'long name argument prefix' in the provided token.
         /// </summary>
         /// <param name="arg">The token to inspect.</param>
+        /// <param name="allowIncompleteToken">Whether or not this function matches
+        /// incomplete tokens.</param>
         /// <returns>The matching prefix on success; null otherwise.</returns>
-        private string TryGetLongNameArgumentPrefix(string arg) =>
-            ArgumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault(
-                prefix => arg.StartsWith(prefix, StringComparisonToUse));
+        private string TryGetLongNameArgumentPrefix(string arg, bool allowIncompleteToken = false)
+        {
+            return ArgumentSet.Attribute.NamedArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparisonToUse) ||
+                    (allowIncompleteToken && arg.Length > 0 && prefix.StartsWith(arg, StringComparisonToUse)));
+        }
 
         /// <summary>
         /// Tries to find an 'short name argument prefix' in the provided token.
         /// </summary>
         /// <param name="arg">The token to inspect.</param>
+        /// <param name="allowIncompleteToken">Whether or not this function matches
+        /// incomplete tokens.</param>
         /// <returns>The matching prefix on success; null otherwise.</returns>
-        private string TryGetShortNameArgumentPrefix(string arg) =>
-            ArgumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault(
-                prefix => arg.StartsWith(prefix, StringComparisonToUse));
+        private string TryGetShortNameArgumentPrefix(string arg, bool allowIncompleteToken = false)
+        {
+            return ArgumentSet.Attribute.ShortNameArgumentPrefixes.FirstOrDefault(
+                prefix => arg.StartsWith(prefix, StringComparisonToUse) ||
+                    (allowIncompleteToken && arg.Length > 0 && prefix.StartsWith(arg, StringComparisonToUse)));
+        }
 
         /// <summary>
         /// Tries to find an 'answer file prefix' in the provided token.

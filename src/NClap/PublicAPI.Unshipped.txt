@@ -1,11 +1,37 @@
+NClap.CommandLineParserOptions.ServiceConfigurer.get -> NClap.ServiceConfigurer
+NClap.CommandLineParserOptions.ServiceConfigurer.set -> void
+NClap.CommandLineParserOptionsExtensions
 NClap.Help.ArgumentHelpOptions.IncludeNamedArgumentValueSyntax.get -> bool
 NClap.Help.ArgumentHelpOptions.IncludeNamedArgumentValueSyntax.set -> void
 NClap.Metadata.ArgumentSetAttribute.ExpandLogo.get -> bool
 NClap.Metadata.ArgumentSetAttribute.ExpandLogo.set -> void
+NClap.Metadata.CommandGroup<TCommandType>.CommandGroup(NClap.Metadata.CommandGroupOptions options) -> void
+NClap.Metadata.CommandGroup<TCommandType>.CommandGroup(NClap.Metadata.CommandGroupOptions options, TCommandType selection, object parentObject) -> void
+NClap.Metadata.CommandGroupOptions
+NClap.Metadata.CommandGroupOptions.DeepClone() -> NClap.Metadata.CommandGroupOptions
+NClap.Parser.ArgumentDefinition.ArgumentDefinition(System.Reflection.MemberInfo member, NClap.Metadata.ArgumentBaseAttribute attribute, NClap.Parser.ArgumentSetDefinition argSet, object defaultValue = null, NClap.Parser.ArgumentDefinition containingArgument = null, NClap.ServiceConfigurer serviceConfigurer = null) -> void
 NClap.Parser.AttributeBasedArgumentDefinitionFactory
 NClap.Repl.ILoopClient.PromptWithColor.get -> NClap.Utilities.ColoredString?
 NClap.Repl.ILoopClient.PromptWithColor.set -> void
+NClap.Repl.Loop.Loop(System.Type commandType, NClap.Repl.ILoopClient loopClient, NClap.Metadata.ArgumentSetAttribute argSetAttribute = null, NClap.Repl.LoopOptions options = null) -> void
+NClap.Repl.Loop.Loop(System.Type commandType, NClap.Repl.LoopInputOutputParameters parameters = null, NClap.Metadata.ArgumentSetAttribute argSetAttribute = null, NClap.Repl.LoopOptions options = null) -> void
+NClap.Repl.LoopOptions
+NClap.Repl.LoopOptions.DeepClone() -> NClap.Repl.LoopOptions
+NClap.Repl.LoopOptions.HelpOutputHandler.get -> System.Action<NClap.Utilities.ColoredMultistring>
+NClap.Repl.LoopOptions.HelpOutputHandler.set -> void
+NClap.Repl.LoopOptions.LoopOptions() -> void
+NClap.Repl.LoopOptions.ParserOptions.get -> NClap.CommandLineParserOptions
+NClap.Repl.LoopOptions.ParserOptions.set -> void
+NClap.ServiceConfigurer
+NClap.Types.ArgumentParseContext.ServiceConfigurer.get -> NClap.ServiceConfigurer
+NClap.Types.ArgumentParseContext.ServiceConfigurer.set -> void
 NClap.Types.IArgumentValue.GetAttributes<T>() -> System.Collections.Generic.IEnumerable<T>
+static NClap.CommandLineParser.Format<T>(T value, NClap.CommandLineParserOptions options) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetUsageInfo(System.Type type, NClap.Help.ArgumentSetHelpOptions options = null, object defaultValues = null, NClap.ServiceConfigurer serviceConfigurer = null) -> NClap.Utilities.ColoredMultistring
+static NClap.CommandLineParserOptionsExtensions.ConfigureServices(this NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions> builder, NClap.ServiceConfigurer configurer) -> NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions>
+static NClap.CommandLineParserOptionsExtensions.Quiet(this NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions>
+static NClap.CommandLineParserOptionsExtensions.TryParse<T>(this NClap.CommandLineParserOptions options, System.Collections.Generic.IEnumerable<string> arguments, out T result) -> bool
+static NClap.CommandLineParserOptionsExtensions.With(this NClap.CommandLineParserOptions options) -> NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions>
 static NClap.CommandLineParser.GetCompletions(System.Type type, string commandLineToComplete, int charIndexOfCursor) -> System.Collections.Generic.IEnumerable<string>
 static NClap.CommandLineParser.GetCompletions(System.Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, NClap.CommandLineParserOptions options) -> System.Collections.Generic.IEnumerable<string>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoDescription(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
@@ -13,5 +39,5 @@ static NClap.Help.ArgumentSetHelpOptionsExtensions.NoEnumValues(this NClap.Utili
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoExamples(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoLogo(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoSyntaxSummary(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
-static NClap.Parser.AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(NClap.Parser.ArgumentSetDefinition argSet, System.Type typeToReflectOn, object defaultValues = null, object fixedDestination = null, NClap.Parser.ArgumentDefinition containingArgument = null) -> void
-static NClap.Parser.AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(System.Type typeToReflectOn, NClap.Metadata.ArgumentSetAttribute attribute = null, object defaultValues = null, object fixedDestination = null) -> NClap.Parser.ArgumentSetDefinition
+static NClap.Parser.AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(NClap.Parser.ArgumentSetDefinition argSet, System.Type typeToReflectOn, object defaultValues = null, object fixedDestination = null, NClap.Parser.ArgumentDefinition containingArgument = null, NClap.ServiceConfigurer serviceConfigurer = null) -> void
+static NClap.Parser.AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(System.Type typeToReflectOn, NClap.Metadata.ArgumentSetAttribute attribute = null, object defaultValues = null, object fixedDestination = null, NClap.ServiceConfigurer serviceConfigurer = null) -> NClap.Parser.ArgumentSetDefinition

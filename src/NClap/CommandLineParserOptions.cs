@@ -1,9 +1,18 @@
-﻿using NClap.Help;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using NClap.Help;
 using NClap.Types;
 using NClap.Utilities;
 
 namespace NClap
 {
+    /// <summary>
+    /// Delegate type for a method that configures a service collection.
+    /// </summary>
+    /// <param name="serviceCollection">Service collection to be configured.</param>
+    [CLSCompliant(false)]
+    public delegate void ServiceConfigurer(IServiceCollection serviceCollection);
+
     /// <summary>
     /// Set of options for command-line parsing operations.
     /// </summary>
@@ -27,6 +36,7 @@ namespace NClap
             Reporter = other.Reporter;
             FileSystemReader = other.FileSystemReader;
             Context = other.Context;
+            ServiceConfigurer = other.ServiceConfigurer;
         }
 
         /// <summary>
@@ -56,6 +66,13 @@ namespace NClap
         /// of the <see cref="ArgumentParseContext" /> type.
         /// </summary>
         public object Context { get; set; }
+
+        /// <summary>
+        /// Optionally provides an action invoked to configure the <see cref="IServiceCollection"/>
+        /// associated with these options.
+        /// </summary>
+        [CLSCompliant(false)]
+        public ServiceConfigurer ServiceConfigurer { get; set; }
 
         /// <summary>
         /// Duplicates the options.

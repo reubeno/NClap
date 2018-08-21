@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using NClap.Metadata;
 
 namespace NClap.Types
@@ -76,5 +77,11 @@ namespace NClap.Types
         /// be parsed.
         /// </summary>
         public object ContainingObject { get; set; }
+
+        /// <summary>
+        /// Action invoked to configure the <see cref="IServiceCollection"/> associated with this context.
+        /// </summary>
+        [CLSCompliant(false)]
+        public ServiceConfigurer ServiceConfigurer { get; set; }
     }
 }

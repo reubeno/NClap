@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using NClap.ConsoleInput;
 using NClap.Help;
-using NClap.Parser;
 using NClap.Utilities;
 
 namespace NClap.Metadata
@@ -15,6 +12,7 @@ namespace NClap.Metadata
         /// <summary>
         /// The default options to use for generate help.
         /// </summary>
+        [Obsolete("Loop help may be customized with LoopOptions instead.")]
         public static ArgumentSetHelpOptions DefaultHelpOptions { get; set; } =
             new ArgumentSetHelpOptions
             {
@@ -25,6 +23,7 @@ namespace NClap.Metadata
         /// <summary>
         /// The output handler function for this class.
         /// </summary>
+        [Obsolete("Loop help may be customized with LoopOptions instead.")]
         public static Action<ColoredMultistring> OutputHandler { get; set; }
     }
 }

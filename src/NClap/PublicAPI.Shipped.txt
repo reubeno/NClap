@@ -521,7 +521,6 @@ NClap.Metadata.UnimplementedCommand.UnimplementedCommand() -> void
 NClap.Parser.ArgumentDefinition
 NClap.Parser.ArgumentDefinition.AddConflictingArgument(NClap.Parser.ArgumentDefinition arg) -> void
 NClap.Parser.ArgumentDefinition.AllowMultiple.get -> bool
-NClap.Parser.ArgumentDefinition.ArgumentDefinition(System.Reflection.MemberInfo member, NClap.Metadata.ArgumentBaseAttribute attribute, NClap.Parser.ArgumentSetDefinition argSet, object defaultValue = null, NClap.Parser.ArgumentDefinition containingArgument = null) -> void
 NClap.Parser.ArgumentDefinition.ArgumentType.get -> NClap.Types.IArgumentType
 NClap.Parser.ArgumentDefinition.Attribute.get -> NClap.Metadata.ArgumentBaseAttribute
 NClap.Parser.ArgumentDefinition.ClearShortName() -> void
@@ -579,8 +578,6 @@ NClap.Repl.ILoopClient.TokenCompleter.set -> void
 NClap.Repl.Loop
 NClap.Repl.Loop.Execute() -> void
 NClap.Repl.Loop.ExecuteOnce() -> NClap.Metadata.CommandResult
-NClap.Repl.Loop.Loop(System.Type commandType, NClap.Repl.ILoopClient loopClient, NClap.Metadata.ArgumentSetAttribute argSetAttribute = null) -> void
-NClap.Repl.Loop.Loop(System.Type commandType, NClap.Repl.LoopInputOutputParameters parameters = null, NClap.Metadata.ArgumentSetAttribute argSetAttribute = null) -> void
 NClap.Repl.LoopInputOutputParameters
 NClap.Repl.LoopInputOutputParameters.ConsoleInput.get -> NClap.ConsoleInput.IConsoleInput
 NClap.Repl.LoopInputOutputParameters.ConsoleInput.set -> void
@@ -849,7 +846,6 @@ static NClap.CommandLineParser.GetCompletions(System.Type type, System.Collectio
 static NClap.CommandLineParser.GetCompletions(System.Type type, System.Collections.Generic.IEnumerable<string> tokens, int indexOfTokenToComplete, NClap.CommandLineParserOptions options) -> System.Collections.Generic.IEnumerable<string>
 static NClap.CommandLineParser.GetCompletions(System.Type type, System.Collections.Generic.IEnumerable<string> tokens, int indexOfTokenToComplete, NClap.CommandLineParserOptions options, System.Func<object> destObjectFactory) -> System.Collections.Generic.IEnumerable<string>
 static NClap.CommandLineParser.GetLogo() -> string
-static NClap.CommandLineParser.GetUsageInfo(System.Type type, NClap.Help.ArgumentSetHelpOptions options = null, object defaultValues = null) -> NClap.Utilities.ColoredMultistring
 static NClap.CommandLineParser.TryParse<T>(System.Collections.Generic.IEnumerable<string> arguments, NClap.CommandLineParserOptions options, out T result) -> bool
 static NClap.CommandLineParser.TryParse<T>(System.Collections.Generic.IEnumerable<string> arguments, T destination, NClap.CommandLineParserOptions options) -> bool
 static NClap.CommandLineParser.TryParse<T>(System.Collections.Generic.IEnumerable<string> arguments, out T result) -> bool

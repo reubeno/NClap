@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using NClap.Exceptions;
 using NClap.Types;
 
@@ -129,25 +130,32 @@ namespace NClap.Metadata
         public string[] ElementSeparators { get; set; } = DefaultElementSeparators;
 
         /// <summary>
-        /// Optionally provides a type that implements IStringParser, and which
+        /// Optionally provides an implementation of <see cref="IArgumentType"/>
+        /// that should be used for this argument instead of the default
+        /// <see cref="IArgumentType"/> implementation associated with it.
+        /// </summary>
+        internal Type ArgumentType { get; set; }
+
+        /// <summary>
+        /// Optionally provides a type that implements <see cref="IStringParser"/>, and which
         /// should be used for parsing strings for this argument instead of the
-        /// default IArgumentType class associated with the field/property's
+        /// default <see cref="IArgumentType"/> class associated with the field/property's
         /// type.
         /// </summary>
         public Type Parser { get; set; }
 
         /// <summary>
-        /// Optionally provides a type that implements IObjectFormatter, and
+        /// Optionally provides a type that implements <see cref="IObjectFormatter"/>, and
         /// which should be used for formatting objects for this argument
-        /// instead of the default IArgumentType class associated with the
+        /// instead of the default <see cref="IArgumentType"/> class associated with the
         /// field/property's type.
         /// </summary>
         public Type Formatter { get; set; }
 
         /// <summary>
-        /// Optionally provides a type that implements IStringCompleter,
+        /// Optionally provides a type that implements <see cref="IStringCompleter"/>,
         /// and which should be used for generating string completions for this
-        /// argument instead of the default IArgumentType class associated with
+        /// argument instead of the default <see cref="IArgumentType"/> class associated with
         /// the field/property's type.
         /// </summary>
         public Type Completer { get; set; }
@@ -156,29 +164,5 @@ namespace NClap.Metadata
         /// Returns true if the argument has an explicit default value.
         /// </summary>
         internal bool ExplicitDefaultValue { get; private set; }
-
-        /// <summary>
-        /// Retrieves the IArgumentType type for the provided type.
-        /// </summary>
-        /// <param name="type">The type to look up.</param>
-        /// <returns>The IArgumentType.</returns>
-        internal IArgumentType GetArgumentType(Type type)
-        {
-            var argType = ArgumentType.GetType(type);
-            if ((Parser == null) && (Formatter == null) && (Completer == null))
-            {
-                return argType;
-            }
-
-            var parser = InvokeParameterlessConstructorIfPresent<IStringParser>(Parser);
-            var formatter = InvokeParameterlessConstructorIfPresent<IObjectFormatter>(Formatter);
-            var completer = InvokeParameterlessConstructorIfPresent<IStringCompleter>(Completer);
-
-            return new ArgumentTypeExtension(argType, parser, formatter, completer);
-        }
-
-        private static T InvokeParameterlessConstructorIfPresent<T>(Type type) =>
-            (T)type?.GetTypeInfo().GetConstructor(
-                Array.Empty<Type>())?.Invoke(Array.Empty<object>());
     }
 }

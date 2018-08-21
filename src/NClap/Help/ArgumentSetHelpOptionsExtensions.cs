@@ -20,7 +20,7 @@ namespace NClap.Help
         /// Removes the logo section from the output.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoLogo(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.Logo.Include = false);
@@ -31,7 +31,7 @@ namespace NClap.Help
         /// Removes the description section from the output.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoDescription(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.Description.Include = false);
@@ -42,7 +42,7 @@ namespace NClap.Help
         /// Removes the basic syntax summary section from the output.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoSyntaxSummary(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.Syntax.Include = false);
@@ -53,7 +53,7 @@ namespace NClap.Help
         /// Removes the enum values sections from the output.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoEnumValues(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.EnumValues.Include = false);
@@ -64,7 +64,7 @@ namespace NClap.Help
         /// Removes the examples section from the output.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoExamples(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.Examples.Include = false);
@@ -76,7 +76,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="useColor">true to use color; false otherwise.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> Color(this FluentBuilder<ArgumentSetHelpOptions> builder, bool useColor)
         {
             builder.AddTransformer(options => options.UseColor = useColor);
@@ -88,7 +88,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="maxWidth">Maximum width.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> MaxWidth(this FluentBuilder<ArgumentSetHelpOptions> builder, int maxWidth)
         {
             builder.AddTransformer(options => options.MaxWidth = maxWidth);
@@ -100,7 +100,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="flags">New flags.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> EnumValueFlags(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentEnumValueHelpFlags flags)
         {
             builder.AddTransformer(options => options.EnumValues.Flags = flags);
@@ -112,7 +112,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="blankLineCount">Count of blank lines to add.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> BlankLinesBetweenArguments(this FluentBuilder<ArgumentSetHelpOptions> builder, int blankLineCount = 1)
         {
             builder.AddTransformer(options => options.Arguments.BlankLinesBetweenArguments = blankLineCount);
@@ -124,7 +124,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="mode">Desired mode.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> DefaultValues(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentDefaultValueHelpMode mode)
         {
             builder.AddTransformer(options => options.Arguments.DefaultValue = mode);
@@ -136,7 +136,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="mode">Desired mode.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ShortNames(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentShortNameHelpMode mode)
         {
             builder.AddTransformer(options => options.Arguments.ShortName = mode);
@@ -147,7 +147,7 @@ namespace NClap.Help
         /// Updates help options to use a one-column layout.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> OneColumnLayout(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.Arguments.Layout = new OneColumnArgumentHelpLayout());
@@ -158,7 +158,7 @@ namespace NClap.Help
         /// Updates help options to use a two-column layout.
         /// </summary>
         /// <param name="builder">Options builder.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> TwoColumnLayout(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
             builder.AddTransformer(options => options.Arguments.Layout = new TwoColumnArgumentHelpLayout());
@@ -170,7 +170,7 @@ namespace NClap.Help
         /// </summary>
         /// <param name="builder">Options builder.</param>
         /// <param name="widths">Column widths.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ColumnWidths(this FluentBuilder<ArgumentSetHelpOptions> builder, params int[] widths)
         {
             builder.AddTransformer(options =>
@@ -201,7 +201,7 @@ namespace NClap.Help
         /// <param name="defaultSeparator">Default separator to use.</param>
         /// <param name="firstLineSeparator">Separator to use only on first line,
         /// or null to have default used on first line as well.</param>
-        /// <returns>The updated options.</returns>
+        /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ColumnSeparator(this FluentBuilder<ArgumentSetHelpOptions> builder, string defaultSeparator, string firstLineSeparator = null)
         {
             builder.AddTransformer(options =>

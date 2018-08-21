@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NClap.ConsoleInput;
 using NClap.Help;
@@ -55,7 +54,11 @@ namespace NClap
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
 
             var destination = new T();
-            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                destination.GetType(),
+                attribute: null,
+                defaultValues: destination,
+                serviceConfigurer: options?.ServiceConfigurer);
 
             if (!TryParse(argSet, arguments, options, destination))
             {
@@ -84,7 +87,11 @@ namespace NClap
             if (arguments == null) throw new ArgumentNullException(nameof(arguments));
             if (destination == null) throw new ArgumentNullException(nameof(arguments));
 
-            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(destination.GetType(), defaultValues: destination);
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                destination.GetType(),
+                attribute: null,
+                defaultValues: destination,
+                serviceConfigurer: options?.ServiceConfigurer);
             return TryParse(argSet, arguments, options, destination);
         }
 
@@ -101,7 +108,10 @@ namespace NClap
         /// <paramref name="destination" /> is null.</exception>
         internal static bool TryParse<T>(ArgumentSetDefinition argSet, IEnumerable<string> arguments, CommandLineParserOptions options, T destination)
         {
-            if (options == null) options = new CommandLineParserOptions();
+            if (options == null)
+            {
+                options = new CommandLineParserOptions();
+            }
 
             //
             // Buffer output to the reporter; suppress it if we find afterwards
@@ -165,9 +175,21 @@ namespace NClap
         /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
         /// <param name="value">The parsed argument set.</param>
         /// <returns>The tokenized string.</returns>
-        public static IEnumerable<string> Format<T>(T value)
+        public static IEnumerable<string> Format<T>(T value) => Format(value, null);
+
+        /// <summary>
+        /// Formats a parsed set of arguments back into tokenized string form.
+        /// </summary>
+        /// <typeparam name="T">Type of the parsed arguments object.</typeparam>
+        /// <param name="value">The parsed argument set.</param>
+        /// <param name="options">Optionally provides parser options.</param>
+        /// <returns>The tokenized string.</returns>
+        public static IEnumerable<string> Format<T>(T value, CommandLineParserOptions options)
         {
-            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(typeof(T));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                typeof(T),
+                attribute: null,
+                serviceConfigurer: options?.ServiceConfigurer);
 
             // N.B. We intentionally convert the arguments enumeration to a list,
             // as we're expecting to mutate it in the loop.
@@ -180,7 +202,8 @@ namespace NClap
                     {
                         AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(argSet, definingType,
                             fixedDestination: argProvider.GetDestinationObject(),
-                            containingArgument: arg);
+                            containingArgument: arg,
+                            serviceConfigurer: options?.ServiceConfigurer);
                     }
                 }
             }
@@ -200,13 +223,25 @@ namespace NClap
         /// <param name="options">Options for generating usage info.</param>
         /// <param name="defaultValues">Optionally provides an object with
         /// default values.</param>
+        /// <param name="serviceConfigurer">Optionally provides a service
+        /// configurer to use.</param>
         /// <returns>Printable string containing a user friendly description of
         /// command line arguments.</returns>
+        [CLSCompliant(false)]
         public static ColoredMultistring GetUsageInfo(
             Type type,
             ArgumentSetHelpOptions options = null,
-            object defaultValues = null) =>
-            GetUsageInfo(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type, defaultValues: defaultValues), options, null);
+            object defaultValues = null,
+            ServiceConfigurer serviceConfigurer = null)
+        {
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                type,
+                attribute: null,
+                defaultValues: defaultValues,
+                serviceConfigurer: serviceConfigurer);
+
+            return GetUsageInfo(argSet, options, null);
+        }
 
         /// <summary>
         /// Generates a logo string for the application's entry assembly, or
@@ -241,7 +276,7 @@ namespace NClap
         /// <returns>The candidate completions for the specified token.
         /// </returns>
         public static IEnumerable<string> GetCompletions(Type type, IEnumerable<string> tokens, int indexOfTokenToComplete, CommandLineParserOptions options) =>
-            GetCompletions(type, tokens, indexOfTokenToComplete, options ?? CommandLineParserOptions.Quiet(), null /* object factory */);
+            GetCompletions(type, tokens, indexOfTokenToComplete, options, null /* object factory */);
 
         /// <summary>
         /// Generate possible completions for the specified command line.
@@ -318,10 +353,36 @@ namespace NClap
         /// or <paramref name="tokens"/> is null.</exception>
         public static IEnumerable<string> GetCompletions(Type type, IEnumerable<string> tokens, int indexOfTokenToComplete, CommandLineParserOptions options, Func<object> destObjectFactory)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
+            var argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                type,
+                attribute: null,
+                serviceConfigurer: options?.ServiceConfigurer);
+
+            return GetCompletions(argSet, tokens, indexOfTokenToComplete, options, destObjectFactory);
+        }
+
+        /// <summary>
+        /// Generate possible completions for the specified set of command-line
+        /// tokens.
+        /// </summary>
+        /// <param name="argSet">Argument set definition.</param>
+        /// <param name="tokens">The tokens.</param>
+        /// <param name="indexOfTokenToComplete">Index of the token to complete.
+        /// </param>
+        /// <param name="options">Parsing options.</param>
+        /// <param name="destObjectFactory">If non-null, provides a factory
+        /// function that can be used to create an object suitable to being
+        /// filled out by this parser instance.</param>
+        /// <returns>The candidate completions for the specified token.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="argSet"/>
+        /// or <paramref name="tokens"/> is null.</exception>
+        internal static IEnumerable<string> GetCompletions(ArgumentSetDefinition argSet, IEnumerable<string> tokens, int indexOfTokenToComplete, CommandLineParserOptions options, Func<object> destObjectFactory)
+        {
+            if (argSet == null) throw new ArgumentNullException(nameof(argSet));
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 
-            var parser = new ArgumentSetParser(AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(type), options);
+            var parser = new ArgumentSetParser(argSet, options ?? CommandLineParserOptions.Quiet());
             return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
         }
 

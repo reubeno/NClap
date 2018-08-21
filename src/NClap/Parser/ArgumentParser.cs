@@ -423,6 +423,7 @@ namespace NClap.Parser
                 AllowEmpty = argument.Attribute.AllowEmpty,
                 FileSystemReader = options.FileSystemReader,
                 ParserContext = options.Context,
+                ServiceConfigurer = options.ServiceConfigurer,
                 CaseSensitive = setAttribute.CaseSensitive,
                 ContainingObject = containingObject
             };

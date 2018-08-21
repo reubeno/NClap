@@ -5,7 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using NClap.ConsoleInput;
+using NClap.Exceptions;
 using NClap.Metadata;
 using NClap.Parser;
 using NClap.Utilities;
@@ -28,10 +30,12 @@ namespace NClap.Repl
                 _loop.GetCompletions(tokens, tokenIndex);
         }
 
-        private readonly Type _commandType;
         private readonly ArgumentSetDefinition _argSet;
         private readonly ILoopClient _client;
-        private readonly Func<object> _objectFactory;
+        private readonly LoopOptions _options;
+        private readonly Func<ICommand> _objectFactory;
+
+#pragma warning disable RS0026 // Do not add multiple public overloads with optional parameters
 
         /// <summary>
         /// Constructor that requires an explicit implementation of
@@ -41,17 +45,29 @@ namespace NClap.Repl
         /// <param name="loopClient">The client to use.</param>
         /// <param name="argSetAttribute">Optionally provides attribute info
         /// for the argument set that will be dynamically created for this loop.</param>
+        /// <param name="options">Optionally provides additional options for
+        /// this loop's execution.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="commandType" />
         /// is null.</exception>
-        public Loop(Type commandType, ILoopClient loopClient, ArgumentSetAttribute argSetAttribute = null)
+        public Loop(Type commandType, ILoopClient loopClient, ArgumentSetAttribute argSetAttribute = null, LoopOptions options = null)
         {
             if (commandType == null) throw new ArgumentNullException(nameof(commandType));
 
             _client = loopClient ?? throw new ArgumentNullException(nameof(loopClient));
             _client.TokenCompleter = new TokenCompleter(this);
 
-            _commandType = ConstructCommandType(commandType, out _objectFactory);
-            _argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(_commandType, attribute: argSetAttribute);
+            _options = options?.DeepClone() ?? new LoopOptions();
+            _options.ParserOptions.DisplayUsageInfoOnError = false;
+            _options.ParserOptions.Reporter = error => _client.OnError(error.ToString().TrimEnd());
+
+            var inputConfigurer = _options.ParserOptions.ServiceConfigurer;
+            _options.ParserOptions.ServiceConfigurer = collection => ConfigureServices(collection, inputConfigurer);
+
+            var constructedType = ConstructCommandTypeFactory(commandType, out _objectFactory);
+            _argSet = AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(
+                constructedType,
+                attribute: argSetAttribute,
+                serviceConfigurer: _options.ParserOptions.ServiceConfigurer);
         }
 
         /// <summary>
@@ -63,8 +79,10 @@ namespace NClap.Repl
         /// parameters are used.</param>
         /// <param name="argSetAttribute">Optionally provides attribute info
         /// for the argument set that will be dynamically created for this loop.</param>
-        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null)
-            : this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute)
+        /// <param name="options">Optionally provides additional options for
+        /// this loop's execution.</param>
+        public Loop(Type commandType, LoopInputOutputParameters parameters = null, ArgumentSetAttribute argSetAttribute = null, LoopOptions options = null)
+            : this(commandType, CreateClient(parameters ?? new LoopInputOutputParameters()), argSetAttribute, options)
         {
         }
 
@@ -112,6 +130,9 @@ namespace NClap.Repl
         /// <returns>The result of executing.</returns>
         public CommandResult ExecuteOnce()
         {
+            // N.B. Intentionally construct object first to force errors early.
+            var parsedArgs = _objectFactory();
+
             _client.DisplayPrompt();
 
             var readResult = ReadInput();
@@ -126,17 +147,10 @@ namespace NClap.Repl
                 return CommandResult.Success;
             }
 
-            var options = new CommandLineParserOptions
-            {
-                Reporter = error => _client.OnError(error.ToString().TrimEnd()),
-                DisplayUsageInfoOnError = false
-            };
-
-            var parsedArgs = ConstructObject();
             var parseResult = CommandLineParser.TryParse(
                 _argSet,
                 args,
-                options,
+                _options.ParserOptions,
                 parsedArgs);
 
             if (!parseResult)
@@ -157,13 +171,18 @@ namespace NClap.Repl
         /// from the input line to be completed.</param>
         /// <returns>An enumeration of the possible completions for the
         /// indicated token.</returns>
-        internal IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete) =>
-            CommandLineParser.GetCompletions(
-                _commandType,
+        internal IEnumerable<string> GetCompletions(IEnumerable<string> tokens, int indexOfTokenToComplete)
+        {
+            var quietOptions = _options.ParserOptions.DeepClone();
+            quietOptions.Reporter = s => { };
+
+            return CommandLineParser.GetCompletions(
+                _argSet,
                 tokens,
                 indexOfTokenToComplete,
-                CommandLineParserOptions.Quiet(),
-                _objectFactory);
+                quietOptions,
+                () => _objectFactory());
+        }
 
         /// <summary>
         /// Reads and tokenizes a line of input.
@@ -221,7 +240,7 @@ namespace NClap.Repl
             return input;
         }
 
-        private static Type ConstructCommandType(Type inputType, out Func<object> factory)
+        private Type ConstructCommandTypeFactory(Type inputType, out Func<ICommand> factory)
         {
             Type loopType;
 
@@ -229,12 +248,30 @@ namespace NClap.Repl
             if (typeof(ICommand).GetTypeInfo().IsAssignableFrom(inputType.GetTypeInfo()))
             {
                 loopType = inputType;
+                factory = () => ConstructCommandType(inputType);
             }
 
             // See if it is an enum; if so, use it as the inner type for a command group.
             else if (inputType.GetTypeInfo().IsEnum)
             {
                 loopType = typeof(CommandGroup<>).MakeGenericType(new[] { inputType });
+
+                // Now make sure there's an appropriate constructor.
+                var constructor = loopType.GetTypeInfo().GetConstructor(new[] { typeof(CommandGroupOptions) });
+                if (constructor == null)
+                {
+                    throw new InternalInvariantBrokenException($"Type missing parameterless constructor, not usable for loop: {loopType.FullName}");
+                }
+
+                factory = () =>
+                {
+                    var groupOptions = new CommandGroupOptions
+                    {
+                        ServiceConfigurer = _options.ParserOptions.ServiceConfigurer
+                    };
+
+                    return (ICommand)constructor.Invoke(new object[] { groupOptions });
+                };
             }
 
             // Otherwise, we can't do anything with it.
@@ -243,17 +280,31 @@ namespace NClap.Repl
                 throw new NotSupportedException($"Type not supported as command for loop: {inputType.FullName}");
             }
 
-            // Now make sure there's a parameterless constructor.
-            var constructor = loopType.GetTypeInfo().GetConstructor(Array.Empty<Type>());
-            if (constructor == null)
-            {
-                throw new NotSupportedException($"Type missing parameterless constructor, not usable for loop: {loopType.FullName}");
-            }
-
-            factory = () => constructor.Invoke(Array.Empty<object>());
             return loopType;
         }
 
-        private ICommand ConstructObject() => (ICommand)_objectFactory.Invoke();
+        private ICommand ConstructCommandType(Type commandType)
+        {
+            var commandDef = new CommandDefinition(null, commandType);
+            return commandDef.Instantiate(_options.ParserOptions.ServiceConfigurer);
+        }
+
+        private void ConfigureServices(IServiceCollection services, ServiceConfigurer inputConfigurer)
+        {
+            // Apply incoming configuration.
+            inputConfigurer?.Invoke(services);
+
+            // Register LoopOptions.
+            services.AddSingleton(_options);
+
+            // Register CommandLineParserOptions.
+            services.AddSingleton(_options.ParserOptions);
+
+            // Register ArgumentSetAttribute.
+            services.AddSingleton(_argSet.Attribute);
+
+            // Register Loop.
+            services.AddSingleton(this);
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NClap.Utilities;
 
 namespace NClap.Types
 {
@@ -24,7 +25,7 @@ namespace NClap.Types
         public CollectionOfTArgumentType(Type type)
             : base(type, GetElementType(type))
         {
-            _constructor = Type.GetTypeInfo().GetConstructor(Array.Empty<Type>());
+            _constructor = Type.GetParameterlessConstructor();
             if (_constructor == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
