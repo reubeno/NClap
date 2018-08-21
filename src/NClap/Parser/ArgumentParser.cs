@@ -179,14 +179,21 @@ namespace NClap.Parser
             {
                 var newValues = Argument.CollectionArgumentType.ToEnumerable(newValue).Cast<object>();
 
-                // Check for disallowed duplicate values in this argument.
-                if (Argument.Unique &&
-                    CollectionValues.Cast<object>().Intersect(newValues).Any())
+                // Check for disallowed duplicate values in this argument. Note that the
+                // duplication could either be between existing values and the new values,
+                // or within the new value collection itself.
+                if (Argument.Unique)
                 {
-                    ReportDuplicateArgumentValue(value);
+                    var allValues = newValues.Concat(CollectionValues.Cast<object>()).ToList();
 
-                    parsedValue = null;
-                    return false;
+                    // TODO: Allow providing alternate notion of equality for uniqueness.
+                    if (allValues.Count != allValues.Distinct().Count())
+                    {
+                        ReportDuplicateArgumentValue(value);
+
+                        parsedValue = null;
+                        return false;
+                    }
                 }
 
                 // Add the value to the collection.

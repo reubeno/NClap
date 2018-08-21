@@ -96,18 +96,19 @@ namespace NClap.Tests.Metadata
         {
 
             Parse(Array.Empty<string>(), out MultipleUniqueArguments<string[]> parsedArgs).Should().BeTrue();
-            parsedArgs.Value.Length.Should().Be(0);
+            parsedArgs.Value.Should().BeEmpty();
 
             Parse(new[] { "/value:a" }, out parsedArgs).Should().BeTrue();
-            parsedArgs.Value.Length.Should().Be(1);
-            parsedArgs.Value.Should().HaveElementAt(0, "a");
+            parsedArgs.Value.Should().Equal("a");
 
             Parse(new[] { "/value:a", "/value:b" }, out parsedArgs).Should().BeTrue();
-            parsedArgs.Value.Length.Should().Be(2);
-            parsedArgs.Value.Should().HaveElementAt(0, "a");
-            parsedArgs.Value.Should().HaveElementAt(1, "b");
+            parsedArgs.Value.Should().Equal("a", "b");
+
+            Parse(new[] { "/value:a,b" }, out parsedArgs).Should().BeTrue();
+            parsedArgs.Value.Should().Equal("a", "b");
 
             Parse(new[] { "/value:a", "/value:a" }, out parsedArgs).Should().BeFalse();
+            Parse(new[] { "/value:a,a" }, out parsedArgs).Should().BeFalse();
         }
 
         private static void ShouldThrow<T, TException>(IEnumerable<string> args) 
