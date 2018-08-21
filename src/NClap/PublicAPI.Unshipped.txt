@@ -32,6 +32,8 @@ static NClap.CommandLineParserOptionsExtensions.ConfigureServices(this NClap.Uti
 static NClap.CommandLineParserOptionsExtensions.Quiet(this NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions>
 static NClap.CommandLineParserOptionsExtensions.TryParse<T>(this NClap.CommandLineParserOptions options, System.Collections.Generic.IEnumerable<string> arguments, out T result) -> bool
 static NClap.CommandLineParserOptionsExtensions.With(this NClap.CommandLineParserOptions options) -> NClap.Utilities.FluentBuilder<NClap.CommandLineParserOptions>
+static NClap.CommandLineParser.GetCompletions(System.Type type, string commandLineToComplete, int charIndexOfCursor) -> System.Collections.Generic.IEnumerable<string>
+static NClap.CommandLineParser.GetCompletions(System.Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, NClap.CommandLineParserOptions options) -> System.Collections.Generic.IEnumerable<string>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoDescription(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoEnumValues(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoExamples(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>

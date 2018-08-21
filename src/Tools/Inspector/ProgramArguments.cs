@@ -11,8 +11,11 @@ namespace NClap.Inspector
     {
         public enum CommandType
         {
-            [Command(typeof(CompleteCommand), Description = "Generate completions")]
-            Complete,
+            [Command(typeof(CompleteLineCommand), Description = "Generate completions for command line")]
+            CompleteLine,
+
+            [Command(typeof(CompleteTokensCommand), Description = "Generate completions for command-line tokens")]
+            CompleteTokens,
 
             [Command(typeof(DocsCommand), Description = "Extract documentation")]
             Docs

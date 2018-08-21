@@ -279,6 +279,63 @@ namespace NClap
             GetCompletions(type, tokens, indexOfTokenToComplete, options, null /* object factory */);
 
         /// <summary>
+        /// Generate possible completions for the specified command line.
+        /// </summary>
+        /// <param name="type">Type of the parsed arguments object.</param>
+        /// <param name="commandLineToComplete">The command line to complete.</param>
+        /// <param name="charIndexOfCursor">Character index of the completion cursor.
+        /// </param>
+        /// <returns>The candidate completions for the specified token.
+        /// </returns>
+        public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor) =>
+            GetCompletions(type, commandLineToComplete, charIndexOfCursor, 0, null);
+
+        /// <summary>
+        /// Generate possible completions for the specified command line.
+        /// </summary>
+        /// <param name="type">Type of the parsed arguments object.</param>
+        /// <param name="commandLineToComplete">The command line to complete. Both single and double quote
+        /// characters are interpreted as denoting single tokens that may contain embedded whitespace.</param>
+        /// <param name="charIndexOfCursor">Character index of the completion cursor.
+        /// </param>
+        /// <param name="tokensToSkip">Number of tokens to skip from start of command
+        /// line.</param>
+        /// <param name="options">Parsing options.</param>
+        /// <returns>The candidate completions for the specified token.
+        /// </returns>
+        public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, CommandLineParserOptions options)
+        {
+            const TokenizerOptions tokenizerOptions =
+                TokenizerOptions.AllowPartialInput |
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter |
+                TokenizerOptions.HandleSingleQuoteAsTokenDelimiter;
+
+            var tokens = StringUtilities.Tokenize(commandLineToComplete, tokenizerOptions).ToList();
+
+            int index;
+            for (index = 0; index < tokens.Count; ++index)
+            {
+                var token = tokens[index];
+                if (charIndexOfCursor >= token.OuterStartingOffset &&
+                    charIndexOfCursor <= token.OuterEndingOffset)
+                {
+                    break;
+                }
+            }
+
+            if (index < tokensToSkip)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return GetCompletions(
+                type,
+                tokens.Skip(tokensToSkip).Select(t => t.ToString()),
+                index - tokensToSkip,
+                options);
+        }
+
+        /// <summary>
         /// Generate possible completions for the specified set of command-line
         /// tokens.
         /// </summary>
@@ -328,15 +385,6 @@ namespace NClap
             var parser = new ArgumentSetParser(argSet, options ?? CommandLineParserOptions.Quiet());
             return parser.GetCompletions(tokens, indexOfTokenToComplete, destObjectFactory);
         }
-
-        /// <summary>
-        /// Tokenizes the provided input text line, observing quotes.
-        /// </summary>
-        /// <param name="line">Input line to parse.</param>
-        /// <param name="options">Options for tokenizing.</param>
-        /// <returns>Enumeration of tokens.</returns>
-        internal static IEnumerable<Token> Tokenize(string line, CommandLineTokenizerOptions options = CommandLineTokenizerOptions.None) =>
-            StringUtilities.Tokenize(line, options.HasFlag(CommandLineTokenizerOptions.AllowPartialInput));
 
         /// <summary>
         /// Returns a usage string for command line argument parsing.

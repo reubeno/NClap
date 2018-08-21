@@ -191,6 +191,9 @@ namespace NClap.Repl
         /// possibly empty list of tokens.</returns>
         private Maybe<IReadOnlyList<string>> ReadInput()
         {
+            const TokenizerOptions tokenizerOptions =
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter;
+
             var line = _client.ReadLine();
 
             // Return None if we're at the end of the input stream.
@@ -205,7 +208,9 @@ namespace NClap.Repl
             try
             {
                 // Parse the string into tokens.
-                return CommandLineParser.Tokenize(line).Select(token => token.ToString()).ToArray();
+                return StringUtilities.Tokenize(line, tokenizerOptions)
+                    .Select(token => token.ToString())
+                    .ToArray();
             }
             catch (ArgumentException ex)
             {
