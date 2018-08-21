@@ -249,15 +249,15 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TokenizeEmptyString()
         {
-            StringUtilities.Tokenize(string.Empty).ToArray().Should().BeEmpty();
-            StringUtilities.Tokenize(string.Empty, true).ToArray().Should().BeEmpty();
-            StringUtilities.Tokenize(string.Empty, false).ToArray().Should().BeEmpty();
+            StringUtilities.Tokenize(string.Empty, TokenizerOptions.None).ToArray().Should().BeEmpty();
+            StringUtilities.Tokenize(string.Empty, TokenizerOptions.AllowPartialInput).ToArray().Should().BeEmpty();
+            StringUtilities.Tokenize(string.Empty, TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray().Should().BeEmpty();
         }
 
         [TestMethod]
         public void TokenizeSingleToken()
         {
-            var tokens = StringUtilities.Tokenize("hello").ToArray();
+            var tokens = StringUtilities.Tokenize("hello", TokenizerOptions.None).ToArray();
             tokens.Length.Should().Be(1);
             tokens[0].Contents.Length.Should().Be("hello".Length);
             tokens[0].Contents.StartingOffset.Should().Be(0);
@@ -267,9 +267,9 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
-        public void TokenizeSingleQuotedToken()
+        public void TokenizeDoubleQuotedToken()
         {
-            var tokens = StringUtilities.Tokenize("\"hello world\"").ToArray();
+            var tokens = StringUtilities.Tokenize("\"hello world\"", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
             tokens.Length.Should().Be(1);
             tokens[0].Contents.Length.Should().Be("hello world".Length);
             tokens[0].Contents.StartingOffset.Should().Be(1);
@@ -279,9 +279,37 @@ namespace NClap.Tests.Utilities
         }
 
         [TestMethod]
+        public void TokenizeDoubleQuotedTokenWhenNotHandled()
+        {
+            var tokens = StringUtilities.Tokenize("\"hello world\"", TokenizerOptions.None)
+                .Select(t => t.Contents.ToString())
+                .Should().Equal("\"hello", "world\"");
+        }
+
+        [TestMethod]
+        public void TokenizeSingleQuotedToken()
+        {
+            var tokens = StringUtilities.Tokenize("'hello world'", TokenizerOptions.HandleSingleQuoteAsTokenDelimiter).ToArray();
+            tokens.Length.Should().Be(1);
+            tokens[0].Contents.Length.Should().Be("hello world".Length);
+            tokens[0].Contents.StartingOffset.Should().Be(1);
+            tokens[0].Contents.ToString().Should().Be("hello world");
+            tokens[0].StartsWithQuote.Should().BeTrue();
+            tokens[0].EndsWithQuote.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void TokenizeSingleQuotedTokenWhenNotHandled()
+        {
+            var tokens = StringUtilities.Tokenize("'hello world'", TokenizerOptions.None)
+                .Select(t => t.Contents.ToString())
+                .Should().Equal("'hello", "world'");
+        }
+
+        [TestMethod]
         public void TokenizingEmptyToken()
         {
-            var tokens = StringUtilities.Tokenize("a \"\" b").ToArray();
+            var tokens = StringUtilities.Tokenize("a \"\" b", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
             tokens.Length.Should().Be(3);
 
             tokens[0].Contents.Length.Should().Be("a".Length);
@@ -306,7 +334,7 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TokenizingIgnoresLeadingAndTrailingSpace()
         {
-            var tokens = StringUtilities.Tokenize("   \" a b \"  ").ToArray();
+            var tokens = StringUtilities.Tokenize("   \" a b \"  ", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
             tokens.Length.Should().Be(1);
             tokens[0].Contents.Length.Should().Be(" a b ".Length);
             tokens[0].Contents.StartingOffset.Should().Be(4);
@@ -318,14 +346,18 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TokenizingUnterminatedQuotesStrictly()
         {
-            Action tokenizeAction = () => StringUtilities.Tokenize("\"a").ToArray();
+            Action tokenizeAction = () => StringUtilities.Tokenize("\"a", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
             tokenizeAction.Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
         public void TokenizingUnterminatedQuotesLoosely()
         {
-            var tokens = StringUtilities.Tokenize("\"a", true).ToArray();
+            var tokens = StringUtilities.Tokenize(
+                "\"a",
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter | TokenizerOptions.AllowPartialInput)
+                .ToArray();
+
             tokens.Length.Should().Be(1);
             tokens[0].Contents.Length.Should().Be("a".Length);
             tokens[0].Contents.StartingOffset.Should().Be(1);
@@ -337,17 +369,21 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TerminatingQuotesInMiddleOfTokenWithNoPartialInput()
         {
-            Action tokenizeAction = () => StringUtilities.Tokenize("\"ab\"cd\"").ToArray();
+            Action tokenizeAction = () => StringUtilities.Tokenize("\"ab\"cd\"", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
             tokenizeAction.Should().Throw<ArgumentException>();
 
-            Action tokenizeAction2 = () => StringUtilities.Tokenize("\"ab\"cd").ToArray();
+            Action tokenizeAction2 = () => StringUtilities.Tokenize("\"ab\"cd", TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter).ToArray();
             tokenizeAction2.Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
         public void TerminatingQuotesInMiddleOfTokenWithPartialInput()
         {
-            var tokens = StringUtilities.Tokenize("\"ab\"cd\"", true).ToArray();
+            var tokens = StringUtilities.Tokenize(
+                "\"ab\"cd\"",
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter | TokenizerOptions.AllowPartialInput)
+                .ToArray();
+
             tokens.Length.Should().Be(1);
             tokens[0].Contents.Length.Should().Be("ab\"cd".Length);
             tokens[0].Contents.StartingOffset.Should().Be(1);
@@ -359,7 +395,11 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void CharsAfterTerminatingQuotesWithPartialInput()
         {
-            var tokens = StringUtilities.Tokenize("\"a\"b", true).ToArray();
+            var tokens = StringUtilities.Tokenize(
+                "\"a\"b",
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter | TokenizerOptions.AllowPartialInput)
+                .ToArray();
+
             tokens.Length.Should().Be(1);
             tokens[0].Contents.ToString().Should().Be("a\"b");
             tokens[0].Contents.Length.Should().Be("a\"b".Length);
@@ -367,6 +407,15 @@ namespace NClap.Tests.Utilities
             tokens[0].StartsWithQuote.Should().BeTrue();
             tokens[0].EndsWithQuote.Should().BeFalse();
             tokens[0].InnerLength.Should().Be("a\"b".Length);
+        }
+
+        [TestMethod]
+        public void TokenizingQuotedStringWithOtherQuoteInside()
+        {
+            var tokens = StringUtilities.Tokenize("'hello \"a b\" world'",
+                TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter | TokenizerOptions.HandleSingleQuoteAsTokenDelimiter)
+                .Select(t => t.Contents.ToString())
+                .Should().Equal("hello \"a b\" world");
         }
 
         [TestMethod]

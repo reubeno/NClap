@@ -11,8 +11,11 @@ namespace NClap.Inspector
     {
         public enum CommandType
         {
-            [Command(typeof(CompleteCommand), Description = "Generate completions")]
-            Complete,
+            [Command(typeof(CompleteLineCommand), Description = "Generate completions for command line")]
+            CompleteLine,
+
+            [Command(typeof(CompleteTokensCommand), Description = "Generate completions for command-line tokens")]
+            CompleteTokens,
 
             [Command(typeof(DocsCommand), Description = "Extract documentation")]
             Docs
@@ -25,6 +28,10 @@ namespace NClap.Inspector
         [NamedArgument(ArgumentFlags.Optional, LongName = "Help",
             Description = "Display this help output")]
         public bool Help { get; set; }
+
+        [NamedArgument(ArgumentFlags.Optional, LongName = "Reflect",
+            Description = "Use reflection only for loading")]
+        public bool ReflectionOnly { get; set; }
 
         [NamedArgument(ArgumentFlags.Required, LongName = "Assembly",
             Description = "File path to the assembly to inspect")]
@@ -71,7 +78,7 @@ namespace NClap.Inspector
                 return assembly;
             };
 
-            LoadedAssembly = Assembly.ReflectionOnlyLoadFrom(AssemblyPath);
+            LoadedAssembly = ReflectionOnly ? Assembly.ReflectionOnlyLoadFrom(AssemblyPath) : Assembly.LoadFrom(AssemblyPath);
             LoadedType = LoadedAssembly.GetType(TypeName);
             if (LoadedType == null)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NClap.Exceptions;
 using NClap.Metadata;
@@ -89,10 +90,11 @@ namespace NClap.Types
                 throw new ArgumentOutOfRangeException(nameof(stringToParse));
             }
 
-            var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(new[] { _commandTypeType, typeof(object) });
+            var constructorArgTypes = new[] { _commandTypeType, typeof(object) };
+            var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(constructorArgTypes);
             if (commandGroupConstructor == null)
             {
-                throw new InternalInvariantBrokenException("Constructor not found in CommandGroup class");
+                throw new InternalInvariantBrokenException($"Constructor not found in {Type.FullName}: ({string.Join(", ", constructorArgTypes.Select(ty => ty.FullName))})");
             }
 
             return commandGroupConstructor.Invoke(new[] { selection, context.ContainingObject });
