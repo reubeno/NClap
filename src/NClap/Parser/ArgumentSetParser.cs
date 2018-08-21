@@ -328,6 +328,10 @@ namespace NClap.Parser
                 {
                     result = currentResult;
                 }
+                else if (result.IsReady)
+                {
+                    result = currentResult;
+                }
 
                 index += argsConsumed;
             }
