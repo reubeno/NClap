@@ -19,7 +19,7 @@ namespace NClap.Metadata
     {
         private readonly CommandGroupOptions _options;
         private readonly object _parentObject;
-        private TCommandType? _selectedCommandType;
+        private object _selectedCommand;
 
         /// <summary>
         /// Parameterless constructor. Deprecated.
@@ -68,17 +68,17 @@ namespace NClap.Metadata
         /// <param name="selection">The selected command type.</param>
         /// <param name="parentObject">Optionally provides a reference to the
         /// object containing this command group.</param>
-        public CommandGroup(CommandGroupOptions options, TCommandType selection, object parentObject) : this(options)
+        public CommandGroup(CommandGroupOptions options, object selection, object parentObject) : this(options)
         {
             _parentObject = parentObject;
-            Selection = selection;
+            SelectedCommand = selection;
         }
 
         /// <summary>
         /// True if the group has a selection, false if no selection was yet
         /// made.
         /// </summary>
-        public bool HasSelection => Selection.HasValue;
+        public bool HasSelection => SelectedCommand != null;
 
         /// <summary>
         /// The enum value corresponding with the selected command, or null if no
@@ -87,19 +87,15 @@ namespace NClap.Metadata
         [PositionalArgument(ArgumentFlags.Required, Position = 0, LongName = nameof(Command))]
         public TCommandType? Selection
         {
-            get => _selectedCommandType;
-            set
-            {
-                _selectedCommandType = value;
-                InstantiatedCommand = value.HasValue ? InstantiateCommand(value.Value) : null;
-            }
+            get => (TCommandType)SelectedCommand;
+            set => SelectedCommand = value.HasValue ? (object)value.Value : null;
         }
 
         /// <summary>
         /// The enum value corresponding with the selected command, or null if no
         /// selection has yet been made.
         /// </summary>
-        object ICommandGroup.Selection => Selection;
+        object ICommandGroup.Selection => SelectedCommand;
 
         /// <summary>
         /// The command presently selected from this group, or null if no
@@ -149,7 +145,17 @@ namespace NClap.Metadata
             return InstantiatedCommand.ExecuteAsync(cancel);
         }
 
-        private ICommand InstantiateCommand(TCommandType selection)
+        private object SelectedCommand
+        {
+            get => _selectedCommand;
+            set
+            {
+                _selectedCommand = value;
+                InstantiatedCommand = value != null ? InstantiateCommand(value) : null;
+            }
+        }
+
+        private ICommand InstantiateCommand(object selection)
         {
             var commandTypeType = EnumArgumentType.Create(typeof(TCommandType));
 
