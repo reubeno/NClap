@@ -95,7 +95,7 @@ namespace NClap.Types
                 ServiceConfigurer = context.ServiceConfigurer
             };
 
-            var constructorArgTypes = new[] { typeof(CommandGroupOptions), _commandTypeType, typeof(object) };
+            var constructorArgTypes = new[] { typeof(CommandGroupOptions), typeof(object), typeof(object) };
             var commandGroupConstructor = Type.GetTypeInfo().GetConstructor(constructorArgTypes);
 
             if (commandGroupConstructor == null)

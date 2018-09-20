@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NClap.Metadata;
 using NClap.Utilities;
 
 namespace NClap.Types
@@ -12,15 +13,15 @@ namespace NClap.Types
     /// </summary>
     internal class EnumArgumentType : ArgumentTypeBase, IEnumArgumentType
     {
-        private readonly Dictionary<string, EnumArgumentValue> _valuesByCaseSensitiveName =
-            new Dictionary<string, EnumArgumentValue>(StringComparer.Ordinal);
+        private readonly Dictionary<string, IArgumentValue> _valuesByCaseSensitiveName =
+            new Dictionary<string, IArgumentValue>(StringComparer.Ordinal);
 
-        private readonly Dictionary<string, EnumArgumentValue> _valuesByCaseInsensitiveName =
-            new Dictionary<string, EnumArgumentValue>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, IArgumentValue> _valuesByCaseInsensitiveName =
+            new Dictionary<string, IArgumentValue>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly Dictionary<object, EnumArgumentValue> _valuesByValue = new Dictionary<object, EnumArgumentValue>();
+        private readonly Dictionary<object, IArgumentValue> _valuesByValue = new Dictionary<object, IArgumentValue>();
 
-        private readonly List<EnumArgumentValue> _values = new List<EnumArgumentValue>();
+        private readonly List<IArgumentValue> _values = new List<IArgumentValue>();
 
         /// <summary>
         /// Constructs an object to describe an empty enumeration type.  Values must be
@@ -49,7 +50,20 @@ namespace NClap.Types
         public static EnumArgumentType Create(Type type)
         {
             var flagsAttrib = type.GetTypeInfo().GetSingleAttribute<FlagsAttribute>();
-            return (flagsAttrib != null) ? new FlagsEnumArgumentType(type) : new EnumArgumentType(type);
+            var argType = (flagsAttrib != null) ? new FlagsEnumArgumentType(type) : new EnumArgumentType(type);
+
+            var extensibleAttribs = type.GetTypeInfo().GetAttributes<ExtensibleEnumAttribute>().ToList();
+            if (extensibleAttribs.Count > 0)
+            {
+                var types = extensibleAttribs.Select(a => a.Provider)
+                    .Where(p => p != null)
+                    .Select(ConstructEnumArgumentTypeProviderFromType)
+                    .SelectMany(p => p.GetTypes());
+
+                argType = new MergedEnumArgumentType(new[] { argType }.Concat(types));
+            }
+
+            return argType;
         }
 
         /// <summary>
@@ -64,7 +78,7 @@ namespace NClap.Types
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
 
-            if (_valuesByValue.TryGetValue(value, out EnumArgumentValue enumValue))
+            if (_valuesByValue.TryGetValue(value, out IArgumentValue enumValue))
             {
                 return enumValue.DisplayName;
             }
@@ -102,7 +116,7 @@ namespace NClap.Types
             var map = context.CaseSensitive ? _valuesByCaseSensitiveName : _valuesByCaseInsensitiveName;
 
             // First try looking up the string in our name map.
-            if (!map.TryGetValue(stringToParse, out EnumArgumentValue value))
+            if (!map.TryGetValue(stringToParse, out IArgumentValue value))
             {
                 // We might have more options if it's an enum type, but if it's not--there's
                 // nothing else we can do.
@@ -145,7 +159,7 @@ namespace NClap.Types
         /// <returns>true on success; false otherwise.</returns>
         public bool TryGetValue(object value, out IArgumentValue argValue)
         {
-            if (!_valuesByValue.TryGetValue(value, out EnumArgumentValue enumArgValue))
+            if (!_valuesByValue.TryGetValue(value, out IArgumentValue enumArgValue))
             {
                 argValue = null;
                 return false;
@@ -159,7 +173,7 @@ namespace NClap.Types
         /// Defines a new value in this type.
         /// </summary>
         /// <param name="value">Value to define.</param>
-        protected void AddValue(EnumArgumentValue value)
+        protected void AddValue(IArgumentValue value)
         {
             _values.Add(value);
             AddToValueNameMap(_valuesByCaseSensitiveName, value);
@@ -184,10 +198,22 @@ namespace NClap.Types
             }
         }
 
-        private static IEnumerable<EnumArgumentValue> GetAllValues(Type type) =>
+        /// <summary>
+        /// Defines all values in the given type.
+        /// </summary>
+        /// <param name="type">Type to inspect.</param>
+        protected void AddValuesFromType(IEnumArgumentType type)
+        {
+            foreach (var value in type.GetValues())
+            {
+                AddValue(value);
+            }
+        }
+
+        private static IEnumerable<IArgumentValue> GetAllValues(Type type) =>
             type.GetTypeInfo().GetFields(BindingFlags.Public | BindingFlags.Static).Select(f => new EnumArgumentValue(f));
 
-        private static void AddToValueMap(Dictionary<object, EnumArgumentValue> map, EnumArgumentValue value)
+        private static void AddToValueMap(Dictionary<object, IArgumentValue> map, IArgumentValue value)
         {
             // We do our best to add each value to the map; but if there
             // are multiple members that share a value, then the first
@@ -204,7 +230,7 @@ namespace NClap.Types
         /// </summary>
         /// <param name="map">Map to add to.</param>
         /// <param name="value">The value to add.</param>
-        private static void AddToValueNameMap(Dictionary<string, EnumArgumentValue> map, EnumArgumentValue value)
+        private static void AddToValueNameMap(Dictionary<string, IArgumentValue> map, IArgumentValue value)
         {
             // We skip disallowed values.
             if (value.Disallowed) return;
@@ -228,6 +254,11 @@ namespace NClap.Types
             {
                 map[value.ShortName] = value;
             }
+        }
+
+        private static IEnumArgumentTypeProvider ConstructEnumArgumentTypeProviderFromType(Type type)
+        {
+            return (IEnumArgumentTypeProvider)type.GetParameterlessConstructor().Invoke(Array.Empty<object>());
         }
     }
 }
