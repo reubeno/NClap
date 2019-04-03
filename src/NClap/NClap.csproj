@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -17,7 +17,7 @@
     <PackageVersion>$(Version)</PackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>https://reubeno.github.io/NClap/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/reubeno/NClap</PackageProjectUrl>
     <PackageTags>NClap .NET Command Line CommandLine Argument Parser CLI Interactive Shell</PackageTags>
     <Authors>reubeno</Authors>
@@ -32,7 +32,11 @@
     <Features>IOperation</Features>
     <DebugType>full</DebugType>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="$(PackageLicenseFile)"/>
+  </ItemGroup>
+
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
     <AdditionalFiles Include="PublicAPI.Shipped.txt" />
@@ -61,7 +65,7 @@
       <PrivateAssets>All</PrivateAssets>
       <ExcludeAssets>Runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="PublicApiAnalyzer" Version="1.0.0-beta001">
       <PrivateAssets>All</PrivateAssets>
       <ExcludeAssets>Runtime</ExcludeAssets>
