@@ -2,11 +2,13 @@ name: "Build"
 
 on:
   push:
+    branches: ["main"]
     paths-ignore:
       - '**/*.md'
       - '**/*.gitignore'
       - '**/*.gitattributes'
   pull_request:
+    branches: ["main"]
     paths-ignore:
       - '**/*.md'
       - '**/*.gitignore'
@@ -18,7 +20,7 @@ on:
       - '**/*.gitattributes'
       
 jobs:
-  build:
+  build-linux:
     name: "Build: Linux"
     runs-on: ubuntu-latest
     env:
@@ -34,16 +36,40 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       
-    - name: Setup .NET Core SDK
+    - name: Setup .NET Core 6.0 SDK
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
 
-    - name: Restore
+    - name: Restore packages
       run: dotnet restore src/NClap.sln
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore src/NClap.sln
+    - name: "Build: Linux (release)"
+      run: dotnet build src/NClap.sln --no-restore -c Release
 
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal src/NClap.sln
+    - name: "Test: .NET 6.0"
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net60
+
+  build-windows:
+    name: "Build: Windows"
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core 6.0 SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore packages
+      run: dotnet restore src/NClap.sln
+
+    - name: "Build: Windows (release)"
+      run: dotnet build src/NClap.sln --no-restore -c Release
+
+    - name: "Test: .NET 4.6.1"
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net461
+
+    - name: "Test: .NET 6.0"
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net60
