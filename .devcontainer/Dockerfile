@@ -1,5 +1,4 @@
-# Ubuntu 18.04 LTS
-FROM mcr.microsoft.com/dotnet/core/sdk:6.0-focal
+FROM mcr.microsoft.com/dotnet/sdk:7.0
 
 WORKDIR /home/
 
