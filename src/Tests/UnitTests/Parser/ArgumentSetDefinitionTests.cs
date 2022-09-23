@@ -35,12 +35,15 @@ namespace NClap.Tests.Parser
         [TestMethod]
         public void TestThatArgumentNamesAreRetrievableFromSet()
         {
+            var attrib = new ArgumentSetAttribute();
+            attrib.Style = ArgumentSetStyle.PowerShell;
+
             var set = DefineArgSet(new ArgumentBaseAttribute[]
                 {
                     new NamedArgumentAttribute { ShortName = "short", LongName = "foo" },
                     new NamedArgumentAttribute { ShortName = "S", LongName = "LONG" },
                     new NamedArgumentAttribute { ShortName = "h", LongName = "Hidden", Hidden = true }
-                });
+                }, attrib);
 
             set.GetArgumentNames(ArgumentNameType.ShortName).Should().BeEquivalentTo("short", "S", "h");
             set.GetArgumentNames(ArgumentNameType.LongName).Should().BeEquivalentTo("foo", "LONG", "Hidden");

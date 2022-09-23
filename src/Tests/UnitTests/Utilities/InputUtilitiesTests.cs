@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NClap.Utilities;
@@ -86,6 +87,12 @@ namespace NClap.Tests.Utilities
         [TestMethod]
         public void TestThatTwoCodePathsAgree()
         {
+            // This test only makes sense on Windows.
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return;
+            }
+
             var allConsoleKeys = typeof(ConsoleKey).GetTypeInfo().GetEnumValues().Cast<ConsoleKey>();
 
             bool result = true;
