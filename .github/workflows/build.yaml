@@ -84,7 +84,7 @@ jobs:
         hide_complexity: true
         indicators: true
         output: both
-        thresholds: '60 80'
+        thresholds: '80 90'
 
     - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
@@ -143,9 +143,6 @@ jobs:
 
     - name: "Package (release)"
       run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
-
-    - name: "Test: .NET 4.6.1"
-      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net461
 
     - name: "Test: .NET 6.0"
       run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net6.0
