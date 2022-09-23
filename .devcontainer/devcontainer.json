@@ -1,0 +1,7 @@
+{
+    "name": "NClap dev container",
+    "dockerFile": "Dockerfile",
+    "extensions": [
+        "ms-dotnettools.csharp"
+    ]
+}
