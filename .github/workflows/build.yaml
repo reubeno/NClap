@@ -47,8 +47,16 @@ jobs:
     - name: "Build: Linux (release)"
       run: dotnet build src/NClap.sln --no-restore -c Release
 
+    - name: "Package (release)"
+      run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
+
     - name: "Test: .NET 6.0"
-      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net60
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: linux-binaries
+        path: src/NClap/bin/Release
 
   build-windows:
     name: "Build: Windows"
@@ -68,8 +76,13 @@ jobs:
     - name: "Build: Windows (release)"
       run: dotnet build src/NClap.sln --no-restore -c Release
 
-    - name: "Test: .NET 4.6.1"
-      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net461
+    - name: "Package (release)"
+      run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
 
-    - name: "Test: .NET 6.0"
-      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net60
+    - name: "Test: .NET 4.6.1"
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: windows-binaries
+        path: src\NClap\bin\Release
