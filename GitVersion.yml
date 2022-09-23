@@ -1,8 +1,9 @@
 next-version: 3.0.0
 branches:
-  master:
+  main:
+    regex: ^main$
     mode: ContinuousDelivery
-    tag:
+    tag: ''
     increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false

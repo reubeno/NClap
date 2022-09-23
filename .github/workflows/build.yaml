@@ -35,28 +35,56 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      
-    - name: Setup .NET Core 6.0 SDK
+      with:
+        fetch-depth: 0
+
+    - name: "Setup: .NET Core 6.0 SDK"
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
 
-    - name: Restore packages
+    - name: "Setup: GitVersion"
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '5.x'
+
+    - name: "Compute: Version"
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+      with:
+        useConfigFile: true
+
+    - name: "Display: version outputs"
+      run: |
+        echo "Version: ${{ steps.gitversion.outputs.SemVer }}"
+        echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
+
+    - name: "Restore: packages"
       run: dotnet restore src/NClap.sln
 
     - name: "Build: Linux (release)"
-      run: dotnet build src/NClap.sln --no-restore -c Release
+      run: |
+        dotnet-gitversion /updateprojectfiles
+        dotnet build src/NClap.sln --no-restore -c Release
 
     - name: "Package (release)"
       run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
 
+    - name: "Test: .NET 4.6.1"
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net461
+
     - name: "Test: .NET 6.0"
-      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal
+      run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f net6.0
 
     - uses: actions/upload-artifact@v3
       with:
         name: linux-binaries
         path: src/NClap/bin/Release
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: linux-packages
+        path: src/**/*.nupkg
 
   build-windows:
     name: "Build: Windows"
@@ -64,17 +92,37 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-    - name: Setup .NET Core 6.0 SDK
+    - name: "Setup: .NET Core 6.0 SDK"
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
 
-    - name: Restore packages
+    - name: "Setup: GitVersion"
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '5.x'
+
+    - name: "Compute: Version"
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+      with:
+        useConfigFile: true
+
+    - name: "Display: version outputs"
+      run: |
+        echo "Version: ${{ steps.gitversion.outputs.SemVer }}"
+        echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
+
+    - name: "Restore: packages"
       run: dotnet restore src/NClap.sln
 
     - name: "Build: Windows (release)"
-      run: dotnet build src/NClap.sln --no-restore -c Release
+      run: |
+        dotnet-gitversion /updateprojectfiles
+        dotnet build src/NClap.sln --no-restore -c Release
 
     - name: "Package (release)"
       run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
@@ -86,3 +134,8 @@ jobs:
       with:
         name: windows-binaries
         path: src\NClap\bin\Release
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: windows-packages
+        path: src/**/*.nupkg
