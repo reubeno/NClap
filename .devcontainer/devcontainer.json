@@ -1,7 +1,16 @@
 {
     "name": "NClap dev container",
     "dockerFile": "Dockerfile",
+
     "extensions": [
         "ms-dotnettools.csharp"
-    ]
+    ],
+
+    "features": [
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        }
+    ],
+
+    "remoteUser": "vscode"
 }
