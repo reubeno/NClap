@@ -83,14 +83,14 @@ namespace NClap.Help
 
             if (flags.HasFlag(ArgumentSyntaxFlags.DistinguishOptionalArguments) && !IsRequired)
             {
-                builder.Append("[");
+                builder.Append('[');
             }
 
             if (IsPositional)
             {
-                builder.Append("<");
+                builder.Append('<');
                 builder.Append(LongName);
-                builder.Append(">");
+                builder.Append('>');
 
                 if (flags.HasFlag(ArgumentSyntaxFlags.IndicatePositionalArgumentType))
                 {
@@ -132,13 +132,13 @@ namespace NClap.Help
 
                     if (flags.HasFlag(ArgumentSyntaxFlags.IndicateArgumentsThatAcceptEmptyString) && supportsEmptyStrings)
                     {
-                        builder.Append("[");
+                        builder.Append('[');
                     }
 
                     if (Arg.ContainingSet.Attribute.AllowNamedArgumentValueAsSucceedingToken &&
                         Arg.ContainingSet.Attribute.PreferNamedArgumentValueAsSucceedingToken)
                     {
-                        builder.Append(" ");
+                        builder.Append(' ');
                     }
                     else
                     {
@@ -158,14 +158,14 @@ namespace NClap.Help
 
                     if (flags.HasFlag(ArgumentSyntaxFlags.IndicateArgumentsThatAcceptEmptyString) && supportsEmptyStrings)
                     {
-                        builder.Append("]");
+                        builder.Append(']');
                     }
                 }
             }
 
             if (flags.HasFlag(ArgumentSyntaxFlags.DistinguishOptionalArguments) && !IsRequired)
             {
-                builder.Append("]");
+                builder.Append(']');
             }
 
             if (flags.HasFlag(ArgumentSyntaxFlags.IndicateCardinality) && Arg.AllowMultiple)

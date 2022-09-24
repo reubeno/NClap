@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using NClap.Exceptions;
 
 namespace NClap.Metadata
 {
+    // CA1813: Avoid unsealed attributes
+#pragma warning disable CA1813
+
     /// <summary>
     /// Attribute for annotating values that can be used with arguments. It is
     /// most frequently used with values on enum types.
@@ -51,4 +53,6 @@ namespace NClap.Metadata
         /// </summary>
         public string Description { get; set; }
     }
+
+#pragma warning restore CA1813
 }

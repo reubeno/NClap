@@ -7,7 +7,7 @@ namespace NClap.Utilities
     /// mutable in all scenarios, but for which it's important for calling code to receive
     /// some syntactically valid value.
     /// </summary>
-    /// <typeparam name="T">Type of the property\'s value</typeparam>
+    /// <typeparam name="T">Type of the property's value.</typeparam>
     internal class PropertyWithSimulatedFallback<T>
     {
         private readonly Func<T> _getter;

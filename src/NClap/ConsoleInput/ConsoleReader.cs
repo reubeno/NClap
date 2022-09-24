@@ -69,7 +69,7 @@ namespace NClap.ConsoleInput
         /// <summary>
         /// The beginning-of-line comment character.
         /// </summary>
-        public char? CommentCharacter { get; set; } = null;
+        public char? CommentCharacter { get; set; }
 
         /// <summary>
         /// Reads a line of input text from the underlying console.
@@ -320,33 +320,33 @@ namespace NClap.ConsoleInput
                 //
 
                 case ConsoleInputOperation.ReverseSearchHistory:
-                    // TODO: implement ReverseSearchHistory
+                // TODO: implement ReverseSearchHistory
                 case ConsoleInputOperation.ForwardSearchHistory:
-                    // TODO: implement ForwardSearchHistory
+                // TODO: implement ForwardSearchHistory
                 case ConsoleInputOperation.QuotedInsert:
-                    // TODO: implement QuotedInsert
+                // TODO: implement QuotedInsert
                 case ConsoleInputOperation.TransposeChars:
-                    // TODO: implement TransposeChars
+                // TODO: implement TransposeChars
                 case ConsoleInputOperation.UnixLineDiscard:
-                    // TODO: implement UnixLineDiscard
+                // TODO: implement UnixLineDiscard
                 case ConsoleInputOperation.Undo:
-                    // TODO: implement Undo
+                // TODO: implement Undo
                 case ConsoleInputOperation.SetMark:
-                    // TODO: implement SetMark
+                // TODO: implement SetMark
                 case ConsoleInputOperation.CharacterSearch:
-                    // TODO: implement CharacterSearch
+                // TODO: implement CharacterSearch
                 case ConsoleInputOperation.YankLastArg:
-                    // TODO: implement YankLastArg
+                // TODO: implement YankLastArg
                 case ConsoleInputOperation.NonIncrementalReverseSearchHistory:
-                    // TODO: implement NonIncrementalReverseSearchHistory
+                // TODO: implement NonIncrementalReverseSearchHistory
                 case ConsoleInputOperation.NonIncrementalForwardSearchHistory:
-                    // TODO: implement NonIncrementalForwardSearchHistory
+                // TODO: implement NonIncrementalForwardSearchHistory
                 case ConsoleInputOperation.YankPop:
-                    // TODO: implement YankPop
+                // TODO: implement YankPop
                 case ConsoleInputOperation.TildeExpand:
-                    // TODO: implement TildeExpand
+                // TODO: implement TildeExpand
                 case ConsoleInputOperation.YankNthArg:
-                    // TODO: implement YankNthArg
+                // TODO: implement YankNthArg
                 case ConsoleInputOperation.CharacterSearchBackward:
                     // TODO: implement CharacterSearchBackward
                     break;

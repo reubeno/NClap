@@ -10,6 +10,9 @@ namespace NClap.Types
     /// </summary>
     public class ArgumentTypeExtension : IArgumentType
     {
+        // CA1051: Do not declare visible instance fields
+#pragma warning disable CA1051
+
         /// <summary>
         /// Optional override of the string parser implementation of the base
         /// argument type.
@@ -27,6 +30,8 @@ namespace NClap.Types
         /// base argument type.
         /// </summary>
         protected readonly IStringCompleter Completer;
+
+#pragma warning restore CA1051
 
         /// <summary>
         /// Constructor.

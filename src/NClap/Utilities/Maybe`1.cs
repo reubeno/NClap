@@ -50,8 +50,8 @@ namespace NClap.Utilities
         /// Retrieves the value present in this object. An exception is thrown if
         /// no value is present.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when no value is present
-        /// </exception>.
+        /// <exception cref="InvalidOperationException">Thrown when no value is present.
+        /// </exception>
         public T Value => HasValue ? _value : throw new InvalidOperationException();
 
         /// <summary>

@@ -102,7 +102,7 @@ namespace NClap.Types
         /// <returns>The parsed object.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when
         /// <paramref name="stringToParse" /> is not a well-formed encoding of a
-        /// key/value pair</exception>
+        /// key/value pair.</exception>
         protected override object Parse(ArgumentParseContext context, string stringToParse)
         {
             var separatorIndex = stringToParse.IndexOf(KeyValueSeparatorChar);

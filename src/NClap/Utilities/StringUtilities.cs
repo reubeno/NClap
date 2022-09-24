@@ -577,7 +577,7 @@ namespace NClap.Utilities
                 {
                     if (lastCharWasLowerCase)
                     {
-                        result.Append(separator.ToString());
+                        result.Append(separator);
                     }
 
                     c = char.ToLower(c);

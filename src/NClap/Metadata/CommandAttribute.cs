@@ -1,8 +1,13 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NClap.Metadata
 {
+    // CA1813: Avoid unsealed attributes
+#pragma warning disable CA1813
+
+    // CA1019: Define accessors for attribute arguments
+#pragma warning disable CA1019
+
     /// <summary>
     /// Attribute class used to denote commands.
     /// </summary>
@@ -36,4 +41,7 @@ namespace NClap.Metadata
         /// <returns>The type.</returns>
         public virtual Type GetImplementingType(Type commandType) => _implementingType;
     }
+
+#pragma warning restore CA1019
+#pragma warning restore CA1813
 }

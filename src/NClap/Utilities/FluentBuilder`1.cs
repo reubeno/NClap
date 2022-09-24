@@ -21,12 +21,14 @@ namespace NClap.Utilities
             _startingState = startingState;
         }
 
+        // CA1062: Validate arguments of public methods
+#pragma warning disable CA1062
         /// <summary>
         /// Operator that allows implicit casting from a builder to its applied result.
         /// </summary>
         /// <param name="builder">Fluent builder to apply and generate state from.</param>
-        public static implicit operator TState(FluentBuilder<TState> builder) =>
-            builder.Apply();
+        public static implicit operator TState(FluentBuilder<TState> builder) => builder.Apply();
+#pragma warning restore CA1062
 
         /// <summary>
         /// Operator that allows implicitly forming a fluent builder from a starting

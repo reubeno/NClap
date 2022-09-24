@@ -82,6 +82,8 @@ namespace NClap.Parser
             ArgumentDefinition containingArgument = null,
             ServiceConfigurer serviceConfigurer = null)
         {
+            if (argSet == null) throw new ArgumentNullException(nameof(argSet));
+
             // Extract argument descriptors from the defining type.
             var args = GetArgumentDescriptors(
                 typeToReflectOn,

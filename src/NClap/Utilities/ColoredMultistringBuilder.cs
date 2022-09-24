@@ -54,6 +54,7 @@ namespace NClap.Utilities
         /// <param name="values">The colored strings to append.</param>
         public void Append(IEnumerable<ColoredString> values)
         {
+            if (values == null) throw new ArgumentNullException(nameof(values));
             foreach (var value in values)
             {
                 Append(value);
@@ -64,7 +65,11 @@ namespace NClap.Utilities
         /// Append the contents of the provided multistring.
         /// </summary>
         /// <param name="value">The multistring to append.</param>
-        public void Append(ColoredMultistring value) => Append(value.Content);
+        public void Append(ColoredMultistring value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            Append(value.Content);
+        }
 
         /// <summary>
         /// Append the contents of the provided multistrings.
@@ -102,7 +107,11 @@ namespace NClap.Utilities
         /// newline.
         /// </summary>
         /// <param name="value">The multistring to append.</param>
-        public void AppendLine(ColoredMultistring value) => AppendLine(value.Content);
+        public void AppendLine(ColoredMultistring value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            AppendLine(value.Content);
+        }
 
         /// <summary>
         /// Append the contents of the provided multistrings followed by a
