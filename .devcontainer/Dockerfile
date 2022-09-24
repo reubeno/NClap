@@ -1,6 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0
-
-WORKDIR /home/
+FROM mcr.microsoft.com/vscode/devcontainers/dotnet:6.0-focal
 
 RUN apt-get update && apt-get install -y \
     curl \
