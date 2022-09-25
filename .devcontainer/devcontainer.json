@@ -1,16 +1,15 @@
 {
     "name": "NClap dev container",
     "dockerFile": "Dockerfile",
-
     "extensions": [
-        "ms-dotnettools.csharp"
+        "ms-dotnettools.csharp",
+        "eamodio.gitlens",
+        "formulahendry.dotnet-test-explorer"
     ],
-
     "features": {
         "ghcr.io/devcontainers/features/github-cli:1": {
             "version": "latest"
         }
     },
-
     "remoteUser": "vscode"
 }

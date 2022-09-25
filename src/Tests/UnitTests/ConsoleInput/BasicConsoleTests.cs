@@ -26,8 +26,11 @@ namespace NClap.Tests.ConsoleInput
             con.CursorSize.Should().BeGreaterOrEqualTo(0).And.BeLessOrEqualTo(100);
             con.CursorLeft.Should().BeGreaterOrEqualTo(0);
             con.CursorTop.Should().BeGreaterOrEqualTo(0);
-            con.WindowWidth.Should().BeGreaterThan(0);
-            con.WindowHeight.Should().BeGreaterThan(0);
+
+            // Acknowledge that the tests may be run headlessly, with no active console.
+            con.WindowWidth.Should().BeGreaterOrEqualTo(0);
+            con.WindowHeight.Should().BeGreaterOrEqualTo(0);
+
             con.BufferWidth.Should().BeGreaterOrEqualTo(con.WindowWidth);
             con.BufferHeight.Should().BeGreaterOrEqualTo(con.WindowHeight);
 
@@ -53,7 +56,11 @@ namespace NClap.Tests.ConsoleInput
         public void TestThatCursorMoveNoOpIsOkay()
         {
             var con = BasicConsole.Default;
-            con.SetCursorPosition(con.CursorLeft, con.CursorTop).Should().BeTrue();
+
+            if (con.BufferWidth > 0 && con.BufferHeight > 0)
+            {
+                con.SetCursorPosition(con.CursorLeft, con.CursorTop).Should().BeTrue();
+            }
         }
 
         [TestMethod]

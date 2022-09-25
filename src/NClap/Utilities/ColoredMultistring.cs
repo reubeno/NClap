@@ -101,7 +101,6 @@ namespace NClap.Utilities
         public static ColoredMultistring operator +(ColoredMultistring value, ColoredString suffix)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
-            if (suffix == null) throw new ArgumentNullException(nameof(suffix));
             return new ColoredMultistring(value.Content.Concat(new[] { suffix }));
         }
 
