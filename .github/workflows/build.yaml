@@ -89,6 +89,9 @@ jobs:
           recreate: true
           path: code-coverage-results.md
 
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+
       - uses: actions/upload-artifact@v3
         with:
           name: linux-binaries

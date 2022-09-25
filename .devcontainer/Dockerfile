@@ -1,3 +1,4 @@
+# Use Ubuntu 20.04 with .NET 6.0 installed
 FROM mcr.microsoft.com/vscode/devcontainers/dotnet:6.0-focal
 
 # Make sure pipe failures trigger build failures
@@ -12,8 +13,6 @@ RUN apt-get update && \
         gnupg2 \
         sudo \
         zsh \
-        zsh-syntax-highlighting \
-        zsh-autosuggestions \
     && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -21,20 +20,30 @@ RUN apt-get update && \
 # Switch to non-root user
 USER vscode
 
-# Select oh my zsh plugins
-# Install 'bat' from GitHub release drop
-# Install 'exa' from GitHub release drop
+# Download external components
+# Validate components against known hashes
+# Clone additional oh-my-zsh plugins
+# Setup oh-my-zsh plugins
+# Install 'trunk'
 WORKDIR /tmp/work
-RUN sed -i "s/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/" ~/.zshrc && \
+COPY hashes.txt .
+RUN curl https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-musl_0.22.1_amd64.deb -L --output ./bat-musl_0.22.1_amd64.deb && \
+    curl https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip -L --output ./exa-linux-x86_64-v0.10.1.zip && \
+    sha256sum --check hashes.txt && \
     \
-    curl https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-musl_0.22.1_amd64.deb --output ./bat.deb && \
-    sudo dpkg -i ./bat.deb && \
+    git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
+    sed -i "s/^plugins=.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/" ~/.zshrc && \
+    \
+    sudo dpkg -i ./bat-musl_0.22.1_amd64.deb && \
     sudo apt-get install -f && \
     \
-    curl https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip --output ./exa.zip && \
-    unzip ./exa.zip && \
+    unzip ./exa-linux-x86_64-v0.10.1.zip && \
     sudo mv ./bin/* /usr/bin && \
     sudo mv ./completions/exa.zsh /usr/share/zsh/vendor-completions/_exa && \
     \
     curl https://get.trunk.io -fsSL | sudo bash -s - -y && \
     sudo chmod a+r /usr/local/bin/trunk
+
+# Use zsh as the default shell
+ENTRYPOINT ["/bin/zsh"]
