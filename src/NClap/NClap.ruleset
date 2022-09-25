@@ -6,6 +6,14 @@
   <Include Path="extendeddesignguidelinerules.ruleset" Action="Warning" />
   <Include Path="minimumrecommendedrules.ruleset" Action="Warning" />
   <Include Path="securityrules.ruleset" Action="Warning" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <!-- CA1304: SpecifyCultureInfo -->
+    <Rule Id="CA1304" Action="None" />
+    <!-- CA1305: SpecifyIFormatProvider -->
+    <Rule Id="CA1305" Action="None" />
+    <!-- CA2225: Operator overloads have named alternates -->
+    <Rule Id="CA2225" Action="None" />
+  </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <!-- SA1101: Prefix local calls with this -->
     <Rule Id="SA1101" Action="None" />
