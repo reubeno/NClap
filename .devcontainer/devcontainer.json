@@ -2,9 +2,9 @@
     "name": "NClap dev container",
     "dockerFile": "Dockerfile",
     "extensions": [
+        "formulahendry.dotnet-test-explorer",
         "ms-dotnettools.csharp",
-        "eamodio.gitlens",
-        "formulahendry.dotnet-test-explorer"
+        "eamodio.gitlens"
     ],
     "features": {
         "ghcr.io/devcontainers/features/github-cli:1": {
