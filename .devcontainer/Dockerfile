@@ -46,4 +46,4 @@ RUN curl https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-musl_0.22.
     sudo chmod a+r /usr/local/bin/trunk
 
 # Use zsh as the default shell
-ENTRYPOINT ["/bin/zsh"]
+ENV SHELL /bin/zsh
