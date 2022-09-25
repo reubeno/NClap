@@ -2,9 +2,8 @@
 
 ## Parsing command lines
 
-1. Define a type (`class` or `struct`) to describe the parsed arguments, e.g.:
+Define a type (`class` or `struct`) to describe the parsed arguments, e.g.:
 
-<!-- MdCompile: assembly=ParseExample -->
 ```csharp
 using NClap.Metadata;
 
@@ -21,7 +20,6 @@ Each field or property in the type decorated with a `NamedArgumentAttribute` or
 Alternatively, you can add an attribute to the type itself to indicate that all writable, public
 fields and properties should be mapped to optional named arguments:
 
-<!-- MdCompile: import=NClap.Metadata -->
 ```csharp
 [ArgumentSet(PublicMembersAreNamedArguments = true)]
 class MyOtherProgramArguments
@@ -34,7 +32,6 @@ class MyOtherProgramArguments
 
 You can customize the arguments through optional parameters to the attributes, e.g.:
 
-<!-- MdCompile: wrapinclass=true, import=NClap.Metadata -->
 ```csharp
 [NamedArgument(ArgumentFlags.Required | ArgumentFlags.Multiple,
                 LongName = "ImpVal",
@@ -47,9 +44,8 @@ In this above example, the C# property `ImportantValue` will be associated with
 a command-line option with two alternate names (`"ImpVal"` and `"iv"`). It must
 appear at least once on the command line, and may appear multiple times.
 
-2. Next, parse them!  You'll need to construct or otherwise acquire an instance of the target type that your arguments will be parsed into, and then call one of the static parser methods, e.g.:
+Next, parse them! You'll need to construct or otherwise acquire an instance of the target type that your arguments will be parsed into, and then call one of the static parser methods, e.g.:
 
-<!-- MdCompile: assembly=ParseExample, import=NClap -->
 ```csharp
 using NClap;
 
@@ -68,13 +64,12 @@ class MyProgram
 }
 ```
 
-There are various overloads and variants of the parse methods (`CommandLineParser.TryParse`).  The particular variant used here will automatically display usage information to the console if an error occurred during argument parsing.
+There are various overloads and variants of the parse methods (`CommandLineParser.TryParse`). The particular variant used here will automatically display usage information to the console if an error occurred during argument parsing.
 
 ## Building an interactive shell
 
-1. First, define the commands, or commands, that you want exposed into the shell, e.g.:
+First, define the commands, or commands, that you want exposed into the shell, e.g.:
 
-<!-- MdCompile: assembly=ShellExample, import=NClap.Repl, import=NClap.Metadata -->
 ```csharp
 enum MyCommandType
 {
@@ -88,7 +83,6 @@ enum MyCommandType
 
 Next, define the implementations of those commands, making sure to indicate any arguments to them, e.g.:
 
-<!-- MdCompile: assembly=ShellExample, import=System.Threading, import=System.Threading.Tasks, import=NClap.Metadata -->
 ```csharp
 class ListCommand : Command
 {
@@ -105,7 +99,6 @@ class ListCommand : Command
 
 Finally, create the interactive shell and enter it:
 
-<!-- MdCompile: assembly=ShellExample, wrapinclass=true, import=NClap.Repl, import=System -->
 ```csharp
 private static void RunInteractiveShell()
 {
