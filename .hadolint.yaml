@@ -1,0 +1,5 @@
+ignored:
+  # DL3004: Don't use sudo
+  - DL3004
+  # DL3008: Pin apt package versions
+  - DL3008
