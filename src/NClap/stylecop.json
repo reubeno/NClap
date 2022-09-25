@@ -1,20 +1,17 @@
 ﻿{
-  "settings": {
-    "documentationRules": {
-      "xmlHeader": false,
-      "documentInternalElements": true,
-      "fileNamingConvention": "metadata"
-    },
-    "maintainabilityRules": {
-      "topLevelTypes": [
-        "class",
-        "interface"
-      ]
-    },
-    "orderingRules": {
-      "systemUsingDirectivesFirst": true,
-      "usingDirectivesPlacement": "outsideNamespace",
-      "blankLinesBetweenUsingGroups": "omit"
+    "settings": {
+        "documentationRules": {
+            "xmlHeader": false,
+            "documentInternalElements": true,
+            "fileNamingConvention": "metadata"
+        },
+        "maintainabilityRules": {
+            "topLevelTypes": ["class", "interface"]
+        },
+        "orderingRules": {
+            "systemUsingDirectivesFirst": true,
+            "usingDirectivesPlacement": "outsideNamespace",
+            "blankLinesBetweenUsingGroups": "omit"
+        }
     }
-  }
 }
