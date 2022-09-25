@@ -1,3 +1,8 @@
 {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "dotnet-test-explorer.testProjectPath": "**/*.sln",
+    "dotnet-test-explorer.enableTelemetry": false
 }

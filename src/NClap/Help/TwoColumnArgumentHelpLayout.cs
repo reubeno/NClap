@@ -24,8 +24,8 @@
                 ColumnWidths[i] = other.ColumnWidths[i];
             }
 
-            FirstLineColumnSeparator = this.FirstLineColumnSeparator;
-            DefaultColumnSeparator = this.DefaultColumnSeparator;
+            FirstLineColumnSeparator = other.FirstLineColumnSeparator;
+            DefaultColumnSeparator = other.DefaultColumnSeparator;
         }
 
         /// <summary>

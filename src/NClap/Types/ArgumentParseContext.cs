@@ -46,12 +46,12 @@ namespace NClap.Types
         /// True to allow "empty" arguments (e.g. empty strings); false to
         /// consider them invalid.
         /// </summary>
-        public bool AllowEmpty { get; set; } = false;
+        public bool AllowEmpty { get; set; }
 
         /// <summary>
         /// True for parsing to be case sensitive; false to be case insensitive.
         /// </summary>
-        public bool CaseSensitive { get; set; } = false;
+        public bool CaseSensitive { get; set; }
 
         /// <summary>
         /// Strings that may separate multiple elements stored in the same token.

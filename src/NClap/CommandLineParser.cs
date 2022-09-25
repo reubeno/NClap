@@ -305,6 +305,9 @@ namespace NClap
         /// </returns>
         public static IEnumerable<string> GetCompletions(Type type, string commandLineToComplete, int charIndexOfCursor, int tokensToSkip, CommandLineParserOptions options)
         {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (commandLineToComplete == null) throw new ArgumentNullException(nameof(commandLineToComplete));
+
             const TokenizerOptions tokenizerOptions =
                 TokenizerOptions.AllowPartialInput |
                 TokenizerOptions.HandleDoubleQuoteAsTokenDelimiter |
@@ -409,7 +412,11 @@ namespace NClap
             // Default max width.
             if (!options.MaxWidth.HasValue)
             {
-                options = options.With().MaxWidth(GetCurrentConsoleWidth());
+                var consoleWidth = GetCurrentConsoleWidth();
+                if (consoleWidth > 0)
+                {
+                    options = options.With().MaxWidth(consoleWidth);
+                }
             }
 
             // Construct renderer.

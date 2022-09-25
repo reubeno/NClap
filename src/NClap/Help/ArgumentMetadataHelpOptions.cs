@@ -1,4 +1,5 @@
-﻿using NClap.Utilities;
+﻿using System;
+using NClap.Utilities;
 
 namespace NClap.Help
 {
@@ -20,6 +21,8 @@ namespace NClap.Help
         /// <param name="other">Template for clone.</param>
         protected ArgumentMetadataHelpOptions(ArgumentMetadataHelpOptions other)
         {
+            if (other == null) throw new ArgumentNullException(nameof(other));
+
             Include = other.Include;
             HeaderTitle = other.HeaderTitle;
             Color = other.Color;
@@ -28,7 +31,7 @@ namespace NClap.Help
         }
 
         /// <summary>
-        /// Should this piece of metadata be included?
+        /// Should this piece of metadata be included.
         /// </summary>
         public bool Include { get; set; } = true;
 

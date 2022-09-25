@@ -113,7 +113,9 @@ namespace NClap.Utilities
             if (text == null) throw new ArgumentNullException(nameof(text));
             if (width < 0 || width <= blockIndent + hangingIndent)
             {
-                throw new ArgumentOutOfRangeException(nameof(width));
+                throw new ArgumentOutOfRangeException(
+                    nameof(width),
+                    $"Cannot wrap text with width {width}, block indent {blockIndent}, and hanging indent {hangingIndent}");
             }
 
             var builder = text.CreateNewBuilder();
@@ -577,7 +579,7 @@ namespace NClap.Utilities
                 {
                     if (lastCharWasLowerCase)
                     {
-                        result.Append(separator.ToString());
+                        result.Append(separator);
                     }
 
                     c = char.ToLower(c);

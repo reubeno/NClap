@@ -98,8 +98,11 @@ namespace NClap.Utilities
         /// <param name="suffix">The string to concatenate onto the end of the base
         /// multistring.</param>
         /// <returns>The concatenation result, as a separate multistring.</returns>
-        public static ColoredMultistring operator +(ColoredMultistring value, ColoredString suffix) =>
-            new ColoredMultistring(value.Content.Concat(new[] { suffix }));
+        public static ColoredMultistring operator +(ColoredMultistring value, ColoredString suffix)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return new ColoredMultistring(value.Content.Concat(new[] { suffix }));
+        }
 
         /// <summary>
         /// Constructs a new <see cref="ColoredMultistring"/> by concatenating.
@@ -108,8 +111,11 @@ namespace NClap.Utilities
         /// multistring.</param>
         /// <param name="value">The base multistring.</param>
         /// <returns>The concatenation result, as a separate multistring.</returns>
-        public static ColoredMultistring operator +(ColoredString prefix, ColoredMultistring value) =>
-            new ColoredMultistring(new[] { prefix }.Concat(value.Content));
+        public static ColoredMultistring operator +(ColoredString prefix, ColoredMultistring value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return new ColoredMultistring(new[] { prefix }.Concat(value.Content));
+        }
 
         /// <summary>
         /// Constructs a new <see cref="ColoredMultistring"/> by concatenating.
@@ -117,8 +123,12 @@ namespace NClap.Utilities
         /// <param name="prefix">The first part.</param>
         /// <param name="suffix">The second part.</param>
         /// <returns>The concatenation result, as a separate multistring.</returns>
-        public static ColoredMultistring operator +(ColoredMultistring prefix, ColoredMultistring suffix) =>
-            new ColoredMultistring(prefix.Content.Concat(suffix.Content));
+        public static ColoredMultistring operator +(ColoredMultistring prefix, ColoredMultistring suffix)
+        {
+            if (prefix == null) throw new ArgumentNullException(nameof(prefix));
+            if (suffix == null) throw new ArgumentNullException(nameof(suffix));
+            return new ColoredMultistring(prefix.Content.Concat(suffix.Content));
+        }
 
         /// <summary>
         /// Wraps a string.
@@ -304,6 +314,8 @@ namespace NClap.Utilities
         // TODO: Make this less painfully slow.
         public int LastIndexOfAny(char[] chars, int startIndex, int count)
         {
+            if (chars == null) throw new ArgumentNullException(nameof(chars));
+
             if (count < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));

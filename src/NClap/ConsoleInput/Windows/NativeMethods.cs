@@ -252,27 +252,27 @@ namespace NClap.ConsoleInput.Windows
             BackgroundWhite = BackgroundGray | BackgroundIntensity,
 
             /// <summary>
-            /// (unknown)
+            /// (unknown).
             /// </summary>
             LeadingByte = 0x100,
 
             /// <summary>
-            /// (unknown)
+            /// (unknown).
             /// </summary>
             TrailingByte = 0x200,
 
             /// <summary>
-            /// (unknown)
+            /// (unknown).
             /// </summary>
             TopHorizontal = 0x400,
 
             /// <summary>
-            /// (unknown)
+            /// (unknown).
             /// </summary>
             LeftVertical = 0x800,
 
             /// <summary>
-            /// (unknown)
+            /// (unknown).
             /// </summary>
             RightVertical = 0x1000,
 
@@ -282,7 +282,7 @@ namespace NClap.ConsoleInput.Windows
             ReverseVideo = 0x4000,
 
             /// <summary>
-            /// (unknown)
+            /// (unknown).
             /// </summary>
             Underscore = 0x8000
         }

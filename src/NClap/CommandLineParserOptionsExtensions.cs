@@ -29,8 +29,11 @@ namespace NClap
         /// </summary>
         /// <param name="options">Options.</param>
         /// <returns>Fluent builder.</returns>
-        public static FluentBuilder<CommandLineParserOptions> With(this CommandLineParserOptions options) =>
-            new FluentBuilder<CommandLineParserOptions>(options.DeepClone());
+        public static FluentBuilder<CommandLineParserOptions> With(this CommandLineParserOptions options)
+        {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            return new FluentBuilder<CommandLineParserOptions>(options.DeepClone());
+        }
 
         /// <summary>
         /// Quiets the parser with default options (suppressing errors and reporting).
@@ -39,6 +42,8 @@ namespace NClap
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<CommandLineParserOptions> Quiet(this FluentBuilder<CommandLineParserOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options =>
             {
                 options.DisplayUsageInfoOnError = false;
@@ -57,10 +62,8 @@ namespace NClap
         [CLSCompliant(false)]
         public static FluentBuilder<CommandLineParserOptions> ConfigureServices(this FluentBuilder<CommandLineParserOptions> builder, ServiceConfigurer configurer)
         {
-            if (configurer == null)
-            {
-                throw new ArgumentNullException(nameof(configurer));
-            }
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (configurer == null) throw new ArgumentNullException(nameof(configurer));
 
             builder.AddTransformer(options => options.ServiceConfigurer = configurer);
             return builder;

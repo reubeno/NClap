@@ -23,6 +23,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoLogo(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Logo.Include = false);
             return builder;
         }
@@ -34,6 +36,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoDescription(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Description.Include = false);
             return builder;
         }
@@ -45,6 +49,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoSyntaxSummary(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Syntax.Include = false);
             return builder;
         }
@@ -56,6 +62,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoEnumValues(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.EnumValues.Include = false);
             return builder;
         }
@@ -67,6 +75,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> NoExamples(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Examples.Include = false);
             return builder;
         }
@@ -79,6 +89,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> Color(this FluentBuilder<ArgumentSetHelpOptions> builder, bool useColor)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.UseColor = useColor);
             return builder;
         }
@@ -91,6 +103,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> MaxWidth(this FluentBuilder<ArgumentSetHelpOptions> builder, int maxWidth)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.MaxWidth = maxWidth);
             return builder;
         }
@@ -103,6 +117,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> EnumValueFlags(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentEnumValueHelpFlags flags)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.EnumValues.Flags = flags);
             return builder;
         }
@@ -115,6 +131,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> BlankLinesBetweenArguments(this FluentBuilder<ArgumentSetHelpOptions> builder, int blankLineCount = 1)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Arguments.BlankLinesBetweenArguments = blankLineCount);
             return builder;
         }
@@ -127,6 +145,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> DefaultValues(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentDefaultValueHelpMode mode)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Arguments.DefaultValue = mode);
             return builder;
         }
@@ -139,6 +159,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ShortNames(this FluentBuilder<ArgumentSetHelpOptions> builder, ArgumentShortNameHelpMode mode)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Arguments.ShortName = mode);
             return builder;
         }
@@ -150,6 +172,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> OneColumnLayout(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Arguments.Layout = new OneColumnArgumentHelpLayout());
             return builder;
         }
@@ -161,6 +185,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> TwoColumnLayout(this FluentBuilder<ArgumentSetHelpOptions> builder)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options => options.Arguments.Layout = new TwoColumnArgumentHelpLayout());
             return builder;
         }
@@ -173,6 +199,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ColumnWidths(this FluentBuilder<ArgumentSetHelpOptions> builder, params int[] widths)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options =>
             {
                 if (options.Arguments.Layout is TwoColumnArgumentHelpLayout layout)
@@ -204,6 +232,8 @@ namespace NClap.Help
         /// <returns>The updated builder.</returns>
         public static FluentBuilder<ArgumentSetHelpOptions> ColumnSeparator(this FluentBuilder<ArgumentSetHelpOptions> builder, string defaultSeparator, string firstLineSeparator = null)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
             builder.AddTransformer(options =>
             {
                 if (options.Arguments.Layout is TwoColumnArgumentHelpLayout layout)

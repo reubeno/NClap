@@ -156,6 +156,8 @@ namespace NClap.Parser
         /// <param name="args">Arguments to define.</param>
         public void Add(IEnumerable<ArgumentDefinition> args)
         {
+            if (args == null) throw new ArgumentNullException(nameof(args));
+
             // Index the descriptors.
             foreach (var arg in args)
             {
@@ -211,6 +213,8 @@ namespace NClap.Parser
         /// <param name="attrib">Attribute to add.</param>
         public void AddAuxiliaryAttribute(ArgumentSetAttribute attrib)
         {
+            if (attrib == null) throw new ArgumentNullException(nameof(attrib));
+
             attrib.Validate();
             _auxiliaryAttributes.Add(attrib);
         }

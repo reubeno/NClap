@@ -47,3 +47,6 @@ static NClap.Help.ArgumentSetHelpOptionsExtensions.NoLogo(this NClap.Utilities.F
 static NClap.Help.ArgumentSetHelpOptionsExtensions.NoSyntaxSummary(this NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions> builder) -> NClap.Utilities.FluentBuilder<NClap.Help.ArgumentSetHelpOptions>
 static NClap.Parser.AttributeBasedArgumentDefinitionFactory.AddToArgumentSet(NClap.Parser.ArgumentSetDefinition argSet, System.Type typeToReflectOn, object defaultValues = null, object fixedDestination = null, NClap.Parser.ArgumentDefinition containingArgument = null, NClap.ServiceConfigurer serviceConfigurer = null) -> void
 static NClap.Parser.AttributeBasedArgumentDefinitionFactory.CreateArgumentSet(System.Type typeToReflectOn, NClap.Metadata.ArgumentSetAttribute attribute = null, object defaultValues = null, object fixedDestination = null, NClap.ServiceConfigurer serviceConfigurer = null) -> NClap.Parser.ArgumentSetDefinition
+NClap.Utilities.ColoredString.ColoredString() -> void
+NClap.Utilities.Substring.Substring() -> void
+NClap.Utilities.Token.Token() -> void

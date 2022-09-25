@@ -344,7 +344,7 @@ namespace NClap.Parser
         /// </summary>
         /// <param name="destination">Output object.</param>
         /// <param name="parseResult">Parse result.</param>
-        /// <returns>Parse result.</returns>
+        /// <returns>The parse result.</returns>
         public ArgumentSetParseResult Finalize(object destination, ArgumentSetParseResult parseResult)
         {
             // Finalize all arguments: named args first, then positional default args.

@@ -409,8 +409,7 @@ namespace NClap.Parser
 
         private void ReportLine(string message, params object[] args)
         {
-            Debug.Assert(Reporter != null);
-            Reporter?.Invoke(new ColoredMultistring(
+            Reporter.Invoke(new ColoredMultistring(
                 new[]
                 {
                     new ColoredString(
