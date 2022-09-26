@@ -23,7 +23,9 @@ RUN curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-p
         dotnet-sdk-3.1 \
     && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    \
+    rm -rf /tmp/work
 
 # Switch to non-root user
 USER vscode
@@ -51,7 +53,9 @@ RUN curl https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-musl_0.22.
     sudo mv ./completions/exa.zsh /usr/share/zsh/vendor-completions/_exa && \
     \
     curl https://get.trunk.io -fsSL | sudo bash -s - -y && \
-    sudo chmod a+r /usr/local/bin/trunk
+    sudo chmod a+r /usr/local/bin/trunk && \
+    \
+    rm -rf /tmp/work
 
 # Use zsh as the default shell
 ENV SHELL /bin/zsh
