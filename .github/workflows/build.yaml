@@ -74,6 +74,17 @@ jobs:
       - name: "Package (release)"
         run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
 
+      - name: "Install: mono"
+        run: |
+          sudo apt install -y gnupg ca-certificates
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt update
+          sudo apt install -y mono-devel
+
+      - name: "Test: .NET Framework 4.6.1 (via mono)"
+        run: dotnet test src/Tests/UnitTests/bin/Release/net461/NClap.Tests.dll
+
       - name: "Test: .NET Core 3.1"
         run: dotnet test src/NClap.sln --no-build --no-restore -c Release --verbosity normal -f netcoreapp3.1
 

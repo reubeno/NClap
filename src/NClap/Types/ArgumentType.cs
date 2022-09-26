@@ -174,7 +174,7 @@ namespace NClap.Types
         /// </summary>
         public static IArgumentType Single => Float;
 
-        private static readonly Dictionary<Guid, IArgumentType> BuiltInTypes = new Dictionary<Guid, IArgumentType>();
+        private static readonly Dictionary<string, IArgumentType> BuiltInTypes = new Dictionary<string, IArgumentType>();
 
         /// <summary>
         /// Static constructor, responsible for internally registering all
@@ -213,7 +213,7 @@ namespace NClap.Types
 
             foreach (var type in types)
             {
-                BuiltInTypes.Add(type.Type.GetTypeInfo().GUID, type);
+                BuiltInTypes.Add(type.Type.GetTypeInfo().AssemblyQualifiedName, type);
             }
         }
 
@@ -332,6 +332,6 @@ namespace NClap.Types
         }
 
         private static bool TryGetBuiltInType(Type type, out IArgumentType argType) =>
-            BuiltInTypes.TryGetValue(type.GetTypeInfo().GUID, out argType);
+            BuiltInTypes.TryGetValue(type.GetTypeInfo().AssemblyQualifiedName, out argType);
     }
 }
