@@ -4,8 +4,14 @@ FROM mcr.microsoft.com/vscode/devcontainers/dotnet:6.0-focal
 # Make sure pipe failures trigger build failures
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# Add ppa for .NET components from Microsoft
 # Install native components
-RUN apt-get update && \
+WORKDIR /tmp/work
+RUN curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -L --output ./packages-microsoft-prod.deb && \
+    dpkg -i ./packages-microsoft-prod.deb && \
+    rm ./packages-microsoft-prod.deb && \
+    \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
         dos2unix \
@@ -13,6 +19,8 @@ RUN apt-get update && \
         gnupg2 \
         sudo \
         zsh \
+        \
+        dotnet-sdk-3.1 \
     && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
