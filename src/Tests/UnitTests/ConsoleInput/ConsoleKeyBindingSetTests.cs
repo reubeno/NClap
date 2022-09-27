@@ -73,8 +73,7 @@ namespace NClap.Tests.ConsoleInput
             lookupAction.Should().Throw<KeyNotFoundException>();
 
             var pairs = bindings.ToList();
-            pairs.Should().ContainSingle();
-            pairs.Should().Equal(new KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>(keyInfo, op));
+            pairs.Should().ContainSingle().Which.Equals(new KeyValuePair<ConsoleKeyInfo, ConsoleInputOperation>(keyInfo, op));
         }
 
         [TestMethod]
