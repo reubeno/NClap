@@ -13,8 +13,7 @@ namespace MultilevelCommandApp
         {
             Console.WriteLine("Setting up logging...");
 
-            var loggerFactory = new LoggerFactory()
-                .AddConsole(LogLevel.Debug);
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Debug));
 
             var logger = loggerFactory.CreateLogger<Program>();
 
