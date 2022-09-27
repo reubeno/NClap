@@ -13,7 +13,7 @@ namespace NClap.Tests.Metadata
         public void TestThatUnimplementedCommandAlwaysReturnsCorrectCode()
         {
             var command = new UnimplementedCommand();
-            command.Awaiting(c => c.ExecuteAsync(CancellationToken.None)).Should().Throw<NotImplementedException>();
+            command.Awaiting(c => c.ExecuteAsync(CancellationToken.None)).Should().ThrowAsync<NotImplementedException>();
             command.Invoking(c => c.Execute()).Should().Throw<NotImplementedException>();
         }
     }
