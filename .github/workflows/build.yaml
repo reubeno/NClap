@@ -169,6 +169,9 @@ jobs:
       - name: "Package (release)"
         run: dotnet pack src/NClap.sln --no-build --no-restore -c Release
 
+      - name: "Configure"
+        run: Set-WinUserLanguageList -LanguageList en-GB -Force
+
       - name: "Test: .NET Framework 4.6.1"
         run: dotnet test src/Tests/UnitTests/bin/Release/net461/NClap.Tests.dll
 
