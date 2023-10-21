@@ -87,7 +87,7 @@ namespace NClap.Metadata
         [PositionalArgument(ArgumentFlags.Required, Position = 0, LongName = nameof(Command))]
         public TCommandType? Selection
         {
-            get => (TCommandType)SelectedCommand;
+            get => (TCommandType?)SelectedCommand;
             set => SelectedCommand = value.HasValue ? (object)value.Value : null;
         }
 
